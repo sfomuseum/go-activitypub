@@ -9,6 +9,7 @@ require (
 	github.com/sfomuseum/go-flags v0.10.0
 	github.com/sfomuseum/runtimevar v1.1.4
 	gocloud.dev v0.36.0
+	golang.org/x/crypto v0.17.0
 )
 
 require (

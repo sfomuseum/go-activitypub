@@ -1,4 +1,5 @@
 package activitypub
 
-type Subscriber interface {
+type Subscriber struct {
+	Actor string `json:"actor"`
 }

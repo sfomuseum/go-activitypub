@@ -7,6 +7,7 @@ import (
 )
 
 type Actor struct {
+	Id            string `json:"id"`
 	PublicKeyURI  string `json:"public_key_uri"`
 	PrivateKeyURI string `json:"private_key_uri"`
 }

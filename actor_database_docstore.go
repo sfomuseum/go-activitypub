@@ -39,7 +39,7 @@ func NewDocstoreActorDatabase(ctx context.Context, uri string) (ActorDatabase, e
 	return db, nil
 }
 
-func AddActor(ctx context.Context, a *Actor) error {
+func (db *DocstoreActorDatabase) AddActor(ctx context.Context, a *Actor) error {
 
 	return nil
 }
