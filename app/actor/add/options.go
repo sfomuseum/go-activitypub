@@ -8,8 +8,8 @@ import (
 )
 
 type RunOptions struct {
-	DatabaseURI string
-	ActorId     string
+	ActorDatabaseURI string
+	ActorId          string
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -17,8 +17,8 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	flagset.Parse(fs)
 
 	opts := &RunOptions{
-		DatabaseURI: database_uri,
-		ActorId:     actor_id,
+		ActorDatabaseURI: actor_database_uri,
+		ActorId:          actor_id,
 	}
 
 	return opts, nil

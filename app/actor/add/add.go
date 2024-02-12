@@ -31,7 +31,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	slog.SetDefault(logger)
 
-	db, err := activitypub.NewActorDatabase(ctx, opts.DatabaseURI)
+	db, err := activitypub.NewActorDatabase(ctx, opts.ActorDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new database, %w", err)

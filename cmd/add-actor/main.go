@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/sfomuseum/go-activitypub/app/actor/add"
 	_ "gocloud.dev/docstore/memdocstore"
 )
