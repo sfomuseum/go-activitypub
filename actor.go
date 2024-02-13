@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sfomuseum/go-activitypub/webfinger"
 	"github.com/sfomuseum/runtimevar"
 )
 
@@ -16,9 +17,33 @@ type Actor struct {
 	LastModified  int64  `json:"lastmodified"`
 }
 
-func (a *Actor) Webfinger() (*Webfinger, error) {
-	wf := &Webfinger{}
-	return wf, nil
+func (a *Actor) WebfingerResource() (*webfinger.Resource, error) {
+
+	subject := fmt.Sprintf("acct:%s", a.Id)
+
+	profile_link := webfinger.Link{
+		Rel:  "http://webfinger.net/rel/profile-page",
+		Type: "text/html",
+		HRef: fmt.Sprintf("/u/%s", a.Id),
+	}
+
+	activity_link := webfinger.Link{
+		Rel:  "self",
+		Type: "application/activity+json",
+		HRef: fmt.Sprintf("/u/%s/activity", a.Id),
+	}
+
+	links := []webfinger.Link{
+		profile_link,
+		activity_link,
+	}
+
+	r := &webfinger.Resource{
+		Subject: subject,
+		Links:   links,
+	}
+
+	return r, nil
 }
 
 func (a *Actor) PublicKey(ctx context.Context) (string, error) {

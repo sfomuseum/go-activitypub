@@ -57,3 +57,36 @@ func (db *SQLActorDatabase) AddActor(ctx context.Context, a *Actor) error {
 
 	return nil
 }
+
+func (db *SQLActorDatabase) GetActor(ctx context.Context, id string) (*Actor, error) {
+
+	var public_key_uri string
+	var private_key_uri string
+	var created int64
+	var lastmod int64
+
+	q := fmt.Sprintf("SELECT public_key_uri, private_key_uri, created, lastmodified FROM %s WHERE id=?", SQL_ACTORS_TABLE_NAME)
+
+	row := db.database.QueryRowContext(ctx, q, id)
+
+	err := row.Scan(&public_key_uri, &private_key_uri, &created, &lastmod)
+
+	switch {
+	case err == sql.ErrNoRows:
+		return nil, err
+	case err != nil:
+		return nil, err
+	default:
+		//
+	}
+
+	a := &Actor{
+		Id:            id,
+		PublicKeyURI:  public_key_uri,
+		PrivateKeyURI: private_key_uri,
+		Created:       created,
+		LastModified:  lastmod,
+	}
+
+	return a, nil
+}

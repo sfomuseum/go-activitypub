@@ -47,7 +47,7 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		wf, err := a.Webfinger()
+		wf, err := a.WebfingerResource()
 
 		if err != nil {
 			slog.Error("Failed to derive webfinger response for resource", "error", err)
