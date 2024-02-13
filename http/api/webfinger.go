@@ -49,7 +49,7 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		wf, err := a.WebfingerResource(opts.URIs)
+		wf, err := a.WebfingerResource(ctx, opts.URIs)
 
 		if err != nil {
 			slog.Error("Failed to derive webfinger response for resource", "error", err)

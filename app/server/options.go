@@ -36,6 +36,8 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	uris_table := &activitypub.URIs{
 		Profile:  "/profile/",
 		Activity: "/actvity/",
+		Id:       "/",
+		Inbox:    "/inbox/",
 	}
 
 	opts := &RunOptions{

@@ -2,10 +2,11 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
+	"path/filepath"
 
-	"github.com/aaronland/go-http-sanitize"
 	"github.com/sfomuseum/go-activitypub"
 )
 
@@ -25,19 +26,12 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 		logger = logger.With("path", req.URL.Path)
 		logger = logger.With("remote_addr", req.RemoteAddr)
 
-		resource, err := sanitize.GetString(req, "resource")
+		// START OF TBD...
 
-		if err != nil {
-			slog.Error("Failed to derive ?resource= parameter", "error", err)
-			http.Error(rsp, "Bad request", http.StatusBadRequest)
-			return
-		}
+		actor_name := filepath.Base(req.URL.Path)
+		resource := fmt.Sprintf("%s@%s", actor_name, opts.Hostname)
 
-		if resource == "" {
-			slog.Error("Empty ?resource= parameter")
-			http.Error(rsp, "Bad request", http.StatusBadRequest)
-			return
-		}
+		// END OF TBD...
 
 		logger = logger.With("resource", resource)
 
@@ -49,7 +43,7 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		wf, err := a.ProfileResource(opts.Hostname, opts.URIs)
+		wf, err := a.ProfileResource(ctx, opts.Hostname, opts.URIs)
 
 		if err != nil {
 			slog.Error("Failed to derive profile response for resource", "error", err)

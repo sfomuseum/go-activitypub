@@ -40,7 +40,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	run_opts = v
 
 	handlers := map[string]handler.RouteHandlerFunc{
-		"/.webfinger": webfingerHandlerFunc,
+		"/.webfinger":         webfingerHandlerFunc,
+		run_opts.URIs.Profile: profileHandlerFunc,
 	}
 
 	log_logger := slog.NewLogLogger(logger.Handler(), slog.LevelInfo)

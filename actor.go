@@ -25,7 +25,7 @@ func (a *Actor) String() string {
 	return a.Id
 }
 
-func (a *Actor) WebfingerResource(uris_table *URIs) (*webfinger.Resource, error) {
+func (a *Actor) WebfingerResource(ctx context.Context, uris_table *URIs) (*webfinger.Resource, error) {
 
 	id, hostname, err := ParseActorURI(a.Id)
 
@@ -70,8 +70,51 @@ func (a *Actor) WebfingerResource(uris_table *URIs) (*webfinger.Resource, error)
 	return r, nil
 }
 
-func (a *Actor) ProfileResource(hostname string, uris_table *URIs) (*profile.Resource, error) {
-	return nil, fmt.Errorf("Not implmented")
+func (a *Actor) ProfileResource(ctx context.Context, hostname string, uris_table *URIs) (*profile.Resource, error) {
+
+	id, _, err := ParseActorURI(a.Id)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse actor URI, %w", err)
+	}
+
+	id_url := &url.URL{}
+	id_url.Scheme = "https"
+	id_url.Host = hostname
+	id_url.Path = filepath.Join(uris_table.Id, id)
+
+	inbox_url := &url.URL{}
+	inbox_url.Scheme = "https"
+	inbox_url.Host = hostname
+	inbox_url.Path = filepath.Join(uris_table.Inbox, id)
+
+	pem, err := runtimevar.StringVar(ctx, a.PublicKeyURI)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read public key URI, %w", err)
+	}
+
+	pub_key := profile.PublicKey{
+		Id:    id_url.String() + "#main-key",
+		Owner: id_url.String(),
+		PEM:   pem,
+	}
+
+	context := []string{
+		"https://www.w3.org/ns/activitystreams",
+		"https://w3id.org/security/v1",
+	}
+
+	pr := &profile.Resource{
+		Context:           context,
+		Id:                id_url.String(),
+		Type:              "Person",
+		PreferredUsername: id,
+		Inbox:             inbox_url.String(),
+		PublicKey:         pub_key,
+	}
+
+	return pr, nil
 }
 
 func (a *Actor) PublicKey(ctx context.Context) (string, error) {
