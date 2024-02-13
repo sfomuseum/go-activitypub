@@ -3,8 +3,12 @@ package activitypub
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"path/filepath"
+	"strings"
 	"time"
 
+	"github.com/sfomuseum/go-activitypub/profile"
 	"github.com/sfomuseum/go-activitypub/webfinger"
 	"github.com/sfomuseum/runtimevar"
 )
@@ -17,20 +21,40 @@ type Actor struct {
 	LastModified  int64  `json:"lastmodified"`
 }
 
-func (a *Actor) WebfingerResource() (*webfinger.Resource, error) {
+func (a *Actor) String() string {
+	return a.Id
+}
+
+func (a *Actor) WebfingerResource(uris_table *URIs) (*webfinger.Resource, error) {
+
+	id, hostname, err := ParseActorURI(a.Id)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse actor URI, %w", err)
+	}
 
 	subject := fmt.Sprintf("acct:%s", a.Id)
+
+	profile_url := &url.URL{}
+	profile_url.Scheme = "https"
+	profile_url.Host = hostname
+	profile_url.Path = filepath.Join(uris_table.Profile, id)
+
+	activity_url := &url.URL{}
+	activity_url.Scheme = "https"
+	activity_url.Host = hostname
+	activity_url.Path = filepath.Join(uris_table.Activity, id)
 
 	profile_link := webfinger.Link{
 		Rel:  "http://webfinger.net/rel/profile-page",
 		Type: "text/html",
-		HRef: fmt.Sprintf("/u/%s", a.Id),
+		HRef: profile_url.String(),
 	}
 
 	activity_link := webfinger.Link{
 		Rel:  "self",
 		Type: "application/activity+json",
-		HRef: fmt.Sprintf("/u/%s/activity", a.Id),
+		HRef: activity_url.String(),
 	}
 
 	links := []webfinger.Link{
@@ -44,6 +68,10 @@ func (a *Actor) WebfingerResource() (*webfinger.Resource, error) {
 	}
 
 	return r, nil
+}
+
+func (a *Actor) ProfileResource(hostname string, uris_table *URIs) (*profile.Resource, error) {
+	return nil, fmt.Errorf("Not implmented")
 }
 
 func (a *Actor) PublicKey(ctx context.Context) (string, error) {
@@ -89,4 +117,15 @@ func UpdateActor(ctx context.Context, db ActorDatabase, a *Actor) (*Actor, error
 	}
 
 	return a, nil
+}
+
+func ParseActorURI(uri string) (string, string, error) {
+
+	parts := strings.Split(uri, "@")
+
+	if len(parts) != 2 {
+		return "", "", fmt.Errorf("Invalid address")
+	}
+
+	return parts[0], parts[1], nil
 }

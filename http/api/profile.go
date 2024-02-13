@@ -9,13 +9,13 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 )
 
-type WebfingerHandlerOptions struct {
+type ProfileHandlerOptions struct {
 	ActorDatabase activitypub.ActorDatabase
 	URIs          *activitypub.URIs
 	Hostname      string
 }
 
-func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
+func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 
 	fn := func(rsp http.ResponseWriter, req *http.Request) {
 
@@ -49,21 +49,21 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		wf, err := a.WebfingerResource(opts.URIs)
+		wf, err := a.ProfileResource(opts.Hostname, opts.URIs)
 
 		if err != nil {
-			slog.Error("Failed to derive webfinger response for resource", "error", err)
+			slog.Error("Failed to derive profile response for resource", "error", err)
 			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
-		rsp.Header().Set("Content-type", "application/jrd+json")
+		rsp.Header().Set("Content-type", "application/activity+json")
 
 		enc := json.NewEncoder(rsp)
 		err = enc.Encode(wf)
 
 		if err != nil {
-			slog.Error("Failed to encode webfinger response for resource", "error", err)
+			slog.Error("Failed to encode profile response for resource", "error", err)
 			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
 		}

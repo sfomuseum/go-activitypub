@@ -20,6 +20,8 @@ func webfingerHandlerFunc(ctx context.Context) (http.Handler, error) {
 
 	opts := &api.WebfingerHandlerOptions{
 		ActorDatabase: actor_db,
+		URIs:          run_opts.URIs,
+		Hostname:      run_opts.Hostname,
 	}
 
 	return api.WebfingerHandler(opts)

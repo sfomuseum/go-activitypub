@@ -4,4 +4,4 @@ CREATE TABLE actors (
        public_key_uri TEXT,
        created INTEGER,
        lastmodified INTEGER
-);       
+);

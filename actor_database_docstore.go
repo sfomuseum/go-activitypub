@@ -38,8 +38,3 @@ func NewDocstoreActorDatabase(ctx context.Context, uri string) (ActorDatabase, e
 
 	return db, nil
 }
-
-func (db *DocstoreActorDatabase) AddActor(ctx context.Context, a *Actor) error {
-
-	return nil
-}
