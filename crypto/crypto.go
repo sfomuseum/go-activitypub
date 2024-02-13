@@ -1,61 +1,36 @@
 package crypto
 
-// Not clear this is the correct crypto but it's enough to start testing things until we
-// get to the crypto part...
-
-// https://gist.github.com/goliatone/e9c13e5f046e34cef6e150d06f20a34c
-
 import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"golang.org/x/crypto/ssh"
+	"fmt"
 )
 
-// GeneratePrivateKey creates a RSA Private Key of specified byte size
-func GeneratePrivateKey(bitSize int) (*rsa.PrivateKey, error) {
-	// Private Key generation
-	privateKey, err := rsa.GenerateKey(rand.Reader, bitSize)
+func GenerateKeyPair(sz int) ([]byte, []byte, error) {
+
+	key, err := rsa.GenerateKey(rand.Reader, sz)
+
 	if err != nil {
-		return nil, err
+		return nil, nil, fmt.Errorf("Failed to generate key, %w", err)
 	}
 
-	// Validate Private Key
-	err = privateKey.Validate()
-	if err != nil {
-		return nil, err
-	}
+	pub := key.Public()
 
-	return privateKey, nil
-}
+	keyPEM := pem.EncodeToMemory(
+		&pem.Block{
+			Type:  "RSA PRIVATE KEY",
+			Bytes: x509.MarshalPKCS1PrivateKey(key),
+		},
+	)
 
-// EncodePrivateKeyToPEM encodes Private Key from RSA to PEM format
-func EncodePrivateKeyToPEM(privateKey *rsa.PrivateKey) []byte {
-	// Get ASN.1 DER format
-	privDER := x509.MarshalPKCS1PrivateKey(privateKey)
+	pubPEM := pem.EncodeToMemory(
+		&pem.Block{
+			Type:  "RSA PUBLIC KEY",
+			Bytes: x509.MarshalPKCS1PublicKey(pub.(*rsa.PublicKey)),
+		},
+	)
 
-	// pem.Block
-	privBlock := pem.Block{
-		Type:    "RSA PRIVATE KEY",
-		Headers: nil,
-		Bytes:   privDER,
-	}
-
-	// Private key in PEM format
-	privatePEM := pem.EncodeToMemory(&privBlock)
-
-	return privatePEM
-}
-
-// GeneratePublicKey take a rsa.PrivateKey and return bytes suitable for writing to .pub file
-// returns in the format "ssh-rsa ..."
-func GeneratePublicKey(privatekey *rsa.PublicKey) ([]byte, error) {
-	publicRsaKey, err := ssh.NewPublicKey(privatekey)
-	if err != nil {
-		return nil, err
-	}
-
-	pubKeyBytes := ssh.MarshalAuthorizedKey(publicRsaKey)
-	return pubKeyBytes, nil
+	return keyPEM, pubPEM, nil
 }

@@ -37,19 +37,10 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to create new database, %w", err)
 	}
 
-	private_key, err := crypto.GeneratePrivateKey(4096)
+	private_pem, public_pem, err := crypto.GenerateKeyPair(4096)
 
 	if err != nil {
 		return fmt.Errorf("Failed to generate private key, %w", err)
-	}
-
-	private_pem := crypto.EncodePrivateKeyToPEM(private_key)
-
-	// Is thi really PEM...?
-	public_pem, err := crypto.GeneratePublicKey(&private_key.PublicKey)
-
-	if err != nil {
-		return fmt.Errorf("Failed to generate public key, %w", err)
 	}
 
 	private_key_uri := fmt.Sprintf("constant://?val=%s", url.QueryEscape(string(private_pem)))
