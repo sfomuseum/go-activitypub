@@ -61,7 +61,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		PublicKeyURI:  public_key_uri,
 	}
 
-	err = db.AddActor(ctx, a)
+	a, err = activitypub.AddActor(ctx, db, a)
 
 	if err != nil {
 		return fmt.Errorf("Failed to add new actor, %w", err)

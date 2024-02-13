@@ -7,6 +7,8 @@ import (
 	"net/url"
 )
 
+const SQL_ACTORS_TABLE_NAME string = "actors"
+
 type SQLActorDatabase struct {
 	ActorDatabase
 	database *sql.DB
@@ -44,6 +46,14 @@ func NewSQLActorDatabase(ctx context.Context, uri string) (ActorDatabase, error)
 }
 
 func (db *SQLActorDatabase) AddActor(ctx context.Context, a *Actor) error {
+
+	q := fmt.Sprintf("INSERT INTO %s (id, public_key_uri, private_key_uri, created, lastmodified) VALUES (?, ?, ?, ?, ?)", SQL_ACTORS_TABLE_NAME)
+
+	_, err := db.database.ExecContext(ctx, q, a.Id, a.PublicKeyURI, a.PrivateKeyURI, a.Created, a.LastModified)
+
+	if err != nil {
+		return fmt.Errorf("Failed to add actor, %w", err)
+	}
 
 	return nil
 }

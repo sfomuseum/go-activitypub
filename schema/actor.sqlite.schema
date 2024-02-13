@@ -1,0 +1,7 @@
+CREATE TABLE actors (
+       id TEXT PRIMARY KEY,
+       private_key_uri TEXT,
+       public_key_uri TEXT,
+       created INTEGER,
+       lastmodified INTEGER
+);       
