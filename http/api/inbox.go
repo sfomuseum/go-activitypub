@@ -7,19 +7,16 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/google/uuid"
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/signature"
 )
 
 // https://paul.kinlan.me/adding-activity-pub-to-your-static-site/
 // https://socialhub.activitypub.rocks/t/understanding-the-activity-pub-follow-request-flow/3033
 
-type InboxActivity struct {
-	Context string `json:"@context"`
-	Id      string `json:"id"`
-	Type    string `json:"type"`
-	Actor   string `json:"actor"`
-	Object  string `json:"object"`
-}
+// https://github.com/go-fed/httpsig
 
 type InboxHandlerOptions struct {
 	ActorDatabase activitypub.ActorDatabase
@@ -56,9 +53,55 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 
 		logger.Info("ACTOR", "a", a)
 
-		var activity *InboxActivity
+		// START OF verify request
+		
+		// https://github.com/cbodonnell/go-pub/blob/07b0ca374c28f729bee2aaaae55461d54a09fc4c/handlers.go
+		// https://github.com/go-fed/httpsig
 
-		dec := json.NewDecoder(req.Body)
+		// https://blog.joinmastodon.org/2018/07/how-to-make-friends-and-verify-requests/
+
+		sig, err := signature.ParseFromRequest(req)
+
+		if err != nil {
+			slog.Error("Failed to parse signature", "error", err)
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		logger = logger.With("key id", sig.KeyId)
+
+		other_rsp, err := http.Get(sig.KeyId)
+
+		if err != nil {
+			slog.Error("Failed to retrieve key ID", "keyId", sig.KeyId)
+			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		defer other_rsp.Body.Close()
+
+		var other_actor *ap.Actor
+
+		dec := json.NewDecoder(other_rsp.Body)
+		err = dec.Decode(&other_actor)
+
+		if err != nil {
+			slog.Error("Failed to other actor", "error", err)
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		if other_actor.PublicKey.PEM == "" {
+			slog.Error("Other actor missing public key")
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		// END OF verify request
+		
+		var activity *ap.Activity
+
+		dec = json.NewDecoder(req.Body)
 		err = dec.Decode(&activity)
 
 		if err != nil {
@@ -66,6 +109,14 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 			http.Error(rsp, "Bad request", http.StatusBadRequest)
 			return
 		}
+
+		//
+
+		//
+
+		guid := uuid.New()
+
+		logger.Info(guid.String())
 
 		switch activity.Type {
 		case "Follow":

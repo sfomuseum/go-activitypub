@@ -1,12 +1,6 @@
 # github.com/aaronland/go-aws-auth v1.3.0
 ## explicit; go 1.22rc2
 github.com/aaronland/go-aws-auth
-# github.com/aaronland/go-aws-dynamodb v0.0.5
-## explicit; go 1.18
-github.com/aaronland/go-aws-dynamodb
-# github.com/aaronland/go-aws-session v0.0.6
-## explicit; go 1.12
-github.com/aaronland/go-aws-session
 # github.com/aaronland/go-http-sanitize v0.0.8
 ## explicit; go 1.12
 github.com/aaronland/go-http-sanitize
@@ -17,12 +11,6 @@ github.com/aaronland/go-http-server/handler
 # github.com/aaronland/go-roster v1.0.0
 ## explicit; go 1.16
 github.com/aaronland/go-roster
-# github.com/aaronland/go-string v0.1.2
-## explicit; go 1.12
-github.com/aaronland/go-string/dsn
-# github.com/aaronland/gocloud-docstore v0.0.5
-## explicit; go 1.18
-github.com/aaronland/gocloud-docstore
 # github.com/akrylysov/algnhsa v1.0.0
 ## explicit; go 1.18
 github.com/akrylysov/algnhsa
@@ -48,7 +36,6 @@ github.com/aws/aws-sdk-go/aws/credentials/endpointcreds
 github.com/aws/aws-sdk-go/aws/credentials/processcreds
 github.com/aws/aws-sdk-go/aws/credentials/ssocreds
 github.com/aws/aws-sdk-go/aws/credentials/stscreds
-github.com/aws/aws-sdk-go/aws/crr
 github.com/aws/aws-sdk-go/aws/csm
 github.com/aws/aws-sdk-go/aws/defaults
 github.com/aws/aws-sdk-go/aws/ec2metadata
@@ -73,9 +60,6 @@ github.com/aws/aws-sdk-go/private/protocol/query/queryutil
 github.com/aws/aws-sdk-go/private/protocol/rest
 github.com/aws/aws-sdk-go/private/protocol/restjson
 github.com/aws/aws-sdk-go/private/protocol/xml/xmlutil
-github.com/aws/aws-sdk-go/service/dynamodb
-github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute
-github.com/aws/aws-sdk-go/service/dynamodb/expression
 github.com/aws/aws-sdk-go/service/ssm
 github.com/aws/aws-sdk-go/service/sso
 github.com/aws/aws-sdk-go/service/sso/ssoiface
@@ -263,7 +247,6 @@ go.opencensus.io/trace/tracestate
 ## explicit; go 1.20
 gocloud.dev/aws
 gocloud.dev/docstore
-gocloud.dev/docstore/awsdynamodb
 gocloud.dev/docstore/driver
 gocloud.dev/docstore/internal/fields
 gocloud.dev/docstore/memdocstore
@@ -279,16 +262,6 @@ gocloud.dev/runtimevar/driver
 gocloud.dev/runtimevar/filevar
 gocloud.dev/secrets
 gocloud.dev/secrets/driver
-# golang.org/x/crypto v0.17.0
-## explicit; go 1.18
-golang.org/x/crypto/blowfish
-golang.org/x/crypto/chacha20
-golang.org/x/crypto/curve25519
-golang.org/x/crypto/curve25519/internal/field
-golang.org/x/crypto/internal/alias
-golang.org/x/crypto/internal/poly1305
-golang.org/x/crypto/ssh
-golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
 # golang.org/x/net v0.18.0
 ## explicit; go 1.18
 golang.org/x/net/http/httpguts
@@ -299,7 +272,6 @@ golang.org/x/net/internal/timeseries
 golang.org/x/net/trace
 # golang.org/x/sys v0.15.0
 ## explicit; go 1.18
-golang.org/x/sys/cpu
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 # golang.org/x/text v0.14.0
