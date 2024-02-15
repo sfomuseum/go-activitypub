@@ -33,12 +33,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		hostname = u.Host
 	}
 
-	uris_table := &activitypub.URIs{
-		Profile:  "/profile/",
-		Activity: "/actvity/",
-		Id:       "/",
-		Inbox:    "/inbox/",
-	}
+	uris_table := activitypub.DefaultURIs()
 
 	opts := &RunOptions{
 		ActorDatabaseURI: actor_database_uri,

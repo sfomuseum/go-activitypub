@@ -25,6 +25,22 @@ func (a *Actor) String() string {
 	return a.Id
 }
 
+func (a *Actor) ProfileURL(ctx context.Context, uris_table *URIs) (*url.URL, error) {
+
+	id, hostname, err := ParseActorURI(a.Id)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse actor URI, %w", err)
+	}
+
+	profile_url := &url.URL{}
+	profile_url.Scheme = "https"
+	profile_url.Host = hostname
+	profile_url.Path = filepath.Join(uris_table.Profile, id)
+
+	return profile_url, nil
+}
+
 func (a *Actor) WebfingerResource(ctx context.Context, uris_table *URIs) (*webfinger.Resource, error) {
 
 	id, hostname, err := ParseActorURI(a.Id)

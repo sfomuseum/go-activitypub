@@ -6,9 +6,8 @@ import (
 	"github.com/sfomuseum/go-flags/flagset"
 )
 
-var server_uri string
 var actor_database_uri string
-
+var server_uri string
 var hostname string
 
 func DefaultFlagSet() *flag.FlagSet {
