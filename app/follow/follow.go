@@ -79,13 +79,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	key_id := follower
 
-	private_key, err := acct.PrivateKey(ctx)
+	public_key, err := acct.PublicKey(ctx)
 
 	if err != nil {
 		return fmt.Errorf("Failed to get private key, %w", err)
 	}
 
-	err = httpsignatures.DefaultSha256Signer.SignRequest(key_id, private_key, http_req)
+	err = httpsignatures.DefaultSha256Signer.SignRequest(key_id, public_key, http_req)
 
 	if err != nil {
 		return fmt.Errorf("Failed to sign request, %w", err)

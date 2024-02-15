@@ -89,6 +89,8 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 		key_id := sig.KeyID
 		logger = logger.With("key id", key_id)
 
+		slog.Info("Fetch other", "key_id", key_id)
+
 		other_rsp, err := http.Get(key_id)
 
 		if err != nil {
@@ -111,6 +113,7 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 		}
 
 		key := other_actor.PublicKey.PEM
+		slog.Info("OTHER", "key", key)
 
 		if key == "" {
 			slog.Error("Other actor missing public key")
@@ -129,6 +132,7 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 		guid := uuid.New()
 		logger.Info(guid.String())
 
+		slog.Info("OKAY ACCEPT", "uuid", guid)
 	}
 
 	return http.HandlerFunc(fn), nil
