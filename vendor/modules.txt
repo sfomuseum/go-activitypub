@@ -1,3 +1,6 @@
+# github.com/99designs/httpsignatures-go v0.0.0-20170731043157-88528bf4ca7e
+## explicit
+github.com/99designs/httpsignatures-go
 # github.com/aaronland/go-aws-auth v1.3.0
 ## explicit; go 1.22rc2
 github.com/aaronland/go-aws-auth

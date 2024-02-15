@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/99designs/httpsignatures-go"
 	"github.com/google/uuid"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
-	"github.com/sfomuseum/go-activitypub/signature"
 )
 
 // https://paul.kinlan.me/adding-activity-pub-to-your-static-site/
@@ -53,55 +53,11 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 
 		logger.Info("ACTOR", "a", a)
 
-		// START OF verify request
-		
-		// https://github.com/cbodonnell/go-pub/blob/07b0ca374c28f729bee2aaaae55461d54a09fc4c/handlers.go
-		// https://github.com/go-fed/httpsig
-
-		// https://blog.joinmastodon.org/2018/07/how-to-make-friends-and-verify-requests/
-
-		sig, err := signature.ParseFromRequest(req)
-
-		if err != nil {
-			slog.Error("Failed to parse signature", "error", err)
-			http.Error(rsp, "Bad request", http.StatusBadRequest)
-			return
-		}
-
-		logger = logger.With("key id", sig.KeyId)
-
-		other_rsp, err := http.Get(sig.KeyId)
-
-		if err != nil {
-			slog.Error("Failed to retrieve key ID", "keyId", sig.KeyId)
-			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-			return
-		}
-
-		defer other_rsp.Body.Close()
-
-		var other_actor *ap.Actor
-
-		dec := json.NewDecoder(other_rsp.Body)
-		err = dec.Decode(&other_actor)
-
-		if err != nil {
-			slog.Error("Failed to other actor", "error", err)
-			http.Error(rsp, "Bad request", http.StatusBadRequest)
-			return
-		}
-
-		if other_actor.PublicKey.PEM == "" {
-			slog.Error("Other actor missing public key")
-			http.Error(rsp, "Bad request", http.StatusBadRequest)
-			return
-		}
-
 		// END OF verify request
-		
+
 		var activity *ap.Activity
 
-		dec = json.NewDecoder(req.Body)
+		dec := json.NewDecoder(req.Body)
 		err = dec.Decode(&activity)
 
 		if err != nil {
@@ -112,44 +68,66 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 
 		//
 
-		//
-
-		guid := uuid.New()
-
-		logger.Info(guid.String())
-
 		switch activity.Type {
-		case "Follow":
-		case "Undo":
+		case "Follow", "Undo":
 		default:
 			slog.Error("Unsupported activity type", "type", activity.Type)
 			http.Error(rsp, "Bad request", http.StatusBadRequest)
 			return
 		}
 
-		/*
+		// START OF verify request
 
-			https://paul.kinlan.me/adding-activity-pub-to-your-static-site/
+		sig, err := httpsignatures.FromRequest(req)
 
-			    Parse the POST body and cast it to an Activity object.
-			    Parse the signature of the request to verify the message hasn't been tampered with in transit.
-			    From the signature HTTP header get the Actor that wants to follow you and fetch their Public Key (from their Actor file).
-			    Verify the message with their Public Key
+		if err != nil {
+			slog.Error("Failed to derive signature from request", "error", err)
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
 
-			Now we believe that we have a valid messages.
+		key_id := sig.KeyID
+		logger = logger.With("key id", key_id)
 
-			If the message is a Follow request
+		other_rsp, err := http.Get(key_id)
 
-			    See if the Actor trying to follow is already in the db, if they are return;
-			    Add the Actor to the followers collection in FireStore
-			    Prepare an Accept message to the Actor indicating that the Follow has been accepted and send it.
+		if err != nil {
+			slog.Error("Failed to retrieve key ID", "error", err)
+			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 
-			If the message is an Undo for a Follow request.
+		defer other_rsp.Body.Close()
 
-			    Find the data in the followers collection in FireStore
-			    Delete it.
+		var other_actor *ap.Actor
 
-		*/
+		dec = json.NewDecoder(other_rsp.Body)
+		err = dec.Decode(&other_actor)
+
+		if err != nil {
+			slog.Error("Failed to other actor", "error", err)
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		key := other_actor.PublicKey.PEM
+
+		if key == "" {
+			slog.Error("Other actor missing public key")
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		if !sig.IsValid(key, req) {
+			slog.Error("Request failed verification", "error", err)
+			http.Error(rsp, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		// Actually do something
+
+		guid := uuid.New()
+		logger.Info(guid.String())
 
 	}
 

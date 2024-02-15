@@ -3,6 +3,7 @@ module github.com/sfomuseum/go-activitypub
 go 1.22.0
 
 require (
+	github.com/99designs/httpsignatures-go v0.0.0-20170731043157-88528bf4ca7e
 	github.com/aaronland/go-http-sanitize v0.0.8
 	github.com/aaronland/go-http-server v1.3.0
 	github.com/aaronland/go-roster v1.0.0

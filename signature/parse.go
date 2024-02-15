@@ -1,5 +1,6 @@
 package signature
 
+// https://datatracker.ietf.org/doc/html/draft-cavage-http-signatures-10#section-2.1
 // https://blog.joinmastodon.org/2018/07/how-to-make-friends-and-verify-requests/
 
 import (
@@ -16,10 +17,18 @@ type Signature struct {
 	KeyId     string `json:"keyId"`
 	Headers   string `json:"headers"`
 	Signature string `json:"signature"`
+	Algorithm string `json:"algorithm,omitempty"`
 }
 
 func (s *Signature) String() string {
-	return fmt.Sprintf(`Signature: keyId="%s",headers="%s",signature="%s"`, s.KeyId, s.Headers, s.Signature)
+
+	str := fmt.Sprintf(`Signature: keyId="%s",headers="%s",signature="%s"`, s.KeyId, s.Headers, s.Signature)
+
+	if s.Algorithm != "" {
+		str = fmt.Sprintf(`%s,algorithm="%s"`, str, s.Algorithm)
+	}
+
+	return str
 }
 
 func ParseFromRequest(req *http.Request) (*Signature, error) {
