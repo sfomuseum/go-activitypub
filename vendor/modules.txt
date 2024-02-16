@@ -1,6 +1,3 @@
-# github.com/99designs/httpsignatures-go v0.0.0-20170731043157-88528bf4ca7e
-## explicit
-github.com/99designs/httpsignatures-go
 # github.com/aaronland/go-aws-auth v1.3.0
 ## explicit; go 1.22rc2
 github.com/aaronland/go-aws-auth
@@ -11,6 +8,13 @@ github.com/aaronland/go-http-sanitize
 ## explicit; go 1.18
 github.com/aaronland/go-http-server
 github.com/aaronland/go-http-server/handler
+# github.com/aaronland/go-pagination v0.2.0
+## explicit; go 1.16
+github.com/aaronland/go-pagination
+github.com/aaronland/go-pagination/countable
+# github.com/aaronland/go-pagination-sql v0.2.0
+## explicit; go 1.16
+github.com/aaronland/go-pagination-sql
 # github.com/aaronland/go-roster v1.0.0
 ## explicit; go 1.16
 github.com/aaronland/go-roster
@@ -214,6 +218,9 @@ github.com/googleapis/gax-go/v2/internal
 # github.com/jmespath/go-jmespath v0.4.0
 ## explicit; go 1.14
 github.com/jmespath/go-jmespath
+# github.com/jtacoma/uritemplates v1.0.0
+## explicit
+github.com/jtacoma/uritemplates
 # github.com/mattn/go-sqlite3 v1.14.22
 ## explicit; go 1.19
 github.com/mattn/go-sqlite3

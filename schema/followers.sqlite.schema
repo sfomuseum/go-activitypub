@@ -1,0 +1,7 @@
+CREATE TABLE followers (
+       account_id TEXT,
+       follower_id TEXT,
+       created INTEGER
+);
+
+CREATE UNIQUE INDEX `by_account` ON followers (`account_id`, `follower_id`);

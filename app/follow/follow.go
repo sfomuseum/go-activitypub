@@ -67,6 +67,10 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to create follow activity, %w", err)
 	}
 
+	if opts.Undo {
+		follow_req.Type = "Undo"
+	}
+
 	enc_req, err := json.Marshal(follow_req)
 
 	if err != nil {

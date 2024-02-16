@@ -15,9 +15,10 @@ import (
 )
 
 type InboxHandlerOptions struct {
-	AccountsDatabase activitypub.AccountsDatabase
-	URIs             *activitypub.URIs
-	Hostname         string
+	AccountsDatabase  activitypub.AccountsDatabase
+	FollowersDatabase activitypub.FollowersDatabase
+	URIs              *activitypub.URIs
+	Hostname          string
 }
 
 func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
@@ -37,7 +38,7 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("resource", resource)
 
-		a, err := opts.AccountsDatabase.GetAccount(ctx, resource)
+		acct, err := opts.AccountsDatabase.GetAccount(ctx, resource)
 
 		if err != nil {
 			logger.Error("Failed to retrieve inbox for resource", "error", err)
@@ -45,7 +46,9 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		logger = logger.With("account", a)
+		logger = logger.With("account", acct.Id)
+
+		//
 
 		var activity *ap.Activity
 
@@ -58,15 +61,54 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		//
+		follower_id := activity.Actor
+		logger = logger.With("follower_id", follower_id)
+
+		if follower_id == acct.Id {
+			logger.Error("Can not follow yourself")
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
 
 		switch activity.Type {
-		case "Follow", "Undo":
+		case "Follow":
+
+			is_following, err := opts.FollowersDatabase.IsFollowing(ctx, follower_id, acct.Id)
+
+			if err != nil {
+				logger.Error("Failed to determine if following", "error", err)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			if is_following {
+				logger.Info("Already following")
+				return
+			}
+
+		case "Undo":
+
+			is_following, err := opts.FollowersDatabase.IsFollowing(ctx, follower_id, acct.Id)
+
+			if err != nil {
+				logger.Error("Failed to determine if following", "error", err)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			if !is_following {
+				logger.Info("Not following")
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
 		default:
 			logger.Error("Unsupported activity type", "type", activity.Type)
 			http.Error(rsp, "Bad request", http.StatusBadRequest)
 			return
 		}
+
+		logger = logger.With("activity-type", activity.Type)
 
 		// START OF verify request
 
@@ -134,6 +176,31 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 		// END OF put me in a function
 
 		// Actually do something
+
+		switch activity.Type {
+		case "Follow":
+
+			err = opts.FollowersDatabase.AddFollower(ctx, acct.Id, follower_id)
+
+			if err != nil {
+				logger.Error("Failed to add follower", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+		case "Undo":
+
+			err = opts.FollowersDatabase.RemoveFollower(ctx, acct.Id, follower_id)
+
+			if err != nil {
+				logger.Error("Failed to remove follower", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+		default:
+			// pass
+		}
 
 		guid := uuid.New()
 		logger.Info(guid.String())

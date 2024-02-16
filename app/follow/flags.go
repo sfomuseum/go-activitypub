@@ -15,6 +15,8 @@ var account_id string
 var follow string
 var inbox string
 
+var undo bool
+
 func DefaultFlagSet() *flag.FlagSet {
 
 	fs := flagset.NewFlagSet("follow")
@@ -28,5 +30,6 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&follow, "follow", "", "...")
 	fs.StringVar(&inbox, "inbox", "", "...")
 
+	fs.BoolVar(&undo, "undo", false, "...")
 	return fs
 }

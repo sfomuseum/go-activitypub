@@ -14,6 +14,7 @@ type RunOptions struct {
 	AccountsDatabaseURI string
 	AccountId           string
 	Follow              string
+	Undo                bool
 	Inbox               string
 	URIs                *activitypub.URIs
 }
@@ -30,6 +31,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		AccountsDatabaseURI: accounts_database_uri,
 		AccountId:           account_id,
 		Follow:              follow,
+		Undo:                undo,
 		Inbox:               inbox,
 		URIs:                uris_table,
 	}

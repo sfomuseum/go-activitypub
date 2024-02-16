@@ -20,3 +20,17 @@ func setupAccountsDatabase() {
 		return
 	}
 }
+
+func setupFollowersDatabase() {
+
+	ctx := context.Background()
+	var err error
+
+	// defined in vars.go
+	followers_db, err = activitypub.NewFollowersDatabase(ctx, run_opts.FollowersDatabaseURI)
+
+	if err != nil {
+		setupFollowersDatabaseError = fmt.Errorf("Failed to set up network, %w", err)
+		return
+	}
+}

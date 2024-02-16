@@ -3,9 +3,10 @@ module github.com/sfomuseum/go-activitypub
 go 1.22.0
 
 require (
-	github.com/99designs/httpsignatures-go v0.0.0-20170731043157-88528bf4ca7e
 	github.com/aaronland/go-http-sanitize v0.0.8
 	github.com/aaronland/go-http-server v1.3.0
+	github.com/aaronland/go-pagination v0.2.0
+	github.com/aaronland/go-pagination-sql v0.2.0
 	github.com/aaronland/go-roster v1.0.0
 	github.com/go-fed/httpsig v1.1.0
 	github.com/google/uuid v1.4.0
@@ -45,6 +46,7 @@ require (
 	github.com/google/wire v0.5.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/jtacoma/uritemplates v1.0.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/whosonfirst/go-sanitize v0.1.0 // indirect
 	go.opencensus.io v0.24.0 // indirect

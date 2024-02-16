@@ -12,10 +12,11 @@ import (
 )
 
 type RunOptions struct {
-	ServerURI           string
-	AccountsDatabaseURI string
-	Hostname            string
-	URIs                *activitypub.URIs
+	ServerURI            string
+	AccountsDatabaseURI  string
+	FollowersDatabaseURI string
+	Hostname             string
+	URIs                 *activitypub.URIs
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -36,10 +37,11 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	uris_table := activitypub.DefaultURIs()
 
 	opts := &RunOptions{
-		AccountsDatabaseURI: accounts_database_uri,
-		ServerURI:           server_uri,
-		Hostname:            hostname,
-		URIs:                uris_table,
+		AccountsDatabaseURI:  accounts_database_uri,
+		FollowersDatabaseURI: followers_database_uri,
+		ServerURI:            server_uri,
+		Hostname:             hostname,
+		URIs:                 uris_table,
 	}
 
 	return opts, nil
