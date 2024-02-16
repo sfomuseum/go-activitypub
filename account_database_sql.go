@@ -7,19 +7,19 @@ import (
 	"net/url"
 )
 
-const SQL_ACTORS_TABLE_NAME string = "actors"
+const SQL_ACCOUNTS_TABLE_NAME string = "accounts"
 
-type SQLActorDatabase struct {
-	ActorDatabase
+type SQLAccountDatabase struct {
+	AccountDatabase
 	database *sql.DB
 }
 
 func init() {
 	ctx := context.Background()
-	RegisterActorDatabase(ctx, "sql", NewSQLActorDatabase)
+	RegisterAccountDatabase(ctx, "sql", NewSQLAccountDatabase)
 }
 
-func NewSQLActorDatabase(ctx context.Context, uri string) (ActorDatabase, error) {
+func NewSQLAccountDatabase(ctx context.Context, uri string) (AccountDatabase, error) {
 
 	u, err := url.Parse(uri)
 
@@ -38,34 +38,34 @@ func NewSQLActorDatabase(ctx context.Context, uri string) (ActorDatabase, error)
 		return nil, fmt.Errorf("Failed to open database connection, %w", err)
 	}
 
-	db := &SQLActorDatabase{
+	db := &SQLAccountDatabase{
 		database: conn,
 	}
 
 	return db, nil
 }
 
-func (db *SQLActorDatabase) AddActor(ctx context.Context, a *Actor) error {
+func (db *SQLAccountDatabase) AddAccount(ctx context.Context, a *Account) error {
 
-	q := fmt.Sprintf("INSERT INTO %s (id, public_key_uri, private_key_uri, created, lastmodified) VALUES (?, ?, ?, ?, ?)", SQL_ACTORS_TABLE_NAME)
+	q := fmt.Sprintf("INSERT INTO %s (id, public_key_uri, private_key_uri, created, lastmodified) VALUES (?, ?, ?, ?, ?)", SQL_ACCOUNTS_TABLE_NAME)
 
 	_, err := db.database.ExecContext(ctx, q, a.Id, a.PublicKeyURI, a.PrivateKeyURI, a.Created, a.LastModified)
 
 	if err != nil {
-		return fmt.Errorf("Failed to add actor, %w", err)
+		return fmt.Errorf("Failed to add account, %w", err)
 	}
 
 	return nil
 }
 
-func (db *SQLActorDatabase) GetActor(ctx context.Context, id string) (*Actor, error) {
+func (db *SQLAccountDatabase) GetAccount(ctx context.Context, id string) (*Account, error) {
 
 	var public_key_uri string
 	var private_key_uri string
 	var created int64
 	var lastmod int64
 
-	q := fmt.Sprintf("SELECT public_key_uri, private_key_uri, created, lastmodified FROM %s WHERE id=?", SQL_ACTORS_TABLE_NAME)
+	q := fmt.Sprintf("SELECT public_key_uri, private_key_uri, created, lastmodified FROM %s WHERE id=?", SQL_ACCOUNTS_TABLE_NAME)
 
 	row := db.database.QueryRowContext(ctx, q, id)
 
@@ -80,7 +80,7 @@ func (db *SQLActorDatabase) GetActor(ctx context.Context, id string) (*Actor, er
 		//
 	}
 
-	a := &Actor{
+	a := &Account{
 		Id:            id,
 		PublicKeyURI:  public_key_uri,
 		PrivateKeyURI: private_key_uri,

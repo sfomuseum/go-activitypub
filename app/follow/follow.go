@@ -39,13 +39,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	slog.SetDefault(logger)
 
-	db, err := activitypub.NewActorDatabase(ctx, opts.AccountDatabaseURI)
+	db, err := activitypub.NewAccountDatabase(ctx, opts.AccountDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new database, %w", err)
 	}
 
-	acct, err := db.GetActor(ctx, opts.AccountId)
+	acct, err := db.GetAccount(ctx, opts.AccountId)
 
 	if err != nil {
 		return fmt.Errorf("Failed to retrieve account %s, %w", opts.AccountId, err)
@@ -90,20 +90,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to derive private key for account, %w", err)
 	}
 
-	/*
-		err = httpsignatures.DefaultSha256Signer.SignRequest(key_id, public_key, http_req)
-
-		if err != nil {
-			return fmt.Errorf("Failed to sign request, %w", err)
-		}
-
-		slog.Info("OK", "signature", http_req.Header.Get("Signature"))
-	*/
-
 	prefs := []httpsig.Algorithm{httpsig.RSA_SHA512, httpsig.RSA_SHA256}
 	digestAlgorithm := httpsig.DigestSha256
-
-	// The "Date" and "Digest" headers must already be set on r, as well as r.URL.
 
 	headersToSign := []string{
 		httpsig.RequestTarget,
@@ -132,9 +120,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	if err != nil {
 		return fmt.Errorf("Failed to sign request, %w", err)
 	}
-
-	slog.Info("SIG", http_req.Header.Get("Signature"))
-	return nil
 
 	http_cl := http.Client{}
 

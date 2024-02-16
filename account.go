@@ -3,20 +3,19 @@ package activitypub
 import (
 	"context"
 	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
 	"fmt"
 	"net/url"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/sfomuseum/go-activitypub/crypto"
 	"github.com/sfomuseum/go-activitypub/profile"
 	"github.com/sfomuseum/go-activitypub/webfinger"
 	"github.com/sfomuseum/runtimevar"
 )
 
-type Actor struct {
+type Account struct {
 	Id            string `json:"id"`
 	PublicKeyURI  string `json:"public_key_uri"`
 	PrivateKeyURI string `json:"private_key_uri"`
@@ -24,16 +23,16 @@ type Actor struct {
 	LastModified  int64  `json:"lastmodified"`
 }
 
-func (a *Actor) String() string {
+func (a *Account) String() string {
 	return a.Id
 }
 
-func (a *Actor) ProfileURL(ctx context.Context, uris_table *URIs) (*url.URL, error) {
+func (a *Account) ProfileURL(ctx context.Context, uris_table *URIs) (*url.URL, error) {
 
-	id, hostname, err := ParseActorURI(a.Id)
+	id, hostname, err := ParseAccountURI(a.Id)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to parse actor URI, %w", err)
+		return nil, fmt.Errorf("Failed to parse account URI, %w", err)
 	}
 
 	profile_url := &url.URL{}
@@ -44,12 +43,12 @@ func (a *Actor) ProfileURL(ctx context.Context, uris_table *URIs) (*url.URL, err
 	return profile_url, nil
 }
 
-func (a *Actor) WebfingerResource(ctx context.Context, uris_table *URIs) (*webfinger.Resource, error) {
+func (a *Account) WebfingerResource(ctx context.Context, uris_table *URIs) (*webfinger.Resource, error) {
 
-	id, hostname, err := ParseActorURI(a.Id)
+	id, hostname, err := ParseAccountURI(a.Id)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to parse actor URI, %w", err)
+		return nil, fmt.Errorf("Failed to parse account URI, %w", err)
 	}
 
 	subject := fmt.Sprintf("acct:%s", a.Id)
@@ -89,12 +88,12 @@ func (a *Actor) WebfingerResource(ctx context.Context, uris_table *URIs) (*webfi
 	return r, nil
 }
 
-func (a *Actor) ProfileResource(ctx context.Context, hostname string, uris_table *URIs) (*profile.Resource, error) {
+func (a *Account) ProfileResource(ctx context.Context, hostname string, uris_table *URIs) (*profile.Resource, error) {
 
-	id, _, err := ParseActorURI(a.Id)
+	id, _, err := ParseAccountURI(a.Id)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to parse actor URI, %w", err)
+		return nil, fmt.Errorf("Failed to parse account URI, %w", err)
 	}
 
 	id_url := &url.URL{}
@@ -136,15 +135,26 @@ func (a *Actor) ProfileResource(ctx context.Context, hostname string, uris_table
 	return pr, nil
 }
 
-func (a *Actor) PublicKey(ctx context.Context) (string, error) {
+func (a *Account) PublicKey(ctx context.Context) (string, error) {
 	return a.loadRuntimeVar(ctx, a.PublicKeyURI)
 }
 
-func (a *Actor) PrivateKey(ctx context.Context) (string, error) {
+func (a *Account) PublicKeyRSA(ctx context.Context) (*rsa.PublicKey, error) {
+
+	public_key_str, err := a.PublicKey(ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get public key, %w", err)
+	}
+
+	return crypto.RSAPublicKeyFromPEM(public_key_str)
+}
+
+func (a *Account) PrivateKey(ctx context.Context) (string, error) {
 	return a.loadRuntimeVar(ctx, a.PrivateKeyURI)
 }
 
-func (a *Actor) PrivateKeyRSA(ctx context.Context) (*rsa.PrivateKey, error) {
+func (a *Account) PrivateKeyRSA(ctx context.Context) (*rsa.PrivateKey, error) {
 
 	private_key_str, err := a.PrivateKey(ctx)
 
@@ -152,30 +162,14 @@ func (a *Actor) PrivateKeyRSA(ctx context.Context) (*rsa.PrivateKey, error) {
 		return nil, fmt.Errorf("Failed to get private key, %w", err)
 	}
 
-	private_key_block, _ := pem.Decode([]byte(private_key_str))
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to decode private key, %w", err)
-	}
-
-	if private_key_block == nil || private_key_block.Type != "RSA PRIVATE KEY" {
-		return nil, fmt.Errorf("Failed to decode PEM block containing private key")
-	}
-
-	private_key, err := x509.ParsePKCS1PrivateKey(private_key_block.Bytes)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to parse private key, %w", err)
-	}
-
-	return private_key, nil
+	return crypto.RSAPrivateKeyFromPEM(private_key_str)
 }
 
-func (a *Actor) loadRuntimeVar(ctx context.Context, uri string) (string, error) {
+func (a *Account) loadRuntimeVar(ctx context.Context, uri string) (string, error) {
 	return runtimevar.StringVar(ctx, uri)
 }
 
-func AddActor(ctx context.Context, db ActorDatabase, a *Actor) (*Actor, error) {
+func AddAccount(ctx context.Context, db AccountDatabase, a *Account) (*Account, error) {
 
 	now := time.Now()
 	ts := now.Unix()
@@ -183,32 +177,32 @@ func AddActor(ctx context.Context, db ActorDatabase, a *Actor) (*Actor, error) {
 	a.Created = ts
 	a.LastModified = ts
 
-	err := db.AddActor(ctx, a)
+	err := db.AddAccount(ctx, a)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to add actor, %w", err)
+		return nil, fmt.Errorf("Failed to add account, %w", err)
 	}
 
 	return a, nil
 }
 
-func UpdateActor(ctx context.Context, db ActorDatabase, a *Actor) (*Actor, error) {
+func UpdateAccount(ctx context.Context, db AccountDatabase, a *Account) (*Account, error) {
 
 	now := time.Now()
 	ts := now.Unix()
 
 	a.LastModified = ts
 
-	err := db.UpdateActor(ctx, a)
+	err := db.UpdateAccount(ctx, a)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to update actor, %w", err)
+		return nil, fmt.Errorf("Failed to update account, %w", err)
 	}
 
 	return a, nil
 }
 
-func ParseActorURI(uri string) (string, string, error) {
+func ParseAccountURI(uri string) (string, string, error) {
 
 	parts := strings.Split(uri, "@")
 

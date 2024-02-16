@@ -7,16 +7,16 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 )
 
-func setupActorDatabase() {
+func setupAccountDatabase() {
 
 	ctx := context.Background()
 	var err error
 
 	// defined in vars.go
-	actor_db, err = activitypub.NewActorDatabase(ctx, run_opts.ActorDatabaseURI)
+	account_db, err = activitypub.NewAccountDatabase(ctx, run_opts.AccountDatabaseURI)
 
 	if err != nil {
-		setupActorDatabaseError = fmt.Errorf("Failed to set up network, %w", err)
+		setupAccountDatabaseError = fmt.Errorf("Failed to set up network, %w", err)
 		return
 	}
 }

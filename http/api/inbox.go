@@ -1,9 +1,7 @@
 package api
 
 import (
-	"crypto/x509"
 	"encoding/json"
-	"encoding/pem"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -13,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/crypto"
 )
 
 // https://paul.kinlan.me/adding-activity-pub-to-your-static-site/
@@ -21,9 +20,9 @@ import (
 // https://github.com/go-fed/httpsig
 
 type InboxHandlerOptions struct {
-	ActorDatabase activitypub.ActorDatabase
-	URIs          *activitypub.URIs
-	Hostname      string
+	AccountDatabase activitypub.AccountDatabase
+	URIs            *activitypub.URIs
+	Hostname        string
 }
 
 func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
@@ -45,7 +44,7 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("resource", resource)
 
-		a, err := opts.ActorDatabase.GetActor(ctx, resource)
+		a, err := opts.AccountDatabase.GetAccount(ctx, resource)
 
 		if err != nil {
 			slog.Error("Failed to retrieve inbox for resource", "error", err)
@@ -53,7 +52,7 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		logger.Info("ACTOR", "a", a)
+		logger.Info("ACCOUNT", "a", a)
 
 		// END OF verify request
 
@@ -125,15 +124,7 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 
 		// START OF put me in a function
 
-		public_key_block, _ := pem.Decode([]byte(public_key_str))
-
-		if public_key_block == nil || public_key_block.Type != "PUBLIC KEY" {
-			slog.Error("failed to decode PEM block containing public key")
-			http.Error(rsp, "Bad request", http.StatusBadRequest)
-			return
-		}
-
-		public_key, err := x509.ParsePKIXPublicKey(public_key_block.Bytes)
+		public_key, err := crypto.RSAPublicKeyFromPEM(public_key_str)
 
 		if err != nil {
 			slog.Error("Failed to parse PEM block containing public key", "error", err)

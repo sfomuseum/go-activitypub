@@ -10,9 +10,9 @@ import (
 )
 
 type WebfingerHandlerOptions struct {
-	ActorDatabase activitypub.ActorDatabase
-	URIs          *activitypub.URIs
-	Hostname      string
+	AccountDatabase activitypub.AccountDatabase
+	URIs            *activitypub.URIs
+	Hostname        string
 }
 
 func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
@@ -41,10 +41,10 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("resource", resource)
 
-		a, err := opts.ActorDatabase.GetActor(ctx, resource)
+		a, err := opts.AccountDatabase.GetAccount(ctx, resource)
 
 		if err != nil {
-			slog.Error("Failed to retrieve actor for resource", "error", err)
+			slog.Error("Failed to retrieve account for resource", "error", err)
 			http.Error(rsp, "Not found", http.StatusNotFound)
 			return
 		}

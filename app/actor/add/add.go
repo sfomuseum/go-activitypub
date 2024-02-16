@@ -31,7 +31,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	slog.SetDefault(logger)
 
-	db, err := activitypub.NewActorDatabase(ctx, opts.ActorDatabaseURI)
+	db, err := activitypub.NewAccountDatabase(ctx, opts.AccountDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new database, %w", err)
@@ -46,16 +46,16 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	private_key_uri := fmt.Sprintf("constant://?val=%s", url.QueryEscape(string(private_pem)))
 	public_key_uri := fmt.Sprintf("constant://?val=%s", url.QueryEscape(string(public_pem)))
 
-	a := &activitypub.Actor{
-		Id:            opts.ActorId,
+	a := &activitypub.Account{
+		Id:            opts.AccountId,
 		PrivateKeyURI: private_key_uri,
 		PublicKeyURI:  public_key_uri,
 	}
 
-	a, err = activitypub.AddActor(ctx, db, a)
+	a, err = activitypub.AddAccount(ctx, db, a)
 
 	if err != nil {
-		return fmt.Errorf("Failed to add new actor, %w", err)
+		return fmt.Errorf("Failed to add new account, %w", err)
 	}
 
 	return nil
