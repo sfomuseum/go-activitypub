@@ -11,8 +11,8 @@ import (
 
 type WebfingerHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
-	URIs            *activitypub.URIs
-	Hostname        string
+	URIs             *activitypub.URIs
+	Hostname         string
 }
 
 func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
@@ -28,13 +28,13 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 		resource, err := sanitize.GetString(req, "resource")
 
 		if err != nil {
-			slog.Error("Failed to derive ?resource= parameter", "error", err)
+			logger.Error("Failed to derive ?resource= parameter", "error", err)
 			http.Error(rsp, "Bad request", http.StatusBadRequest)
 			return
 		}
 
 		if resource == "" {
-			slog.Error("Empty ?resource= parameter")
+			logger.Error("Empty ?resource= parameter")
 			http.Error(rsp, "Bad request", http.StatusBadRequest)
 			return
 		}
@@ -44,7 +44,7 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 		a, err := opts.AccountsDatabase.GetAccount(ctx, resource)
 
 		if err != nil {
-			slog.Error("Failed to retrieve account for resource", "error", err)
+			logger.Error("Failed to retrieve account for resource", "error", err)
 			http.Error(rsp, "Not found", http.StatusNotFound)
 			return
 		}
@@ -52,7 +52,7 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 		wf, err := a.WebfingerResource(ctx, opts.URIs)
 
 		if err != nil {
-			slog.Error("Failed to derive webfinger response for resource", "error", err)
+			logger.Error("Failed to derive webfinger response for resource", "error", err)
 			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -63,7 +63,7 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 		err = enc.Encode(wf)
 
 		if err != nil {
-			slog.Error("Failed to encode webfinger response for resource", "error", err)
+			logger.Error("Failed to encode webfinger response for resource", "error", err)
 			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
 		}

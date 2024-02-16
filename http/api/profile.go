@@ -12,8 +12,8 @@ import (
 
 type ProfileHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
-	URIs            *activitypub.URIs
-	Hostname        string
+	URIs             *activitypub.URIs
+	Hostname         string
 }
 
 func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
@@ -36,9 +36,8 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 		logger = logger.With("resource", resource)
 
 		a, err := opts.AccountsDatabase.GetAccount(ctx, resource)
-
 		if err != nil {
-			slog.Error("Failed to retrieve account for resource", "error", err)
+			logger.Error("Failed to retrieve account for resource", "error", err)
 			http.Error(rsp, "Not found", http.StatusNotFound)
 			return
 		}
@@ -46,7 +45,7 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 		profile, err := a.ProfileResource(ctx, opts.Hostname, opts.URIs)
 
 		if err != nil {
-			slog.Error("Failed to derive profile response for resource", "error", err)
+			logger.Error("Failed to derive profile response for resource", "error", err)
 			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -57,7 +56,7 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 		err = enc.Encode(profile)
 
 		if err != nil {
-			slog.Error("Failed to encode profile response for resource", "error", err)
+			logger.Error("Failed to encode profile response for resource", "error", err)
 			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
 		}
