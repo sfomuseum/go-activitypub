@@ -11,8 +11,6 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-
-	"log/slog"
 )
 
 const (
@@ -110,7 +108,6 @@ func (s Signature) String() string {
 }
 
 func (s Signature) calculateSignature(key string, r *http.Request) (string, error) {
-
 	hash := hmac.New(s.Algorithm.hash, []byte(key))
 
 	signingString, err := s.Headers.signingString(r)
@@ -118,9 +115,6 @@ func (s Signature) calculateSignature(key string, r *http.Request) (string, erro
 		return "", err
 	}
 
-	slog.Info("CALC KEY", "key", key)
-	slog.Info("CALC KEY", "signing", signingString)
-	
 	hash.Write([]byte(signingString))
 
 	return base64.StdEncoding.EncodeToString(hash.Sum(nil)), nil

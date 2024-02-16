@@ -18,7 +18,7 @@ func main() {
 	err := follow.Run(ctx, logger)
 
 	if err != nil {
-		logger.Error("Failed to follow actor, %v", err)
+		logger.Error("Failed to follow actor", "error", err)
 		os.Exit(1)
 	}
 }

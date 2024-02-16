@@ -12,9 +12,11 @@ import (
 	"io"
 	"os"
 
-	"github.com/99designs/httpsignatures-go"
+	"github.com/go-fed/httpsig"
+	// "github.com/99designs/httpsignatures-go"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/iso8601duration"
 )
 
 func Run(ctx context.Context, logger *slog.Logger) error {
@@ -79,19 +81,57 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	key_id := follower
 
-	public_key, err := acct.PublicKey(ctx)
+	private_key, err := acct.PrivateKey(ctx)
 
 	if err != nil {
 		return fmt.Errorf("Failed to get private key, %w", err)
 	}
 
-	err = httpsignatures.DefaultSha256Signer.SignRequest(key_id, public_key, http_req)
+	/*
+		err = httpsignatures.DefaultSha256Signer.SignRequest(key_id, public_key, http_req)
+
+		if err != nil {
+			return fmt.Errorf("Failed to sign request, %w", err)
+		}
+
+		slog.Info("OK", "signature", http_req.Header.Get("Signature"))
+	*/
+
+	prefs := []httpsig.Algorithm{httpsig.RSA_SHA512, httpsig.RSA_SHA256}
+	digestAlgorithm := httpsig.DigestSha256
+
+	// The "Date" and "Digest" headers must already be set on r, as well as r.URL.
+
+	headersToSign := []string{
+		httpsig.RequestTarget,
+		"date",
+		"digest",
+	}
+
+	str_ttl := "PT1M"
+
+	d, err := duration.FromString(str_ttl)
+
+	if err != nil {
+		return fmt.Errorf("Failed to derive duration, %w", err)
+	}
+
+	ttl := int64(d.ToDuration().Seconds())
+
+	signer, _, err := httpsig.NewSigner(prefs, digestAlgorithm, headersToSign, httpsig.Signature, ttl)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create new signer, %w", err)
+	}
+
+	err = signer.SignRequest(private_key, key_id, http_req, enc_req)
 
 	if err != nil {
 		return fmt.Errorf("Failed to sign request, %w", err)
 	}
 
-	slog.Info("OK", "signature", http_req.Header.Get("Signature"))
+	slog.Info("SIG", http_req.Header.Get("Signature"))
+	return nil
 
 	http_cl := http.Client{}
 
