@@ -9,17 +9,17 @@ import (
 
 const SQL_ACCOUNTS_TABLE_NAME string = "accounts"
 
-type SQLAccountDatabase struct {
-	AccountDatabase
+type SQLAccountsDatabase struct {
+	AccountsDatabase
 	database *sql.DB
 }
 
 func init() {
 	ctx := context.Background()
-	RegisterAccountDatabase(ctx, "sql", NewSQLAccountDatabase)
+	RegisterAccountsDatabase(ctx, "sql", NewSQLAccountsDatabase)
 }
 
-func NewSQLAccountDatabase(ctx context.Context, uri string) (AccountDatabase, error) {
+func NewSQLAccountsDatabase(ctx context.Context, uri string) (AccountsDatabase, error) {
 
 	u, err := url.Parse(uri)
 
@@ -38,14 +38,14 @@ func NewSQLAccountDatabase(ctx context.Context, uri string) (AccountDatabase, er
 		return nil, fmt.Errorf("Failed to open database connection, %w", err)
 	}
 
-	db := &SQLAccountDatabase{
+	db := &SQLAccountsDatabase{
 		database: conn,
 	}
 
 	return db, nil
 }
 
-func (db *SQLAccountDatabase) AddAccount(ctx context.Context, a *Account) error {
+func (db *SQLAccountsDatabase) AddAccount(ctx context.Context, a *Account) error {
 
 	q := fmt.Sprintf("INSERT INTO %s (id, public_key_uri, private_key_uri, created, lastmodified) VALUES (?, ?, ?, ?, ?)", SQL_ACCOUNTS_TABLE_NAME)
 
@@ -58,7 +58,7 @@ func (db *SQLAccountDatabase) AddAccount(ctx context.Context, a *Account) error 
 	return nil
 }
 
-func (db *SQLAccountDatabase) GetAccount(ctx context.Context, id string) (*Account, error) {
+func (db *SQLAccountsDatabase) GetAccount(ctx context.Context, id string) (*Account, error) {
 
 	var public_key_uri string
 	var private_key_uri string

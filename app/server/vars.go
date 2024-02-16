@@ -8,7 +8,7 @@ import (
 
 var run_opts *RunOptions
 
-var account_db activitypub.AccountDatabase
+var accounts_db activitypub.AccountsDatabase
 
-var setupAccountDatabaseOnce sync.Once
-var setupAccountDatabaseError error
+var setupAccountsDatabaseOnce sync.Once
+var setupAccountsDatabaseError error

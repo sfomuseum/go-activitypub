@@ -169,7 +169,7 @@ func (a *Account) loadRuntimeVar(ctx context.Context, uri string) (string, error
 	return runtimevar.StringVar(ctx, uri)
 }
 
-func AddAccount(ctx context.Context, db AccountDatabase, a *Account) (*Account, error) {
+func AddAccount(ctx context.Context, db AccountsDatabase, a *Account) (*Account, error) {
 
 	now := time.Now()
 	ts := now.Unix()
@@ -186,7 +186,7 @@ func AddAccount(ctx context.Context, db AccountDatabase, a *Account) (*Account, 
 	return a, nil
 }
 
-func UpdateAccount(ctx context.Context, db AccountDatabase, a *Account) (*Account, error) {
+func UpdateAccount(ctx context.Context, db AccountsDatabase, a *Account) (*Account, error) {
 
 	now := time.Now()
 	ts := now.Unix()

@@ -11,17 +11,17 @@ import (
 
 func webfingerHandlerFunc(ctx context.Context) (http.Handler, error) {
 
-	setupAccountDatabaseOnce.Do(setupAccountDatabase)
+	setupAccountsDatabaseOnce.Do(setupAccountsDatabase)
 
-	if setupAccountDatabaseError != nil {
-		slog.Error("Failed to set up account database configuration", "error", setupAccountDatabaseError)
-		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAccountDatabaseError)
+	if setupAccountsDatabaseError != nil {
+		slog.Error("Failed to set up account database configuration", "error", setupAccountsDatabaseError)
+		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAccountsDatabaseError)
 	}
 
 	opts := &api.WebfingerHandlerOptions{
-		AccountDatabase: account_db,
-		URIs:            run_opts.URIs,
-		Hostname:        run_opts.Hostname,
+		AccountsDatabase: accounts_db,
+		URIs:             run_opts.URIs,
+		Hostname:         run_opts.Hostname,
 	}
 
 	return api.WebfingerHandler(opts)
@@ -29,17 +29,17 @@ func webfingerHandlerFunc(ctx context.Context) (http.Handler, error) {
 
 func profileHandlerFunc(ctx context.Context) (http.Handler, error) {
 
-	setupAccountDatabaseOnce.Do(setupAccountDatabase)
+	setupAccountsDatabaseOnce.Do(setupAccountsDatabase)
 
-	if setupAccountDatabaseError != nil {
-		slog.Error("Failed to set up account database configuration", "error", setupAccountDatabaseError)
-		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAccountDatabaseError)
+	if setupAccountsDatabaseError != nil {
+		slog.Error("Failed to set up account database configuration", "error", setupAccountsDatabaseError)
+		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAccountsDatabaseError)
 	}
 
 	opts := &api.ProfileHandlerOptions{
-		AccountDatabase: account_db,
-		URIs:            run_opts.URIs,
-		Hostname:        run_opts.Hostname,
+		AccountsDatabase: accounts_db,
+		URIs:             run_opts.URIs,
+		Hostname:         run_opts.Hostname,
 	}
 
 	return api.ProfileHandler(opts)
@@ -47,17 +47,17 @@ func profileHandlerFunc(ctx context.Context) (http.Handler, error) {
 
 func inboxHandlerFunc(ctx context.Context) (http.Handler, error) {
 
-	setupAccountDatabaseOnce.Do(setupAccountDatabase)
+	setupAccountsDatabaseOnce.Do(setupAccountsDatabase)
 
-	if setupAccountDatabaseError != nil {
-		slog.Error("Failed to set up account database configuration", "error", setupAccountDatabaseError)
-		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAccountDatabaseError)
+	if setupAccountsDatabaseError != nil {
+		slog.Error("Failed to set up account database configuration", "error", setupAccountsDatabaseError)
+		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAccountsDatabaseError)
 	}
 
 	opts := &api.InboxHandlerOptions{
-		AccountDatabase: account_db,
-		URIs:            run_opts.URIs,
-		Hostname:        run_opts.Hostname,
+		AccountsDatabase: accounts_db,
+		URIs:             run_opts.URIs,
+		Hostname:         run_opts.Hostname,
 	}
 
 	return api.InboxHandler(opts)

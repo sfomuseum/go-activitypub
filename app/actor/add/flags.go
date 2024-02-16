@@ -6,14 +6,14 @@ import (
 	"github.com/sfomuseum/go-flags/flagset"
 )
 
-var account_database_uri string
+var accounts_database_uri string
 var account_id string
 
 func DefaultFlagSet() *flag.FlagSet {
 
 	fs := flagset.NewFlagSet("activitypub")
 
-	fs.StringVar(&account_database_uri, "account-database-uri", "mem://accounts/Id", "...")
+	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "...")
 	fs.StringVar(&account_id, "account-id", "", "...")
 
 	return fs

@@ -11,7 +11,7 @@ import (
 )
 
 type ProfileHandlerOptions struct {
-	AccountDatabase activitypub.AccountDatabase
+	AccountsDatabase activitypub.AccountsDatabase
 	URIs            *activitypub.URIs
 	Hostname        string
 }
@@ -35,7 +35,7 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("resource", resource)
 
-		a, err := opts.AccountDatabase.GetAccount(ctx, resource)
+		a, err := opts.AccountsDatabase.GetAccount(ctx, resource)
 
 		if err != nil {
 			slog.Error("Failed to retrieve account for resource", "error", err)

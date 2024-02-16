@@ -1,4 +1,4 @@
-CREATE TABLE actors (
+CREATE TABLE accounts (
        id TEXT PRIMARY KEY,
        private_key_uri TEXT,
        public_key_uri TEXT,

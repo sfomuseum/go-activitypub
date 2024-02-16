@@ -10,7 +10,7 @@ import (
 	"github.com/aaronland/go-roster"
 )
 
-type AccountDatabase interface {
+type AccountsDatabase interface {
 	GetAccount(context.Context, string) (*Account, error)
 	AddAccount(context.Context, *Account) error
 	RemoveAccount(context.Context, *Account) error
@@ -19,15 +19,15 @@ type AccountDatabase interface {
 
 var account_database_roster roster.Roster
 
-// AccountDatabaseInitializationFunc is a function defined by individual account_database package and used to create
+// AccountsDatabaseInitializationFunc is a function defined by individual account_database package and used to create
 // an instance of that account_database
-type AccountDatabaseInitializationFunc func(ctx context.Context, uri string) (AccountDatabase, error)
+type AccountsDatabaseInitializationFunc func(ctx context.Context, uri string) (AccountsDatabase, error)
 
-// RegisterAccountDatabase registers 'scheme' as a key pointing to 'init_func' in an internal lookup table
-// used to create new `AccountDatabase` instances by the `NewAccountDatabase` method.
-func RegisterAccountDatabase(ctx context.Context, scheme string, init_func AccountDatabaseInitializationFunc) error {
+// RegisterAccountsDatabase registers 'scheme' as a key pointing to 'init_func' in an internal lookup table
+// used to create new `AccountsDatabase` instances by the `NewAccountsDatabase` method.
+func RegisterAccountsDatabase(ctx context.Context, scheme string, init_func AccountsDatabaseInitializationFunc) error {
 
-	err := ensureAccountDatabaseRoster()
+	err := ensureAccountsDatabaseRoster()
 
 	if err != nil {
 		return err
@@ -36,7 +36,7 @@ func RegisterAccountDatabase(ctx context.Context, scheme string, init_func Accou
 	return account_database_roster.Register(ctx, scheme, init_func)
 }
 
-func ensureAccountDatabaseRoster() error {
+func ensureAccountsDatabaseRoster() error {
 
 	if account_database_roster == nil {
 
@@ -52,11 +52,11 @@ func ensureAccountDatabaseRoster() error {
 	return nil
 }
 
-// NewAccountDatabase returns a new `AccountDatabase` instance configured by 'uri'. The value of 'uri' is parsed
-// as a `url.URL` and its scheme is used as the key for a corresponding `AccountDatabaseInitializationFunc`
-// function used to instantiate the new `AccountDatabase`. It is assumed that the scheme (and initialization
-// function) have been registered by the `RegisterAccountDatabase` method.
-func NewAccountDatabase(ctx context.Context, uri string) (AccountDatabase, error) {
+// NewAccountsDatabase returns a new `AccountsDatabase` instance configured by 'uri'. The value of 'uri' is parsed
+// as a `url.URL` and its scheme is used as the key for a corresponding `AccountsDatabaseInitializationFunc`
+// function used to instantiate the new `AccountsDatabase`. It is assumed that the scheme (and initialization
+// function) have been registered by the `RegisterAccountsDatabase` method.
+func NewAccountsDatabase(ctx context.Context, uri string) (AccountsDatabase, error) {
 
 	u, err := url.Parse(uri)
 
@@ -72,17 +72,17 @@ func NewAccountDatabase(ctx context.Context, uri string) (AccountDatabase, error
 		return nil, err
 	}
 
-	init_func := i.(AccountDatabaseInitializationFunc)
+	init_func := i.(AccountsDatabaseInitializationFunc)
 	return init_func(ctx, uri)
 }
 
 // Schemes returns the list of schemes that have been registered.
-func AccountDatabaseSchemes() []string {
+func AccountsDatabaseSchemes() []string {
 
 	ctx := context.Background()
 	schemes := []string{}
 
-	err := ensureAccountDatabaseRoster()
+	err := ensureAccountsDatabaseRoster()
 
 	if err != nil {
 		return schemes
