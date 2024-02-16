@@ -1,13 +1,15 @@
 package api
 
 import (
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"path/filepath"
 
-	"github.com/99designs/httpsignatures-go"
+	"github.com/go-fed/httpsig"
 	"github.com/google/uuid"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
@@ -78,15 +80,15 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 
 		// START OF verify request
 
-		sig, err := httpsignatures.FromRequest(req)
+		verifier, err := httpsig.NewVerifier(req)
 
 		if err != nil {
-			slog.Error("Failed to derive signature from request", "error", err)
-			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			slog.Error("Failed to create signature verifier", "error", err)
+			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
-		key_id := sig.KeyID
+		key_id := verifier.KeyId()
 		logger = logger.With("key id", key_id)
 
 		slog.Info("Fetch other", "key_id", key_id)
@@ -112,17 +114,41 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		key := other_actor.PublicKey.PEM
-		slog.Info("OTHER", "key", key)
+		public_key_str := other_actor.PublicKey.PEM
+		slog.Info("OTHER", "key", public_key_str)
 
-		if key == "" {
+		if public_key_str == "" {
 			slog.Error("Other actor missing public key")
 			http.Error(rsp, "Bad request", http.StatusBadRequest)
 			return
 		}
 
-		if !sig.IsValid(key, req) {
-			slog.Error("Request failed verification", "error", err)
+		// START OF put me in a function
+
+		public_key_block, _ := pem.Decode([]byte(public_key_str))
+
+		if public_key_block == nil || public_key_block.Type != "PUBLIC KEY" {
+			slog.Error("failed to decode PEM block containing public key")
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		public_key, err := x509.ParsePKIXPublicKey(public_key_block.Bytes)
+
+		if err != nil {
+			slog.Error("Failed to parse PEM block containing public key", "error", err)
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		// END OF put me in a function
+
+		algo := httpsig.RSA_SHA512
+
+		err = verifier.Verify(public_key, algo)
+
+		if err != nil {
+			slog.Error("Failed to verify signature", "error", err)
 			http.Error(rsp, "Forbidden", http.StatusForbidden)
 			return
 		}

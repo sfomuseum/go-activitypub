@@ -2,6 +2,9 @@ package activitypub
 
 import (
 	"context"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"net/url"
 	"path/filepath"
@@ -139,6 +142,33 @@ func (a *Actor) PublicKey(ctx context.Context) (string, error) {
 
 func (a *Actor) PrivateKey(ctx context.Context) (string, error) {
 	return a.loadRuntimeVar(ctx, a.PrivateKeyURI)
+}
+
+func (a *Actor) PrivateKeyRSA(ctx context.Context) (*rsa.PrivateKey, error) {
+
+	private_key_str, err := a.PrivateKey(ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get private key, %w", err)
+	}
+
+	private_key_block, _ := pem.Decode([]byte(private_key_str))
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to decode private key, %w", err)
+	}
+
+	if private_key_block == nil || private_key_block.Type != "RSA PRIVATE KEY" {
+		return nil, fmt.Errorf("Failed to decode PEM block containing private key")
+	}
+
+	private_key, err := x509.ParsePKCS1PrivateKey(private_key_block.Bytes)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse private key, %w", err)
+	}
+
+	return private_key, nil
 }
 
 func (a *Actor) loadRuntimeVar(ctx context.Context, uri string) (string, error) {

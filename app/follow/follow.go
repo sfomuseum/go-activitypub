@@ -8,12 +8,12 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"io"
 	"os"
 
 	"github.com/go-fed/httpsig"
-	// "github.com/99designs/httpsignatures-go"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/iso8601duration"
@@ -79,12 +79,15 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to create new request to %s, %w", opts.Inbox, err)
 	}
 
+	now := time.Now()
+	http_req.Header.Set("Date", now.Format(time.RFC3339))
+
 	key_id := follower
 
-	private_key, err := acct.PrivateKey(ctx)
+	private_key, err := acct.PrivateKeyRSA(ctx)
 
 	if err != nil {
-		return fmt.Errorf("Failed to get private key, %w", err)
+		return fmt.Errorf("Failed to derive private key for account, %w", err)
 	}
 
 	/*
@@ -104,8 +107,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	headersToSign := []string{
 		httpsig.RequestTarget,
-		"date",
-		"digest",
+		"Date",
+		"Digest",
 	}
 
 	str_ttl := "PT1M"
