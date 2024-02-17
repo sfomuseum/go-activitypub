@@ -20,3 +20,7 @@ $> go run cmd/follow/main.go \
 	-follow http://localhost:8080/profile/alice \
 	-inbox http://localhost:8080/inbox/alice
 ```
+
+## See also
+
+* https://github.com/w3c/activitypub/blob/gh-pages/activitypub-tutorial.txt

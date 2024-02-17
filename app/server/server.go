@@ -42,7 +42,9 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	handlers := map[string]handler.RouteHandlerFunc{
 		"/.webfinger":         webfingerHandlerFunc,
 		run_opts.URIs.Profile: profileHandlerFunc,
-		run_opts.URIs.Inbox:   inboxHandlerFunc,
+		// This does not work because of route handler wah wah which needs to be updated for Go 1.22
+		// fmt.Sprintf("POST %s", run_opts.URIs.Inbox): inboxPostHandlerFunc,
+		run_opts.URIs.Inbox: inboxPostHandlerFunc,		
 	}
 
 	log_logger := slog.NewLogLogger(logger.Handler(), slog.LevelInfo)

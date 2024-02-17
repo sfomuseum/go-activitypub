@@ -1,8 +1,7 @@
-package api
+package www
 
 import (
 	"encoding/json"
-	"log/slog"
 	"net/http"
 
 	"github.com/aaronland/go-http-sanitize"
@@ -21,9 +20,7 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 
 		ctx := req.Context()
 
-		logger := slog.Default()
-		logger = logger.With("path", req.URL.Path)
-		logger = logger.With("remote_addr", req.RemoteAddr)
+		logger := LoggerWithRequest(req, nil)
 
 		resource, err := sanitize.GetString(req, "resource")
 

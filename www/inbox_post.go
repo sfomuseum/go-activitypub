@@ -1,9 +1,8 @@
-package api
+package www
 
 import (
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"path/filepath"
 
@@ -13,22 +12,26 @@ import (
 	"github.com/sfomuseum/go-activitypub/crypto"
 )
 
-type InboxHandlerOptions struct {
+type InboxPostHandlerOptions struct {
 	AccountsDatabase  activitypub.AccountsDatabase
 	FollowersDatabase activitypub.FollowersDatabase
 	URIs              *activitypub.URIs
 	Hostname          string
 }
 
-func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
+func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 	fn := func(rsp http.ResponseWriter, req *http.Request) {
 
 		ctx := req.Context()
 
-		logger := slog.Default()
-		logger = logger.With("path", req.URL.Path)
-		logger = logger.With("remote_addr", req.RemoteAddr)
+		logger := LoggerWithRequest(req, nil)
+
+		if req.Method != http.MethodPost {
+			logger.Error("Method not allowed")
+			http.Error(rsp, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
 
 		// START OF TBD...
 

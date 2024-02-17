@@ -1,9 +1,8 @@
-package api
+package www
 
 import (
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"path/filepath"
 
@@ -22,9 +21,7 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 
 		ctx := req.Context()
 
-		logger := slog.Default()
-		logger = logger.With("path", req.URL.Path)
-		logger = logger.With("remote_addr", req.RemoteAddr)
+		logger := LoggerWithRequest(req, nil)
 
 		// START OF TBD...
 
