@@ -35,4 +35,5 @@ server:
 		-accounts-database-uri 'sql://sqlite3?dsn=test.db' \
 		-followers-database-uri 'sql://sqlite3?dsn=test.db' \
 		-following-database-uri 'sql://sqlite3?dsn=test.db' \
+		-notes-database-uri 'sql://sqlite3?dsn=test.db' \
 		-hostname localhost:8080

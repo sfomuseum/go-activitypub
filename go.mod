@@ -8,6 +8,7 @@ require (
 	github.com/aaronland/go-pagination v0.2.0
 	github.com/aaronland/go-pagination-sql v0.2.0
 	github.com/aaronland/go-roster v1.0.0
+	github.com/bwmarrin/snowflake v0.3.0
 	github.com/go-fed/httpsig v1.1.0
 	github.com/google/uuid v1.4.0
 	github.com/mattn/go-sqlite3 v1.14.22

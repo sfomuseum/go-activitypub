@@ -48,3 +48,17 @@ func setupFollowingDatabase() {
 		return
 	}
 }
+
+func setupNotesDatabase() {
+
+	ctx := context.Background()
+	var err error
+
+	// defined in vars.go
+	notes_db, err = activitypub.NewNotesDatabase(ctx, run_opts.NotesDatabaseURI)
+
+	if err != nil {
+		setupNotesDatabaseError = fmt.Errorf("Failed to set up network, %w", err)
+		return
+	}
+}

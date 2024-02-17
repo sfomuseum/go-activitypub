@@ -1,14 +1,12 @@
 CREATE TABLE messages (
-       id TEXT PRIMARY KEY,
+       note_id INTEGER,
        account_id TEXT,
        author_id TEXT,
-       body TEXT,
        created INTEGER,
        lastmodified INTEGER
 );
 
-CREATE INDEX `messages_by_account` ON posts (`account_id`, `created`);
-CREATE INDEX `messages_by_account_author` ON posts (`account_id`, `author_id`, `created`);
-CREATE INDEX `messages_by_author` ON posts (`author_id`, `created`);
-CREATE INDEX `messages_by_created` ON posts (`created`);
-       
+CREATE UNIQUE INDEX `messages_by_account_note_id` ON messages (`account_id`, `note_id`);
+CREATE INDEX `messages_by_account` ON messages (`account_id`, `created`);
+CREATE INDEX `messages_by_author` ON messages (`author_id`, `created`);
+CREATE INDEX `messages_by_account_author` ON messages (`account_id`, `author_id`, `created`);       

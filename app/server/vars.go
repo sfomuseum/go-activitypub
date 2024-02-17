@@ -19,3 +19,7 @@ var setupFollowersDatabaseError error
 var following_db activitypub.FollowingDatabase
 var setupFollowingDatabaseOnce sync.Once
 var setupFollowingDatabaseError error
+
+var notes_db activitypub.NotesDatabase
+var setupNotesDatabaseOnce sync.Once
+var setupNotesDatabaseError error

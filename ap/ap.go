@@ -45,13 +45,13 @@ type Activity struct {
 }
 
 type Note struct {
-	Type         string      `json:"type"`
-	Id           string      `json:"id"`
-	AttributedTo string      `json:"attributedTo"`
-	To           string      `json:"to"`
-	Content      interface{} `json:"content"`
-	URL          string      `json:"url"`
-	Published    string      `json:"published"`
+	Type         string `json:"type"`
+	Id           string `json:"id"`
+	AttributedTo string `json:"attributedTo"`
+	To           string `json:"to"`
+	Content      string `json:"content"`
+	URL          string `json:"url"`
+	Published    string `json:"published"`
 }
 
 type PublicKey struct {

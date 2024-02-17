@@ -2,10 +2,11 @@ package www
 
 import (
 	"encoding/json"
-	"fmt"
+	_ "fmt"
 	"log/slog"
 	"net/http"
 	"path/filepath"
+	"time"
 
 	"github.com/go-fed/httpsig"
 	"github.com/sfomuseum/go-activitypub"
@@ -17,6 +18,7 @@ type InboxPostHandlerOptions struct {
 	AccountsDatabase  activitypub.AccountsDatabase
 	FollowersDatabase activitypub.FollowersDatabase
 	FollowingDatabase activitypub.FollowingDatabase
+	NotesDatabase     activitypub.NotesDatabase
 	URIs              *activitypub.URIs
 	Hostname          string
 }
@@ -86,51 +88,15 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		switch activity.Type {
 		case "Follow":
 
-			is_following, err := opts.FollowersDatabase.IsFollowing(ctx, sender_id, acct.Id)
-
-			if err != nil {
-				logger.Error("Failed to determine if following", "error", err)
-				http.Error(rsp, "Bad request", http.StatusBadRequest)
-				return
-			}
-
-			if is_following {
-				logger.Error("Already following")
-				http.Error(rsp, "Bad request", http.StatusBadRequest)
-				return
-			}
+			// pass
 
 		case "Undo":
 
-			is_following, err := opts.FollowersDatabase.IsFollowing(ctx, sender_id, acct.Id)
-
-			if err != nil {
-				logger.Error("Failed to determine if following", "error", err)
-				http.Error(rsp, "Bad request", http.StatusBadRequest)
-				return
-			}
-
-			if !is_following {
-				logger.Error("Not following")
-				http.Error(rsp, "Bad request", http.StatusBadRequest)
-				return
-			}
+			// pass
 
 		case "Create":
 
-			is_following, err := opts.FollowingDatabase.IsFollowing(ctx, acct.Id, sender_id)
-
-			if err != nil {
-				logger.Error("Failed to determine if following", "error", err)
-				http.Error(rsp, "Bad request", http.StatusBadRequest)
-				return
-			}
-
-			if !is_following {
-				logger.Error("Not following")
-				http.Error(rsp, "Bad request", http.StatusBadRequest)
-				return
-			}
+			// pass
 
 		default:
 			logger.Error("Unsupported activity type", "type", activity.Type)
@@ -209,6 +175,20 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		switch activity.Type {
 		case "Follow":
 
+			is_following, err := opts.FollowersDatabase.IsFollowing(ctx, sender_id, acct.Id)
+
+			if err != nil {
+				logger.Error("Failed to determine if following", "error", err)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			if is_following {
+				logger.Error("Already following")
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
 			err = opts.FollowersDatabase.AddFollower(ctx, acct.Id, sender_id)
 
 			if err != nil {
@@ -218,6 +198,20 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			}
 
 		case "Undo":
+
+			is_following, err := opts.FollowersDatabase.IsFollowing(ctx, sender_id, acct.Id)
+
+			if err != nil {
+				logger.Error("Failed to determine if following", "error", err)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			if !is_following {
+				logger.Error("Not following")
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
 
 			err = opts.FollowersDatabase.RemoveFollower(ctx, acct.Id, sender_id)
 
@@ -229,7 +223,105 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		case "Create":
 
-			slog.Info("CREATE", "object", fmt.Sprintf("%T", activity.Object))
+			is_following, err := opts.FollowingDatabase.IsFollowing(ctx, acct.Id, sender_id)
+
+			if err != nil {
+				logger.Error("Failed to determine if following", "error", err)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			if !is_following {
+				logger.Error("Not following")
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			enc_note, err := json.Marshal(activity.Object)
+
+			if err != nil {
+				logger.Error("Failed to marshal activity object", "error", err)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			var note *ap.Note
+
+			err = json.Unmarshal(enc_note, &note)
+
+			if err != nil {
+				logger.Error("Failed to unmarshal activity note", "error", err)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			note_id := note.Id
+			logger = logger.With("note id", note_id)
+
+			db_note, err := opts.NotesDatabase.GetNoteWithNoteIdAndAuthor(ctx, note_id, sender_id)
+
+			switch {
+			case err == activitypub.ErrNotFound:
+				// pass
+			case err != nil:
+				logger.Error("Failed to retrive note", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			default:
+				// pass
+			}
+
+			now := time.Now()
+			ts := now.Unix()
+
+			if db_note != nil {
+
+				db_note.Body = enc_note
+				db_note.LastModified = ts
+
+				err = opts.NotesDatabase.UpdateNote(ctx, db_note)
+
+				if err != nil {
+					logger.Error("Failed to add message", "error", err)
+					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+
+				logger = logger.With("note id", db_note.Id)
+
+			} else {
+
+				db_id, err := activitypub.NewId()
+
+				if err != nil {
+					logger.Error("Failed to create new ID for note", "error", err)
+					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+
+				db_note = &activitypub.Note{
+					Id:           db_id,
+					NoteId:       note_id,
+					AuthorId:     sender_id,
+					Body:         enc_note,
+					Created:      ts,
+					LastModified: ts,
+				}
+
+				err = opts.NotesDatabase.AddNote(ctx, db_note)
+
+				if err != nil {
+					logger.Error("Failed to add message", "error", err)
+					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+
+				logger = logger.With("note id", db_note.Id)
+			}
+
+			// Add message for acct with n here...
+
+			slog.Info("CREATE", "note", note, "db note", db_note)
 
 		default:
 			// pass
