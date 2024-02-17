@@ -10,9 +10,6 @@ import (
 	"net/http"
 	"time"
 
-	"io"
-	"os"
-
 	"github.com/go-fed/httpsig"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
@@ -94,6 +91,9 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to derive private key for account, %w", err)
 	}
 
+	// https://datatracker.ietf.org/doc/html/draft-cavage-http-signatures#section-1.1
+	// https://pkg.go.dev/github.com/go-fed/httpsig
+
 	prefs := []httpsig.Algorithm{httpsig.RSA_SHA512, httpsig.RSA_SHA256}
 	digestAlgorithm := httpsig.DigestSha256
 
@@ -133,13 +133,34 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to execute follow request, %w", err)
 	}
 
+	// logger.Info("Response", "code", http_rsp.StatusCode)
+
 	defer http_rsp.Body.Close()
 
 	if http_rsp.StatusCode != http.StatusOK {
 		return fmt.Errorf("Follow request failed %d, %s", http_rsp.StatusCode, http_rsp.Status)
 	}
 
-	io.Copy(os.Stdout, http_rsp.Body)
+	var activity *ap.Activity
+
+	dec := json.NewDecoder(http_rsp.Body)
+	err = dec.Decode(&activity)
+
+	if err != nil {
+		return fmt.Errorf("Failed to decode response, %w", err)
+	}
+
+	if activity.Type != "Accept" {
+		return fmt.Errorf("Unexpected activity type, %s", activity.Type)
+	}
+
+	// Check actor/object pairs here...
+
+	if undo {
+		logger.Info("Unfollowing successful")
+	} else {
+		logger.Info("Following successful")
+	}
 
 	return nil
 }

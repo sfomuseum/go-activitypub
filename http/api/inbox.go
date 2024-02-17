@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	"github.com/go-fed/httpsig"
-	"github.com/google/uuid"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/crypto"
@@ -82,7 +81,8 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 			}
 
 			if is_following {
-				logger.Info("Already following")
+				logger.Error("Already following")
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
 				return
 			}
 
@@ -97,7 +97,7 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 			}
 
 			if !is_following {
-				logger.Info("Not following")
+				logger.Error("Not following")
 				http.Error(rsp, "Bad request", http.StatusBadRequest)
 				return
 			}
@@ -147,7 +147,6 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 		}
 
 		public_key_str := other_actor.PublicKey.PEM
-		logger.Info("OTHER", "key", public_key_str)
 
 		if public_key_str == "" {
 			logger.Error("Other actor missing public key")
@@ -202,10 +201,26 @@ func InboxHandler(opts *InboxHandlerOptions) (http.Handler, error) {
 			// pass
 		}
 
-		guid := uuid.New()
-		logger.Info(guid.String())
+		accept, err := ap.NewAcceptActivity(ctx, acct.Id, follower_id)
 
-		logger.Info("OKAY ACCEPT", "uuid", guid)
+		if err != nil {
+			logger.Error("Failed to create new accept activity", "error", err)
+			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		logger = logger.With("accept", accept.Id)
+
+		rsp.Header().Set("Content-type", "application/activity+json")
+
+		enc := json.NewEncoder(rsp)
+		err = enc.Encode(accept)
+
+		if err != nil {
+			logger.Error("Failed to encode accept activity", "error", err)
+			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	return http.HandlerFunc(fn), nil
