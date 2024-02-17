@@ -36,8 +36,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to create new database, %w", err)
 	}
 
-	// The person doing the following
-
 	follower_acct, err := db.GetAccount(ctx, opts.AccountId)
 
 	if err != nil {
@@ -47,7 +45,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	follower_id := follower_acct.Id
 	following_id := opts.Follow
 
-	follow_req, err := ap.NewFollowActivity(ctx, follower_id, following_id)
+	// See this? It is important to pass the fully-qualifier follower URI so the
+	// endpoint receiving the follow activity can figure out where (which hostname)
+	// to make a webfinger/profile query.
+
+	follower_uri := fmt.Sprintf("%s@%s", follower_id, opts.Hostname)
+
+	follow_req, err := ap.NewFollowActivity(ctx, follower_uri, following_id)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create follow activity, %w", err)

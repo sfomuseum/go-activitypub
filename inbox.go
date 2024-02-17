@@ -66,7 +66,8 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 	now := time.Now()
 	http_req.Header.Set("Date", now.Format(time.RFC3339))
 
-	// So "key_id" here means a pointer to the actor/profile page where the public key for the follower can be retrieved
+	// Note that "key_id" here means a pointer to the actor/profile page where the public key
+	// for the follower can be retrieved
 
 	profile_url, err := opts.From.ProfileURL(ctx, opts.Hostname, opts.URIs)
 
@@ -75,7 +76,7 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 	}
 
 	key_id := profile_url.String()
-	slog.Info("FOLLOW", "key_id", key_id)
+	slog.Info("POST TO INBOX", "inbox", opts.Inbox, "key_id", key_id)
 
 	private_key, err := opts.From.PrivateKeyRSA(ctx)
 
@@ -122,7 +123,7 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 	http_rsp, err := http_cl.Do(http_req)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to execute follow request, %w", err)
+		return nil, fmt.Errorf("Failed to execute post to inbox request, %w", err)
 	}
 
 	// logger.Info("Response", "code", http_rsp.StatusCode)

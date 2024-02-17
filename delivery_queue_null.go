@@ -18,6 +18,6 @@ func NewNullDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, error
 	return q, nil
 }
 
-func (q *NullDeliveryQueue) DeliverPost(ctx context.Context, p *Post, follower_id string) error {
+func (q *NullDeliveryQueue) DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 	return nil
 }

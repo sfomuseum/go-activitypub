@@ -71,7 +71,16 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to add post, %w", err)
 	}
 
-	err = p.Deliver(ctx, followers_db, delivery_q)
+	deliver_opts := &activitypub.DeliverPostToFollowersOptions{
+		AccountsDatabase:  accounts_db,
+		FollowersDatabase: followers_db,
+		DeliveryQueue:     delivery_q,
+		Post:              p,
+		Hostname:          opts.Hostname,
+		URIs:              opts.URIs,
+	}
+
+	err = activitypub.DeliverPostToFollowers(ctx, deliver_opts)
 
 	if err != nil {
 		return fmt.Errorf("Failed to deliver post, %w", err)

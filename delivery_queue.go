@@ -10,8 +10,16 @@ import (
 	"github.com/aaronland/go-roster"
 )
 
+type DeliverPostOptions struct {
+	From     *Account
+	To       string
+	Post     *Post
+	Hostname string
+	URIs     *URIs
+}
+
 type DeliveryQueue interface {
-	DeliverPost(context.Context, *Post, string) error
+	DeliverPost(context.Context, *DeliverPostOptions) error
 }
 
 var delivery_queue_roster roster.Roster

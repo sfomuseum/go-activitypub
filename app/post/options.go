@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-flags/flagset"
 )
 
@@ -13,11 +14,15 @@ type RunOptions struct {
 	PostsDatabaseURI     string
 	DeliveryQueueURI     string
 	AccountId            string
+	Hostname             string
+	URIs                 *activitypub.URIs
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
 
 	flagset.Parse(fs)
+
+	uris_table := activitypub.DefaultURIs()
 
 	opts := &RunOptions{
 		AccountsDatabaseURI:  accounts_database_uri,
@@ -25,6 +30,8 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		PostsDatabaseURI:     posts_database_uri,
 		DeliveryQueueURI:     delivery_queue_uri,
 		AccountId:            account_id,
+		Hostname:             hostname,
+		URIs:                 uris_table,
 	}
 
 	return opts, nil

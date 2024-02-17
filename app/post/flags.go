@@ -13,6 +13,7 @@ var posts_database_uri string
 var delivery_queue_uri string
 
 var account_id string
+var hostname string
 
 func DefaultFlagSet() *flag.FlagSet {
 
@@ -25,6 +26,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&delivery_queue_uri, "delivery-queue-uri", "synchronous://", "...")
 
 	fs.StringVar(&account_id, "account-id", "", "...")
+	fs.StringVar(&hostname, "hostname", "localhost:8080", "...")
 
 	return fs
 }

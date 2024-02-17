@@ -2,8 +2,6 @@ package activitypub
 
 import (
 	"context"
-	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -36,29 +34,6 @@ func NewPost(ctx context.Context, acct *Account, body []byte) (*Post, error) {
 	return p, nil
 }
 
-func (p *Post) Deliver(ctx context.Context, followers_db FollowersDatabase, q DeliveryQueue) error {
-
-	followers_cb := func(ctx context.Context, follower_id string) error {
-
-		slog.Info("Deliver", "post", p.Id, "follower_id", follower_id)
-		err := q.DeliverPost(ctx, p, follower_id)
-
-		if err != nil {
-			return fmt.Errorf("Failed to deliver post to %s, %w", follower_id, err)
-		}
-
-		return nil
-	}
-
-	err := followers_db.GetFollowers(ctx, p.AccountId, followers_cb)
-
-	if err != nil {
-		return fmt.Errorf("Failed to get followers for post author, %w", err)
-	}
-
-	return nil
-}
-
 func (p *Post) AsNote(ctx context.Context) (*ap.Note, error) {
 
 	// https://paul.kinlan.me/adding-activity-pub-to-your-static-site/
@@ -76,21 +51,4 @@ func (p *Post) AsNote(ctx context.Context) (*ap.Note, error) {
 	}
 
 	return n, nil
-}
-
-func (p *Post) AsCreateActivity(ctx context.Context, to []string) (*ap.Activity, error) {
-
-	note, err := p.AsNote(ctx)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to derive note from post, %w", err)
-	}
-
-	create_activity, err := ap.NewCreateActivity(ctx, p.AccountId, to, note)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to derive create activity from note, %w", err)
-	}
-
-	return create_activity, nil
 }
