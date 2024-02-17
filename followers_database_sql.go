@@ -9,6 +9,7 @@ import (
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
+	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
 const SQL_FOLLOWERS_TABLE_NAME string = "followers"
@@ -40,6 +41,17 @@ func NewSQLFollowersDatabase(ctx context.Context, uri string) (FollowersDatabase
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to open database connection, %w", err)
+	}
+
+	if engine == "sqlite3" {
+
+		conn.SetMaxOpenConns(1)
+
+		err := sqlite.SetupConnection(ctx, conn)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to live hard and die fast, %w", err)
+		}
 	}
 
 	db := &SQLFollowersDatabase{

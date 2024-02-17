@@ -276,18 +276,18 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			if db_note != nil {
 
+				logger = logger.With("note id", db_note.Id)
+
 				db_note.Body = enc_note
 				db_note.LastModified = ts
 
 				err = opts.NotesDatabase.UpdateNote(ctx, db_note)
 
 				if err != nil {
-					logger.Error("Failed to add message", "error", err)
+					logger.Error("Failed to update note", "error", err)
 					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 					return
 				}
-
-				logger = logger.With("note id", db_note.Id)
 
 			} else {
 
@@ -311,7 +311,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				err = opts.NotesDatabase.AddNote(ctx, db_note)
 
 				if err != nil {
-					logger.Error("Failed to add message", "error", err)
+					logger.Error("Failed to add note", "error", err)
 					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 					return
 				}

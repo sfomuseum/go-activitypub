@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	// aa_sqlite "github.com/aaronland/go-sqlite/v2"
 )
 
 type GetMessagesCallbackFunc func(context.Context, *Message) error

@@ -1,13 +1,16 @@
+# $> urlescape 'test.db?cache=shared'
+DSN=test.db%3Fcache%3Dshared
+
 accounts:
-	go run cmd/add-actor/main.go -accounts-database-uri 'sql://sqlite3?dsn=test.db' -account-id bob
-	go run cmd/add-actor/main.go -accounts-database-uri 'sql://sqlite3?dsn=test.db' -account-id alice
+	go run cmd/add-actor/main.go -accounts-database-uri 'sql://sqlite3?dsn=$(DSN)' -account-id bob
+	go run cmd/add-actor/main.go -accounts-database-uri 'sql://sqlite3?dsn=$(DSN)' -account-id alice
 
 # Bob wants to follow Alice
 
 follow:
 	go run cmd/follow/main.go \
-		-accounts-database-uri 'sql://sqlite3?dsn=test.db' \
-		-following-database-uri 'sql://sqlite3?dsn=test.db' \
+		-accounts-database-uri 'sql://sqlite3?dsn=$(DSN)' \
+		-following-database-uri 'sql://sqlite3?dsn=$(DSN)' \
 		-account-id bob \
 		-follow alice@localhost:8080 
 
@@ -15,8 +18,8 @@ follow:
 
 unfollow:
 	go run cmd/follow/main.go \
-		-accounts-database-uri 'sql://sqlite3?dsn=test.db' \
-		-following-database-uri 'sql://sqlite3?dsn=test.db' \
+		-accounts-database-uri 'sql://sqlite3?dsn=$(DSN)' \
+		-following-database-uri 'sql://sqlite3?dsn=$(DSN)' \
 		-account-id bob \
 		-follow alice@localhost:8080 \
 		-undo
@@ -25,15 +28,15 @@ unfollow:
 
 post:
 	go run cmd/post/main.go \
-		-accounts-database-uri 'sql://sqlite3?dsn=test.db' \
-		-followers-database-uri 'sql://sqlite3?dsn=test.db' \
-		-posts-database-uri 'sql://sqlite3?dsn=test.db' \
+		-accounts-database-uri 'sql://sqlite3?dsn=$(DSN)' \
+		-followers-database-uri 'sql://sqlite3?dsn=$(DSN)' \
+		-posts-database-uri 'sql://sqlite3?dsn=$(DSN)' \
 		-account-id alice
 
 server:
 	go run cmd/server/main.go \
-		-accounts-database-uri 'sql://sqlite3?dsn=test.db' \
-		-followers-database-uri 'sql://sqlite3?dsn=test.db' \
-		-following-database-uri 'sql://sqlite3?dsn=test.db' \
-		-notes-database-uri 'sql://sqlite3?dsn=test.db' \
+		-accounts-database-uri 'sql://sqlite3?dsn=$(DSN)' \
+		-followers-database-uri 'sql://sqlite3?dsn=$(DSN)' \
+		-following-database-uri 'sql://sqlite3?dsn=$(DSN)' \
+		-notes-database-uri 'sql://sqlite3?dsn=$(DSN)' \
 		-hostname localhost:8080

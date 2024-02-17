@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"net/url"
+
+	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
 const SQL_POSTS_TABLE_NAME string = "posts"
@@ -36,6 +38,15 @@ func NewSQLPostsDatabase(ctx context.Context, uri string) (PostsDatabase, error)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to open database connection, %w", err)
+	}
+
+	if engine == "sqlite3" {
+
+		err := sqlite.SetupConnection(ctx, conn)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to live hard and die fast, %w", err)
+		}
 	}
 
 	db := &SQLPostsDatabase{
