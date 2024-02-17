@@ -1,0 +1,11 @@
+CREATE TABLE posts (
+       id TEXT PRIMARY KEY,
+       account_id TEXT,
+       body TEXT,
+       created INTEGER,
+       lastmodified INTEGER
+);
+
+CREATE INDEX `posts_by_account` ON posts (`account_id`, `created`);
+CREATE INDEX `posts_by_created` ON posts (`created`);
+       
