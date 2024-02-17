@@ -10,11 +10,22 @@ type Actor struct {
 }
 
 type Activity struct {
-	Context string `json:"@context"`
-	Id      string `json:"id"`
-	Type    string `json:"type"`
-	Actor   string `json:"actor"`
-	Object  string `json:"object"`
+	Context string      `json:"@context"`
+	Id      string      `json:"id"`
+	Type    string      `json:"type"`
+	Actor   string      `json:"actor"`
+	To      []string    `json:"to,omitempty"`
+	Object  interface{} `json:"object"`
+}
+
+type Note struct {
+	Type         string      `json:"type"`
+	Id           string      `json:"id"`
+	AttributedTo string      `json:"attributedTo"`
+	To           string      `json:"to"`
+	Content      interface{} `json:"content"`
+	URL          string      `json:"url"`
+	Published    string      `json:"published"`
 }
 
 type PublicKey struct {
