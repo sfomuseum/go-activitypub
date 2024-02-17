@@ -74,6 +74,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to marshal follow activity request, %w", err)
 	}
 
+	// START OF make me common code...
+
 	http_req, err := http.NewRequestWithContext(ctx, "POST", opts.Inbox, bytes.NewBuffer(enc_req))
 
 	if err != nil {
@@ -153,6 +155,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	if activity.Type != "Accept" {
 		return fmt.Errorf("Unexpected activity type, %s", activity.Type)
 	}
+
+	// END OF make make common code
 
 	// Check actor/object pairs here...
 

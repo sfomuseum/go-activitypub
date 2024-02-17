@@ -1,5 +1,13 @@
 package ap
 
+import (
+	"context"
+	"crypto/rsa"
+	"fmt"
+
+	"github.com/sfomuseum/go-activitypub/crypto"
+)
+
 type Actor struct {
 	Context           []string  `json:"@content"`
 	Id                string    `json:"id"`
@@ -7,6 +15,24 @@ type Actor struct {
 	PreferredUsername string    `json:"preferredUsername"`
 	Inbox             string    `json:"inbox"`
 	PublicKey         PublicKey `json:"publicKey"`
+}
+
+func (a *Actor) PublicKeyRSA(ctx context.Context) (*rsa.PublicKey, error) {
+
+	public_key_str := a.PublicKey.PEM
+
+	if public_key_str == "" {
+		return nil, fmt.Errorf("Actor missing public key")
+	}
+
+	public_key, err := crypto.RSAPublicKeyFromPEM(public_key_str)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse PEM block containing public key, %w", err)
+
+	}
+
+	return public_key, nil
 }
 
 type Activity struct {
