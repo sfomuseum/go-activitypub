@@ -38,6 +38,24 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("resource", resource)
 
+		// REVISIT ALL OF THIS...
+
+		/*
+			resource_id, resource_hostname, err := activitypub.ParseAccountURI(resource)
+
+			if err != nil {
+				logger.Error("Failed to parse resource", "error", err)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			if resource_hostname != opts.Hostname {
+				logger.Error("Resource lookup for bunk hostname", "hostname", resource_hostname)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+		*/
+
 		a, err := opts.AccountsDatabase.GetAccount(ctx, resource)
 
 		if err != nil {
@@ -46,7 +64,7 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		wf, err := a.WebfingerResource(ctx, opts.URIs)
+		wf, err := a.WebfingerResource(ctx, opts.Hostname, opts.URIs)
 
 		if err != nil {
 			logger.Error("Failed to derive webfinger response for resource", "error", err)

@@ -9,6 +9,7 @@ import (
 
 	"github.com/aaronland/go-http-server"
 	"github.com/aaronland/go-http-server/handler"
+	"github.com/sfomuseum/go-activitypub"
 )
 
 func Run(ctx context.Context, logger *slog.Logger) error {
@@ -40,8 +41,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	run_opts = v
 
 	handlers := map[string]handler.RouteHandlerFunc{
-		"/.webfinger":         webfingerHandlerFunc,
-		run_opts.URIs.Profile: profileHandlerFunc,
+		activitypub.WEBFINGER_URI: webfingerHandlerFunc,
+		run_opts.URIs.Profile:     profileHandlerFunc,
 		// This does not work because of route handler wah wah which needs to be updated for Go 1.22
 		// fmt.Sprintf("POST %s", run_opts.URIs.Inbox): inboxPostHandlerFunc,
 		run_opts.URIs.Inbox: inboxPostHandlerFunc,

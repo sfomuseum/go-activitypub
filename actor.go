@@ -4,10 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/webfinger"
 )
 
 func RetrieveActor(ctx context.Context, id string) (*ap.Actor, error) {
@@ -24,30 +26,71 @@ func RetrieveActor(ctx context.Context, id string) (*ap.Actor, error) {
 	webfinger_u := &url.URL{}
 	webfinger_u.Scheme = "http" // https
 	webfinger_u.Host = actor_hostname
-	webfinger_u.Path = "/.webfinger" // well-known?
+	webfinger_u.Path = WEBFINGER_URI
 	webfinger_u.RawQuery = webfinger_q.Encode()
 
-	webfinger_uri := webfinger_u.String()
+	webfinger_url := webfinger_u.String()
 
-	rsp, err := http.Get(webfinger_uri)
+	slog.Info("WEBFINGER", "url", webfinger_url)
+
+	webfinger_rsp, err := http.Get(webfinger_url)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to perform webfinger (%s) for actor, %w", webfinger_uri, err)
+		return nil, fmt.Errorf("Failed to perform webfinger (%s) for actor, %w", webfinger_url, err)
 	}
 
-	defer rsp.Body.Close()
+	defer webfinger_rsp.Body.Close()
 
-	if rsp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Remote endpoint did not return successfully %d, %s", rsp.StatusCode, rsp.Status)
+	if webfinger_rsp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Remote endpoint did not return successfully %d, %s", webfinger_rsp.StatusCode, webfinger_rsp.Status)
+	}
+
+	var webfinger_resource *webfinger.Resource
+
+	dec := json.NewDecoder(webfinger_rsp.Body)
+	err = dec.Decode(&webfinger_resource)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to decode webfinger resource, %w", err)
+	}
+
+	var profile_url string
+
+	for _, l := range webfinger_resource.Links {
+
+		if l.Rel == "http://webfinger.net/rel/profile-page" {
+			profile_url = l.HRef
+			break
+		}
+	}
+
+	if profile_url == "" {
+		return nil, fmt.Errorf("Failed to derive profile URL from webfinger resource")
+	}
+
+	slog.Info("PROFILE", "url", profile_url)
+
+	// set some content type header here...?
+
+	profile_rsp, err := http.Get(profile_url)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to retrieve profile URL (%s), %w", profile_url, err)
+	}
+
+	defer profile_rsp.Body.Close()
+
+	if profile_rsp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Remote endpoint did not return successfully %d, %s", profile_rsp.StatusCode, profile_rsp.Status)
 	}
 
 	var actor *ap.Actor
 
-	dec := json.NewDecoder(rsp.Body)
+	dec = json.NewDecoder(profile_rsp.Body)
 	err = dec.Decode(&actor)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to decode actor, %w", err)
+		return nil, fmt.Errorf("Failed to decode profile response, %w", err)
 	}
 
 	return actor, nil

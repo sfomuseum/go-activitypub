@@ -42,23 +42,28 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to create new database, %w", err)
 	}
 
-	acct, err := db.GetAccount(ctx, opts.AccountId)
+	// The person doing the following
+
+	follower_acct, err := db.GetAccount(ctx, opts.AccountId)
 
 	if err != nil {
 		return fmt.Errorf("Failed to retrieve account %s, %w", opts.AccountId, err)
 	}
 
-	acct_url, err := acct.ProfileURL(ctx, opts.URIs)
+	follower_id := follower_acct.Id
+	following_id := opts.Follow
+
+	// The person being followed
+
+	following_actor, err := activitypub.RetrieveActor(ctx, following_id)
 
 	if err != nil {
-		return fmt.Errorf("Failed to derive profile URL for account, %w", err)
+		return fmt.Errorf("Failed to retrieve actor for %s, %w", follow, err)
 	}
 
-	acct_url.Scheme = "http"
+	following_inbox := following_actor.Inbox
 
-	follower := acct_url.String()
-
-	follow_req, err := ap.NewFollowActivity(ctx, follower, opts.Follow)
+	follow_req, err := ap.NewFollowActivity(ctx, follower_id, following_id)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create follow activity, %w", err)
@@ -76,21 +81,21 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	// START OF make me common code...
 
-	http_req, err := http.NewRequestWithContext(ctx, "POST", opts.Inbox, bytes.NewBuffer(enc_req))
+	http_req, err := http.NewRequestWithContext(ctx, "POST", following_inbox, bytes.NewBuffer(enc_req))
 
 	if err != nil {
-		return fmt.Errorf("Failed to create new request to %s, %w", opts.Inbox, err)
+		return fmt.Errorf("Failed to create new request to %s, %w", following_inbox, err)
 	}
 
 	now := time.Now()
 	http_req.Header.Set("Date", now.Format(time.RFC3339))
 
-	key_id := follower
+	key_id := follower_id
 
-	private_key, err := acct.PrivateKeyRSA(ctx)
+	follower_key, err := follower_acct.PrivateKeyRSA(ctx)
 
 	if err != nil {
-		return fmt.Errorf("Failed to derive private key for account, %w", err)
+		return fmt.Errorf("Failed to derive private key for follower account, %w", err)
 	}
 
 	// https://datatracker.ietf.org/doc/html/draft-cavage-http-signatures#section-1.1
@@ -121,7 +126,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to create new signer, %w", err)
 	}
 
-	err = signer.SignRequest(private_key, key_id, http_req, enc_req)
+	err = signer.SignRequest(follower_key, key_id, http_req, enc_req)
 
 	if err != nil {
 		return fmt.Errorf("Failed to sign request, %w", err)

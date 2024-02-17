@@ -36,32 +36,26 @@ func (a *Account) ProfileURL(ctx context.Context, uris_table *URIs) (*url.URL, e
 	}
 
 	profile_url := &url.URL{}
-	profile_url.Scheme = "https"
+	profile_url.Scheme = "http" // "https"
 	profile_url.Host = hostname
 	profile_url.Path = filepath.Join(uris_table.Profile, id)
 
 	return profile_url, nil
 }
 
-func (a *Account) WebfingerResource(ctx context.Context, uris_table *URIs) (*webfinger.Resource, error) {
-
-	id, hostname, err := ParseAccountURI(a.Id)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to parse account URI, %w", err)
-	}
+func (a *Account) WebfingerResource(ctx context.Context, hostname string, uris_table *URIs) (*webfinger.Resource, error) {
 
 	subject := fmt.Sprintf("acct:%s", a.Id)
 
 	profile_url := &url.URL{}
-	profile_url.Scheme = "https"
+	profile_url.Scheme = "http" // "https"
 	profile_url.Host = hostname
-	profile_url.Path = filepath.Join(uris_table.Profile, id)
+	profile_url.Path = filepath.Join(uris_table.Profile, a.Id)
 
 	activity_url := &url.URL{}
-	activity_url.Scheme = "https"
+	activity_url.Scheme = "http" // "https"
 	activity_url.Host = hostname
-	activity_url.Path = filepath.Join(uris_table.Activity, id)
+	activity_url.Path = filepath.Join(uris_table.Activity, a.Id)
 
 	profile_link := webfinger.Link{
 		Rel:  "http://webfinger.net/rel/profile-page",
@@ -90,21 +84,15 @@ func (a *Account) WebfingerResource(ctx context.Context, uris_table *URIs) (*web
 
 func (a *Account) ProfileResource(ctx context.Context, hostname string, uris_table *URIs) (*profile.Resource, error) {
 
-	id, _, err := ParseAccountURI(a.Id)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to parse account URI, %w", err)
-	}
-
 	id_url := &url.URL{}
-	id_url.Scheme = "https"
+	id_url.Scheme = "http" // "https"
 	id_url.Host = hostname
-	id_url.Path = filepath.Join(uris_table.Id, id)
+	id_url.Path = filepath.Join(uris_table.Id, a.Id)
 
 	inbox_url := &url.URL{}
-	inbox_url.Scheme = "https"
+	inbox_url.Scheme = "http" // "https"
 	inbox_url.Host = hostname
-	inbox_url.Path = filepath.Join(uris_table.Inbox, id)
+	inbox_url.Path = filepath.Join(uris_table.Inbox, a.Id)
 
 	pem, err := runtimevar.StringVar(ctx, a.PublicKeyURI)
 
@@ -127,7 +115,7 @@ func (a *Account) ProfileResource(ctx context.Context, hostname string, uris_tab
 		Context:           context,
 		Id:                id_url.String(),
 		Type:              "Person",
-		PreferredUsername: id,
+		PreferredUsername: a.Id,
 		Inbox:             inbox_url.String(),
 		PublicKey:         pub_key,
 	}

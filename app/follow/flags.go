@@ -13,7 +13,8 @@ var accounts_database_uri string
 var account_id string
 
 var follow string
-var inbox string
+
+// var inbox string
 
 var undo bool
 
@@ -28,7 +29,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&account_id, "account-id", "", "...")
 
 	fs.StringVar(&follow, "follow", "", "...")
-	fs.StringVar(&inbox, "inbox", "", "...")
+	// fs.StringVar(&inbox, "inbox", "", "...")
 
 	fs.BoolVar(&undo, "undo", false, "...")
 	return fs
