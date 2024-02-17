@@ -1,0 +1,9 @@
+CREATE TABLE following (
+       account_id TEXT,
+       following_id TEXT,
+       created INTEGER
+);
+
+CREATE UNIQUE INDEX `following_by_account` ON following (`account_id`, `following_id`);
+CREATE INDEX `by_following` ON following (`following_id`, `created`);
+CREATE INDEX `by_created` ON following (`created`);

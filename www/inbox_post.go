@@ -16,6 +16,7 @@ import (
 type InboxPostHandlerOptions struct {
 	AccountsDatabase  activitypub.AccountsDatabase
 	FollowersDatabase activitypub.FollowersDatabase
+	FollowingDatabase activitypub.FollowingDatabase
 	URIs              *activitypub.URIs
 	Hostname          string
 }
@@ -117,7 +118,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		case "Create":
 
-			is_following, err := opts.FollowersDatabase.IsFollowing(ctx, sender_id, acct.Id)
+			is_following, err := opts.FollowingDatabase.IsFollowing(ctx, acct.Id, sender_id)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)

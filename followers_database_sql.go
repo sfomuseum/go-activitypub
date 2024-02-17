@@ -90,12 +90,9 @@ func (db *SQLFollowersDatabase) AddFollower(ctx context.Context, account_id stri
 
 func (db *SQLFollowersDatabase) RemoveFollower(ctx context.Context, account_id string, follower_id string) error {
 
-	now := time.Now()
-	ts := now.Unix()
-
 	q := fmt.Sprintf("DELETE FROM %s WHERE account_id = ? AND follower_id = ?", SQL_FOLLOWERS_TABLE_NAME)
 
-	_, err := db.database.ExecContext(ctx, q, account_id, follower_id, ts)
+	_, err := db.database.ExecContext(ctx, q, account_id, follower_id)
 
 	if err != nil {
 		return fmt.Errorf("Failed to remove follower, %w", err)

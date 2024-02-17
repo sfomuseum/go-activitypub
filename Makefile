@@ -7,6 +7,7 @@ accounts:
 follow:
 	go run cmd/follow/main.go \
 		-accounts-database-uri 'sql://sqlite3?dsn=test.db' \
+		-following-database-uri 'sql://sqlite3?dsn=test.db' \
 		-account-id bob \
 		-follow alice@localhost:8080 
 
@@ -15,6 +16,7 @@ follow:
 unfollow:
 	go run cmd/follow/main.go \
 		-accounts-database-uri 'sql://sqlite3?dsn=test.db' \
+		-following-database-uri 'sql://sqlite3?dsn=test.db' \
 		-account-id bob \
 		-follow alice@localhost:8080 \
 		-undo
@@ -32,4 +34,5 @@ server:
 	go run cmd/server/main.go \
 		-accounts-database-uri 'sql://sqlite3?dsn=test.db' \
 		-followers-database-uri 'sql://sqlite3?dsn=test.db' \
+		-following-database-uri 'sql://sqlite3?dsn=test.db' \
 		-hostname localhost:8080

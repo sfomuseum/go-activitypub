@@ -30,13 +30,19 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	slog.SetDefault(logger)
 
-	db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
+	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create new database, %w", err)
+		return fmt.Errorf("Failed to initialize accounts database, %w", err)
 	}
 
-	follower_acct, err := db.GetAccount(ctx, opts.AccountId)
+	following_db, err := activitypub.NewFollowingDatabase(ctx, opts.FollowingDatabaseURI)
+
+	if err != nil {
+		return fmt.Errorf("Failed to initialize following database, %w", err)
+	}
+
+	follower_acct, err := accounts_db.GetAccount(ctx, opts.AccountId)
 
 	if err != nil {
 		return fmt.Errorf("Failed to retrieve account %s, %w", opts.AccountId, err)
@@ -72,10 +78,23 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	_, err = activitypub.PostToAccount(ctx, post_opts)
 
 	if undo {
+
+		err := following_db.UnFollow(ctx, follower_id, following_id)
+
+		if err != nil {
+			return fmt.Errorf("Unfollow request was successful but unable to register unfollowing locally, %w", err)
+		}
+
 		logger.Info("Unfollowing successful")
-	} else {
-		logger.Info("Following successful")
+		return nil
 	}
 
+	err = following_db.Follow(ctx, follower_id, following_id)
+
+	if err != nil {
+		return fmt.Errorf("Follow request was successful but unable to register following locally, %w", err)
+	}
+
+	logger.Info("Following successful")
 	return nil
 }

@@ -19,10 +19,10 @@ type FollowersDatabase interface {
 	IsFollowing(context.Context, string, string) (bool, error)
 }
 
-var follower_database_roster roster.Roster
+var followers_database_roster roster.Roster
 
-// FollowersDatabaseInitializationFunc is a function defined by individual follower_database package and used to create
-// an instance of that follower_database
+// FollowersDatabaseInitializationFunc is a function defined by individual followers_database package and used to create
+// an instance of that followers_database
 type FollowersDatabaseInitializationFunc func(ctx context.Context, uri string) (FollowersDatabase, error)
 
 // RegisterFollowersDatabase registers 'scheme' as a key pointing to 'init_func' in an internal lookup table
@@ -35,12 +35,12 @@ func RegisterFollowersDatabase(ctx context.Context, scheme string, init_func Fol
 		return err
 	}
 
-	return follower_database_roster.Register(ctx, scheme, init_func)
+	return followers_database_roster.Register(ctx, scheme, init_func)
 }
 
 func ensureFollowersDatabaseRoster() error {
 
-	if follower_database_roster == nil {
+	if followers_database_roster == nil {
 
 		r, err := roster.NewDefaultRoster()
 
@@ -48,7 +48,7 @@ func ensureFollowersDatabaseRoster() error {
 			return err
 		}
 
-		follower_database_roster = r
+		followers_database_roster = r
 	}
 
 	return nil
@@ -68,7 +68,7 @@ func NewFollowersDatabase(ctx context.Context, uri string) (FollowersDatabase, e
 
 	scheme := u.Scheme
 
-	i, err := follower_database_roster.Driver(ctx, scheme)
+	i, err := followers_database_roster.Driver(ctx, scheme)
 
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func FollowersDatabaseSchemes() []string {
 		return schemes
 	}
 
-	for _, dr := range follower_database_roster.Drivers(ctx) {
+	for _, dr := range followers_database_roster.Drivers(ctx) {
 		scheme := fmt.Sprintf("%s://", strings.ToLower(dr))
 		schemes = append(schemes, scheme)
 	}

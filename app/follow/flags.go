@@ -10,6 +10,7 @@ var server_uri string
 var hostname string
 
 var accounts_database_uri string
+var following_database_uri string
 var account_id string
 
 var follow string
@@ -26,6 +27,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&hostname, "hostname", "localhost:8080", "...")
 
 	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "...")
+	fs.StringVar(&following_database_uri, "following-database-uri", "", "...")
 	fs.StringVar(&account_id, "account-id", "", "...")
 
 	fs.StringVar(&follow, "follow", "", "...")

@@ -9,14 +9,14 @@ import (
 )
 
 type RunOptions struct {
-	ServerURI           string
-	Hostname            string
-	AccountsDatabaseURI string
-	AccountId           string
-	Follow              string
-	Undo                bool
-	// Inbox               string
-	URIs *activitypub.URIs
+	ServerURI            string
+	Hostname             string
+	AccountsDatabaseURI  string
+	FollowingDatabaseURI string
+	AccountId            string
+	Follow               string
+	Undo                 bool
+	URIs                 *activitypub.URIs
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -26,14 +26,14 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	uris_table := activitypub.DefaultURIs()
 
 	opts := &RunOptions{
-		ServerURI:           server_uri,
-		Hostname:            hostname,
-		AccountsDatabaseURI: accounts_database_uri,
-		AccountId:           account_id,
-		Follow:              follow,
-		Undo:                undo,
-		// Inbox:               inbox,
-		URIs: uris_table,
+		ServerURI:            server_uri,
+		Hostname:             hostname,
+		AccountsDatabaseURI:  accounts_database_uri,
+		FollowingDatabaseURI: following_database_uri,
+		AccountId:            account_id,
+		Follow:               follow,
+		Undo:                 undo,
+		URIs:                 uris_table,
 	}
 
 	return opts, nil
