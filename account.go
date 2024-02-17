@@ -27,18 +27,12 @@ func (a *Account) String() string {
 	return a.Id
 }
 
-func (a *Account) ProfileURL(ctx context.Context, uris_table *URIs) (*url.URL, error) {
-
-	id, hostname, err := ParseAccountURI(a.Id)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to parse account URI, %w", err)
-	}
+func (a *Account) ProfileURL(ctx context.Context, hostname string, uris_table *URIs) (*url.URL, error) {
 
 	profile_url := &url.URL{}
 	profile_url.Scheme = "http" // "https"
 	profile_url.Host = hostname
-	profile_url.Path = filepath.Join(uris_table.Profile, id)
+	profile_url.Path = filepath.Join(uris_table.Profile, a.Id)
 
 	return profile_url, nil
 }
@@ -47,10 +41,11 @@ func (a *Account) WebfingerResource(ctx context.Context, hostname string, uris_t
 
 	subject := fmt.Sprintf("acct:%s", a.Id)
 
-	profile_url := &url.URL{}
-	profile_url.Scheme = "http" // "https"
-	profile_url.Host = hostname
-	profile_url.Path = filepath.Join(uris_table.Profile, a.Id)
+	profile_url, err := a.ProfileURL(ctx, hostname, uris_table)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to derive profile URL, %w", err)
+	}
 
 	activity_url := &url.URL{}
 	activity_url.Scheme = "http" // "https"

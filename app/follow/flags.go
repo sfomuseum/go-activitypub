@@ -23,7 +23,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs := flagset.NewFlagSet("follow")
 
 	fs.StringVar(&server_uri, "server-uri", "http://localhost:8080", "...")
-	fs.StringVar(&hostname, "hostname", "", "...")
+	fs.StringVar(&hostname, "hostname", "localhost:8080", "...")
 
 	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "...")
 	fs.StringVar(&account_id, "account-id", "", "...")

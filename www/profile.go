@@ -2,7 +2,6 @@ package www
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"path/filepath"
 
@@ -23,23 +22,23 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 
 		logger := LoggerWithRequest(req, nil)
 
-		// START OF TBD...
+		// sudo make me a regexp or req.PathId(...)
 
-		account_name := filepath.Base(req.URL.Path)
-		resource := fmt.Sprintf("%s@%s", account_name, opts.Hostname)
+		account_id := filepath.Base(req.URL.Path)
 
-		// END OF TBD...
+		logger = logger.With("account", account_id)
 
-		logger = logger.With("resource", resource)
+		acct, err := opts.AccountsDatabase.GetAccount(ctx, account_id)
 
-		a, err := opts.AccountsDatabase.GetAccount(ctx, resource)
 		if err != nil {
-			logger.Error("Failed to retrieve account for resource", "error", err)
+			logger.Error("Failed to retrieve account", "error", err)
 			http.Error(rsp, "Not found", http.StatusNotFound)
 			return
 		}
 
-		profile, err := a.ProfileResource(ctx, opts.Hostname, opts.URIs)
+		// Check content-type here and HTML or JSON it up...
+
+		profile, err := acct.ProfileResource(ctx, opts.Hostname, opts.URIs)
 
 		if err != nil {
 			logger.Error("Failed to derive profile response for resource", "error", err)

@@ -16,7 +16,7 @@ unfollow:
 	go run cmd/follow/main.go \
 		-accounts-database-uri 'sql://sqlite3?dsn=test.db' \
 		-account-id bob \
-		-follow alice@localhost:8080 
+		-follow alice@localhost:8080 \
 		-undo
 
 # Alice wants to post something (to Bob, if Bob is following Alice)

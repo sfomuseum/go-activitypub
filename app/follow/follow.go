@@ -90,7 +90,16 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	now := time.Now()
 	http_req.Header.Set("Date", now.Format(time.RFC3339))
 
-	key_id := follower_id
+	// So "key_id" here means a pointer to the actor/profile page where the public key for the follower can be retrieved
+
+	profile_url, err := follower_acct.ProfileURL(ctx, opts.Hostname, opts.URIs) // follower_id
+
+	if err != nil {
+		return fmt.Errorf("Failed to derive profile URL for follower, %w", err)
+	}
+
+	key_id := profile_url.String()
+	slog.Info("FOLLOW", "key_id", key_id)
 
 	follower_key, err := follower_acct.PrivateKeyRSA(ctx)
 

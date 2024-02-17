@@ -2,7 +2,6 @@ package www
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"path/filepath"
 
@@ -35,20 +34,19 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		// START OF TBD...
 
-		inbox_name := filepath.Base(req.URL.Path)
-		resource := fmt.Sprintf("%s@%s", inbox_name, opts.Hostname)
+		// sudo make me a regexp or req.PathId(...)
 
-		logger = logger.With("resource", resource)
+		account_id := filepath.Base(req.URL.Path)
 
-		acct, err := opts.AccountsDatabase.GetAccount(ctx, resource)
+		logger = logger.With("account", account_id)
+
+		acct, err := opts.AccountsDatabase.GetAccount(ctx, account_id)
 
 		if err != nil {
-			logger.Error("Failed to retrieve inbox for resource", "error", err)
+			logger.Error("Failed to retrieve inbox for account", "error", err)
 			http.Error(rsp, "Not found", http.StatusNotFound)
 			return
 		}
-
-		logger = logger.With("account", acct.Id)
 
 		//
 
