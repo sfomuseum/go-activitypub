@@ -10,6 +10,7 @@ FOLLOWING_DB=following.db
 POSTS_DB=posts.db
 NOTES_DB=notes.db
 MESSAGES_DB=messages.db
+BLOCKS_DB=blocks.db
 
 db:
 	rm -f *.db
@@ -19,6 +20,7 @@ db:
 	$(SQLITE3) $(POSTS_DB) < schema/posts.sqlite.schema
 	$(SQLITE3) $(NOTES_DB) < schema/notes.sqlite.schema
 	$(SQLITE3) $(MESSAGES_DB) < schema/messages.sqlite.schema
+	$(SQLITE3) $(BLOCKS_DB) < schema/blocks.sqlite.schema
 
 accounts:
 	go run cmd/add-account/main.go -accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' -account-name bob

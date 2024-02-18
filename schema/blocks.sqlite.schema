@@ -1,0 +1,12 @@
+CREATE TABLE blocks (
+       id INTEGER PRIMARY KEY,
+       account_id INTEGER,
+       name TEXT,
+       host TEXT,
+       created INTEGER
+);
+
+CREATE UNIQUE INDEX `blocks_by_triple` ON blocks (`account_id`, `host`, `name`);
+CREATE INDEX `blocks_by_account` ON blocks (`account_id`, `created`);
+CREATE INDEX `blocks_by_host` ON blocks (`host`, `created`);
+       
