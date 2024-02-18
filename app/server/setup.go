@@ -76,3 +76,17 @@ func setupMessagesDatabase() {
 		return
 	}
 }
+
+func setupBlocksDatabase() {
+
+	ctx := context.Background()
+	var err error
+
+	// defined in vars.go
+	blocks_db, err = activitypub.NewBlocksDatabase(ctx, run_opts.BlocksDatabaseURI)
+
+	if err != nil {
+		setupBlocksDatabaseError = fmt.Errorf("Failed to set up network, %w", err)
+		return
+	}
+}

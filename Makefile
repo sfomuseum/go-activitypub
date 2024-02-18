@@ -69,5 +69,6 @@ server:
 		-following-database-uri 'sql://sqlite3?dsn=$(FOLLOWING_DB)' \
 		-notes-database-uri 'sql://sqlite3?dsn=$(NOTES_DB)' \
 		-messages-database-uri 'sql://sqlite3?dsn=$(MESSAGES_DB)' \
+		-blocks-database-uri 'sql://sqlite3?dsn=$(BLOCKS_DB)' \
 		-allow-create \
 		-hostname localhost:8080

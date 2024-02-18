@@ -21,6 +21,7 @@ type InboxPostHandlerOptions struct {
 	FollowingDatabase activitypub.FollowingDatabase
 	MessagesDatabase  activitypub.MessagesDatabase
 	NotesDatabase     activitypub.NotesDatabase
+	BlocksDatabase    activitypub.BlocksDatabase
 	URIs              *activitypub.URIs
 	Hostname          string
 	AllowFollow       bool
@@ -90,7 +91,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		sender_address := activity.Actor
 		logger = logger.With("sender_address", sender_address)
 
-		follower_name, _, err := activitypub.ParseAccountURI(sender_address)
+		sender_name, sender_host, err := activitypub.ParseAccountURI(sender_address)
 
 		if err != nil {
 			logger.Error("Failed to parse send ID", "error", err)
@@ -98,9 +99,17 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		if follower_name == acct.Name {
-			logger.Error("Can not follow yourself")
-			http.Error(rsp, "Bad request", http.StatusBadRequest)
+		is_blocked, err := opts.BlocksDatabase.IsBlockedByAccount(ctx, acct.Id, sender_host, sender_name)
+
+		if err != nil {
+			logger.Error("Failed to determine if sender is blocked", "error", err)
+			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		if is_blocked {
+			logger.Error("Sender is blocked")
+			http.Error(rsp, "Forbidden", http.StatusForbidden)
 			return
 		}
 
@@ -112,6 +121,12 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			if !opts.AllowFollow {
 				logger.Error("Unsupported activity type")
 				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
+				return
+			}
+
+			if sender_name == acct.Name {
+				logger.Error("Can not follow yourself")
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
 				return
 			}
 

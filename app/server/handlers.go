@@ -82,12 +82,20 @@ func inboxPostHandlerFunc(ctx context.Context) (http.Handler, error) {
 		return nil, fmt.Errorf("Failed to set up follower database configuration, %w", setupMessagesDatabaseError)
 	}
 
+	setupBlocksDatabaseOnce.Do(setupBlocksDatabase)
+
+	if setupBlocksDatabaseError != nil {
+		slog.Error("Failed to set up follower database configuration", "error", setupBlocksDatabaseError)
+		return nil, fmt.Errorf("Failed to set up follower database configuration, %w", setupBlocksDatabaseError)
+	}
+
 	opts := &www.InboxPostHandlerOptions{
 		AccountsDatabase:  accounts_db,
 		FollowersDatabase: followers_db,
 		FollowingDatabase: following_db,
 		NotesDatabase:     notes_db,
 		MessagesDatabase:  messages_db,
+		BlocksDatabase:    blocks_db,
 		URIs:              run_opts.URIs,
 		Hostname:          run_opts.Hostname,
 		AllowFollow:       run_opts.AllowFollow,

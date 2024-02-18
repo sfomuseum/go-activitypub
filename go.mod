@@ -4,7 +4,7 @@ go 1.22.0
 
 require (
 	github.com/aaronland/go-http-sanitize v0.0.8
-	github.com/aaronland/go-http-server v1.3.0
+	github.com/aaronland/go-http-server v1.4.0
 	github.com/aaronland/go-pagination v0.2.0
 	github.com/aaronland/go-pagination-sql v0.2.0
 	github.com/aaronland/go-roster v1.0.0
@@ -21,8 +21,8 @@ require (
 
 require (
 	github.com/aaronland/go-aws-auth v1.3.0 // indirect
-	github.com/akrylysov/algnhsa v1.0.0 // indirect
-	github.com/aws/aws-lambda-go v1.41.0 // indirect
+	github.com/akrylysov/algnhsa v1.1.0 // indirect
+	github.com/aws/aws-lambda-go v1.46.0 // indirect
 	github.com/aws/aws-sdk-go v1.49.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.24.1 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.26.6 // indirect

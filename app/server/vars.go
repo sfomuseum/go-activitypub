@@ -27,3 +27,7 @@ var setupNotesDatabaseError error
 var messages_db activitypub.MessagesDatabase
 var setupMessagesDatabaseOnce sync.Once
 var setupMessagesDatabaseError error
+
+var blocks_db activitypub.BlocksDatabase
+var setupBlocksDatabaseOnce sync.Once
+var setupBlocksDatabaseError error

@@ -18,6 +18,7 @@ type RunOptions struct {
 	FollowingDatabaseURI string
 	NotesDatabaseURI     string
 	MessagesDatabaseURI  string
+	BlocksDatabaseURI    string
 	Hostname             string
 	URIs                 *activitypub.URIs
 	AllowFollow          bool
@@ -47,6 +48,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		FollowingDatabaseURI: following_database_uri,
 		NotesDatabaseURI:     notes_database_uri,
 		MessagesDatabaseURI:  messages_database_uri,
+		BlocksDatabaseURI:    blocks_database_uri,
 		ServerURI:            server_uri,
 		Hostname:             hostname,
 		URIs:                 uris_table,
