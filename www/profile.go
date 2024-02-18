@@ -43,8 +43,15 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 		acct, err := opts.AccountsDatabase.GetAccountWithName(ctx, account_name)
 
 		if err != nil {
+
 			logger.Error("Failed to retrieve account", "error", err)
-			http.Error(rsp, "Not found", http.StatusNotFound)
+
+			if err == activitypub.ErrNotFound {
+				http.Error(rsp, "Not found", http.StatusNotFound)
+				return
+			}
+
+			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 

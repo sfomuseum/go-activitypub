@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	_ "fmt"
-	"log/slog"
+	_ "log/slog"
 	"net/http"
 	"path/filepath"
 	"time"
@@ -45,7 +45,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		if !IsActivityStreamRequest(req) {
 			logger.Error("Not activitystream request")
-			http.Error(rsp, "Not implemented", http.StatusNotImplemented)
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
 			return
 		}
 
@@ -60,8 +60,15 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		acct, err := opts.AccountsDatabase.GetAccountWithName(ctx, account_name)
 
 		if err != nil {
+
 			logger.Error("Failed to retrieve inbox for account", "error", err)
-			http.Error(rsp, "Not found", http.StatusNotFound)
+
+			if err == activitypub.ErrNotFound {
+				http.Error(rsp, "Not found", http.StatusNotFound)
+				return
+			}
+
+			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
@@ -83,8 +90,6 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		sender_address := activity.Actor
 		logger = logger.With("sender_address", sender_address)
 
-		slog.Info("INBOX", "sender", sender_address)
-
 		follower_name, _, err := activitypub.ParseAccountURI(sender_address)
 
 		if err != nil {
@@ -99,11 +104,13 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
+		logger = logger.With("activity-type", activity.Type)
+
 		switch activity.Type {
 		case "Follow", "Undo":
 
 			if !opts.AllowFollow {
-				logger.Error("Unsupported activity type", "type", activity.Type)
+				logger.Error("Unsupported activity type")
 				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 				return
 			}
@@ -111,18 +118,16 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		case "Create":
 
 			if !opts.AllowCreate {
-				logger.Error("Unsupported activity type", "type", activity.Type)
+				logger.Error("Unsupported activity type")
 				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 				return
 			}
 
 		default:
-			logger.Error("Unsupported activity type", "type", activity.Type)
+			logger.Error("Unsupported activity type")
 			http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 			return
 		}
-
-		logger = logger.With("activity-type", activity.Type)
 
 		// START OF verify request
 
@@ -195,8 +200,6 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			http.Error(rsp, "Forbidden", http.StatusForbidden)
 			return
 		}
-
-		// END OF put me in a function
 
 		// Actually do something
 

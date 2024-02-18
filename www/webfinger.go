@@ -48,7 +48,13 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 
 		if err != nil {
 			logger.Error("Failed to retrieve account for resource", "error", err)
-			http.Error(rsp, "Not found", http.StatusNotFound)
+
+			if err == activitypub.ErrNotFound {
+				http.Error(rsp, "Not found", http.StatusNotFound)
+				return
+			}
+
+			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
