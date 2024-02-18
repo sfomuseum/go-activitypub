@@ -96,7 +96,7 @@ func (db *SQLAccountsDatabase) getAccount(ctx context.Context, where string, arg
 
 	switch {
 	case err == sql.ErrNoRows:
-		return nil, err
+		return nil, ErrNotFound
 	case err != nil:
 		return nil, err
 	default:
