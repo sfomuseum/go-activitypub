@@ -78,6 +78,10 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	_, err = activitypub.PostToAccount(ctx, post_opts)
 
+	if err != nil {
+		return fmt.Errorf("Failed to deliver follow activity, %w", err)
+	}
+
 	if undo {
 
 		err := following_db.UnFollow(ctx, follower_id, following_address)

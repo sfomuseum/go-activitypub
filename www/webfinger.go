@@ -27,7 +27,7 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 			http.Error(rsp, "Method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
-		
+
 		resource, err := sanitize.GetString(req, "resource")
 
 		if err != nil {

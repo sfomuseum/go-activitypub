@@ -27,7 +27,7 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 			http.Error(rsp, "Method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
-		
+
 		// sudo make me a regexp or req.PathId(...)
 
 		account_name := filepath.Base(req.URL.Path)

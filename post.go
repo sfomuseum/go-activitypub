@@ -3,14 +3,15 @@ package activitypub
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/sfomuseum/go-activitypub/ap"
 )
 
 type Post struct {
 	Id           int64  `json:"id"`
+	UUID         string `json:"uuid"`
 	AccountId    int64  `json:"account_id"`
 	Body         []byte `json:"body"`
 	Created      int64  `json:"created"`
@@ -28,8 +29,11 @@ func NewPost(ctx context.Context, acct *Account, body []byte) (*Post, error) {
 	now := time.Now()
 	ts := now.Unix()
 
+	guid := uuid.New()
+
 	p := &Post{
 		Id:           post_id,
+		UUID:         guid.String(),
 		AccountId:    acct.Id,
 		Body:         body,
 		Created:      ts,
@@ -49,7 +53,7 @@ func (p *Post) AsNote(ctx context.Context) (*ap.Note, error) {
 	// Need account or accounts database...
 	attr := "fix me"
 
-	guid := strconv.FormatInt(p.Id, 10)
+	guid := p.UUID
 
 	t := time.Unix(p.Created, 0)
 

@@ -20,8 +20,8 @@ db:
 	$(SQLITE3) $(MESSAGES_DB) < schema/messages.sqlite.schema
 
 accounts:
-	go run cmd/add-account/main.go -accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' -account-id bob
-	go run cmd/add-account/main.go -accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' -account-id alice
+	go run cmd/add-account/main.go -accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' -account-name bob
+	go run cmd/add-account/main.go -accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' -account-name alice
 
 # Bob wants to follow Alice
 
@@ -29,7 +29,7 @@ follow:
 	go run cmd/follow/main.go \
 		-accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' \
 		-following-database-uri 'sql://sqlite3?dsn=$(FOLLOWING_DB)' \
-		-account-id bob \
+		-account-name bob \
 		-follow alice@localhost:8080 
 
 # Bob wants to unfollow Alice
@@ -38,7 +38,7 @@ unfollow:
 	go run cmd/follow/main.go \
 		-accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' \
 		-following-database-uri 'sql://sqlite3?dsn=$(FOLLOWING_DB)' \
-		-account-id bob \
+		-account-name bob \
 		-follow alice@localhost:8080 \
 		-undo
 
@@ -49,7 +49,8 @@ post:
 		-accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' \
 		-followers-database-uri 'sql://sqlite3?dsn=$(FOLLOWERS_DB)' \
 		-posts-database-uri 'sql://sqlite3?dsn=$(POSTS_DB)' \
-		-account-id alice
+		-account-name alice \
+		-message "$(MESSAGE)"
 
 server:
 	go run cmd/server/main.go \

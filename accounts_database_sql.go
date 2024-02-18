@@ -58,9 +58,9 @@ func NewSQLAccountsDatabase(ctx context.Context, uri string) (AccountsDatabase, 
 
 func (db *SQLAccountsDatabase) AddAccount(ctx context.Context, a *Account) error {
 
-	q := fmt.Sprintf("INSERT INTO %s (id, public_key_uri, private_key_uri, created, lastmodified) VALUES (?, ?, ?, ?, ?)", SQL_ACCOUNTS_TABLE_NAME)
+	q := fmt.Sprintf("INSERT INTO %s (id, name, public_key_uri, private_key_uri, created, lastmodified) VALUES (?, ?, ?, ?, ?, ?)", SQL_ACCOUNTS_TABLE_NAME)
 
-	_, err := db.database.ExecContext(ctx, q, a.Id, a.PublicKeyURI, a.PrivateKeyURI, a.Created, a.LastModified)
+	_, err := db.database.ExecContext(ctx, q, a.Id, a.Name, a.PublicKeyURI, a.PrivateKeyURI, a.Created, a.LastModified)
 
 	if err != nil {
 		return fmt.Errorf("Failed to add account, %w", err)

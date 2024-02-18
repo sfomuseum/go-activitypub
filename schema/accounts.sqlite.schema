@@ -1,7 +1,11 @@
 CREATE TABLE accounts (
-       id TEXT PRIMARY KEY,
+       id INTEGER PRIMARY KEY,
+       name TEXT,
        private_key_uri TEXT,
        public_key_uri TEXT,
        created INTEGER,
        lastmodified INTEGER
 );
+
+CREATE UNIQUE INDEX `accounts_by_name` ON accounts (`name`);
+CREATE INDEX `accounts_by_created` ON ACCOUNTS (`created`);
