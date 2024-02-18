@@ -62,3 +62,17 @@ func setupNotesDatabase() {
 		return
 	}
 }
+
+func setupMessagesDatabase() {
+
+	ctx := context.Background()
+	var err error
+
+	// defined in vars.go
+	messages_db, err = activitypub.NewMessagesDatabase(ctx, run_opts.MessagesDatabaseURI)
+
+	if err != nil {
+		setupMessagesDatabaseError = fmt.Errorf("Failed to set up network, %w", err)
+		return
+	}
+}

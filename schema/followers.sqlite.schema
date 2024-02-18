@@ -4,4 +4,4 @@ CREATE TABLE followers (
        created INTEGER
 );
 
-CREATE UNIQUE INDEX `by_account` ON followers (`account_id`, `follower_id`);
+CREATE UNIQUE INDEX `followers_by_account` ON followers (`account_id`, `follower_id`);

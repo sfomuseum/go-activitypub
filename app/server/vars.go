@@ -23,3 +23,7 @@ var setupFollowingDatabaseError error
 var notes_db activitypub.NotesDatabase
 var setupNotesDatabaseOnce sync.Once
 var setupNotesDatabaseError error
+
+var messages_db activitypub.MessagesDatabase
+var setupMessagesDatabaseOnce sync.Once
+var setupMessagesDatabaseError error

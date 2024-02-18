@@ -8,7 +8,7 @@ import (
 
 func SetupConnection(ctx context.Context, conn *sql.DB) error {
 
-	conn.SetMaxOpenConns(1)
+	// conn.SetMaxOpenConns(1)
 
 	pragma := []string{
 		"PRAGMA JOURNAL_MODE=OFF",

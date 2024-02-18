@@ -18,7 +18,9 @@ type MessagesDatabase interface {
 	// GetMessagesForAuthor(context.Context, string, GetMessagesCallbackFunc) error
 	// GetMessagesForNoteId(context.Context, int64, GetMessagesCallbackFunc) error
 
-	GetMessageForNoteIdAndAccount(context.Context, int64, string) (*Message, error)
+	GetMessageWithId(context.Context, int64) (*Message, error)
+
+	GetMessageWithAccountAndNoteIds(context.Context, string, int64) (*Message, error)
 	AddMessage(context.Context, *Message) error
 	UpdateMessage(context.Context, *Message) error
 	RemoveMessage(context.Context, *Message) error

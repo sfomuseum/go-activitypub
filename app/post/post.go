@@ -41,7 +41,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to instantiate followers database, %w", err)
 	}
 
-	posts_db, err := activitypub.NewPostsDatabase(ctx, opts.AccountsDatabaseURI)
+	posts_db, err := activitypub.NewPostsDatabase(ctx, opts.PostsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create instatiate posts database, %w", err)
