@@ -28,6 +28,12 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 			return
 		}
 
+		if !IsActivityStreamRequest(req) {
+			logger.Error("Not activitystream request")
+			http.Error(rsp, "Not implemented", http.StatusNotImplemented)
+			return
+		}
+
 		// sudo make me a regexp or req.PathId(...)
 
 		account_name := filepath.Base(req.URL.Path)

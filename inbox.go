@@ -65,6 +65,7 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 
 	now := time.Now()
 	http_req.Header.Set("Date", now.Format(time.RFC3339))
+	http_req.Header.Set("Accept", ap.ACTIVITYSTREAMS_ACCEPT_HEADER)
 
 	// Note that "key_id" here means a pointer to the actor/profile page where the public key
 	// for the follower can be retrieved

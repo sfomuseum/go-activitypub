@@ -29,6 +29,8 @@ type InboxPostHandlerOptions struct {
 
 func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
+	http_cl := &http.Client{}
+
 	fn := func(rsp http.ResponseWriter, req *http.Request) {
 
 		ctx := req.Context()
@@ -38,6 +40,12 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		if req.Method != http.MethodPost {
 			logger.Error("Method not allowed")
 			http.Error(rsp, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		if !IsActivityStreamRequest(req) {
+			logger.Error("Not activitystream request")
+			http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 			return
 		}
 
@@ -129,9 +137,19 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		key_id := verifier.KeyId()
 		logger = logger.With("key id", key_id)
 
-		logger.Info("Fetch other", "key_id", key_id)
+		logger.Info("Fetch key for sender", "key_id", key_id)
 
-		other_rsp, err := http.Get(key_id)
+		sender_req, err := http.NewRequestWithContext(ctx, "GET", key_id, nil)
+
+		if err != nil {
+			logger.Error("Failed to create request for key id", "error", err)
+			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		sender_req.Header.Set("Accept", ap.ACTIVITYSTREAMS_ACCEPT_HEADER)
+
+		sender_rsp, err := http_cl.Do(sender_req)
 
 		if err != nil {
 			logger.Error("Failed to retrieve key ID", "error", err)
@@ -139,12 +157,12 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		defer other_rsp.Body.Close()
+		defer sender_rsp.Body.Close()
 
-		var other_actor *ap.Actor
+		var sender_actor *ap.Actor
 
-		dec = json.NewDecoder(other_rsp.Body)
-		err = dec.Decode(&other_actor)
+		dec = json.NewDecoder(sender_rsp.Body)
+		err = dec.Decode(&sender_actor)
 
 		if err != nil {
 			logger.Error("Failed to other actor", "error", err)
@@ -152,7 +170,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		public_key_str := other_actor.PublicKey.PEM
+		public_key_str := sender_actor.PublicKey.PEM
 
 		if public_key_str == "" {
 			logger.Error("Other actor missing public key")

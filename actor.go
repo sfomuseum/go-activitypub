@@ -70,9 +70,18 @@ func RetrieveActor(ctx context.Context, id string) (*ap.Actor, error) {
 
 	slog.Info("PROFILE", "url", profile_url)
 
-	// set some content type header here...?
+	profile_req, err := http.NewRequestWithContext(ctx, "GET", profile_url, nil)
 
-	profile_rsp, err := http.Get(profile_url)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create profile request, %w", err)
+	}
+
+	profile_req.Header.Set("Accept", ap.ACTIVITYSTREAMS_ACCEPT_HEADER)
+
+	slog.Info("WTF", "accept", profile_req.Header.Get("Accept"))
+	cl := &http.Client{}
+
+	profile_rsp, err := cl.Do(profile_req)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to retrieve profile URL (%s), %w", profile_url, err)

@@ -12,6 +12,7 @@ func LoggerWithRequest(req *http.Request, logger *slog.Logger) *slog.Logger {
 	}
 
 	logger = logger.With("method", req.Method)
+	logger = logger.With("accept", req.Header.Get("Accept"))
 	logger = logger.With("path", req.URL.Path)
 	logger = logger.With("remote_addr", req.RemoteAddr)
 
