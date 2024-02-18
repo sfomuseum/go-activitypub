@@ -8,13 +8,12 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
-	// aa_sqlite "github.com/aaronland/go-sqlite/v2"
 )
 
 type GetMessagesCallbackFunc func(context.Context, *Message) error
 
 type MessagesDatabase interface {
-	// GetMessagesForAccount(context.Context, string, GetMessagesCallbackFunc) error
+	GetMessagesForAccount(context.Context, int64, GetMessagesCallbackFunc) error
 	// GetMessagesForAuthor(context.Context, string, GetMessagesCallbackFunc) error
 	// GetMessagesForNoteId(context.Context, int64, GetMessagesCallbackFunc) error
 

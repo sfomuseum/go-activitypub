@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/url"
 
+	pg_sql "github.com/aaronland/go-pagination-sql"
+	"github.com/aaronland/go-pagination/countable"
 	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
@@ -137,6 +139,71 @@ func (db *SQLMessagesDatabase) RemoveMessage(ctx context.Context, message *Messa
 
 	if err != nil {
 		return fmt.Errorf("Failed to remove message, %w", err)
+	}
+
+	return nil
+}
+
+func (db *SQLMessagesDatabase) GetMessagesForAccount(ctx context.Context, account_id int64, following_callback GetMessagesCallbackFunc) error {
+
+	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
+
+		rows := pg_rsp.Rows()
+
+		for rows.Next() {
+
+			var id int64
+			var note_id int64
+			var author_address string
+			var account_id int64
+			var created int64
+			var lastmod int64
+
+			err := rows.Scan(&id, &note_id, &author_address, &account_id, &created, &lastmod)
+
+			if err != nil {
+				return fmt.Errorf("Failed to query database, %w", err)
+			}
+
+			m := &Message{
+				Id:            id,
+				NoteId:        note_id,
+				AuthorAddress: author_address,
+				AccountId:     account_id,
+				Created:       created,
+				LastModified:  lastmod,
+			}
+
+			err = following_callback(ctx, m)
+
+			if err != nil {
+				return fmt.Errorf("Failed to execute following callback for message %d, %w", m.Id, err)
+			}
+
+			return nil
+		}
+
+		err := rows.Close()
+
+		if err != nil {
+			return fmt.Errorf("Failed to iterate through database rows, %w", err)
+		}
+
+		return nil
+	}
+
+	pg_opts, err := countable.NewCountableOptions()
+
+	if err != nil {
+		return fmt.Errorf("Failed to create pagination options, %w", err)
+	}
+
+	q := fmt.Sprintf("SELECT id, note_id, author_address, account_id, created, lastmodified FROM %s WHERE account_id=? ORDER BY created DESC", SQL_MESSAGES_TABLE_NAME)
+
+	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q, account_id)
+
+	if err != nil {
+		return fmt.Errorf("Failed to execute paginated query, %w", err)
 	}
 
 	return nil

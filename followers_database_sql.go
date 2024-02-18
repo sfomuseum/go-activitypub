@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log/slog"
 	"net/url"
 	"time"
 
@@ -38,7 +37,6 @@ func NewSQLFollowersDatabase(ctx context.Context, uri string) (FollowersDatabase
 	q := u.Query()
 	dsn := q.Get("dsn")
 
-	slog.Info("FOLLOWERS", "engine", engine, "dsn", dsn)
 	conn, err := sql.Open(engine, dsn)
 
 	if err != nil {

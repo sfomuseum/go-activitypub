@@ -1,5 +1,6 @@
-# $> urlescape 'test.db?cache=shared'
-DSN=test.db%3Fcache%3Dshared%26mode%3Drwc
+GOMOD=$(shell test -f "go.work" && echo "readonly" || echo "vendor")
+
+LDFLAGS=-s -w
 
 SQLITE3=sqlite3
 
@@ -51,6 +52,13 @@ post:
 		-posts-database-uri 'sql://sqlite3?dsn=$(POSTS_DB)' \
 		-account-name alice \
 		-message "$(MESSAGE)"
+
+inbox:
+	go run cmd/inbox/main.go \
+		-accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' \
+		-messages-database-uri 'sql://sqlite3?dsn=$(MESSAGES_DB)' \
+		-notes-database-uri 'sql://sqlite3?dsn=$(NOTES_DB)' \
+		-account-name $(ACCOUNT)
 
 server:
 	go run cmd/server/main.go \

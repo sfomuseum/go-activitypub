@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log/slog"
 	"net/url"
 
 	"github.com/sfomuseum/go-activitypub/sqlite"
@@ -35,7 +34,6 @@ func NewSQLPostsDatabase(ctx context.Context, uri string) (PostsDatabase, error)
 	q := u.Query()
 	dsn := q.Get("dsn")
 
-	slog.Info("POSTS", "engine", engine, "dsn", dsn)
 	conn, err := sql.Open(engine, dsn)
 
 	if err != nil {
