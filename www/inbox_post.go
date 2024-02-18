@@ -104,7 +104,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			if !opts.AllowFollow {
 				logger.Error("Unsupported activity type", "type", activity.Type)
-				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 				return
 			}
 
@@ -112,13 +112,13 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			if !opts.AllowCreate {
 				logger.Error("Unsupported activity type", "type", activity.Type)
-				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 				return
 			}
 
 		default:
 			logger.Error("Unsupported activity type", "type", activity.Type)
-			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 			return
 		}
 

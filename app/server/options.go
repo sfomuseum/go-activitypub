@@ -20,6 +20,8 @@ type RunOptions struct {
 	MessagesDatabaseURI  string
 	Hostname             string
 	URIs                 *activitypub.URIs
+	AllowFollow          bool
+	AllowCreate          bool
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -48,6 +50,8 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		ServerURI:            server_uri,
 		Hostname:             hostname,
 		URIs:                 uris_table,
+		AllowFollow:          allow_follow,
+		AllowCreate:          allow_create,
 	}
 
 	return opts, nil
