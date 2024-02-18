@@ -1,7 +1,7 @@
 CREATE TABLE messages (
        id INTEGER PRIMARY KEY,
        note_id INTEGER,
-       account_id TEXT,
+       account_id INTEGER,
        author_uri TEXT,
        created INTEGER,
        lastmodified INTEGER

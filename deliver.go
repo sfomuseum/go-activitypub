@@ -3,7 +3,7 @@ package activitypub
 import (
 	"context"
 	"fmt"
-	"log/slog"
+	_ "log/slog"
 
 	"github.com/sfomuseum/go-activitypub/ap"
 )
@@ -19,19 +19,17 @@ type DeliverPostToFollowersOptions struct {
 
 func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOptions) error {
 
-	acct, err := opts.AccountsDatabase.GetAccount(ctx, opts.Post.AccountId)
+	acct, err := opts.AccountsDatabase.GetAccountWithId(ctx, opts.Post.AccountId)
 
 	if err != nil {
 		return fmt.Errorf("Failed to retrieve account ID for post, %w", err)
 	}
 
-	followers_cb := func(ctx context.Context, follower_id string) error {
-
-		slog.Info("DELIVER", "to", follower_id)
+	followers_cb := func(ctx context.Context, follower_uri string) error {
 
 		post_opts := &DeliverPostOptions{
 			From:     acct,
-			To:       follower_id,
+			To:       follower_uri,
 			Post:     opts.Post,
 			Hostname: opts.Hostname,
 			URIs:     opts.URIs,
@@ -40,7 +38,7 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 		err := opts.DeliveryQueue.DeliverPost(ctx, post_opts)
 
 		if err != nil {
-			return fmt.Errorf("Failed to deliver post to %s, %w", follower_id, err)
+			return fmt.Errorf("Failed to deliver post to %s, %w", follower_uri, err)
 		}
 
 		return nil
@@ -63,13 +61,13 @@ func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) (*ap.Ac
 		return nil, fmt.Errorf("Failed to derive note from post, %w", err)
 	}
 
-	from := fmt.Sprintf("%s@%s", opts.From.Id, opts.Hostname)
+	from_uri := opts.From.Address(opts.Hostname)
 
 	to_list := []string{
 		opts.To,
 	}
 
-	create_activity, err := ap.NewCreateActivity(ctx, from, to_list, note)
+	create_activity, err := ap.NewCreateActivity(ctx, from_uri, to_list, note)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create activity from post, %w", err)

@@ -1,7 +1,7 @@
 CREATE TABLE followers (
-       account_id TEXT,
-       follower_id TEXT,
+       account_id INTEGER,
+       follower_address TEXT,
        created INTEGER
 );
 
-CREATE UNIQUE INDEX `followers_by_account` ON followers (`account_id`, `follower_id`);
+CREATE UNIQUE INDEX `followers_by_account` ON followers (`account_id`, `follower_address`);

@@ -1,6 +1,6 @@
 CREATE TABLE posts (
        id TEXT PRIMARY KEY,
-       account_id TEXT,
+       account_id INTEGER,
        body TEXT,
        created INTEGER,
        lastmodified INTEGER

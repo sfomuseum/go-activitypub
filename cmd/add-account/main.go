@@ -6,7 +6,7 @@ import (
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/sfomuseum/go-activitypub/app/actor/add"
+	"github.com/sfomuseum/go-activitypub/app/account/add"
 	_ "gocloud.dev/docstore/memdocstore"
 )
 

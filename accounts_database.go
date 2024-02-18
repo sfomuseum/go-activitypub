@@ -11,7 +11,8 @@ import (
 )
 
 type AccountsDatabase interface {
-	GetAccount(context.Context, string) (*Account, error)
+	GetAccountWithId(context.Context, int64) (*Account, error)
+	GetAccountWithName(context.Context, string) (*Account, error)
 	AddAccount(context.Context, *Account) error
 	RemoveAccount(context.Context, *Account) error
 	UpdateAccount(context.Context, *Account) error

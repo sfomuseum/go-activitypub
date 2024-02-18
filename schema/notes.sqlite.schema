@@ -1,12 +1,12 @@
 CREATE TABLE notes (
        id INTEGER PRIMARY KEY,
        note_id TEXT,
-       author_uri TEXT,
+       author_address TEXT,
        body TEXT,
        created INTEGER,
        lastmodified INTEGER
 );
 
-CREATE UNIQUE INDEX `notes_by_author_uri` ON notes (`author_uri`, `note_id`);
+CREATE UNIQUE INDEX `notes_by_author_address` ON notes (`author_address`, `note_id`);
 CREATE INDEX `notes_by_created` ON notes (`created`);
        

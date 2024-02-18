@@ -37,17 +37,47 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to create new database, %w", err)
 	}
 
-	private_pem, public_pem, err := crypto.GenerateKeyPair(4096)
-
-	if err != nil {
-		return fmt.Errorf("Failed to generate private key, %w", err)
+	if opts.PublicKeyURI == "" && opts.PrivateKeyURI != "" {
+		return fmt.Errorf("Missing public key URI")
 	}
 
-	private_key_uri := fmt.Sprintf("constant://?val=%s", url.QueryEscape(string(private_pem)))
-	public_key_uri := fmt.Sprintf("constant://?val=%s", url.QueryEscape(string(public_pem)))
+	if opts.PublicKeyURI != "" && opts.PrivateKeyURI == "" {
+		return fmt.Errorf("Missing private key URI")
+	}
+
+	var private_key_uri string
+	var public_key_uri string
+
+	if opts.PublicKeyURI != "" && opts.PrivateKeyURI != "" {
+		public_key_uri = opts.PublicKeyURI
+		private_key_uri = opts.PrivateKeyURI
+	} else {
+		private_pem, public_pem, err := crypto.GenerateKeyPair(4096)
+
+		if err != nil {
+			return fmt.Errorf("Failed to generate private key, %w", err)
+		}
+
+		private_key_uri = fmt.Sprintf("constant://?val=%s", url.QueryEscape(string(private_pem)))
+		public_key_uri = fmt.Sprintf("constant://?val=%s", url.QueryEscape(string(public_pem)))
+	}
+
+	account_id := opts.AccountId
+
+	if account_id == 0 {
+
+		id, err := activitypub.NewId()
+
+		if err != nil {
+			return fmt.Errorf("Failed to create new account ID, %w", err)
+		}
+
+		account_id = id
+	}
 
 	a := &activitypub.Account{
-		Id:            opts.AccountId,
+		Name:          opts.AccountName,
+		Id:            account_id,
 		PrivateKeyURI: private_key_uri,
 		PublicKeyURI:  public_key_uri,
 	}

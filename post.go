@@ -2,15 +2,16 @@ package activitypub
 
 import (
 	"context"
+	"fmt"
+	"strconv"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/sfomuseum/go-activitypub/ap"
 )
 
 type Post struct {
-	Id           string `json:"id"`
-	AccountId    string `json:"account_id"`
+	Id           int64  `json:"id"`
+	AccountId    int64  `json:"account_id"`
 	Body         []byte `json:"body"`
 	Created      int64  `json:"created"`
 	LastModified int64  `json:"lastmodified"`
@@ -18,13 +19,17 @@ type Post struct {
 
 func NewPost(ctx context.Context, acct *Account, body []byte) (*Post, error) {
 
+	post_id, err := NewId()
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to derive new post ID, %w", err)
+	}
+
 	now := time.Now()
 	ts := now.Unix()
 
-	guid := uuid.New()
-
 	p := &Post{
-		Id:           guid.String(),
+		Id:           post_id,
 		AccountId:    acct.Id,
 		Body:         body,
 		Created:      ts,
@@ -38,16 +43,24 @@ func (p *Post) AsNote(ctx context.Context) (*ap.Note, error) {
 
 	// https://paul.kinlan.me/adding-activity-pub-to-your-static-site/
 
+	// Need hostname and URIs and possible accounts database?
+	url := fmt.Sprintf("x-urn:fix-me#%d", p.Id)
+
+	// Need account or accounts database...
+	attr := "fix me"
+
+	guid := strconv.FormatInt(p.Id, 10)
+
 	t := time.Unix(p.Created, 0)
 
 	n := &ap.Note{
 		Type:         "Note",
-		Id:           p.Id,
-		AttributedTo: p.AccountId,
+		Id:           guid,
+		AttributedTo: attr,
 		To:           "https://www.w3.org/ns/activitystreams#Public", // what?
 		Content:      string(p.Body),
 		Published:    t.Format(time.RFC3339),
-		URL:          "x-urn:fix-me",
+		URL:          url,
 	}
 
 	return n, nil

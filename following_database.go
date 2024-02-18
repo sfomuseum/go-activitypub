@@ -13,10 +13,10 @@ import (
 type GetFollowingCallbackFunc func(context.Context, string) error
 
 type FollowingDatabase interface {
-	GetFollowing(context.Context, string, GetFollowingCallbackFunc) error
-	Follow(context.Context, string, string) error
-	UnFollow(context.Context, string, string) error
-	IsFollowing(context.Context, string, string) (bool, error)
+	GetFollowing(context.Context, int64, GetFollowingCallbackFunc) error
+	Follow(context.Context, int64, string) error
+	UnFollow(context.Context, int64, string) error
+	IsFollowing(context.Context, int64, string) (bool, error)
 }
 
 var following_database_roster roster.Roster

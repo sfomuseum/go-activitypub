@@ -20,8 +20,8 @@ db:
 	$(SQLITE3) $(MESSAGES_DB) < schema/messages.sqlite.schema
 
 accounts:
-	go run cmd/add-actor/main.go -accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' -account-id bob
-	go run cmd/add-actor/main.go -accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' -account-id alice
+	go run cmd/add-account/main.go -accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' -account-id bob
+	go run cmd/add-account/main.go -accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' -account-id alice
 
 # Bob wants to follow Alice
 

@@ -63,11 +63,11 @@ func NewSQLFollowersDatabase(ctx context.Context, uri string) (FollowersDatabase
 	return db, nil
 }
 
-func (db *SQLFollowersDatabase) IsFollowing(ctx context.Context, follower_id string, account_id string) (bool, error) {
+func (db *SQLFollowersDatabase) IsFollowing(ctx context.Context, follower_address string, account_id int64) (bool, error) {
 
-	q := fmt.Sprintf("SELECT 1 FROM %s WHERE account_id = ? AND follower_id = ?", SQL_FOLLOWERS_TABLE_NAME)
+	q := fmt.Sprintf("SELECT 1 FROM %s WHERE account_id = ? AND follower_address = ?", SQL_FOLLOWERS_TABLE_NAME)
 
-	row := db.database.QueryRowContext(ctx, q, account_id, follower_id)
+	row := db.database.QueryRowContext(ctx, q, account_id, follower_address)
 
 	var i int
 	err := row.Scan(&i)
@@ -86,14 +86,14 @@ func (db *SQLFollowersDatabase) IsFollowing(ctx context.Context, follower_id str
 	return true, nil
 }
 
-func (db *SQLFollowersDatabase) AddFollower(ctx context.Context, account_id string, follower_id string) error {
+func (db *SQLFollowersDatabase) AddFollower(ctx context.Context, account_id int64, follower_address string) error {
 
 	now := time.Now()
 	ts := now.Unix()
 
-	q := fmt.Sprintf("INSERT INTO %s (account_id, follower_id, created) VALUES (?, ?, ?)", SQL_FOLLOWERS_TABLE_NAME)
+	q := fmt.Sprintf("INSERT INTO %s (account_id, follower_address, created) VALUES (?, ?, ?)", SQL_FOLLOWERS_TABLE_NAME)
 
-	_, err := db.database.ExecContext(ctx, q, account_id, follower_id, ts)
+	_, err := db.database.ExecContext(ctx, q, account_id, follower_address, ts)
 
 	if err != nil {
 		return fmt.Errorf("Failed to add follower, %w", err)
@@ -102,11 +102,11 @@ func (db *SQLFollowersDatabase) AddFollower(ctx context.Context, account_id stri
 	return nil
 }
 
-func (db *SQLFollowersDatabase) RemoveFollower(ctx context.Context, account_id string, follower_id string) error {
+func (db *SQLFollowersDatabase) RemoveFollower(ctx context.Context, account_id int64, follower_address string) error {
 
-	q := fmt.Sprintf("DELETE FROM %s WHERE account_id = ? AND follower_id = ?", SQL_FOLLOWERS_TABLE_NAME)
+	q := fmt.Sprintf("DELETE FROM %s WHERE account_id = ? AND follower_address = ?", SQL_FOLLOWERS_TABLE_NAME)
 
-	_, err := db.database.ExecContext(ctx, q, account_id, follower_id)
+	_, err := db.database.ExecContext(ctx, q, account_id, follower_address)
 
 	if err != nil {
 		return fmt.Errorf("Failed to remove follower, %w", err)
@@ -115,7 +115,7 @@ func (db *SQLFollowersDatabase) RemoveFollower(ctx context.Context, account_id s
 	return nil
 }
 
-func (db *SQLFollowersDatabase) GetFollowers(ctx context.Context, account_id string, followers_callback GetFollowersCallbackFunc) error {
+func (db *SQLFollowersDatabase) GetFollowers(ctx context.Context, account_id int64, followers_callback GetFollowersCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
 
@@ -123,18 +123,18 @@ func (db *SQLFollowersDatabase) GetFollowers(ctx context.Context, account_id str
 
 		for rows.Next() {
 
-			var follower_id string
+			var follower_address string
 
-			err := rows.Scan(&follower_id)
+			err := rows.Scan(&follower_address)
 
 			if err != nil {
 				return fmt.Errorf("Failed to scan row, %w", err)
 			}
 
-			err = followers_callback(ctx, follower_id)
+			err = followers_callback(ctx, follower_address)
 
 			if err != nil {
-				return fmt.Errorf("Failed to execute followers callback for '%s', %w", follower_id, err)
+				return fmt.Errorf("Failed to execute followers callback for '%s', %w", follower_address, err)
 			}
 
 			return nil
@@ -155,7 +155,7 @@ func (db *SQLFollowersDatabase) GetFollowers(ctx context.Context, account_id str
 		return fmt.Errorf("Failed to create pagination options, %w", err)
 	}
 
-	q := fmt.Sprintf("SELECT follower_id FROM %s WHERE account_id=?", SQL_FOLLOWERS_TABLE_NAME)
+	q := fmt.Sprintf("SELECT follower_address FROM %s WHERE account_id=?", SQL_FOLLOWERS_TABLE_NAME)
 
 	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q, account_id)
 

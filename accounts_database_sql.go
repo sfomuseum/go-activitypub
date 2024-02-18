@@ -69,18 +69,30 @@ func (db *SQLAccountsDatabase) AddAccount(ctx context.Context, a *Account) error
 	return nil
 }
 
-func (db *SQLAccountsDatabase) GetAccount(ctx context.Context, id string) (*Account, error) {
+func (db *SQLAccountsDatabase) GetAccountWithId(ctx context.Context, id int64) (*Account, error) {
+	where := "id = ?"
+	return db.getAccount(ctx, where, id)
+}
 
+func (db *SQLAccountsDatabase) GetAccountWithName(ctx context.Context, name string) (*Account, error) {
+	where := "name = ?"
+	return db.getAccount(ctx, where, name)
+}
+
+func (db *SQLAccountsDatabase) getAccount(ctx context.Context, where string, args ...interface{}) (*Account, error) {
+
+	var id int64
+	var name string
 	var public_key_uri string
 	var private_key_uri string
 	var created int64
 	var lastmod int64
 
-	q := fmt.Sprintf("SELECT public_key_uri, private_key_uri, created, lastmodified FROM %s WHERE id=?", SQL_ACCOUNTS_TABLE_NAME)
+	q := fmt.Sprintf("SELECT id, name, public_key_uri, private_key_uri, created, lastmodified FROM %s WHERE %s", SQL_ACCOUNTS_TABLE_NAME, where)
 
-	row := db.database.QueryRowContext(ctx, q, id)
+	row := db.database.QueryRowContext(ctx, q, args...)
 
-	err := row.Scan(&public_key_uri, &private_key_uri, &created, &lastmod)
+	err := row.Scan(&id, &name, &public_key_uri, &private_key_uri, &created, &lastmod)
 
 	switch {
 	case err == sql.ErrNoRows:
@@ -93,6 +105,7 @@ func (db *SQLAccountsDatabase) GetAccount(ctx context.Context, id string) (*Acco
 
 	a := &Account{
 		Id:            id,
+		Name:          name,
 		PublicKeyURI:  public_key_uri,
 		PrivateKeyURI: private_key_uri,
 		Created:       created,

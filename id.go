@@ -1,6 +1,7 @@
 package activitypub
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/bwmarrin/snowflake"
@@ -16,7 +17,7 @@ func setupSnowflake() {
 	node, err := snowflake.NewNode(1)
 
 	if err != nil {
-		setupSnowflakeErr = err
+		setupSnowflakeErr = fmt.Errorf("Failed to create snowflake node, %w", err)
 		return
 	}
 

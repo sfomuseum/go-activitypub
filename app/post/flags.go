@@ -15,6 +15,8 @@ var delivery_queue_uri string
 var account_id string
 var hostname string
 
+var message string
+
 func DefaultFlagSet() *flag.FlagSet {
 
 	fs := flagset.NewFlagSet("follow")
@@ -27,6 +29,8 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.StringVar(&account_id, "account-id", "", "...")
 	fs.StringVar(&hostname, "hostname", "localhost:8080", "...")
+
+	fs.StringVar(&message, "message", "", "...")
 
 	return fs
 }

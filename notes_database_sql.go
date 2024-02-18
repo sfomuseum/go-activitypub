@@ -61,26 +61,26 @@ func (db *SQLNotesDatabase) GetNoteWithId(ctx context.Context, note_id int64) (*
 	return db.getNote(ctx, where, note_id)
 }
 
-func (db *SQLNotesDatabase) GetNoteWithNoteIdAndAuthorURI(ctx context.Context, note_id string, author_uri string) (*Note, error) {
+func (db *SQLNotesDatabase) GetNoteWithNoteIdAndAuthorAddress(ctx context.Context, note_id string, author_address string) (*Note, error) {
 
-	where := "id = ? AND author_uri=?"
-	return db.getNote(ctx, where, note_id, author_uri)
+	where := "id = ? AND author_address=?"
+	return db.getNote(ctx, where, note_id, author_address)
 
 }
 
 func (db *SQLNotesDatabase) getNote(ctx context.Context, where string, args ...interface{}) (*Note, error) {
 
-	q := fmt.Sprintf("SELECT id, note_id, author_uri, body, created, lastmodified FROM %s WHERE %s", SQL_NOTES_TABLE_NAME, where)
+	q := fmt.Sprintf("SELECT id, note_id, author_address, body, created, lastmodified FROM %s WHERE %s", SQL_NOTES_TABLE_NAME, where)
 	row := db.database.QueryRowContext(ctx, q, args...)
 
 	var id int64
 	var note_id string
-	var author_uri string
+	var author_address string
 	var body []byte
 	var created int64
 	var lastmod int64
 
-	err := row.Scan(&id, &note_id, &author_uri, &body, &created, &lastmod)
+	err := row.Scan(&id, &note_id, &author_address, &body, &created, &lastmod)
 
 	switch {
 	case err == sql.ErrNoRows:
@@ -90,12 +90,12 @@ func (db *SQLNotesDatabase) getNote(ctx context.Context, where string, args ...i
 	default:
 
 		n := &Note{
-			Id:           id,
-			NoteId:       note_id,
-			AuthorURI:    author_uri,
-			Body:         body,
-			Created:      created,
-			LastModified: lastmod,
+			Id:            id,
+			NoteId:        note_id,
+			AuthorAddress: author_address,
+			Body:          body,
+			Created:       created,
+			LastModified:  lastmod,
 		}
 
 		return n, nil
@@ -105,9 +105,9 @@ func (db *SQLNotesDatabase) getNote(ctx context.Context, where string, args ...i
 
 func (db *SQLNotesDatabase) AddNote(ctx context.Context, note *Note) error {
 
-	q := fmt.Sprintf("INSERT INTO %s (id, note_id, author_uri, body, created, lastmodified) VALUES (?, ?, ?, ?, ?, ?)", SQL_NOTES_TABLE_NAME)
+	q := fmt.Sprintf("INSERT INTO %s (id, note_id, author_address, body, created, lastmodified) VALUES (?, ?, ?, ?, ?, ?)", SQL_NOTES_TABLE_NAME)
 
-	_, err := db.database.ExecContext(ctx, q, note.Id, note.NoteId, note.AuthorURI, note.Body, note.Created, note.LastModified)
+	_, err := db.database.ExecContext(ctx, q, note.Id, note.NoteId, note.AuthorAddress, note.Body, note.Created, note.LastModified)
 
 	if err != nil {
 		return fmt.Errorf("Failed to add note, %w", err)
@@ -118,9 +118,9 @@ func (db *SQLNotesDatabase) AddNote(ctx context.Context, note *Note) error {
 
 func (db *SQLNotesDatabase) UpdateNote(ctx context.Context, note *Note) error {
 
-	q := fmt.Sprintf("UPDATE %s SET note_id=?, author_uri=?, body=?, created=?, lastmodified=? WHERE id = ?", SQL_NOTES_TABLE_NAME)
+	q := fmt.Sprintf("UPDATE %s SET note_id=?, author_address=?, body=?, created=?, lastmodified=? WHERE id = ?", SQL_NOTES_TABLE_NAME)
 
-	_, err := db.database.ExecContext(ctx, q, note.NoteId, note.AuthorURI, note.Body, note.Created, note.LastModified, note.Id)
+	_, err := db.database.ExecContext(ctx, q, note.NoteId, note.AuthorAddress, note.Body, note.Created, note.LastModified, note.Id)
 
 	if err != nil {
 		return fmt.Errorf("Failed to add note, %w", err)

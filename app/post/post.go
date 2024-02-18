@@ -1,10 +1,12 @@
 package post
 
 import (
+	"bufio"
 	"context"
 	"flag"
 	"fmt"
 	"log/slog"
+	"os"
 
 	"github.com/sfomuseum/go-activitypub"
 )
@@ -51,6 +53,25 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new delivery queue, %w", err)
+	}
+
+	message := opts.Message
+
+	if message == "-" {
+
+		scanner := bufio.NewScanner(os.Stdin)
+
+		for scanner.Scan() {
+			message = fmt.Sprintf("%s %s", message, scanner.Text())
+		}
+
+		if scanner.Err() != nil {
+			return fmt.Errorf("Failed to scan input, %w", err)
+		}
+	}
+
+	if message == "" {
+		return fmt.Errorf("Empty message string")
 	}
 
 	acct, err := accounts_db.GetAccount(ctx, opts.AccountId)

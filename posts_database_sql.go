@@ -71,9 +71,9 @@ func (db *SQLPostsDatabase) AddPost(ctx context.Context, p *Post) error {
 	return nil
 }
 
-func (db *SQLPostsDatabase) GetPost(ctx context.Context, id string) (*Post, error) {
+func (db *SQLPostsDatabase) GetPostWithId(ctx context.Context, id int64) (*Post, error) {
 
-	var account_id string
+	var account_id int64
 	var body []byte
 	var created int64
 	var lastmod int64
@@ -86,7 +86,7 @@ func (db *SQLPostsDatabase) GetPost(ctx context.Context, id string) (*Post, erro
 
 	switch {
 	case err == sql.ErrNoRows:
-		return nil, err
+		return nil, ErrNotFound
 	case err != nil:
 		return nil, err
 	default:
