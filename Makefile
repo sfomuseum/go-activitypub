@@ -45,6 +45,21 @@ unfollow:
 		-follow alice@localhost:8080 \
 		-undo
 
+block:
+	go run cmd/block/main.go \
+		-accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' \
+		-blocks-database-uri 'sql://sqlite3?dsn=$(BLOCKS_DB)' \
+		-account-name bob \
+		-block-host block.club
+
+unblock:
+	go run cmd/block/main.go \
+		-accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' \
+		-blocks-database-uri 'sql://sqlite3?dsn=$(BLOCKS_DB)' \
+		-account-name bob \
+		-block-host block.club \
+		-undo
+
 # Alice wants to post something (to Bob, if Bob is following Alice)
 
 post:
