@@ -22,19 +22,27 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 
 		logger := LoggerWithRequest(req, nil)
 
+		if req.Method != http.MethodGet {
+			logger.Error("Method not allowed")
+			http.Error(rsp, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		
 		// sudo make me a regexp or req.PathId(...)
 
-		account_id := filepath.Base(req.URL.Path)
+		account_name := filepath.Base(req.URL.Path)
 
-		logger = logger.With("account", account_id)
+		logger = logger.With("account name", account_name)
 
-		acct, err := opts.AccountsDatabase.GetAccount(ctx, account_id)
+		acct, err := opts.AccountsDatabase.GetAccountWithName(ctx, account_name)
 
 		if err != nil {
 			logger.Error("Failed to retrieve account", "error", err)
 			http.Error(rsp, "Not found", http.StatusNotFound)
 			return
 		}
+
+		logger = logger.With("account id", acct.Id)
 
 		// Check content-type here and HTML or JSON it up...
 

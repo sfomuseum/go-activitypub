@@ -23,6 +23,8 @@ type InboxPostHandlerOptions struct {
 	NotesDatabase     activitypub.NotesDatabase
 	URIs              *activitypub.URIs
 	Hostname          string
+	AllowFollow       bool
+	AllowCreate       bool
 }
 
 func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
@@ -43,17 +45,19 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		// sudo make me a regexp or req.PathId(...)
 
-		account_id := filepath.Base(req.URL.Path)
+		account_name := filepath.Base(req.URL.Path)
 
-		logger = logger.With("account", account_id)
+		logger = logger.With("account", account_name)
 
-		acct, err := opts.AccountsDatabase.GetAccount(ctx, account_id)
+		acct, err := opts.AccountsDatabase.GetAccountWithName(ctx, account_name)
 
 		if err != nil {
 			logger.Error("Failed to retrieve inbox for account", "error", err)
 			http.Error(rsp, "Not found", http.StatusNotFound)
 			return
 		}
+
+		logger = logger.With("account id", acct.Id)
 
 		//
 
@@ -68,12 +72,12 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		sender_uri := activity.Actor
-		logger = logger.With("sender_uri", sender_uri)
+		sender_address := activity.Actor
+		logger = logger.With("sender_address", sender_address)
 
-		slog.Info("INBOX", "sender", sender_uri)
+		slog.Info("INBOX", "sender", sender_address)
 
-		follower_name, _, err := activitypub.ParseAccountURI(sender_uri)
+		follower_name, _, err := activitypub.ParseAccountURI(sender_address)
 
 		if err != nil {
 			logger.Error("Failed to parse send ID", "error", err)
@@ -81,24 +85,28 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		if follower_name == acct.Id {
+		if follower_name == acct.Name {
 			logger.Error("Can not follow yourself")
 			http.Error(rsp, "Bad request", http.StatusBadRequest)
 			return
 		}
 
 		switch activity.Type {
-		case "Follow":
+		case "Follow", "Undo":
 
-			// pass
-
-		case "Undo":
-
-			// pass
+			if !opts.AllowFollow {
+				logger.Error("Unsupported activity type", "type", activity.Type)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
 
 		case "Create":
 
-			// pass
+			if !opts.AllowCreate {
+				logger.Error("Unsupported activity type", "type", activity.Type)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
 
 		default:
 			logger.Error("Unsupported activity type", "type", activity.Type)
@@ -177,7 +185,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		switch activity.Type {
 		case "Follow":
 
-			is_following, err := opts.FollowersDatabase.IsFollowing(ctx, sender_uri, acct.Id)
+			is_following, err := opts.FollowersDatabase.IsFollowing(ctx, sender_address, acct.Id)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)
@@ -191,7 +199,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			err = opts.FollowersDatabase.AddFollower(ctx, acct.Id, sender_uri)
+			err = opts.FollowersDatabase.AddFollower(ctx, acct.Id, sender_address)
 
 			if err != nil {
 				logger.Error("Failed to add follower", "error", err)
@@ -201,7 +209,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		case "Undo":
 
-			is_following, err := opts.FollowersDatabase.IsFollowing(ctx, sender_uri, acct.Id)
+			is_following, err := opts.FollowersDatabase.IsFollowing(ctx, sender_address, acct.Id)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)
@@ -215,7 +223,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			err = opts.FollowersDatabase.RemoveFollower(ctx, acct.Id, sender_uri)
+			err = opts.FollowersDatabase.RemoveFollower(ctx, acct.Id, sender_address)
 
 			if err != nil {
 				logger.Error("Failed to remove follower", "error", err)
@@ -225,7 +233,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		case "Create":
 
-			is_following, err := opts.FollowingDatabase.IsFollowing(ctx, acct.Id, sender_uri)
+			is_following, err := opts.FollowingDatabase.IsFollowing(ctx, acct.Id, sender_address)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)
@@ -260,7 +268,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			note_id := note.Id
 			logger = logger.With("note id", note_id)
 
-			db_note, err := opts.NotesDatabase.GetNoteWithNoteIdAndAuthorURI(ctx, note_id, sender_uri)
+			db_note, err := opts.NotesDatabase.GetNoteWithNoteIdAndAuthorAddress(ctx, note_id, sender_address)
 
 			switch {
 			case err == activitypub.ErrNotFound:
@@ -308,12 +316,12 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				}
 
 				db_note = &activitypub.Note{
-					Id:           db_id,
-					NoteId:       note_id,
-					AuthorURI:    sender_uri,
-					Body:         enc_note,
-					Created:      ts,
-					LastModified: ts,
+					Id:            db_id,
+					NoteId:        note_id,
+					AuthorAddress: sender_address,
+					Body:          enc_note,
+					Created:       ts,
+					LastModified:  ts,
 				}
 
 				err = opts.NotesDatabase.AddNote(ctx, db_note)
@@ -365,12 +373,12 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				}
 
 				db_message = &activitypub.Message{
-					Id:           db_id,
-					NoteId:       db_note.Id,
-					AuthorURI:    sender_uri,
-					AccountId:    acct.Id,
-					Created:      ts,
-					LastModified: ts,
+					Id:            db_id,
+					NoteId:        db_note.Id,
+					AuthorAddress: sender_address,
+					AccountId:     acct.Id,
+					Created:       ts,
+					LastModified:  ts,
 				}
 
 				err = opts.MessagesDatabase.AddMessage(ctx, db_message)
@@ -392,7 +400,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		// return acceptance
 
-		accept, err := ap.NewAcceptActivity(ctx, acct.Id, sender_uri)
+		acct_address := acct.Address(opts.Hostname)
+
+		accept, err := ap.NewAcceptActivity(ctx, acct_address, sender_address)
 
 		if err != nil {
 			logger.Error("Failed to create new accept activity", "error", err)

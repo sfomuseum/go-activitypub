@@ -42,22 +42,23 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to initialize following database, %w", err)
 	}
 
-	follower_acct, err := accounts_db.GetAccount(ctx, opts.AccountId)
+	follower_acct, err := accounts_db.GetAccountWithName(ctx, opts.AccountName)
 
 	if err != nil {
-		return fmt.Errorf("Failed to retrieve account %s, %w", opts.AccountId, err)
+		return fmt.Errorf("Failed to retrieve account %s, %w", opts.AccountName, err)
 	}
 
 	follower_id := follower_acct.Id
-	following_id := opts.Follow
 
 	// See this? It is important to pass the fully-qualifier follower URI so the
 	// endpoint receiving the follow activity can figure out where (which hostname)
 	// to make a webfinger/profile query.
 
-	follower_uri := fmt.Sprintf("%s@%s", follower_id, opts.Hostname)
+	follower_address := follower_acct.Address(opts.Hostname)
 
-	follow_req, err := ap.NewFollowActivity(ctx, follower_uri, following_id)
+	following_address := opts.FollowAddress
+
+	follow_req, err := ap.NewFollowActivity(ctx, follower_address, following_address)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create follow activity, %w", err)
@@ -69,7 +70,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	post_opts := &activitypub.PostToAccountOptions{
 		From:     follower_acct,
-		To:       following_id,
+		To:       following_address,
 		Hostname: opts.Hostname,
 		URIs:     opts.URIs,
 		Message:  follow_req,
@@ -79,7 +80,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	if undo {
 
-		err := following_db.UnFollow(ctx, follower_id, following_id)
+		err := following_db.UnFollow(ctx, follower_id, following_address)
 
 		if err != nil {
 			return fmt.Errorf("Unfollow request was successful but unable to register unfollowing locally, %w", err)
@@ -89,7 +90,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return nil
 	}
 
-	err = following_db.Follow(ctx, follower_id, following_id)
+	err = following_db.Follow(ctx, follower_id, following_address)
 
 	if err != nil {
 		return fmt.Errorf("Follow request was successful but unable to register following locally, %w", err)

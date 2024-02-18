@@ -90,6 +90,8 @@ func inboxPostHandlerFunc(ctx context.Context) (http.Handler, error) {
 		MessagesDatabase:  messages_db,
 		URIs:              run_opts.URIs,
 		Hostname:          run_opts.Hostname,
+		AllowFollow:       true,
+		AllowCreate:       true,
 	}
 
 	return www.InboxPostHandler(opts)

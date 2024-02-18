@@ -13,8 +13,8 @@ type RunOptions struct {
 	Hostname             string
 	AccountsDatabaseURI  string
 	FollowingDatabaseURI string
-	AccountId            string
-	Follow               string
+	AccountName          string
+	FollowAddress        string
 	Undo                 bool
 	URIs                 *activitypub.URIs
 }
@@ -30,8 +30,8 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		Hostname:             hostname,
 		AccountsDatabaseURI:  accounts_database_uri,
 		FollowingDatabaseURI: following_database_uri,
-		AccountId:            account_id,
-		Follow:               follow,
+		AccountName:          account_name,
+		FollowAddress:        follow_address,
 		Undo:                 undo,
 		URIs:                 uris_table,
 	}

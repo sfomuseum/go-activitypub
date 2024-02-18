@@ -11,11 +11,9 @@ var hostname string
 
 var accounts_database_uri string
 var following_database_uri string
-var account_id string
 
-var follow string
-
-// var inbox string
+var account_name string
+var follow_address string
 
 var undo bool
 
@@ -28,10 +26,10 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "...")
 	fs.StringVar(&following_database_uri, "following-database-uri", "", "...")
-	fs.StringVar(&account_id, "account-id", "", "...")
 
-	fs.StringVar(&follow, "follow", "", "...")
-	// fs.StringVar(&inbox, "inbox", "", "...")
+	fs.StringVar(&account_name, "account-name", "", "...")
+
+	fs.StringVar(&follow_address, "follow", "", "...")
 
 	fs.BoolVar(&undo, "undo", false, "...")
 	return fs
