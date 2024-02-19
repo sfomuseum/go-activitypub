@@ -14,8 +14,8 @@ type GetMessagesCallbackFunc func(context.Context, *Message) error
 
 type MessagesDatabase interface {
 	GetMessagesForAccount(context.Context, int64, GetMessagesCallbackFunc) error
+	GetMessagesForAccountAndAuthor(context.Context, int64, string, GetMessagesCallbackFunc) error
 	// GetMessagesForAuthor(context.Context, string, GetMessagesCallbackFunc) error
-	// GetMessagesForNoteId(context.Context, int64, GetMessagesCallbackFunc) error
 
 	GetMessageWithId(context.Context, int64) (*Message, error)
 

@@ -48,6 +48,7 @@ follow:
 	go run cmd/follow/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-following-database-uri '$(FOLLOWING_DB_URI)' \
+		-messages-database-uri '$(MESSAGES_DB_URI)' \
 		-account-name bob \
 		-follow alice@localhost:8080 
 
@@ -57,6 +58,7 @@ unfollow:
 	go run cmd/follow/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-following-database-uri '$(FOLLOWING_DB_URI)' \
+		-messages-database-uri '$(MESSAGES_DB_URI)' \
 		-account-name bob \
 		-follow alice@localhost:8080 \
 		-undo

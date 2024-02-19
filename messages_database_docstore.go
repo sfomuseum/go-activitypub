@@ -94,10 +94,24 @@ func (db *DocstoreMessagesDatabase) RemoveMessage(ctx context.Context, message *
 	return db.collection.Delete(ctx, message)
 }
 
-func (db *DocstoreMessagesDatabase) GetMessagesForAccount(ctx context.Context, account_id int64, following_callback GetMessagesCallbackFunc) error {
+func (db *DocstoreMessagesDatabase) GetMessagesForAccount(ctx context.Context, account_id int64, callback_func GetMessagesCallbackFunc) error {
 
 	q := db.collection.Query()
 	q = q.Where("AccountId", "=", account_id)
+
+	return db.getMessagesWithCallback(ctx, q, callback_func)
+}
+
+func (db *DocstoreMessagesDatabase) GetMessagesForAccountAndAuthor(ctx context.Context, account_id int64, author_address string, callback_func GetMessagesCallbackFunc) error {
+
+	q := db.collection.Query()
+	q = q.Where("AccountId", "=", account_id)
+	q = q.Where("AuthorAddress", "=", author_address)
+
+	return db.getMessagesWithCallback(ctx, q, callback_func)
+}
+
+func (db *DocstoreMessagesDatabase) getMessagesWithCallback(ctx context.Context, q *gc_docstore.Query, callback_func GetMessagesCallbackFunc) error {
 
 	iter := q.Get(ctx)
 	defer iter.Stop()
@@ -113,7 +127,7 @@ func (db *DocstoreMessagesDatabase) GetMessagesForAccount(ctx context.Context, a
 			return fmt.Errorf("Failed to interate, %w", err)
 		} else {
 
-			err := following_callback(ctx, &m)
+			err := callback_func(ctx, &m)
 
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for message '%s', %w", m.Id, err)

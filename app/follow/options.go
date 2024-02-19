@@ -13,6 +13,7 @@ type RunOptions struct {
 	Hostname             string
 	AccountsDatabaseURI  string
 	FollowingDatabaseURI string
+	MessagesDatabaseURI  string
 	AccountName          string
 	FollowAddress        string
 	Undo                 bool
@@ -30,6 +31,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		Hostname:             hostname,
 		AccountsDatabaseURI:  accounts_database_uri,
 		FollowingDatabaseURI: following_database_uri,
+		MessagesDatabaseURI:  messages_database_uri,
 		AccountName:          account_name,
 		FollowAddress:        follow_address,
 		Undo:                 undo,

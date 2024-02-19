@@ -144,7 +144,28 @@ func (db *SQLMessagesDatabase) RemoveMessage(ctx context.Context, message *Messa
 	return nil
 }
 
-func (db *SQLMessagesDatabase) GetMessagesForAccount(ctx context.Context, account_id int64, following_callback GetMessagesCallbackFunc) error {
+func (db *SQLMessagesDatabase) GetMessagesForAccount(ctx context.Context, account_id int64, callback_func GetMessagesCallbackFunc) error {
+
+	where := "account_id = ?"
+	args := []interface{}{
+		account_id,
+	}
+
+	return db.getMessagesWithCallback(ctx, where, args, callback_func)
+}
+
+func (db *SQLMessagesDatabase) GetMessagesForAccountAndAuthor(ctx context.Context, account_id int64, author_address string, callback_func GetMessagesCallbackFunc) error {
+
+	where := "account_id = ? AND author_address = ?"
+	args := []interface{}{
+		account_id,
+		author_address,
+	}
+
+	return db.getMessagesWithCallback(ctx, where, args, callback_func)
+}
+
+func (db *SQLMessagesDatabase) getMessagesWithCallback(ctx context.Context, where string, args []interface{}, callback_func GetMessagesCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
 
@@ -174,7 +195,7 @@ func (db *SQLMessagesDatabase) GetMessagesForAccount(ctx context.Context, accoun
 				LastModified:  lastmod,
 			}
 
-			err = following_callback(ctx, m)
+			err = callback_func(ctx, m)
 
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for message %d, %w", m.Id, err)
@@ -198,9 +219,9 @@ func (db *SQLMessagesDatabase) GetMessagesForAccount(ctx context.Context, accoun
 		return fmt.Errorf("Failed to create pagination options, %w", err)
 	}
 
-	q := fmt.Sprintf("SELECT id, note_id, author_address, account_id, created, lastmodified FROM %s WHERE account_id=? ORDER BY created DESC", SQL_MESSAGES_TABLE_NAME)
+	q := fmt.Sprintf("SELECT id, note_id, author_address, account_id, created, lastmodified FROM %s WHERE %s ORDER BY created DESC", SQL_MESSAGES_TABLE_NAME, where)
 
-	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q, account_id)
+	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q, args...)
 
 	if err != nil {
 		return fmt.Errorf("Failed to execute paginated query, %w", err)

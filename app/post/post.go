@@ -80,7 +80,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to retrieve account %s, %w", opts.AccountName, err)
 	}
 
-	p, err := activitypub.NewPost(ctx, acct, []byte("Hello world"))
+	p, err := activitypub.NewPost(ctx, acct, []byte(opts.Message))
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new post, %w", err)

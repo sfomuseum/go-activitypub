@@ -70,6 +70,24 @@ _The details of how any given private key is kept secure are not part of the Act
 
 ### Databases
 
+#### accounts
+
+#### followers
+
+Other "actors" who are following people who have an entry in the `accounts` database.
+
+#### following
+
+Other "actors" who are followed by people who have an entry in the `accounts` database.
+
+#### posts
+
+Messages written by people who have an entry in the `accounts` database.
+
+#### notes
+
+Messages written by other "actors" and delivered to people who have an entry in the `accounts` database.
+
 ### Accounts
 
 ### Follow

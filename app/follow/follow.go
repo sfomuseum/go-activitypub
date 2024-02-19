@@ -42,6 +42,12 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to initialize following database, %w", err)
 	}
 
+	messages_db, err := activitypub.NewMessagesDatabase(ctx, opts.MessagesDatabaseURI)
+
+	if err != nil {
+		return fmt.Errorf("Failed to initialize messages database, %w", err)
+	}
+
 	follower_acct, err := accounts_db.GetAccountWithName(ctx, opts.AccountName)
 
 	if err != nil {
@@ -95,6 +101,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		if err != nil {
 			return fmt.Errorf("Unfollow request was successful but unable to register unfollowing locally, %w", err)
 		}
+
+		msg_cb := func(ctx context.Context, m *activitypub.Message) error {
+			logger.Info("Remove message", "id", m.Id)
+			return messages_db.RemoveMessage(ctx, m)
+		}
+
+		err = messages_db.GetMessagesForAccountAndAuthor(ctx, follower_id, following_address, msg_cb)
 
 		logger.Info("Unfollowing successful")
 		return nil

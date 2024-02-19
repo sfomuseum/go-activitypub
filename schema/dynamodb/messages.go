@@ -67,6 +67,22 @@ var DynamoDBMessagesTable = &dynamodb.CreateTableInput{
 				ProjectionType: aws.String("ALL"),
 			},
 		},
+		{
+			IndexName: aws.String("account_author"),
+			KeySchema: []*dynamodb.KeySchemaElement{
+				{
+					AttributeName: aws.String("AccountId"),
+					KeyType:       aws.String("HASH"),
+				},
+				{
+					AttributeName: aws.String("AuthorAddress"),
+					KeyType:       aws.String("RANGE"),
+				},
+			},
+			Projection: &dynamodb.Projection{
+				ProjectionType: aws.String("ALL"),
+			},
+		},
 	},
 	BillingMode: BILLING_MODE,
 	TableName:   &MESSAGES_TABLE_NAME,

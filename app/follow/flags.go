@@ -11,6 +11,7 @@ var hostname string
 
 var accounts_database_uri string
 var following_database_uri string
+var messages_database_uri string
 
 var account_name string
 var follow_address string
@@ -26,6 +27,7 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "...")
 	fs.StringVar(&following_database_uri, "following-database-uri", "", "...")
+	fs.StringVar(&messages_database_uri, "messages-database-uri", "", "...")
 
 	fs.StringVar(&account_name, "account-name", "", "...")
 
