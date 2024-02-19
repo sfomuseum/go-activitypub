@@ -2,12 +2,11 @@ package main
 
 import (
 	"context"
-	"log/slog"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/sfomuseum/go-activitypub/app/account/add"
-	_ "gocloud.dev/docstore/memdocstore"
+	"github.com/sfomuseum/go-activitypub/slog"
 )
 
 func main() {

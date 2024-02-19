@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"log/slog"
 	"os"
 
 	"github.com/sfomuseum/go-activitypub/app/dynamodb/tables/create"
+	"github.com/sfomuseum/go-activitypub/slog"
 )
 
 func main() {
