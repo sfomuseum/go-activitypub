@@ -8,37 +8,43 @@ import (
 var DynamoDBFollowersTable = &dynamodb.CreateTableInput{
 	KeySchema: []*dynamodb.KeySchemaElement{
 		{
-			AttributeName: aws.String("Id"),
+			AttributeName: aws.String("AccountId"),
+			KeyType:       aws.String("HASH"), // partition key
+		},
+		{
+			AttributeName: aws.String("FollowerAddress"),
 			KeyType:       aws.String("HASH"), // partition key
 		},
 	},
 	AttributeDefinitions: []*dynamodb.AttributeDefinition{
 		{
-			AttributeName: aws.String("Id"),
-			AttributeType: aws.String("S"),
+			AttributeName: aws.String("AccountId"),
+			AttributeType: aws.String("N"),
 		},
 		{
-			AttributeName: aws.String("Label"),
+			AttributeName: aws.String("FollowerAddress"),
 			AttributeType: aws.String("S"),
 		},
 	},
 	GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
-		{
-			IndexName: aws.String("label"),
-			KeySchema: []*dynamodb.KeySchemaElement{
-				{
-					AttributeName: aws.String("Label"),
-					KeyType:       aws.String("HASH"),
+		/*
+			{
+				IndexName: aws.String("label"),
+				KeySchema: []*dynamodb.KeySchemaElement{
+					{
+						AttributeName: aws.String("Label"),
+						KeyType:       aws.String("HASH"),
+					},
+					{
+						AttributeName: aws.String("Id"),
+						KeyType:       aws.String("RANGE"),
+					},
 				},
-				{
-					AttributeName: aws.String("Id"),
-					KeyType:       aws.String("RANGE"),
+				Projection: &dynamodb.Projection{
+					ProjectionType: aws.String("ALL"),
 				},
 			},
-			Projection: &dynamodb.Projection{
-				ProjectionType: aws.String("ALL"),
-			},
-		},
+		*/
 	},
 	BillingMode: BILLING_MODE,
 	TableName:   &FOLLOWERS_TABLE_NAME,

@@ -15,24 +15,20 @@ var DynamoDBPostsTable = &dynamodb.CreateTableInput{
 	AttributeDefinitions: []*dynamodb.AttributeDefinition{
 		{
 			AttributeName: aws.String("Id"),
-			AttributeType: aws.String("S"),
+			AttributeType: aws.String("N"),
 		},
 		{
-			AttributeName: aws.String("Label"),
+			AttributeName: aws.String("UUID"),
 			AttributeType: aws.String("S"),
 		},
 	},
 	GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
 		{
-			IndexName: aws.String("label"),
+			IndexName: aws.String("uuid"),
 			KeySchema: []*dynamodb.KeySchemaElement{
 				{
-					AttributeName: aws.String("Label"),
+					AttributeName: aws.String("UUID"),
 					KeyType:       aws.String("HASH"),
-				},
-				{
-					AttributeName: aws.String("Id"),
-					KeyType:       aws.String("RANGE"),
 				},
 			},
 			Projection: &dynamodb.Projection{

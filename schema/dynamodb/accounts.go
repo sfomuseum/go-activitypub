@@ -15,16 +15,16 @@ var DynamoDBAccountsTable = &dynamodb.CreateTableInput{
 	AttributeDefinitions: []*dynamodb.AttributeDefinition{
 		{
 			AttributeName: aws.String("Id"),
-			AttributeType: aws.String("S"),
+			AttributeType: aws.String("N"),
 		},
 		{
-			AttributeName: aws.String("Label"),
+			AttributeName: aws.String("Name"),
 			AttributeType: aws.String("S"),
 		},
 	},
 	GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
 		{
-			IndexName: aws.String("label"),
+			IndexName: aws.String("name"),
 			KeySchema: []*dynamodb.KeySchemaElement{
 				{
 					AttributeName: aws.String("Label"),

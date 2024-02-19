@@ -15,23 +15,27 @@ var DynamoDBMessagesTable = &dynamodb.CreateTableInput{
 	AttributeDefinitions: []*dynamodb.AttributeDefinition{
 		{
 			AttributeName: aws.String("Id"),
-			AttributeType: aws.String("S"),
+			AttributeType: aws.String("N"),
 		},
 		{
-			AttributeName: aws.String("Label"),
-			AttributeType: aws.String("S"),
+			AttributeName: aws.String("AccountId"),
+			AttributeType: aws.String("N"),
+		},
+		{
+			AttributeName: aws.String("NoteId"),
+			AttributeType: aws.String("N"),
 		},
 	},
 	GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
 		{
-			IndexName: aws.String("label"),
+			IndexName: aws.String("account_note"),
 			KeySchema: []*dynamodb.KeySchemaElement{
 				{
-					AttributeName: aws.String("Label"),
+					AttributeName: aws.String("AccountId"),
 					KeyType:       aws.String("HASH"),
 				},
 				{
-					AttributeName: aws.String("Id"),
+					AttributeName: aws.String("NoteId"),
 					KeyType:       aws.String("RANGE"),
 				},
 			},
