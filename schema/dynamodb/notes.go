@@ -36,7 +36,7 @@ var DynamoDBNotesTable = &dynamodb.CreateTableInput{
 				},
 				{
 					AttributeName: aws.String("AuthorAddress"),
-					KeyType:       aws.String("HASH"),
+					KeyType:       aws.String("RANGE"),
 				},
 			},
 			Projection: &dynamodb.Projection{

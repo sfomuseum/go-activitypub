@@ -27,7 +27,7 @@ var DynamoDBAccountsTable = &dynamodb.CreateTableInput{
 			IndexName: aws.String("name"),
 			KeySchema: []*dynamodb.KeySchemaElement{
 				{
-					AttributeName: aws.String("Label"),
+					AttributeName: aws.String("Name"),
 					KeyType:       aws.String("HASH"),
 				},
 				{

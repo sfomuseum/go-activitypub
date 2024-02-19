@@ -95,3 +95,14 @@ server:
 		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-allow-create \
 		-hostname localhost:8080
+
+# https://aws.amazon.com/about-aws/whats-new/2018/08/use-amazon-dynamodb-local-more-easily-with-the-new-docker-image/
+# https://hub.docker.com/r/amazon/dynamodb-local/
+
+dynamo-local:
+	docker run --rm -it -p 8000:8000 amazon/dynamodb-local
+
+dynamo-tables-local:
+	go run -mod vendor cmd/create-dynamodb-tables/main.go \
+		-refresh \
+		-dynamodb-client-uri 'awsdynamodb://?local=true'

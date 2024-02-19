@@ -3,6 +3,8 @@ package create
 import (
 	"context"
 	"flag"
+
+	"github.com/sfomuseum/go-flags/flagset"
 )
 
 type RunOptions struct {
@@ -11,6 +13,8 @@ type RunOptions struct {
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
+
+	flagset.Parse(fs)
 
 	opts := &RunOptions{
 		Refresh:           refresh,
