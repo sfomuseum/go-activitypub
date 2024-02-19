@@ -16,13 +16,11 @@ var BLOCKS_TABLE_NAME = "blocks"
 var BILLING_MODE = aws.String("PAY_PER_REQUEST")
 
 var DynamoDBTables = map[string]*dynamodb.CreateTableInput{
-	/*
-		ACCOUNTS_TABLE_NAME:  DynamoDBAccountsTable,
-		FOLLOWERS_TABLE_NAME: DynamoDBFollowersTable,
-		FOLLOWING_TABLE_NAME: DynamoDBFollowingTable,
-		POSTS_TABLE_NAME:     DynamoDBPostsTable,
-		NOTES_TABLE_NAME:     DynamoDBNotesTable,
-		MESSAGES_TABLE_NAME:  DynamoDBMessagesTable,
-	*/
-	BLOCKS_TABLE_NAME: DynamoDBBlocksTable,
+	ACCOUNTS_TABLE_NAME:  DynamoDBAccountsTable,
+	FOLLOWERS_TABLE_NAME: DynamoDBFollowersTable,
+	FOLLOWING_TABLE_NAME: DynamoDBFollowingTable,
+	POSTS_TABLE_NAME:     DynamoDBPostsTable,
+	NOTES_TABLE_NAME:     DynamoDBNotesTable,
+	MESSAGES_TABLE_NAME:  DynamoDBMessagesTable,
+	BLOCKS_TABLE_NAME:    DynamoDBBlocksTable,
 }
