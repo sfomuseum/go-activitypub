@@ -18,8 +18,12 @@ var DynamoDBMessagesTable = &dynamodb.CreateTableInput{
 			AttributeType: aws.String("N"),
 		},
 		{
-			AttributeName: aws.String("AuthorAddress"),
+			AttributeName: aws.String("AccountId"),
 			AttributeType: aws.String("N"),
+		},
+		{
+			AttributeName: aws.String("AuthorAddress"),
+			AttributeType: aws.String("S"),
 		},
 		{
 			AttributeName: aws.String("NoteId"),
@@ -48,11 +52,15 @@ var DynamoDBMessagesTable = &dynamodb.CreateTableInput{
 			},
 		},
 		{
-			IndexName: aws.String("note"),
+			IndexName: aws.String("account_note"),
 			KeySchema: []*dynamodb.KeySchemaElement{
 				{
-					AttributeName: aws.String("NoteId"),
+					AttributeName: aws.String("AccountId"),
 					KeyType:       aws.String("HASH"),
+				},
+				{
+					AttributeName: aws.String("NoteId"),
+					KeyType:       aws.String("RANGE"),
 				},
 			},
 			Projection: &dynamodb.Projection{

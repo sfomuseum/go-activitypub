@@ -343,35 +343,19 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			} else {
 
-				db_id, err := activitypub.NewId()
+				new_note, err := activitypub.AddNote(ctx, opts.NotesDatabase, note_uuid, sender_address, enc_note)
 
 				if err != nil {
-					logger.Error("Failed to create new ID for note", "error", err)
+					logger.Error("Failed to create new note", "error", err)
 					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 					return
 				}
 
-				db_note = &activitypub.Note{
-					Id:            db_id,
-					UUID:          note_uuid,
-					AuthorAddress: sender_address,
-					Body:          enc_note,
-					Created:       ts,
-					LastModified:  ts,
-				}
-
-				err = opts.NotesDatabase.AddNote(ctx, db_note)
-
-				if err != nil {
-					logger.Error("Failed to add note", "error", err)
-					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-					return
-				}
-
+				db_note = new_note
 				logger = logger.With("note id", db_note.Id)
 			}
 
-			db_message, err := opts.MessagesDatabase.GetMessageWithAccountAndNoteIds(ctx, acct.Id, db_note.Id)
+			db_message, err := activitypub.GetMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id)
 
 			switch {
 			case err == activitypub.ErrNotFound:
@@ -388,9 +372,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				logger = logger.With("message id", db_message.Id)
 
-				db_message.LastModified = ts
-
-				err = opts.MessagesDatabase.UpdateMessage(ctx, db_message)
+				db_message, err = activitypub.UpdateMessage(ctx, opts.MessagesDatabase, db_message)
 
 				if err != nil {
 					logger.Error("Failed to update message", "error", err)
@@ -400,24 +382,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			} else {
 
-				db_id, err := activitypub.NewId()
-
-				if err != nil {
-					logger.Error("Failed to create new ID for message", "error", err)
-					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-					return
-				}
-
-				db_message = &activitypub.Message{
-					Id:            db_id,
-					NoteId:        db_note.Id,
-					AuthorAddress: sender_address,
-					AccountId:     acct.Id,
-					Created:       ts,
-					LastModified:  ts,
-				}
-
-				err = opts.MessagesDatabase.AddMessage(ctx, db_message)
+				new_message, err := activitypub.AddMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id, sender_address)
 
 				if err != nil {
 					logger.Error("Failed to add message", "error", err)
@@ -425,6 +390,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 					return
 				}
 
+				db_message = new_message
 				logger = logger.With("message id", db_message.Id)
 			}
 
