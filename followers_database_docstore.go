@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"time"
+
+	"log/slog"
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
 	gc_docstore "gocloud.dev/docstore"
@@ -44,7 +45,11 @@ func NewDocstoreFollowersDatabase(ctx context.Context, uri string) (FollowersDat
 
 func (db *DocstoreFollowersDatabase) IsFollowing(ctx context.Context, follower_address string, account_id int64) (bool, error) {
 
+	slog.Info("IS FOLLOWING", "follder_address", follower_address, "account", account_id)
+
 	_, err := db.getFollower(ctx, follower_address, account_id)
+
+	slog.Info("IS FOLLOWING", "error", err)
 
 	switch {
 	case err == ErrNotFound:
@@ -82,32 +87,14 @@ func (db *DocstoreFollowersDatabase) getFollower(ctx context.Context, follower_a
 	return nil, ErrNotFound
 }
 
-func (db *DocstoreFollowersDatabase) AddFollower(ctx context.Context, account_id int64, follower_address string) error {
-
-	now := time.Now()
-	ts := now.Unix()
-
-	f := &Follower{
-		AccountId:       account_id,
-		FollowerAddress: follower_address,
-		Created:         ts,
-	}
+func (db *DocstoreFollowersDatabase) AddFollower(ctx context.Context, f *Follower) error {
 
 	return db.collection.Put(ctx, f)
 }
 
-func (db *DocstoreFollowersDatabase) RemoveFollower(ctx context.Context, account_id int64, follower_address string) error {
+func (db *DocstoreFollowersDatabase) RemoveFollower(ctx context.Context, f *Follower) error {
 
-	f, err := db.getFollower(ctx, follower_address, account_id)
-
-	switch {
-	case err == ErrNotFound:
-		return nil
-	case err != nil:
-		return err
-	default:
-		return db.collection.Delete(ctx, f)
-	}
+	return db.collection.Delete(ctx, f)
 }
 
 func (db *DocstoreFollowersDatabase) GetFollowers(ctx context.Context, account_id int64, followers_callback GetFollowersCallbackFunc) error {

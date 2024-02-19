@@ -1,4 +1,5 @@
 CREATE TABLE following (
+       id INTEGER primary key,
        account_id INTEGER,
        following_address TEXT,
        created INTEGER

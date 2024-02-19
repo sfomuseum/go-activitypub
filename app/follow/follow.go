@@ -84,7 +84,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	if undo {
 
-		err := following_db.UnFollow(ctx, follower_id, following_address)
+		f, err := following_db.GetFollowing(ctx, follower_id, following_address)
+
+		if err != nil {
+			return fmt.Errorf("Failed to retrieve following, %w", err)
+		}
+
+		err = following_db.RemoveFollowing(ctx, f)
 
 		if err != nil {
 			return fmt.Errorf("Unfollow request was successful but unable to register unfollowing locally, %w", err)
@@ -94,7 +100,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return nil
 	}
 
-	err = following_db.Follow(ctx, follower_id, following_address)
+	f, err := activitypub.NewFollowing(ctx, follower_id, following_address)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create new following, %w", err)
+	}
+
+	err = following_db.AddFollowing(ctx, f)
 
 	if err != nil {
 		return fmt.Errorf("Follow request was successful but unable to register following locally, %w", err)

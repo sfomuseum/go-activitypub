@@ -13,10 +13,10 @@ import (
 type GetFollowersCallbackFunc func(context.Context, string) error
 
 type FollowersDatabase interface {
-	GetFollowers(context.Context, int64, GetFollowersCallbackFunc) error
-	AddFollower(context.Context, int64, string) error
-	RemoveFollower(context.Context, int64, string) error
-	IsFollowing(context.Context, string, int64) (bool, error)
+	GetFollowersForAccount(context.Context, int64, GetFollowersCallbackFunc) error
+	GetFollower(context.Context, int64, string) (*Follower, error)
+	AddFollower(context.Context, *Follower) error
+	RemoveFollower(context.Context, *Follower) error
 }
 
 var followers_database_roster roster.Roster

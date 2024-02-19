@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"net/url"
-	"time"
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
@@ -50,7 +49,7 @@ func NewSQLFollowersDatabase(ctx context.Context, uri string) (FollowersDatabase
 		err := sqlite.SetupConnection(ctx, conn)
 
 		if err != nil {
-			return nil, fmt.Errorf("Failed to live hard and die fast, %w", err)
+			return nil, fmt.Errorf("Failed to configure SQLite, %w", err)
 		}
 	}
 
@@ -61,37 +60,41 @@ func NewSQLFollowersDatabase(ctx context.Context, uri string) (FollowersDatabase
 	return db, nil
 }
 
-func (db *SQLFollowersDatabase) IsFollowing(ctx context.Context, follower_address string, account_id int64) (bool, error) {
+func (db *SQLFollowersDatabase) GetFollower(ctx context.Context, account_id int64, follower_address string) (*Follower, error) {
 
-	q := fmt.Sprintf("SELECT 1 FROM %s WHERE account_id = ? AND follower_address = ?", SQL_FOLLOWERS_TABLE_NAME)
+	q := fmt.Sprintf("SELECT id, created FROM %s WHERE account_id = ? AND follower_address = ?", SQL_FOLLOWERS_TABLE_NAME)
 
 	row := db.database.QueryRowContext(ctx, q, account_id, follower_address)
 
-	var i int
-	err := row.Scan(&i)
+	var id int64
+	var created int64
+
+	err := row.Scan(&id, &id, &created)
 
 	switch {
 	case err == sql.ErrNoRows:
-		return false, nil
+		return nil, ErrNotFound
 	case err != nil:
-		return false, fmt.Errorf("Failed to query database, %w", err)
+		return nil, fmt.Errorf("Failed to query database, %w", err)
 	default:
-		if i == 0 {
-			return false, nil
+
+		f := &Follower{
+			Id:              id,
+			AccountId:       account_id,
+			FollowerAddress: follower_address,
+			Created:         created,
 		}
+
+		return f, nil
 	}
 
-	return true, nil
 }
 
-func (db *SQLFollowersDatabase) AddFollower(ctx context.Context, account_id int64, follower_address string) error {
+func (db *SQLFollowersDatabase) AddFollower(ctx context.Context, f *Follower) error {
 
-	now := time.Now()
-	ts := now.Unix()
+	q := fmt.Sprintf("INSERT INTO %s (id, account_id, follower_address, created) VALUES (?, ?, ?, ?)", SQL_FOLLOWERS_TABLE_NAME)
 
-	q := fmt.Sprintf("INSERT INTO %s (account_id, follower_address, created) VALUES (?, ?, ?)", SQL_FOLLOWERS_TABLE_NAME)
-
-	_, err := db.database.ExecContext(ctx, q, account_id, follower_address, ts)
+	_, err := db.database.ExecContext(ctx, q, f.Id, f.AccountId, f.FollowerAddress, f.Created)
 
 	if err != nil {
 		return fmt.Errorf("Failed to add follower, %w", err)
@@ -100,11 +103,11 @@ func (db *SQLFollowersDatabase) AddFollower(ctx context.Context, account_id int6
 	return nil
 }
 
-func (db *SQLFollowersDatabase) RemoveFollower(ctx context.Context, account_id int64, follower_address string) error {
+func (db *SQLFollowersDatabase) RemoveFollower(ctx context.Context, f *Follower) error {
 
-	q := fmt.Sprintf("DELETE FROM %s WHERE account_id = ? AND follower_address = ?", SQL_FOLLOWERS_TABLE_NAME)
+	q := fmt.Sprintf("DELETE FROM %s WHERE id = ?", SQL_FOLLOWERS_TABLE_NAME)
 
-	_, err := db.database.ExecContext(ctx, q, account_id, follower_address)
+	_, err := db.database.ExecContext(ctx, q, f.Id)
 
 	if err != nil {
 		return fmt.Errorf("Failed to remove follower, %w", err)

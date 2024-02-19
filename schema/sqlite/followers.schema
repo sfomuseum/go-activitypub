@@ -1,4 +1,5 @@
 CREATE TABLE followers (
+       id INTEGER PRIMARY KEY,
        account_id INTEGER,
        follower_address TEXT,
        created INTEGER

@@ -221,7 +221,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		switch activity.Type {
 		case "Follow":
 
-			is_following, err := opts.FollowersDatabase.IsFollowing(ctx, sender_address, acct.Id)
+			is_following, _, err := activitypub.IsFollowingAccount(ctx, opts.FollowersDatabase, sender_address, acct.Id)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)
@@ -235,7 +235,15 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			err = opts.FollowersDatabase.AddFollower(ctx, acct.Id, sender_address)
+			f, err := activitypub.NewFollower(ctx, acct.Id, sender_address)
+
+			if err != nil {
+				logger.Error("Failed to create new follower", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			err = opts.FollowersDatabase.AddFollower(ctx, f)
 
 			if err != nil {
 				logger.Error("Failed to add follower", "error", err)
@@ -245,7 +253,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		case "Undo":
 
-			is_following, err := opts.FollowersDatabase.IsFollowing(ctx, sender_address, acct.Id)
+			is_following, f, err := activitypub.IsFollowingAccount(ctx, opts.FollowersDatabase, sender_address, acct.Id)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)
@@ -259,7 +267,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			err = opts.FollowersDatabase.RemoveFollower(ctx, acct.Id, sender_address)
+			err = opts.FollowersDatabase.RemoveFollower(ctx, f)
 
 			if err != nil {
 				logger.Error("Failed to remove follower", "error", err)
@@ -269,7 +277,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		case "Create":
 
-			is_following, err := opts.FollowingDatabase.IsFollowing(ctx, acct.Id, sender_address)
+			is_following, _, err := activitypub.IsFollowingAccount(ctx, opts.FollowersDatabase, sender_address, acct.Id)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)

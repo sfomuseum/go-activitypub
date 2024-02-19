@@ -8,15 +8,15 @@ import (
 var DynamoDBFollowingTable = &dynamodb.CreateTableInput{
 	KeySchema: []*dynamodb.KeySchemaElement{
 		{
-			AttributeName: aws.String("AccountId"), // partition key
+			AttributeName: aws.String("Id"), // partition key
 			KeyType:       aws.String("HASH"),
-		},
-		{
-			AttributeName: aws.String("FollowingAddress"),
-			KeyType:       aws.String("RANGE"),
 		},
 	},
 	AttributeDefinitions: []*dynamodb.AttributeDefinition{
+		{
+			AttributeName: aws.String("Id"),
+			AttributeType: aws.String("N"),
+		},
 		{
 			AttributeName: aws.String("AccountId"),
 			AttributeType: aws.String("N"),
@@ -25,6 +25,38 @@ var DynamoDBFollowingTable = &dynamodb.CreateTableInput{
 			AttributeName: aws.String("FollowingAddress"),
 			AttributeType: aws.String("S"),
 		},
+	},
+	GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
+		{
+			IndexName: aws.String("account_following"),
+			KeySchema: []*dynamodb.KeySchemaElement{
+				{
+					AttributeName: aws.String("AccountId"),
+					KeyType:       aws.String("HASH"),
+				},
+				{
+					AttributeName: aws.String("FollowingAddress"),
+					KeyType:       aws.String("RANGE"),
+				},
+			},
+			Projection: &dynamodb.Projection{
+				ProjectionType: aws.String("ALL"),
+			},
+		},
+		/*
+			{
+				IndexName: aws.String("created"),
+				KeySchema: []*dynamodb.KeySchemaElement{
+					{
+						AttributeName: aws.String("Created"),
+						KeyType:       aws.String("HASH"),
+					},
+				},
+				Projection: &dynamodb.Projection{
+					ProjectionType: aws.String("ALL"),
+				},
+			},
+		*/
 	},
 	BillingMode: BILLING_MODE,
 	TableName:   &FOLLOWING_TABLE_NAME,

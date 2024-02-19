@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"time"
+
+	_ "log/slog"
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
 	gc_docstore "gocloud.dev/docstore"
@@ -24,6 +25,7 @@ func init() {
 	for _, scheme := range gc_docstore.DefaultURLMux().CollectionSchemes() {
 		RegisterFollowingDatabase(ctx, scheme, NewDocstoreFollowingDatabase)
 	}
+
 }
 
 func NewDocstoreFollowingDatabase(ctx context.Context, uri string) (FollowingDatabase, error) {
@@ -41,21 +43,7 @@ func NewDocstoreFollowingDatabase(ctx context.Context, uri string) (FollowingDat
 	return db, nil
 }
 
-func (db *DocstoreFollowingDatabase) IsFollowing(ctx context.Context, account_id int64, following_address string) (bool, error) {
-
-	_, err := db.getFollowing(ctx, account_id, following_address)
-
-	switch {
-	case err == ErrNotFound:
-		return false, nil
-	case err != nil:
-		return false, fmt.Errorf("Failed to query database, %w", err)
-	default:
-		return true, nil
-	}
-}
-
-func (db *DocstoreFollowingDatabase) getFollowing(ctx context.Context, account_id int64, following_address string) (*Following, error) {
+func (db *DocstoreFollowingDatabase) GetFollowing(ctx context.Context, account_id int64, following_address string) (*Following, error) {
 
 	q := db.collection.Query()
 	q = q.Where("AccountId", "=", account_id)
@@ -81,35 +69,17 @@ func (db *DocstoreFollowingDatabase) getFollowing(ctx context.Context, account_i
 	return nil, ErrNotFound
 }
 
-func (db *DocstoreFollowingDatabase) Follow(ctx context.Context, account_id int64, following_address string) error {
-
-	now := time.Now()
-	ts := now.Unix()
-
-	f := &Following{
-		AccountId:        account_id,
-		FollowingAddress: following_address,
-		Created:          ts,
-	}
+func (db *DocstoreFollowingDatabase) AddFollowing(ctx context.Context, f *Following) error {
 
 	return db.collection.Put(ctx, f)
 }
 
-func (db *DocstoreFollowingDatabase) UnFollow(ctx context.Context, account_id int64, following_address string) error {
+func (db *DocstoreFollowingDatabase) RemoveFollowing(ctx context.Context, f *Following) error {
 
-	f, err := db.getFollowing(ctx, account_id, following_address)
-
-	switch {
-	case err == ErrNotFound:
-		return nil
-	case err != nil:
-		return err
-	default:
-		return db.collection.Delete(ctx, f)
-	}
+	return db.collection.Delete(ctx, f)
 }
 
-func (db *DocstoreFollowingDatabase) GetFollowing(ctx context.Context, account_id int64, following_callback GetFollowingCallbackFunc) error {
+func (db *DocstoreFollowingDatabase) GetFollowingWithAccountId(ctx context.Context, account_id int64, following_callback GetFollowingCallbackFunc) error {
 
 	q := db.collection.Query()
 	q = q.Where("AccountId", "=", account_id)

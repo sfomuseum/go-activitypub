@@ -44,7 +44,7 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 		return nil
 	}
 
-	err = opts.FollowersDatabase.GetFollowers(ctx, acct.Id, followers_cb)
+	err = opts.FollowersDatabase.GetFollowersForAccount(ctx, acct.Id, followers_cb)
 
 	if err != nil {
 		return fmt.Errorf("Failed to get followers for post author, %w", err)
