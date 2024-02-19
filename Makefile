@@ -14,13 +14,13 @@ BLOCKS_DB=blocks.db
 
 db:
 	rm -f *.db
-	$(SQLITE3) $(ACCOUNTS_DB) < schema/accounts.sqlite.schema
-	$(SQLITE3) $(FOLLOWERS_DB) < schema/followers.sqlite.schema
-	$(SQLITE3) $(FOLLOWING_DB) < schema/following.sqlite.schema
-	$(SQLITE3) $(POSTS_DB) < schema/posts.sqlite.schema
-	$(SQLITE3) $(NOTES_DB) < schema/notes.sqlite.schema
-	$(SQLITE3) $(MESSAGES_DB) < schema/messages.sqlite.schema
-	$(SQLITE3) $(BLOCKS_DB) < schema/blocks.sqlite.schema
+	$(SQLITE3) $(ACCOUNTS_DB) < schema/sqlite/accounts.schema
+	$(SQLITE3) $(FOLLOWERS_DB) < schema/sqlite/followers.schema
+	$(SQLITE3) $(FOLLOWING_DB) < schema/sqlite/following.schema
+	$(SQLITE3) $(POSTS_DB) < schema/sqlite/posts.schema
+	$(SQLITE3) $(NOTES_DB) < schema/sqlite/notes.schema
+	$(SQLITE3) $(MESSAGES_DB) < schema/sqlite/messages.schema
+	$(SQLITE3) $(BLOCKS_DB) < schema/sqlite/blocks.schema
 
 accounts:
 	go run cmd/add-account/main.go -accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' -account-name bob
