@@ -48,14 +48,13 @@ func (db *DocstoreNotesDatabase) GetNoteWithId(ctx context.Context, note_id int6
 	return db.getNote(ctx, q)
 }
 
-func (db *DocstoreNotesDatabase) GetNoteWithUUIdAndAuthorAddress(ctx context.Context, note_uuid string, author_address string) (*Note, error) {
+func (db *DocstoreNotesDatabase) GetNoteWithUUIDAndAuthorAddress(ctx context.Context, note_uuid string, author_address string) (*Note, error) {
 
 	q := db.collection.Query()
 	q = q.Where("NoteUUID", "=", note_uuid)
 	q = q.Where("AuthorAddress", "=", author_address)
 
 	return db.getNote(ctx, q)
-
 }
 
 func (db *DocstoreNotesDatabase) getNote(ctx context.Context, q *gc_docstore.Query) (*Note, error) {

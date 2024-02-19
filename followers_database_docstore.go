@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io"
 
-	"log/slog"
-
 	aa_docstore "github.com/aaronland/gocloud-docstore"
 	gc_docstore "gocloud.dev/docstore"
 )
@@ -43,25 +41,7 @@ func NewDocstoreFollowersDatabase(ctx context.Context, uri string) (FollowersDat
 	return db, nil
 }
 
-func (db *DocstoreFollowersDatabase) IsFollowing(ctx context.Context, follower_address string, account_id int64) (bool, error) {
-
-	slog.Info("IS FOLLOWING", "follder_address", follower_address, "account", account_id)
-
-	_, err := db.getFollower(ctx, follower_address, account_id)
-
-	slog.Info("IS FOLLOWING", "error", err)
-
-	switch {
-	case err == ErrNotFound:
-		return false, nil
-	case err != nil:
-		return false, err
-	default:
-		return true, nil
-	}
-}
-
-func (db *DocstoreFollowersDatabase) getFollower(ctx context.Context, follower_address string, account_id int64) (*Follower, error) {
+func (db *DocstoreFollowersDatabase) GetFollower(ctx context.Context, account_id int64, follower_address string) (*Follower, error) {
 
 	q := db.collection.Query()
 	q = q.Where("AccountId", "=", account_id)
