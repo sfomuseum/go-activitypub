@@ -16,7 +16,15 @@ type DocstoreFollowersDatabase struct {
 }
 
 func init() {
-	// ctx := context.Background()
+
+	ctx := context.Background()
+
+	RegisterFollowersDatabase(ctx, "awsdynamodb", NewDocstoreFollowersDatabase)
+
+	for _, scheme := range gc_docstore.DefaultURLMux().CollectionSchemes() {
+		RegisterFollowersDatabase(ctx, scheme, NewDocstoreFollowersDatabase)
+	}
+
 }
 
 func NewDocstoreFollowersDatabase(ctx context.Context, uri string) (FollowersDatabase, error) {

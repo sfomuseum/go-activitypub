@@ -15,7 +15,14 @@ type DocstoreMessagesDatabase struct {
 }
 
 func init() {
-	// ctx := context.Background()
+
+	ctx := context.Background()
+
+	RegisterMessagesDatabase(ctx, "awsdynamodb", NewDocstoreMessagesDatabase)
+
+	for _, scheme := range gc_docstore.DefaultURLMux().CollectionSchemes() {
+		RegisterMessagesDatabase(ctx, scheme, NewDocstoreMessagesDatabase)
+	}
 }
 
 func NewDocstoreMessagesDatabase(ctx context.Context, uri string) (MessagesDatabase, error) {

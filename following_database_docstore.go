@@ -16,7 +16,14 @@ type DocstoreFollowingDatabase struct {
 }
 
 func init() {
-	// ctx := context.Background()
+
+	ctx := context.Background()
+
+	RegisterFollowingDatabase(ctx, "awsdynamodb", NewDocstoreFollowingDatabase)
+
+	for _, scheme := range gc_docstore.DefaultURLMux().CollectionSchemes() {
+		RegisterFollowingDatabase(ctx, scheme, NewDocstoreFollowingDatabase)
+	}
 }
 
 func NewDocstoreFollowingDatabase(ctx context.Context, uri string) (FollowingDatabase, error) {
