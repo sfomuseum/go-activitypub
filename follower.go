@@ -26,6 +26,7 @@ func NewFollower(ctx context.Context, account_id int64, follower_address string)
 
 	b := &Follower{
 		Id:              db_id,
+		AccountId:       account_id,
 		FollowerAddress: follower_address,
 		Created:         ts,
 	}
@@ -33,7 +34,8 @@ func NewFollower(ctx context.Context, account_id int64, follower_address string)
 	return b, nil
 }
 
-func IsFollowingAccount(ctx context.Context, db FollowersDatabase, follower_address string, account_id int64) (bool, *Follower, error) {
+// Is follower_address following account_id?
+func IsFollowingAccount(ctx context.Context, db FollowersDatabase, account_id int64, follower_address string) (bool, *Follower, error) {
 
 	f, err := db.GetFollower(ctx, account_id, follower_address)
 

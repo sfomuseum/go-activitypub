@@ -6,7 +6,7 @@ An opionated (and incomplete) ActivityPub service implementation in Go.
 
 I find the documentation for ActivityPub very confusing. I don't think I have any problem(s) with the underlying specification but I have not found any implementation guides that haven't left me feeling more confused that when I started. This includes the actual ActivityPub specifications published by the W3C which are no doubt thorough but, as someone with a finite of amount of competing time to devote to reading those specs, often feel counter-productive. There are some third-party guides, listed below, which are better than others but so far each one has felt incomplete in one way or another.
 
-This repository is an attempt to working through the implementation of a simple ActivityPub service. It is incomplete by design and, if you are reading this, it's entirely possible that parts of it remain incorrect. The goal is implement a basic web service and a set of command line tools which allow:
+This repository is an attempt to understand all the moving pieces and their relationship to one another by working through the implementation of a simple ActivityPub service. It is incomplete by design and, if you are reading this, it's entirely possible that parts of it remain incorrect. The goal is implement a basic web service and a set of command line tools which allow:
 
 * Individual accounts to be created
 * The ability for one account to follow, or unfollow, one another
@@ -14,7 +14,9 @@ This repository is an attempt to working through the implementation of a simple 
 * The ability for one account to post a message and to have that message relayed to one or more other accounts
 * The ability for one account to see all the messages that have been delivered to them by other accounts
 
-That's it, at least for now. Importantly not all of those features have been implemented in both the web service and command line tools. This code is not something you can, or should, deploy as a hosted service for "strangers on the Internet". I have some fairly specific use-cases in mind for this code but the priority right now is just to understand the ActivityPub specification and the actual "brass tacks" of running a service that implements the specification.
+That's it, at least for now. It does have support for ActivityPub account migration, editing posts or notifications of changes to posts.
+
+Importantly not all of those features have been implemented in both the web service and command line tools. This code is not something you can, or should, deploy as a hosted service for "strangers on the Internet". I have some fairly specific use-cases in mind for this code but the priority right now is just to understand the ActivityPub specification and the actual "brass tacks" of running a service that implements the specification.
 
 The mechanics of the code are discussed later in this document.
 

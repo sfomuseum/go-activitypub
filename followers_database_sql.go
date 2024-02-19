@@ -69,7 +69,7 @@ func (db *SQLFollowersDatabase) GetFollower(ctx context.Context, account_id int6
 	var id int64
 	var created int64
 
-	err := row.Scan(&id, &id, &created)
+	err := row.Scan(&id, &created)
 
 	switch {
 	case err == sql.ErrNoRows:

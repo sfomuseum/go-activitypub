@@ -26,6 +26,7 @@ func NewFollowing(ctx context.Context, account_id int64, following_address strin
 
 	b := &Following{
 		Id:               db_id,
+		AccountId:        account_id,
 		FollowingAddress: following_address,
 		Created:          ts,
 	}
