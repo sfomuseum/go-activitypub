@@ -61,7 +61,7 @@ func (db *SQLNotesDatabase) GetNoteWithId(ctx context.Context, note_id int64) (*
 	return db.getNote(ctx, where, note_id)
 }
 
-func (db *SQLNotesDatabase) GetNoteWithUUIDAuthorAddress(ctx context.Context, uuid string, author_address string) (*Note, error) {
+func (db *SQLNotesDatabase) GetNoteWithUUIDAndAuthorAddress(ctx context.Context, uuid string, author_address string) (*Note, error) {
 
 	// Note the order of arguments this is to account for the
 	// notes_by_author_address index.

@@ -97,7 +97,7 @@ func (db *DocstoreFollowersDatabase) RemoveFollower(ctx context.Context, f *Foll
 	return db.collection.Delete(ctx, f)
 }
 
-func (db *DocstoreFollowersDatabase) GetFollowers(ctx context.Context, account_id int64, followers_callback GetFollowersCallbackFunc) error {
+func (db *DocstoreFollowersDatabase) GetFollowersForAccount(ctx context.Context, account_id int64, followers_callback GetFollowersForAccountCallbackFunc) error {
 
 	q := db.collection.Query()
 	q = q.Where("AccountId", "=", account_id)

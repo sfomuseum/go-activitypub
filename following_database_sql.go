@@ -114,7 +114,7 @@ func (db *SQLFollowingDatabase) RemoveFollowing(ctx context.Context, f *Followin
 	return nil
 }
 
-func (db *SQLFollowingDatabase) GetFollowingWithAccountId(ctx context.Context, account_id int64, following_callback GetFollowingCallbackFunc) error {
+func (db *SQLFollowingDatabase) GetFollowingForAccount(ctx context.Context, account_id int64, following_callback GetFollowingCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
 

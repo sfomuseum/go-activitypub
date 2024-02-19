@@ -221,7 +221,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		switch activity.Type {
 		case "Follow":
 
-			is_following, _, err := activitypub.IsFollowingAccount(ctx, opts.FollowersDatabase, acct.Id, sender_address)
+			is_following, _, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, sender_address)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)
@@ -235,7 +235,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			f, err := activitypub.NewFollower(ctx, acct.Id, sender_address)
+			err = activitypub.AddFollower(ctx, opts.FollowersDatabase, acct.Id, sender_address)
 
 			if err != nil {
 				logger.Error("Failed to create new follower", "error", err)
@@ -243,17 +243,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			err = opts.FollowersDatabase.AddFollower(ctx, f)
-
-			if err != nil {
-				logger.Error("Failed to add follower", "error", err)
-				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-				return
-			}
-
 		case "Undo":
 
-			is_following, f, err := activitypub.IsFollowingAccount(ctx, opts.FollowersDatabase, acct.Id, sender_address)
+			is_following, f, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, sender_address)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)
@@ -277,7 +269,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		case "Create":
 
-			is_following, _, err := activitypub.IsFollowingAccount(ctx, opts.FollowersDatabase, acct.Id, sender_address)
+			is_following, _, err := activitypub.IsFollowing(ctx, opts.FollowingDatabase, acct.Id, sender_address)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)

@@ -79,7 +79,7 @@ func (db *DocstoreFollowingDatabase) RemoveFollowing(ctx context.Context, f *Fol
 	return db.collection.Delete(ctx, f)
 }
 
-func (db *DocstoreFollowingDatabase) GetFollowingWithAccountId(ctx context.Context, account_id int64, following_callback GetFollowingCallbackFunc) error {
+func (db *DocstoreFollowingDatabase) GetFollowingForAccount(ctx context.Context, account_id int64, following_callback GetFollowingCallbackFunc) error {
 
 	q := db.collection.Query()
 	q = q.Where("AccountId", "=", account_id)

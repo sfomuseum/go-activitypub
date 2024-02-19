@@ -10,10 +10,10 @@ import (
 	"github.com/aaronland/go-roster"
 )
 
-type GetFollowersCallbackFunc func(context.Context, string) error
+type GetFollowersForAccountCallbackFunc func(context.Context, string) error
 
 type FollowersDatabase interface {
-	GetFollowersForAccount(context.Context, int64, GetFollowersCallbackFunc) error
+	GetFollowersForAccount(context.Context, int64, GetFollowersForAccountCallbackFunc) error
 	GetFollower(context.Context, int64, string) (*Follower, error)
 	AddFollower(context.Context, *Follower) error
 	RemoveFollower(context.Context, *Follower) error

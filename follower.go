@@ -3,6 +3,7 @@ package activitypub
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 )
 
@@ -11,6 +12,26 @@ type Follower struct {
 	AccountId       int64  `json:"account_id"`
 	FollowerAddress string `json:"follower_address"`
 	Created         int64  `json:"created"`
+}
+
+func GetFollower(ctx context.Context, db FollowersDatabase, account_id int64, follower_address string) (*Follower, error) {
+
+	slog.Info("Get follower", "account", account_id, "follower", follower_address)
+
+	return db.GetFollower(ctx, account_id, follower_address)
+}
+
+func AddFollower(ctx context.Context, db FollowersDatabase, account_id int64, follower_address string) error {
+
+	slog.Info("Add follower", "account", account_id, "follower", follower_address)
+
+	f, err := NewFollower(ctx, account_id, follower_address)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create new follower, %w", err)
+	}
+
+	return db.AddFollower(ctx, f)
 }
 
 func NewFollower(ctx context.Context, account_id int64, follower_address string) (*Follower, error) {
@@ -35,9 +56,9 @@ func NewFollower(ctx context.Context, account_id int64, follower_address string)
 }
 
 // Is follower_address following account_id?
-func IsFollowingAccount(ctx context.Context, db FollowersDatabase, account_id int64, follower_address string) (bool, *Follower, error) {
+func IsFollower(ctx context.Context, db FollowersDatabase, account_id int64, follower_address string) (bool, *Follower, error) {
 
-	f, err := db.GetFollower(ctx, account_id, follower_address)
+	f, err := GetFollower(ctx, db, account_id, follower_address)
 
 	if err == nil {
 		return true, f, nil
