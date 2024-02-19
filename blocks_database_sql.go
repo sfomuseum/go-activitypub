@@ -56,25 +56,6 @@ func NewSQLBlocksDatabase(ctx context.Context, uri string) (BlocksDatabase, erro
 	return db, nil
 }
 
-func (db *SQLBlocksDatabase) IsBlockedByAccount(ctx context.Context, account_id int64, host string, name string) (bool, error) {
-
-	_, err := db.GetBlockWithAccountIdAndAddress(ctx, account_id, host, name)
-
-	if err == nil {
-		return true, nil
-	}
-
-	if err != ErrNotFound {
-		return false, fmt.Errorf("Failed to retrieve block with account and address, %w", err)
-	}
-
-	if name == "*" {
-		return false, nil
-	}
-
-	return db.IsBlockedByAccount(ctx, account_id, host, "*")
-}
-
 func (db *SQLBlocksDatabase) GetBlockWithId(ctx context.Context, block_id int64) (*Block, error) {
 	where := "id = ?"
 	return db.getBlock(ctx, where, block_id)

@@ -13,7 +13,6 @@ import (
 type GetBlocksCallbackFunc func(context.Context, *Block) error
 
 type BlocksDatabase interface {
-	IsBlockedByAccount(context.Context, int64, string, string) (bool, error)
 	// GetBlocksForAccount(context.Context, int64, GetBlocksCallbackFunc) error
 	GetBlockWithAccountIdAndAddress(context.Context, int64, string, string) (*Block, error)
 	GetBlockWithId(context.Context, int64) (*Block, error)

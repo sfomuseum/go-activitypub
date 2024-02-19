@@ -99,7 +99,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		is_blocked, err := opts.BlocksDatabase.IsBlockedByAccount(ctx, acct.Id, sender_host, sender_name)
+		is_blocked, err := activitypub.IsBlockedByAccount(ctx, opts.BlocksDatabase, acct.Id, sender_host, sender_name)
 
 		if err != nil {
 			logger.Error("Failed to determine if sender is blocked", "error", err)
