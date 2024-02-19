@@ -28,7 +28,7 @@ To recap, we've got:
 1. A web server
 2. A database with the following tables: accounts, followers, following, posts, messages, blocks
 3. Two member accounts, Bob and Alice
-4. A delivery mechanism for sending messages
+4. A delivery mechanism for sending messages; this might be an in-process loop or an asynchronous message queue but the point is that it is a sufficiently unique part of the process that it deserves to be thought of as distinct from the web server or the database.
 
 For the purposes of these examples and for testing the assumption is that Bob and Alice have member accounts on the same server.
 
@@ -42,9 +42,9 @@ Accounts are the local representation of an individual or what ActivityPub refer
 
 Actors are distinguised from one another by the use of a unique "address" which consists of a name (`bob` or `alice`) and a hostname (`bob.com` or `alice.com`). For example `alice@alice.com` and `alice@bob.com` are two distinct "actors". In this example there are web services implementing the ActivityPub protocal available at both `bob.com` and `alice.com`.
 
-Each actor (or account) has a public-private encryption key. As the name suggests the public key is available for anyone to view. Bob is authorized to see Alice's public key and vice versa. The private key however is considered sensitive and should only be visible to Alice or a service acting on Alice's behalf.
+Each actor (or account) has a pair of public-private encryption keys. As the name suggests the public key is available for anyone to view. Bob is authorized to see Alice's public key and vice versa. The private key however is considered sensitive and should only be visible to Alice or a service acting on Alice's behalf.
 
-_The details of how any given private key is kept secure are not part of the ActivityPub specification and are left as implementation details to someone implementing the specification as a web service._
+_The details of how any given private key is kept secure are not part of the ActivityPub specification and are left as implementation details to someone building a ActivityPub-based webs service._
 
 ### Endpoints
 
