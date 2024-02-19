@@ -12,7 +12,15 @@ NOTES_DB=notes.db
 MESSAGES_DB=messages.db
 BLOCKS_DB=blocks.db
 
-db:
+ACCOUNTS_DB_URI=sql://sqlite3?dsn=$(ACCOUNTS_DB)
+FOLLOWERS_DB_URI=sql://sqlite3?dsn=$(FOLLOWERS_DB)
+FOLLOWING_DB_URI=sql://sqlite3?dsn=$(FOLLOWING_DB)
+BLOCKS_DB_URI=sql://sqlite3?dsn=$(BLOCKS_DB)
+POSTS_DB_URI=sql://sqlite3?dsn=$(POSTS_DB)
+NOTES_DB_URI=sql://sqlite3?dsn=$(NOTES_DB)
+MESSAGES_DB_URI=sql://sqlite3?dsn=$(MESSAGES_DB)
+
+sqlite:
 	rm -f *.db
 	$(SQLITE3) $(ACCOUNTS_DB) < schema/sqlite/accounts.schema
 	$(SQLITE3) $(FOLLOWERS_DB) < schema/sqlite/followers.schema
@@ -23,15 +31,15 @@ db:
 	$(SQLITE3) $(BLOCKS_DB) < schema/sqlite/blocks.schema
 
 accounts:
-	go run cmd/add-account/main.go -accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' -account-name bob
-	go run cmd/add-account/main.go -accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' -account-name alice
+	go run cmd/add-account/main.go -accounts-database-uri '$(ACCOUNTS_DB_URI)' -account-name bob
+	go run cmd/add-account/main.go -accounts-database-uri '$(ACCOUNTS_DB_URI)' -account-name alice
 
 # Bob wants to follow Alice
 
 follow:
 	go run cmd/follow/main.go \
-		-accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' \
-		-following-database-uri 'sql://sqlite3?dsn=$(FOLLOWING_DB)' \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-following-database-uri '$(FOLLOWING_DB_URI)' \
 		-account-name bob \
 		-follow alice@localhost:8080 
 
@@ -39,23 +47,23 @@ follow:
 
 unfollow:
 	go run cmd/follow/main.go \
-		-accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' \
-		-following-database-uri 'sql://sqlite3?dsn=$(FOLLOWING_DB)' \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-following-database-uri '$(FOLLOWING_DB_URI)' \
 		-account-name bob \
 		-follow alice@localhost:8080 \
 		-undo
 
 block:
 	go run cmd/block/main.go \
-		-accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' \
-		-blocks-database-uri 'sql://sqlite3?dsn=$(BLOCKS_DB)' \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-account-name bob \
 		-block-host block.club
 
 unblock:
 	go run cmd/block/main.go \
-		-accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' \
-		-blocks-database-uri 'sql://sqlite3?dsn=$(BLOCKS_DB)' \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-account-name bob \
 		-block-host block.club \
 		-undo
@@ -64,26 +72,26 @@ unblock:
 
 post:
 	go run cmd/post/main.go \
-		-accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' \
-		-followers-database-uri 'sql://sqlite3?dsn=$(FOLLOWERS_DB)' \
-		-posts-database-uri 'sql://sqlite3?dsn=$(POSTS_DB)' \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
+		-posts-database-uri '$(POSTS_DB_URI)' \
 		-account-name alice \
 		-message "$(MESSAGE)"
 
 inbox:
 	go run cmd/inbox/main.go \
-		-accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' \
-		-messages-database-uri 'sql://sqlite3?dsn=$(MESSAGES_DB)' \
-		-notes-database-uri 'sql://sqlite3?dsn=$(NOTES_DB)' \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-messages-database-uri '$(MESSAGES_DB_URI)' \
+		-notes-database-uri '$(NOTES_DB_URI)' \
 		-account-name $(ACCOUNT)
 
 server:
 	go run cmd/server/main.go \
-		-accounts-database-uri 'sql://sqlite3?dsn=$(ACCOUNTS_DB)' \
-		-followers-database-uri 'sql://sqlite3?dsn=$(FOLLOWERS_DB)' \
-		-following-database-uri 'sql://sqlite3?dsn=$(FOLLOWING_DB)' \
-		-notes-database-uri 'sql://sqlite3?dsn=$(NOTES_DB)' \
-		-messages-database-uri 'sql://sqlite3?dsn=$(MESSAGES_DB)' \
-		-blocks-database-uri 'sql://sqlite3?dsn=$(BLOCKS_DB)' \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
+		-following-database-uri '$(FOLLOWING_DB_URI)' \
+		-notes-database-uri '$(NOTES_DB_URI)' \
+		-messages-database-uri '$(MESSAGES_DB_URI)' \
+		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-allow-create \
 		-hostname localhost:8080
