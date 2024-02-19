@@ -19,6 +19,8 @@ var hostname string
 var allow_follow bool
 var allow_create bool
 
+var verbose bool
+
 func DefaultFlagSet() *flag.FlagSet {
 
 	fs := flagset.NewFlagSet("activitypub")
@@ -36,5 +38,6 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&server_uri, "server-uri", "http://localhost:8080", "...")
 	fs.StringVar(&hostname, "hostname", "", "...")
 
+	fs.BoolVar(&verbose, "verbose", false, "Enable verbose logging")
 	return fs
 }

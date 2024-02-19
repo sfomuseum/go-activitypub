@@ -104,6 +104,7 @@ server:
 		-messages-database-uri '$(MESSAGES_DB_URI)' \
 		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-allow-create \
+		-verbose \
 		-hostname localhost:8080
 
 # https://aws.amazon.com/about-aws/whats-new/2018/08/use-amazon-dynamodb-local-more-easily-with-the-new-docker-image/

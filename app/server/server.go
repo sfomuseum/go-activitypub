@@ -10,6 +10,7 @@ import (
 	"github.com/aaronland/go-http-server"
 	"github.com/aaronland/go-http-server/handler"
 	"github.com/sfomuseum/go-activitypub"
+	ap_slog "github.com/sfomuseum/go-activitypub/slog"	
 )
 
 func Run(ctx context.Context, logger *slog.Logger) error {
@@ -30,8 +31,8 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) 
 
 func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) error {
 
-	slog.SetDefault(logger)
-
+	ap_slog.ConfigureLogger(logger, opts.Verbose)
+		
 	v, err := opts.clone()
 
 	if err != nil {
