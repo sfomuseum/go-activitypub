@@ -15,7 +15,7 @@ type GetNotesCallbackFunc func(context.Context, *Note) error
 type NotesDatabase interface {
 	// GetNotesForAuthor(context.Context, string, GetNotesCallbackFunc) error
 	GetNoteWithId(context.Context, int64) (*Note, error)
-	GetNoteWithNoteIdAndAuthorAddress(context.Context, string, string) (*Note, error)
+	GetNoteWithUUIDAndAuthorAddress(context.Context, string, string) (*Note, error)
 	AddNote(context.Context, *Note) error
 	UpdateNote(context.Context, *Note) error
 	RemoveNote(context.Context, *Note) error

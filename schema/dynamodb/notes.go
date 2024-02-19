@@ -8,8 +8,8 @@ import (
 var DynamoDBNotesTable = &dynamodb.CreateTableInput{
 	KeySchema: []*dynamodb.KeySchemaElement{
 		{
-			AttributeName: aws.String("Id"),
-			KeyType:       aws.String("HASH"), // partition key
+			AttributeName: aws.String("Id"), // partition key
+			KeyType:       aws.String("HASH"),
 		},
 	},
 	AttributeDefinitions: []*dynamodb.AttributeDefinition{
@@ -18,7 +18,7 @@ var DynamoDBNotesTable = &dynamodb.CreateTableInput{
 			AttributeType: aws.String("S"),
 		},
 		{
-			AttributeName: aws.String("NoteId"),
+			AttributeName: aws.String("UUID"),
 			AttributeType: aws.String("S"),
 		},
 		{
@@ -31,11 +31,11 @@ var DynamoDBNotesTable = &dynamodb.CreateTableInput{
 			IndexName: aws.String("note_address"),
 			KeySchema: []*dynamodb.KeySchemaElement{
 				{
-					AttributeName: aws.String("NoteId"),
+					AttributeName: aws.String("AuthorAddress"),
 					KeyType:       aws.String("HASH"),
 				},
 				{
-					AttributeName: aws.String("AuthorAddress"),
+					AttributeName: aws.String("UUID"),
 					KeyType:       aws.String("RANGE"),
 				},
 			},

@@ -8,12 +8,12 @@ import (
 var DynamoDBFollowingTable = &dynamodb.CreateTableInput{
 	KeySchema: []*dynamodb.KeySchemaElement{
 		{
-			AttributeName: aws.String("AccountId"),
-			KeyType:       aws.String("HASH"), // partition key
+			AttributeName: aws.String("AccountId"), // partition key
+			KeyType:       aws.String("HASH"),
 		},
 		{
 			AttributeName: aws.String("FollowingAddress"),
-			KeyType:       aws.String("RANGE"), // partition key
+			KeyType:       aws.String("RANGE"),
 		},
 	},
 	AttributeDefinitions: []*dynamodb.AttributeDefinition{
@@ -26,26 +26,6 @@ var DynamoDBFollowingTable = &dynamodb.CreateTableInput{
 			AttributeType: aws.String("S"),
 		},
 	},
-	/*
-		GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
-				{
-					IndexName: aws.String("label"),
-					KeySchema: []*dynamodb.KeySchemaElement{
-						{
-							AttributeName: aws.String("Label"),
-							KeyType:       aws.String("HASH"),
-						},
-						{
-							AttributeName: aws.String("Id"),
-							KeyType:       aws.String("RANGE"),
-						},
-					},
-					Projection: &dynamodb.Projection{
-						ProjectionType: aws.String("ALL"),
-					},
-				},
-		},
-	*/
 	BillingMode: BILLING_MODE,
 	TableName:   &FOLLOWING_TABLE_NAME,
 }

@@ -64,8 +64,27 @@ _The details of how any given private key is kept secure are not part of the Act
 
 #### Outbox
 
+## The Code
+
+### Databases
+
+### Accounts
+
+### Follow
+
+### Unfollow
+
+### Block
+
+### Unblock
+
+### Posting (and delivering) a message
+
+### Retrieving messages (received)
 
 ## See also
 
 * https://github.com/w3c/activitypub/blob/gh-pages/activitypub-tutorial.txt
 * https://shkspr.mobi/blog/2024/02/activitypub-server-in-a-single-file/
+* https://blog.joinmastodon.org/2018/07/how-to-make-friends-and-verify-requests/
+* https://seb.jambor.dev/posts/understanding-activitypub/

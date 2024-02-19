@@ -301,10 +301,10 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			note_id := note.Id
-			logger = logger.With("note id", note_id)
+			note_uuid := note.Id
+			logger = logger.With("note uuid", note_uuid)
 
-			db_note, err := opts.NotesDatabase.GetNoteWithNoteIdAndAuthorAddress(ctx, note_id, sender_address)
+			db_note, err := opts.NotesDatabase.GetNoteWithUUIDAndAuthorAddress(ctx, note_uuid, sender_address)
 
 			switch {
 			case err == activitypub.ErrNotFound:
@@ -353,7 +353,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				db_note = &activitypub.Note{
 					Id:            db_id,
-					NoteId:        note_id,
+					UUID:          note_uuid,
 					AuthorAddress: sender_address,
 					Body:          enc_note,
 					Created:       ts,

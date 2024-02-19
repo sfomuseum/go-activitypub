@@ -8,8 +8,8 @@ import (
 var DynamoDBAccountsTable = &dynamodb.CreateTableInput{
 	KeySchema: []*dynamodb.KeySchemaElement{
 		{
-			AttributeName: aws.String("Id"),
-			KeyType:       aws.String("HASH"), // partition key
+			AttributeName: aws.String("Id"), // partition key
+			KeyType:       aws.String("HASH"),
 		},
 	},
 	AttributeDefinitions: []*dynamodb.AttributeDefinition{
