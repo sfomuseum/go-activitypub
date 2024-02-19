@@ -21,6 +21,14 @@ var DynamoDBPostsTable = &dynamodb.CreateTableInput{
 			AttributeName: aws.String("UUID"),
 			AttributeType: aws.String("S"),
 		},
+		{
+			AttributeName: aws.String("AccountId"),
+			AttributeType: aws.String("N"),
+		},
+		{
+			AttributeName: aws.String("Created"),
+			AttributeType: aws.String("N"),
+		},
 	},
 	GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
 		{
@@ -29,6 +37,22 @@ var DynamoDBPostsTable = &dynamodb.CreateTableInput{
 				{
 					AttributeName: aws.String("UUID"),
 					KeyType:       aws.String("HASH"),
+				},
+			},
+			Projection: &dynamodb.Projection{
+				ProjectionType: aws.String("ALL"),
+			},
+		},
+		{
+			IndexName: aws.String("account"),
+			KeySchema: []*dynamodb.KeySchemaElement{
+				{
+					AttributeName: aws.String("AccountId"),
+					KeyType:       aws.String("HASH"),
+				},
+				{
+					AttributeName: aws.String("Created"),
+					KeyType:       aws.String("RANGE"),
 				},
 			},
 			Projection: &dynamodb.Projection{

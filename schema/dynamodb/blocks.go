@@ -25,16 +25,14 @@ var DynamoDBBlocksTable = &dynamodb.CreateTableInput{
 			AttributeName: aws.String("Host"),
 			AttributeType: aws.String("S"),
 		},
-		/*
-			{
-				AttributeName: aws.String("Name"),
-				AttributeType: aws.String("S"),
-			},
-		*/
+		{
+			AttributeName: aws.String("Created"),
+			AttributeType: aws.String("N"),
+		},
 	},
 	GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
 		{
-			IndexName: aws.String("account_and_address"),
+			IndexName: aws.String("account_and_host"),
 			KeySchema: []*dynamodb.KeySchemaElement{
 				{
 					AttributeName: aws.String("AccountId"),
@@ -50,6 +48,22 @@ var DynamoDBBlocksTable = &dynamodb.CreateTableInput{
 						KeyType:       aws.String("HASH"),
 					},
 				*/
+			},
+			Projection: &dynamodb.Projection{
+				ProjectionType: aws.String("ALL"),
+			},
+		},
+		{
+			IndexName: aws.String("host"),
+			KeySchema: []*dynamodb.KeySchemaElement{
+				{
+					AttributeName: aws.String("Host"),
+					KeyType:       aws.String("HASH"),
+				},
+				{
+					AttributeName: aws.String("Created"),
+					KeyType:       aws.String("RANGE"),
+				},
 			},
 			Projection: &dynamodb.Projection{
 				ProjectionType: aws.String("ALL"),

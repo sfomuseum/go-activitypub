@@ -15,7 +15,7 @@ var DynamoDBNotesTable = &dynamodb.CreateTableInput{
 	AttributeDefinitions: []*dynamodb.AttributeDefinition{
 		{
 			AttributeName: aws.String("Id"),
-			AttributeType: aws.String("S"),
+			AttributeType: aws.String("N"),
 		},
 		{
 			AttributeName: aws.String("UUID"),
@@ -24,6 +24,10 @@ var DynamoDBNotesTable = &dynamodb.CreateTableInput{
 		{
 			AttributeName: aws.String("AuthorAddress"),
 			AttributeType: aws.String("S"),
+		},
+		{
+			AttributeName: aws.String("Created"),
+			AttributeType: aws.String("N"),
 		},
 	},
 	GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
@@ -37,6 +41,18 @@ var DynamoDBNotesTable = &dynamodb.CreateTableInput{
 				{
 					AttributeName: aws.String("UUID"),
 					KeyType:       aws.String("RANGE"),
+				},
+			},
+			Projection: &dynamodb.Projection{
+				ProjectionType: aws.String("ALL"),
+			},
+		},
+		{
+			IndexName: aws.String("created"),
+			KeySchema: []*dynamodb.KeySchemaElement{
+				{
+					AttributeName: aws.String("Created"),
+					KeyType:       aws.String("HASH"),
 				},
 			},
 			Projection: &dynamodb.Projection{

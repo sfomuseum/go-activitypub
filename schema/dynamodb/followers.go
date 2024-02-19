@@ -8,12 +8,12 @@ import (
 var DynamoDBFollowersTable = &dynamodb.CreateTableInput{
 	KeySchema: []*dynamodb.KeySchemaElement{
 		{
-			AttributeName: aws.String("AccountId"),
-			KeyType:       aws.String("HASH"), // partition key
+			AttributeName: aws.String("AccountId"), // partition key
+			KeyType:       aws.String("HASH"),
 		},
 		{
 			AttributeName: aws.String("FollowerAddress"),
-			KeyType:       aws.String("RANGE"), // partition key
+			KeyType:       aws.String("RANGE"),
 		},
 	},
 	AttributeDefinitions: []*dynamodb.AttributeDefinition{

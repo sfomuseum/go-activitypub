@@ -18,25 +18,41 @@ var DynamoDBMessagesTable = &dynamodb.CreateTableInput{
 			AttributeType: aws.String("N"),
 		},
 		{
-			AttributeName: aws.String("AccountId"),
+			AttributeName: aws.String("AuthorAddress"),
 			AttributeType: aws.String("N"),
 		},
 		{
 			AttributeName: aws.String("NoteId"),
 			AttributeType: aws.String("N"),
 		},
+		{
+			AttributeName: aws.String("Created"),
+			AttributeType: aws.String("N"),
+		},
 	},
 	GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
 		{
-			IndexName: aws.String("account_note"),
+			IndexName: aws.String("author"),
 			KeySchema: []*dynamodb.KeySchemaElement{
 				{
-					AttributeName: aws.String("AccountId"),
+					AttributeName: aws.String("AuthorAddress"),
 					KeyType:       aws.String("HASH"),
 				},
 				{
-					AttributeName: aws.String("NoteId"),
+					AttributeName: aws.String("Created"),
 					KeyType:       aws.String("RANGE"),
+				},
+			},
+			Projection: &dynamodb.Projection{
+				ProjectionType: aws.String("ALL"),
+			},
+		},
+		{
+			IndexName: aws.String("note"),
+			KeySchema: []*dynamodb.KeySchemaElement{
+				{
+					AttributeName: aws.String("NoteId"),
+					KeyType:       aws.String("HASH"),
 				},
 			},
 			Projection: &dynamodb.Projection{
