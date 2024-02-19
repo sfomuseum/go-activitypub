@@ -4,9 +4,19 @@ An opionated (and incomplete) ActivityPub service implementation in Go.
 
 ## Motivation
 
-I find the documentation for ActivityPub very confusing. I don't think I have any problem(s) with the underlying specification but I have not found any implementation guides that haven't left me feeling more confused that when I started. There are some which are better than others, listed below, but so far each one has felt incomplete in one way or another.
+I find the documentation for ActivityPub very confusing. I don't think I have any problem(s) with the underlying specification but I have not found any implementation guides that haven't left me feeling more confused that when I started. This includes the actual ActivityPub specifications published by the W3C which are no doubt thorough but, as someone with a finite of amount of competing time to devote to reading those specs, often feel counter-productive. There are some third-party guides, listed below, which are better than others but so far each one has felt incomplete in one way or another.
 
-This repository is an attempt to working through the implementation of a simple ActivityPub service. It is incomplete by design and, if you are reading this, it's entirely possible that parts of it remain incorrect.
+This repository is an attempt to working through the implementation of a simple ActivityPub service. It is incomplete by design and, if you are reading this, it's entirely possible that parts of it remain incorrect. The goal is implement a basic web service and a set of command line tools which allow:
+
+* Individual accounts to be created
+* The ability for one account to follow, or unfollow, one another
+* The ability for one account to block, or unblock, another account
+* The ability for one account to post a message and to have that message relayed to one or more other accounts
+* The ability for one account to see all the messages that have been delivered to them by other accounts
+
+That's it, at least for now. Importantly not all of those features have been implemented in both the web service and command line tools. This code is not something you can, or should, deploy as a hosted service for "strangers on the Internet". I have some fairly specific use-cases in mind for this code but the priority right now is just to understand the ActivityPub specification and the actual "brass tacks" of running a service that implements the specification.
+
+The mechanics of the code are discussed later in this document.
 
 ## How does ActivityPub work?
 
@@ -25,9 +35,9 @@ What needs to happen for this exchange of messages possible?
 
 To recap, we've got:
 
-1. A web server
+1. A web server with a minimum of three endpoints: webfinger, inbox, outbox
 2. A database with the following tables: accounts, followers, following, posts, messages, blocks
-3. Two member accounts, Bob and Alice
+3. Two member accounts: Bob and Alice
 4. A delivery mechanism for sending messages; this might be an in-process loop or an asynchronous message queue but the point is that it is a sufficiently unique part of the process that it deserves to be thought of as distinct from the web server or the database.
 
 For the purposes of these examples and for testing the assumption is that Bob and Alice have member accounts on the same server.
