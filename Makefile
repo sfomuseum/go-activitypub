@@ -20,6 +20,14 @@ POSTS_DB_URI=sql://sqlite3?dsn=$(POSTS_DB)
 NOTES_DB_URI=sql://sqlite3?dsn=$(NOTES_DB)
 MESSAGES_DB_URI=sql://sqlite3?dsn=$(MESSAGES_DB)
 
+ACCOUNTS_DB_URI=awsdynamodb://accounts?partition_key=Id&allow_scans=true&local=true
+FOLLOWING_DB_URI=awsdynamodb://following?partition_key=AccountId&allow_scans=true&local=true
+FOLLOWERS_DB_URI=awsdynamodb://followers?partition_key=AccountId&allow_scans=true&local=true
+BLOCKS_DB_URI=awsdynamodb://blocks?partition_key=Id&allow_scans=true&local=true
+NOTES_DB_URI=awsdynamodb://notes?partition_key=Id&allow_scans=true&local=true
+POSTS_DB_URI=awsdynamodb://posts?partition_key=Id&allow_scans=true&local=true
+MESSAGES_DB_URI=awsdynamodb://messages?partition_key=Id&allow_scans=true&local=true
+
 sqlite:
 	rm -f *.db
 	$(SQLITE3) $(ACCOUNTS_DB) < schema/sqlite/accounts.schema
