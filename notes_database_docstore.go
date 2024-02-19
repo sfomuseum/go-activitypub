@@ -43,7 +43,7 @@ func NewDocstoreNotesDatabase(ctx context.Context, uri string) (NotesDatabase, e
 func (db *DocstoreNotesDatabase) GetNoteWithId(ctx context.Context, note_id int64) (*Note, error) {
 
 	q := db.collection.Query()
-	q = q.Where("NoteId", "=", note_id)
+	q = q.Where("Id", "=", note_id)
 
 	return db.getNote(ctx, q)
 }
@@ -51,7 +51,7 @@ func (db *DocstoreNotesDatabase) GetNoteWithId(ctx context.Context, note_id int6
 func (db *DocstoreNotesDatabase) GetNoteWithUUIDAndAuthorAddress(ctx context.Context, note_uuid string, author_address string) (*Note, error) {
 
 	q := db.collection.Query()
-	q = q.Where("NoteUUID", "=", note_uuid)
+	q = q.Where("UUID", "=", note_uuid)
 	q = q.Where("AuthorAddress", "=", author_address)
 
 	return db.getNote(ctx, q)

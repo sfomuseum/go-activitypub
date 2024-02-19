@@ -55,6 +55,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	messages_cb := func(ctx context.Context, m *activitypub.Message) error {
 
+		logger.Info("Get Note", "message", m.Id, "id", m.NoteId)
+
 		n, err := notes_db.GetNoteWithId(ctx, m.NoteId)
 
 		if err != nil {
