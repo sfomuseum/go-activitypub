@@ -8,11 +8,11 @@ import (
 
 var logLevel = new(go_slog.LevelVar)
 
-func EnableVerboseLogging(){
+func EnableVerboseLogging() {
 	logLevel.Set(go_slog.LevelDebug)
 }
 
-func DisableVerboseLogging(){
+func DisableVerboseLogging() {
 	logLevel.Set(go_slog.LevelInfo)
 }
 
@@ -23,7 +23,7 @@ func ConfigureLogger(logger *go_slog.Logger, verbose bool) {
 	if verbose {
 		EnableVerboseLogging()
 		logger.Debug("Verbose logging enabled")
-	}	
+	}
 }
 
 func Default() *go_slog.Logger {
@@ -35,8 +35,8 @@ func DefaultWithWriter(wr io.Writer) *go_slog.Logger {
 	opts := &go_slog.HandlerOptions{
 		Level: logLevel,
 	}
-	
+
 	handler := go_slog.NewJSONHandler(wr, opts)
-	
+
 	return go_slog.New(handler)
 }

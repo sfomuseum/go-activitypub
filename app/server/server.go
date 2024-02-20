@@ -10,7 +10,7 @@ import (
 	"github.com/aaronland/go-http-server"
 	"github.com/aaronland/go-http-server/handler"
 	"github.com/sfomuseum/go-activitypub"
-	ap_slog "github.com/sfomuseum/go-activitypub/slog"	
+	ap_slog "github.com/sfomuseum/go-activitypub/slog"
 )
 
 func Run(ctx context.Context, logger *slog.Logger) error {
@@ -32,7 +32,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) 
 func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) error {
 
 	ap_slog.ConfigureLogger(logger, opts.Verbose)
-		
+
 	v, err := opts.clone()
 
 	if err != nil {
@@ -41,12 +41,15 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	run_opts = v
 
+	webfinger_get := fmt.Sprintf("GET %s", activitypub.WEBFINGER_URI)
+	profile_get := fmt.Sprintf("GET %s", run_opts.URIs.Profile)
+	inbox_post := fmt.Sprintf("POST %s", run_opts.URIs.Inbox)
+	// outbox_post := fmt.Sprintf("POST %s", run_opts.URIs.Outbox)
+
 	handlers := map[string]handler.RouteHandlerFunc{
-		activitypub.WEBFINGER_URI: webfingerHandlerFunc,
-		run_opts.URIs.Profile:     profileHandlerFunc,
-		// This does not work because of route handler wah wah which needs to be updated for Go 1.22
-		// fmt.Sprintf("POST %s", run_opts.URIs.Inbox): inboxPostHandlerFunc,
-		run_opts.URIs.Inbox: inboxPostHandlerFunc,
+		webfinger_get: webfingerHandlerFunc,
+		profile_get:   profileHandlerFunc,
+		inbox_post:    inboxPostHandlerFunc,
 	}
 
 	log_logger := slog.NewLogLogger(logger.Handler(), slog.LevelInfo)

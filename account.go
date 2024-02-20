@@ -5,8 +5,6 @@ import (
 	"crypto/rsa"
 	"fmt"
 	"net/url"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/sfomuseum/go-activitypub/crypto"
@@ -37,7 +35,7 @@ func (a *Account) ProfileURL(ctx context.Context, hostname string, uris_table *U
 	profile_url := &url.URL{}
 	profile_url.Scheme = "http" // "https"
 	profile_url.Host = hostname
-	profile_url.Path = filepath.Join(uris_table.Profile, a.Name)
+	profile_url.Path = AssignResource(uris_table.Profile, a.Name)
 
 	return profile_url, nil
 }
@@ -55,7 +53,7 @@ func (a *Account) WebfingerResource(ctx context.Context, hostname string, uris_t
 	activity_url := &url.URL{}
 	activity_url.Scheme = "http" // "https"
 	activity_url.Host = hostname
-	activity_url.Path = filepath.Join(uris_table.Activity, a.Name)
+	activity_url.Path = AssignResource(uris_table.Activity, a.Name)
 
 	profile_link := webfinger.Link{
 		Rel:  "http://webfinger.net/rel/profile-page",
@@ -87,12 +85,12 @@ func (a *Account) ProfileResource(ctx context.Context, hostname string, uris_tab
 	id_url := &url.URL{}
 	id_url.Scheme = "http" // "https"
 	id_url.Host = hostname
-	id_url.Path = filepath.Join(uris_table.Id, a.Name)
+	id_url.Path = AssignResource(uris_table.Id, a.Name)
 
 	inbox_url := &url.URL{}
 	inbox_url.Scheme = "http" // "https"
 	inbox_url.Host = hostname
-	inbox_url.Path = filepath.Join(uris_table.Inbox, a.Name)
+	inbox_url.Path = AssignResource(uris_table.Inbox, a.Name)
 
 	pem, err := runtimevar.StringVar(ctx, a.PublicKeyURI)
 
@@ -188,15 +186,4 @@ func UpdateAccount(ctx context.Context, db AccountsDatabase, a *Account) (*Accou
 	}
 
 	return a, nil
-}
-
-func ParseAccountURI(uri string) (string, string, error) {
-
-	parts := strings.Split(uri, "@")
-
-	if len(parts) != 2 {
-		return "", "", fmt.Errorf("Invalid address")
-	}
-
-	return parts[0], parts[1], nil
 }

@@ -3,7 +3,7 @@ package activitypub
 import (
 	"context"
 	"fmt"
-	_ "log/slog"
+	"log/slog"
 
 	"github.com/sfomuseum/go-activitypub/ap"
 )
@@ -54,6 +54,8 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 }
 
 func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) (*ap.Activity, error) {
+
+	slog.Debug("Deliver post", "post", opts.Post.Id, "from", opts.From.Id, "to", opts.To)
 
 	note, err := opts.Post.AsNote(ctx)
 

@@ -130,7 +130,7 @@ func (db *DocstoreMessagesDatabase) getMessagesWithCallback(ctx context.Context,
 			err := callback_func(ctx, &m)
 
 			if err != nil {
-				return fmt.Errorf("Failed to execute following callback for message '%s', %w", m.Id, err)
+				return fmt.Errorf("Failed to execute following callback for message '%d', %w", m.Id, err)
 			}
 		}
 	}

@@ -22,12 +22,6 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 
 		logger := LoggerWithRequest(req, nil)
 
-		if req.Method != http.MethodGet {
-			logger.Error("Method not allowed")
-			http.Error(rsp, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
-
 		resource, err := sanitize.GetString(req, "resource")
 
 		if err != nil {
@@ -44,7 +38,15 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("resource", resource)
 
-		acct, err := opts.AccountsDatabase.GetAccountWithName(ctx, resource)
+		name, _, err := activitypub.ParseAddress(resource)
+
+		if err != nil {
+			logger.Error("Failed to parse address (resource)", "error", err)
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		acct, err := opts.AccountsDatabase.GetAccountWithName(ctx, name)
 
 		if err != nil {
 			logger.Error("Failed to retrieve account for resource", "error", err)

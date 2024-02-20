@@ -14,7 +14,7 @@ import (
 
 func RetrieveActor(ctx context.Context, id string) (*ap.Actor, error) {
 
-	actor_id, actor_hostname, err := ParseAccountURI(id)
+	actor_id, actor_hostname, err := ParseAddress(id)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to parse ID, %w", err)

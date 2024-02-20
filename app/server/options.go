@@ -23,7 +23,7 @@ type RunOptions struct {
 	URIs                 *activitypub.URIs
 	AllowFollow          bool
 	AllowCreate          bool
-	Verbose bool
+	Verbose              bool
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -55,7 +55,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		URIs:                 uris_table,
 		AllowFollow:          allow_follow,
 		AllowCreate:          allow_create,
-		Verbose: verbose,
+		Verbose:              verbose,
 	}
 
 	return opts, nil

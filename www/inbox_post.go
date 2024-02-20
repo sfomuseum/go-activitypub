@@ -3,10 +3,7 @@ package www
 import (
 	"bytes"
 	"encoding/json"
-	_ "fmt"
-	_ "log/slog"
 	"net/http"
-	"path/filepath"
 	"time"
 
 	"github.com/go-fed/httpsig"
@@ -38,23 +35,19 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		logger := LoggerWithRequest(req, nil)
 
-		if req.Method != http.MethodPost {
-			logger.Error("Method not allowed")
-			http.Error(rsp, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
-
 		if !IsActivityStreamRequest(req) {
 			logger.Error("Not activitystream request")
 			http.Error(rsp, "Bad request", http.StatusBadRequest)
 			return
 		}
 
-		// START OF TBD...
+		account_name, _, err := activitypub.ParseAddressFromRequest(req)
 
-		// sudo make me a regexp or req.PathId(...)
-
-		account_name := filepath.Base(req.URL.Path)
+		if err != nil {
+			logger.Error("Failed to parse address from request", "error", err)
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
 
 		logger = logger.With("account", account_name)
 
@@ -91,7 +84,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		sender_address := activity.Actor
 		logger = logger.With("sender_address", sender_address)
 
-		sender_name, sender_host, err := activitypub.ParseAccountURI(sender_address)
+		sender_name, sender_host, err := activitypub.ParseAddress(sender_address)
 
 		if err != nil {
 			logger.Error("Failed to parse send ID", "error", err)

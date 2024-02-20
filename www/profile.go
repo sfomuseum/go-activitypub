@@ -3,7 +3,7 @@ package www
 import (
 	"encoding/json"
 	"net/http"
-	"path/filepath"
+	_ "path/filepath"
 
 	"github.com/sfomuseum/go-activitypub"
 )
@@ -22,21 +22,13 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 
 		logger := LoggerWithRequest(req, nil)
 
-		if req.Method != http.MethodGet {
-			logger.Error("Method not allowed")
-			http.Error(rsp, "Method not allowed", http.StatusMethodNotAllowed)
+		account_name, _, err := activitypub.ParseAddressFromRequest(req)
+
+		if err != nil {
+			logger.Error("Failed to parse address from request", "error", err)
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
 			return
 		}
-
-		if !IsActivityStreamRequest(req) {
-			logger.Error("Not activitystream request")
-			http.Error(rsp, "Not implemented", http.StatusNotImplemented)
-			return
-		}
-
-		// sudo make me a regexp or req.PathId(...)
-
-		account_name := filepath.Base(req.URL.Path)
 
 		logger = logger.With("account name", account_name)
 
@@ -59,24 +51,32 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 
 		// Check content-type here and HTML or JSON it up...
 
-		profile, err := acct.ProfileResource(ctx, opts.Hostname, opts.URIs)
+		if IsActivityStreamRequest(req) {
 
-		if err != nil {
-			logger.Error("Failed to derive profile response for resource", "error", err)
-			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-			return
+			profile, err := acct.ProfileResource(ctx, opts.Hostname, opts.URIs)
+
+			if err != nil {
+				logger.Error("Failed to derive profile response for resource", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			rsp.Header().Set("Content-type", "application/activity+json")
+
+			enc := json.NewEncoder(rsp)
+			err = enc.Encode(profile)
+
+			if err != nil {
+				logger.Error("Failed to encode profile response for resource", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
 		}
 
-		rsp.Header().Set("Content-type", "application/activity+json")
+		rsp.Header().Set("Content-type", "text/html")
 
-		enc := json.NewEncoder(rsp)
-		err = enc.Encode(profile)
-
-		if err != nil {
-			logger.Error("Failed to encode profile response for resource", "error", err)
-			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-			return
-		}
+		rsp.Write([]byte(account_name))
+		return
 	}
 
 	return http.HandlerFunc(fn), nil
