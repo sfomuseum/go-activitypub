@@ -1,6 +1,7 @@
 package www
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/sfomuseum/go-activitypub"
@@ -20,6 +21,12 @@ func FollowersHandler(opts *FollowersHandlerOptions) (http.Handler, error) {
 		ctx := req.Context()
 
 		logger := LoggerWithRequest(req, nil)
+
+		if !IsActivityStreamRequest(req) {
+			logger.Error("Not activitystream request")
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
 
 		account_name, _, err := activitypub.ParseAddressFromRequest(req)
 
@@ -48,7 +55,24 @@ func FollowersHandler(opts *FollowersHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("account id", acct.Id)
 
+		resource, err := acct.FollowersResource(ctx, opts.URIs, opts.FollowersDatabase)
+
+		if err != nil {
+			logger.Error("Failed to create followers resource", "error", err)
+			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
 		rsp.Header().Set("Content-type", ap.ACTIVITY_CONTENT_TYPE)
+
+		enc := json.NewEncoder(rsp)
+		err = enc.Encode(resource)
+
+		if err != nil {
+			logger.Error("Failed to encode followers resource", "error", err)
+			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 
 		return
 	}

@@ -73,6 +73,50 @@ func (a *Account) WebfingerResource(ctx context.Context, uris_table *URIs) (*web
 	return r, nil
 }
 
+func (a *Account) FollowersResource(ctx context.Context, uris_table *URIs, followers_database FollowersDatabase) (*ap.Followers, error) {
+
+	followers_path := AssignResource(uris_table.Followers, a.Name)
+	followers_url := NewURL(uris_table, followers_path)
+
+	count, err := CountFollowers(ctx, followers_database, a.Id)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to count followers, %w", err)
+	}
+
+	f := &ap.Followers{
+		Context:    "https://www.w3.org/ns/activitystreams",
+		Id:         followers_url.String(),
+		Type:       "OrderedCollection",
+		TotalItems: count,
+		First:      followers_url.String(),
+	}
+
+	return f, nil
+}
+
+func (a *Account) FollowingResource(ctx context.Context, uris_table *URIs, following_database FollowingDatabase) (*ap.Following, error) {
+
+	following_path := AssignResource(uris_table.Following, a.Name)
+	following_url := NewURL(uris_table, following_path)
+
+	count, err := CountFollowing(ctx, following_database, a.Id)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to count following, %w", err)
+	}
+
+	f := &ap.Following{
+		Context:    "https://www.w3.org/ns/activitystreams",
+		Id:         following_url.String(),
+		Type:       "OrderedCollection",
+		TotalItems: count,
+		First:      following_url.String(),
+	}
+
+	return f, nil
+}
+
 func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*ap.Actor, error) {
 
 	account_url := a.AccountURL(ctx, uris_table)

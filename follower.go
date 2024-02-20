@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"sync/atomic"
 	"time"
 
 	"github.com/sfomuseum/go-activitypub/id"
@@ -14,6 +15,24 @@ type Follower struct {
 	AccountId       int64  `json:"account_id"`
 	FollowerAddress string `json:"follower_address"`
 	Created         int64  `json:"created"`
+}
+
+func CountFollowers(ctx context.Context, db FollowersDatabase, account_id int64) (uint32, error) {
+
+	count := uint32(0)
+
+	followers_cb := func(ctx context.Context, follower string) error {
+		atomic.AddUint32(&count, 1)
+		return nil
+	}
+
+	err := db.GetFollowersForAccount(ctx, account_id, followers_cb)
+
+	if err != nil {
+		return 0, fmt.Errorf("Failed to count followers, %w", err)
+	}
+
+	return atomic.LoadUint32(&count), nil
 }
 
 func GetFollower(ctx context.Context, db FollowersDatabase, account_id int64, follower_address string) (*Follower, error) {
