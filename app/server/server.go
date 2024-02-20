@@ -42,13 +42,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	run_opts = v
 
 	webfinger_get := fmt.Sprintf("GET %s", activitypub.WEBFINGER_URI)
-	profile_get := fmt.Sprintf("GET %s", run_opts.URIs.Profile)
+	account_get := fmt.Sprintf("GET %s", run_opts.URIs.Account)
 	inbox_post := fmt.Sprintf("POST %s", run_opts.URIs.Inbox)
 	// outbox_post := fmt.Sprintf("POST %s", run_opts.URIs.Outbox)
 
 	handlers := map[string]handler.RouteHandlerFunc{
 		webfinger_get: webfingerHandlerFunc,
-		profile_get:   profileHandlerFunc,
+		account_get:   accountHandlerFunc,
 		inbox_post:    inboxPostHandlerFunc,
 	}
 

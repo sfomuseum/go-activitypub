@@ -67,7 +67,7 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 	// Note that "key_id" here means a pointer to the actor/profile page where the public key
 	// for the follower can be retrieved
 
-	profile_url := opts.From.ProfileURL(ctx, opts.URIs)
+	profile_url := opts.From.AccountURL(ctx, opts.URIs)
 
 	key_id := profile_url.String()
 	slog.Debug("Post to inbox", "inbox", opts.Inbox, "key_id", key_id)

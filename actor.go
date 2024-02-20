@@ -64,9 +64,7 @@ func RetrieveActor(ctx context.Context, id string, insecure bool) (*ap.Actor, er
 
 	for _, l := range webfinger_resource.Links {
 
-		// Is this really what we want?
-
-		if l.Rel == "http://webfinger.net/rel/profile-page" {
+		if l.Rel == "self" && l.Type == "application/activity+json" {
 			profile_url = l.HRef
 			break
 		}

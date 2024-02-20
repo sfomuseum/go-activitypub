@@ -26,7 +26,7 @@ func webfingerHandlerFunc(ctx context.Context) (http.Handler, error) {
 	return www.WebfingerHandler(opts)
 }
 
-func profileHandlerFunc(ctx context.Context) (http.Handler, error) {
+func accountHandlerFunc(ctx context.Context) (http.Handler, error) {
 
 	setupAccountsDatabaseOnce.Do(setupAccountsDatabase)
 
@@ -35,12 +35,12 @@ func profileHandlerFunc(ctx context.Context) (http.Handler, error) {
 		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAccountsDatabaseError)
 	}
 
-	opts := &www.ProfileHandlerOptions{
+	opts := &www.AccountHandlerOptions{
 		AccountsDatabase: accounts_db,
 		URIs:             run_opts.URIs,
 	}
 
-	return www.ProfileHandler(opts)
+	return www.AccountHandler(opts)
 }
 
 func inboxPostHandlerFunc(ctx context.Context) (http.Handler, error) {

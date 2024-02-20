@@ -30,20 +30,20 @@ func (a *Account) Address(hostname string) string {
 	return fmt.Sprintf("%s@%s", a.Name, hostname)
 }
 
-func (a *Account) ProfileURL(ctx context.Context, uris_table *URIs) *url.URL {
+func (a *Account) AccountURL(ctx context.Context, uris_table *URIs) *url.URL {
 
-	profile_path := AssignResource(uris_table.Profile, a.Name)
-	return NewURL(uris_table, profile_path)
+	account_path := AssignResource(uris_table.Account, a.Name)
+	return NewURL(uris_table, account_path)
 }
 
 func (a *Account) WebfingerResource(ctx context.Context, uris_table *URIs) (*webfinger.Resource, error) {
 
 	subject := fmt.Sprintf("acct:%s", a.Name)
 
-	profile_url := a.ProfileURL(ctx, uris_table)
+	profile_url := a.AccountURL(ctx, uris_table)
 
-	activity_path := AssignResource(uris_table.Activity, a.Name)
-	activity_url := NewURL(uris_table, activity_path)
+	// activity_path := AssignResource(uris_table.Activity, a.Name)
+	// activity_url := NewURL(uris_table, activity_path)
 
 	profile_link := webfinger.Link{
 		Rel:  "http://webfinger.net/rel/profile-page",
@@ -54,7 +54,7 @@ func (a *Account) WebfingerResource(ctx context.Context, uris_table *URIs) (*web
 	activity_link := webfinger.Link{
 		Rel:  "self",
 		Type: "application/activity+json",
-		HRef: activity_url.String(),
+		HRef: profile_url.String(),
 	}
 
 	links := []webfinger.Link{
@@ -72,8 +72,7 @@ func (a *Account) WebfingerResource(ctx context.Context, uris_table *URIs) (*web
 
 func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*profile.Resource, error) {
 
-	id_path := AssignResource(uris_table.Id, a.Name)
-	id_url := NewURL(uris_table, id_path)
+	account_url := a.AccountURL(ctx, uris_table)
 
 	inbox_path := AssignResource(uris_table.Inbox, a.Name)
 	inbox_url := NewURL(uris_table, inbox_path)
@@ -85,8 +84,8 @@ func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*profi
 	}
 
 	pub_key := profile.PublicKey{
-		Id:    id_url.String() + "#main-key",
-		Owner: id_url.String(),
+		Id:    account_url.String() + "#main-key",
+		Owner: account_url.String(),
 		PEM:   pem,
 	}
 
@@ -97,7 +96,7 @@ func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*profi
 
 	pr := &profile.Resource{
 		Context:           context,
-		Id:                id_url.String(),
+		Id:                account_url.String(),
 		Type:              "Person",
 		PreferredUsername: a.Name,
 		Inbox:             inbox_url.String(),

@@ -9,12 +9,14 @@ const WEBFINGER_URI string = "/well-known/.webfinger"
 
 type URIs struct {
 	// Webfinger is assigned automatically
-	Id       string `json:"id"`
-	Activity string `json:"activity"`
-	Profile  string `json:"profile"`
-	Inbox    string `json:"inbox"`
-	Outbox   string `json:"outbox"`
 
+	Account   string `json:"account"`
+	Inbox     string `json:"inbox"`
+	Outbox    string `json:"outbox"`
+	Followers string `json:"followers"`
+	Following string `json:"following"`
+	Icon string `json:"icon"`
+	
 	Hostname string `json:"hostname"`
 	Insecure bool   `json:"insecure"`
 }
@@ -23,11 +25,13 @@ func DefaultURIs() *URIs {
 
 	uris_table := &URIs{
 		// Webfinger is assigned automatically
-		Id:       "/ap/{resource}",
-		Activity: "/ap/{resource}/activity",
-		Profile:  "/ap/{resource}/profile",
-		Inbox:    "/ap/{resource}/inbox",
-		Outbox:   "/ap/{resource}/outbox",
+
+		Account:   "/ap/{resource}",
+		Inbox:     "/ap/{resource}/inbox",
+		Outbox:    "/ap/{resource}/outbox",
+		Followers: "/ap/{resource}/followers",
+		Following: "/ap/{resource}/following",
+		Icon: "/ap/{resource}/icon.png",
 	}
 
 	return uris_table

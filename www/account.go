@@ -8,12 +8,12 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 )
 
-type ProfileHandlerOptions struct {
+type AccountHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
 	URIs             *activitypub.URIs
 }
 
-func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
+func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 
 	fn := func(rsp http.ResponseWriter, req *http.Request) {
 
