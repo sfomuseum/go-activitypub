@@ -199,9 +199,9 @@ go run cmd/server/main.go \
 {"time":"2024-02-20T10:29:49.506312-08:00","level":"INFO","msg":"Listening for requests","address":"http://localhost:8080"}
 ```
 
-Note the `-insecure` flag. Normally it is expected that all ActivityPub communications will over an encrypted (HTTPS) connection but since we are testing things locally and all of our accounts (Bob and Alice) will reside on the same server, and because setting up self-signed TLS certificates locally is a chore, we're going to exchange messages over an insecure connection.
+Note the `-insecure` flag. Normally it is expected that all ActivityPub communications will happen over an encrypted (HTTPS) connection but since we are testing things locally and all of our accounts (Bob and Alice) will reside on the same server, and because setting up self-signed TLS certificates locally is a chore, we're going to exchange messages over an insecure connection.
 
-Also note the `-hostname` flag. This is when you are running the `server` tool in a "serverless" environment which likely has a different domain name than the one associated with public-facing ActivityPub server.
+Also note the `-hostname` flag. This is when you are running the `server` tool in a "serverless" environment which likely has a different domain name than the one associated with public-facing ActivityPub server. If the `-hostname` flag is left empty then its value is derived from the `-server-uri` flag which defaults to "http://localhost:8080".
 
 Switch to console (2) and create account records for `bob` and `alice`:
 
