@@ -40,7 +40,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		account_name, _, err := activitypub.ParseAddressFromRequest(req)
+		account_name, host, err := activitypub.ParseAddressFromRequest(req)
 
 		if err != nil {
 			logger.Error("Failed to parse address from request", "error", err)
@@ -49,6 +49,12 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		}
 
 		logger = logger.With("account", account_name)
+
+		if host != "" && host != opts.URIs.Hostname {
+			logger.Error("Resouce has bunk hostname", "host", host)
+			http.Error(rsp, "Not found", http.StatusNotFound)
+			return
+		}
 
 		acct, err := opts.AccountsDatabase.GetAccountWithName(ctx, account_name)
 

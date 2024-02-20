@@ -38,6 +38,7 @@ func accountHandlerFunc(ctx context.Context) (http.Handler, error) {
 	opts := &www.AccountHandlerOptions{
 		AccountsDatabase: accounts_db,
 		URIs:             run_opts.URIs,
+		Templates:        run_opts.Templates,
 	}
 
 	return www.AccountHandler(opts)

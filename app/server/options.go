@@ -4,10 +4,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"html/template"
 	"net/url"
 
 	"github.com/mitchellh/copystructure"
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/templates/html"
 	"github.com/sfomuseum/go-flags/flagset"
 )
 
@@ -23,6 +25,8 @@ type RunOptions struct {
 	AllowFollow          bool
 	AllowCreate          bool
 	Verbose              bool
+
+	Templates *template.Template
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -50,6 +54,12 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	uris_table.Hostname = hostname
 	uris_table.Insecure = insecure
 
+	t, err := html.LoadTemplates(ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to load templates, %w", err)
+	}
+
 	opts := &RunOptions{
 		AccountsDatabaseURI:  accounts_database_uri,
 		FollowersDatabaseURI: followers_database_uri,
@@ -62,6 +72,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		AllowFollow:          allow_follow,
 		AllowCreate:          allow_create,
 		Verbose:              verbose,
+		Templates:            t,
 	}
 
 	return opts, nil
@@ -76,5 +87,7 @@ func (o *RunOptions) clone() (*RunOptions, error) {
 	}
 
 	new_opts := v.(*RunOptions)
+
+	new_opts.Templates = o.Templates
 	return new_opts, nil
 }

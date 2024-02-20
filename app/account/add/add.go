@@ -77,8 +77,11 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	}
 
 	a := &activitypub.Account{
-		Name:          opts.AccountName,
 		Id:            account_id,
+		Name:          opts.AccountName,
+		DisplayName:   opts.DisplayName,
+		Blurb:         opts.Blurb,
+		URL:           opts.URL,
 		PrivateKeyURI: private_key_uri,
 		PublicKeyURI:  public_key_uri,
 	}

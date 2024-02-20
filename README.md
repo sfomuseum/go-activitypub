@@ -64,6 +64,10 @@ _The details of how any given private key is kept secure are not part of the Act
 
 _To be written._
 
+### Signing and verifying messages
+
+_To be written. In the meantime consult [inbox.go](inbox.go), [actor.go](actor.go) and [www/inbox_post.go](www/inbox_post.go)._
+
 ## The Code
 
 ### Databases
@@ -121,6 +125,7 @@ func main() {
 Anything that implements the [gocloud.dev/docstore](https://pkg.go.dev/gocloud.dev/docstore) `Docstore` interface. As of this writing only DynamoDB document stores have been tested using the [awsdynamodb](https://gocloud.dev/howto/docstore/#dynamodb) and the [aaronland/gocloud-docstore](https://github.com/aaronland/gocloud-docstore/) packages. A few things to note:
 
 * One side effect of using the `aaronland/gocloud-docstore` package is that the `gocloud.dev/docstore/awsdynamodb` "driver" is always imported and available.
+* The "global secondary indices" for the [schema/dynamodb](schema/dynamodb) definitions are inefficient and could stand to be optimized at some point in the future.
 
 To add a different docstore "driver", for example MongoDB, you will need to clone the respective tools and add the relevant import statement. For example to update the [cmd/server](cmd/server/main.go) tool to use MongoDB you would replace the `_ "github.com/mattn/go-sqlite3"` import statement with `_ "gocloud.dev/docstore/mongodocstore"` like this:
 

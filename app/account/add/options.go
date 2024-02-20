@@ -10,8 +10,11 @@ import (
 
 type RunOptions struct {
 	AccountsDatabaseURI string
-	AccountName         string
 	AccountId           int64
+	AccountName         string
+	DisplayName         string
+	Blurb               string
+	URL                 string
 	PublicKeyURI        string
 	PrivateKeyURI       string
 }
@@ -30,6 +33,9 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		AccountsDatabaseURI: accounts_database_uri,
 		AccountId:           account_id,
 		AccountName:         account_name,
+		DisplayName:         display_name,
+		Blurb:               blurb,
+		URL:                 account_url,
 		PublicKeyURI:        public_key_uri,
 		PrivateKeyURI:       private_key_uri,
 	}

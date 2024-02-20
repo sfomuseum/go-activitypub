@@ -37,11 +37,19 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("resource", resource)
 
-		name, _, err := activitypub.ParseAddress(resource)
+		name, host, err := activitypub.ParseAddress(resource)
 
 		if err != nil {
 			logger.Error("Failed to parse address (resource)", "error", err)
 			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		logger = logger.With("account name", name)
+
+		if host != "" && host != opts.URIs.Hostname {
+			logger.Error("Resouce has bunk hostname", "host", host)
+			http.Error(rsp, "Not found", http.StatusNotFound)
 			return
 		}
 
