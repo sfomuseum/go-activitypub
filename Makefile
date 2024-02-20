@@ -50,7 +50,9 @@ follow:
 		-following-database-uri '$(FOLLOWING_DB_URI)' \
 		-messages-database-uri '$(MESSAGES_DB_URI)' \
 		-account-name bob \
-		-follow alice@localhost:8080 
+		-follow alice@localhost:8080 \
+		-hostname localhost:8080 \
+		-insecure
 
 # Bob wants to unfollow Alice
 
@@ -61,6 +63,8 @@ unfollow:
 		-messages-database-uri '$(MESSAGES_DB_URI)' \
 		-account-name bob \
 		-follow alice@localhost:8080 \
+		-hostname localhost:8080 \
+		-insecure \
 		-undo
 
 block:
@@ -86,7 +90,9 @@ post:
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
 		-posts-database-uri '$(POSTS_DB_URI)' \
 		-account-name alice \
-		-message "$(MESSAGE)"
+		-message "$(MESSAGE)" \
+		-hostname localhost:8080 \
+		-insecure
 
 inbox:
 	go run cmd/inbox/main.go \
@@ -105,7 +111,8 @@ server:
 		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-allow-create \
 		-verbose \
-		-hostname localhost:8080
+		-hostname localhost:8080 \
+		-insecure
 
 # https://aws.amazon.com/about-aws/whats-new/2018/08/use-amazon-dynamodb-local-more-easily-with-the-new-docker-image/
 # https://hub.docker.com/r/amazon/dynamodb-local/

@@ -11,7 +11,6 @@ import (
 type WebfingerHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
 	URIs             *activitypub.URIs
-	Hostname         string
 }
 
 func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
@@ -62,7 +61,7 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("account id", acct.Id)
 
-		wf, err := acct.WebfingerResource(ctx, opts.Hostname, opts.URIs)
+		wf, err := acct.WebfingerResource(ctx, opts.URIs)
 
 		if err != nil {
 			logger.Error("Failed to derive webfinger response for resource", "error", err)

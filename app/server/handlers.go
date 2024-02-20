@@ -21,7 +21,6 @@ func webfingerHandlerFunc(ctx context.Context) (http.Handler, error) {
 	opts := &www.WebfingerHandlerOptions{
 		AccountsDatabase: accounts_db,
 		URIs:             run_opts.URIs,
-		Hostname:         run_opts.Hostname,
 	}
 
 	return www.WebfingerHandler(opts)
@@ -39,7 +38,6 @@ func profileHandlerFunc(ctx context.Context) (http.Handler, error) {
 	opts := &www.ProfileHandlerOptions{
 		AccountsDatabase: accounts_db,
 		URIs:             run_opts.URIs,
-		Hostname:         run_opts.Hostname,
 	}
 
 	return www.ProfileHandler(opts)
@@ -97,7 +95,6 @@ func inboxPostHandlerFunc(ctx context.Context) (http.Handler, error) {
 		MessagesDatabase:  messages_db,
 		BlocksDatabase:    blocks_db,
 		URIs:              run_opts.URIs,
-		Hostname:          run_opts.Hostname,
 		AllowFollow:       run_opts.AllowFollow,
 		AllowCreate:       run_opts.AllowCreate,
 	}

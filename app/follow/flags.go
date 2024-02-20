@@ -8,6 +8,7 @@ import (
 
 var server_uri string
 var hostname string
+var insecure bool
 
 var accounts_database_uri string
 var following_database_uri string
@@ -24,6 +25,7 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.StringVar(&server_uri, "server-uri", "http://localhost:8080", "...")
 	fs.StringVar(&hostname, "hostname", "localhost:8080", "...")
+	fs.BoolVar(&insecure, "insecure", false, "...")
 
 	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "...")
 	fs.StringVar(&following_database_uri, "following-database-uri", "", "...")

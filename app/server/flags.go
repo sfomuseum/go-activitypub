@@ -15,6 +15,7 @@ var blocks_database_uri string
 
 var server_uri string
 var hostname string
+var insecure bool
 
 var allow_follow bool
 var allow_create bool
@@ -37,6 +38,7 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.StringVar(&server_uri, "server-uri", "http://localhost:8080", "...")
 	fs.StringVar(&hostname, "hostname", "", "...")
+	fs.BoolVar(&insecure, "insecure", false, "...")
 
 	fs.BoolVar(&verbose, "verbose", false, "Enable verbose logging")
 	return fs

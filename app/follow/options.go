@@ -25,6 +25,8 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	flagset.Parse(fs)
 
 	uris_table := activitypub.DefaultURIs()
+	uris_table.Hostname = hostname
+	uris_table.Insecure = insecure
 
 	opts := &RunOptions{
 		ServerURI:            server_uri,

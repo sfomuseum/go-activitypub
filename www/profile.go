@@ -11,7 +11,6 @@ import (
 type ProfileHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
 	URIs             *activitypub.URIs
-	Hostname         string
 }
 
 func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
@@ -53,7 +52,7 @@ func ProfileHandler(opts *ProfileHandlerOptions) (http.Handler, error) {
 
 		if IsActivityStreamRequest(req) {
 
-			profile, err := acct.ProfileResource(ctx, opts.Hostname, opts.URIs)
+			profile, err := acct.ProfileResource(ctx, opts.URIs)
 
 			if err != nil {
 				logger.Error("Failed to derive profile response for resource", "error", err)

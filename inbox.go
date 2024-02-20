@@ -15,19 +15,17 @@ import (
 )
 
 type PostToAccountOptions struct {
-	From     *Account
-	To       string
-	Message  interface{}
-	Hostname string
-	URIs     *URIs
+	From    *Account
+	To      string
+	Message interface{}
+	URIs    *URIs
 }
 
 type PostToInboxOptions struct {
-	From     *Account
-	Inbox    string
-	Message  interface{}
-	Hostname string
-	URIs     *URIs
+	From    *Account
+	Inbox   string
+	Message interface{}
+	URIs    *URIs
 }
 
 func PostToAccount(ctx context.Context, opts *PostToAccountOptions) (*ap.Activity, error) {
@@ -39,11 +37,10 @@ func PostToAccount(ctx context.Context, opts *PostToAccountOptions) (*ap.Activit
 	}
 
 	inbox_opts := &PostToInboxOptions{
-		From:     opts.From,
-		Inbox:    actor.Inbox,
-		Message:  opts.Message,
-		Hostname: opts.Hostname,
-		URIs:     opts.URIs,
+		From:    opts.From,
+		Inbox:   actor.Inbox,
+		Message: opts.Message,
+		URIs:    opts.URIs,
 	}
 
 	return PostToInbox(ctx, inbox_opts)
@@ -70,14 +67,10 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 	// Note that "key_id" here means a pointer to the actor/profile page where the public key
 	// for the follower can be retrieved
 
-	profile_url, err := opts.From.ProfileURL(ctx, opts.Hostname, opts.URIs)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to derive profile URL for follower, %w", err)
-	}
+	profile_url := opts.From.ProfileURL(ctx, opts.URIs)
 
 	key_id := profile_url.String()
-	slog.Info("POST TO INBOX", "inbox", opts.Inbox, "key_id", key_id)
+	slog.Debug("Post to inbox", "inbox", opts.Inbox, "key_id", key_id)
 
 	private_key, err := opts.From.PrivateKeyRSA(ctx)
 

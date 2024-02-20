@@ -1,6 +1,7 @@
 package activitypub
 
 import (
+	"net/url"
 	"strings"
 )
 
@@ -13,6 +14,9 @@ type URIs struct {
 	Profile  string `json:"profile"`
 	Inbox    string `json:"inbox"`
 	Outbox   string `json:"outbox"`
+
+	Hostname string `json:"hostname"`
+	Insecure bool   `json:"insecure"`
 }
 
 func DefaultURIs() *URIs {
@@ -31,4 +35,22 @@ func DefaultURIs() *URIs {
 
 func AssignResource(uri string, resource string) string {
 	return strings.Replace(uri, "{resource}", resource, -1)
+}
+
+func NewURL(uris_table *URIs, path string) *url.URL {
+
+	scheme := "https"
+
+	if uris_table.Insecure {
+		scheme = "http"
+	}
+
+	host := uris_table.Hostname
+
+	u := &url.URL{}
+	u.Scheme = scheme
+	u.Host = host
+	u.Path = path
+
+	return u
 }

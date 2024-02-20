@@ -60,7 +60,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	// endpoint receiving the follow activity can figure out where (which hostname)
 	// to make a webfinger/profile query.
 
-	follower_address := follower_acct.Address(opts.Hostname)
+	follower_address := follower_acct.Address(opts.URIs.Hostname)
 
 	following_address := opts.FollowAddress
 
@@ -75,11 +75,10 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	}
 
 	post_opts := &activitypub.PostToAccountOptions{
-		From:     follower_acct,
-		To:       following_address,
-		Hostname: opts.Hostname,
-		URIs:     opts.URIs,
-		Message:  follow_req,
+		From:    follower_acct,
+		To:      following_address,
+		URIs:    opts.URIs,
+		Message: follow_req,
 	}
 
 	_, err = activitypub.PostToAccount(ctx, post_opts)

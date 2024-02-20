@@ -15,7 +15,6 @@ type RunOptions struct {
 	DeliveryQueueURI     string
 	AccountName          string
 	Message              string
-	Hostname             string
 	URIs                 *activitypub.URIs
 }
 
@@ -24,6 +23,8 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	flagset.Parse(fs)
 
 	uris_table := activitypub.DefaultURIs()
+	uris_table.Hostname = hostname
+	uris_table.Insecure = insecure
 
 	opts := &RunOptions{
 		AccountsDatabaseURI:  accounts_database_uri,
@@ -31,7 +32,6 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		PostsDatabaseURI:     posts_database_uri,
 		DeliveryQueueURI:     delivery_queue_uri,
 		AccountName:          account_name,
-		Hostname:             hostname,
 		Message:              message,
 		URIs:                 uris_table,
 	}

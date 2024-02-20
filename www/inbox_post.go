@@ -20,7 +20,6 @@ type InboxPostHandlerOptions struct {
 	NotesDatabase     activitypub.NotesDatabase
 	BlocksDatabase    activitypub.BlocksDatabase
 	URIs              *activitypub.URIs
-	Hostname          string
 	AllowFollow       bool
 	AllowCreate       bool
 }
@@ -395,7 +394,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		// return acceptance
 
-		acct_address := acct.Address(opts.Hostname)
+		acct_address := acct.Address(opts.URIs.Hostname)
 
 		accept, err := ap.NewAcceptActivity(ctx, acct_address, sender_address)
 

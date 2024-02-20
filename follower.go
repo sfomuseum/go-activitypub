@@ -18,14 +18,14 @@ type Follower struct {
 
 func GetFollower(ctx context.Context, db FollowersDatabase, account_id int64, follower_address string) (*Follower, error) {
 
-	slog.Info("Get follower", "account", account_id, "follower", follower_address)
+	slog.Debug("Get follower", "account", account_id, "follower", follower_address)
 
 	return db.GetFollower(ctx, account_id, follower_address)
 }
 
 func AddFollower(ctx context.Context, db FollowersDatabase, account_id int64, follower_address string) error {
 
-	slog.Info("Add follower", "account", account_id, "follower", follower_address)
+	slog.Debug("Add follower", "account", account_id, "follower", follower_address)
 
 	f, err := NewFollower(ctx, account_id, follower_address)
 

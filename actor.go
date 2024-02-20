@@ -31,7 +31,7 @@ func RetrieveActor(ctx context.Context, id string) (*ap.Actor, error) {
 
 	webfinger_url := webfinger_u.String()
 
-	slog.Info("WEBFINGER", "url", webfinger_url)
+	slog.Debug("Webfinger URL for resource", "resource", actor_id, "url", webfinger_url)
 
 	webfinger_rsp, err := http.Get(webfinger_url)
 

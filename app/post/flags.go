@@ -13,7 +13,9 @@ var posts_database_uri string
 var delivery_queue_uri string
 
 var account_name string
+
 var hostname string
+var insecure bool
 
 var message string
 
@@ -29,6 +31,7 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.StringVar(&account_name, "account-name", "", "...")
 	fs.StringVar(&hostname, "hostname", "localhost:8080", "...")
+	fs.BoolVar(&insecure, "insecure", false, "...")
 
 	fs.StringVar(&message, "message", "", "...")
 

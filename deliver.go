@@ -13,7 +13,6 @@ type DeliverPostToFollowersOptions struct {
 	FollowersDatabase FollowersDatabase
 	DeliveryQueue     DeliveryQueue
 	Post              *Post
-	Hostname          string
 	URIs              *URIs
 }
 
@@ -28,11 +27,10 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 	followers_cb := func(ctx context.Context, follower_uri string) error {
 
 		post_opts := &DeliverPostOptions{
-			From:     acct,
-			To:       follower_uri,
-			Post:     opts.Post,
-			Hostname: opts.Hostname,
-			URIs:     opts.URIs,
+			From: acct,
+			To:   follower_uri,
+			Post: opts.Post,
+			URIs: opts.URIs,
 		}
 
 		err := opts.DeliveryQueue.DeliverPost(ctx, post_opts)
@@ -63,7 +61,7 @@ func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) (*ap.Ac
 		return nil, fmt.Errorf("Failed to derive note from post, %w", err)
 	}
 
-	from_uri := opts.From.Address(opts.Hostname)
+	from_uri := opts.From.Address(opts.URIs.Hostname)
 
 	to_list := []string{
 		opts.To,
@@ -76,11 +74,10 @@ func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) (*ap.Ac
 	}
 
 	post_opts := &PostToAccountOptions{
-		From:     opts.From,
-		To:       opts.To,
-		Message:  create_activity,
-		Hostname: opts.Hostname,
-		URIs:     opts.URIs,
+		From:    opts.From,
+		To:      opts.To,
+		Message: create_activity,
+		URIs:    opts.URIs,
 	}
 
 	activity, err := PostToAccount(ctx, post_opts)

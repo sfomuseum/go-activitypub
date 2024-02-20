@@ -97,7 +97,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		FollowersDatabase: followers_db,
 		DeliveryQueue:     delivery_q,
 		Post:              p,
-		Hostname:          opts.Hostname,
 		URIs:              opts.URIs,
 	}
 

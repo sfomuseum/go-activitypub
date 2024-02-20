@@ -30,30 +30,20 @@ func (a *Account) Address(hostname string) string {
 	return fmt.Sprintf("%s@%s", a.Name, hostname)
 }
 
-func (a *Account) ProfileURL(ctx context.Context, hostname string, uris_table *URIs) (*url.URL, error) {
+func (a *Account) ProfileURL(ctx context.Context, uris_table *URIs) *url.URL {
 
-	profile_url := &url.URL{}
-	profile_url.Scheme = "http" // "https"
-	profile_url.Host = hostname
-	profile_url.Path = AssignResource(uris_table.Profile, a.Name)
-
-	return profile_url, nil
+	profile_path := AssignResource(uris_table.Profile, a.Name)
+	return NewURL(uris_table, profile_path)
 }
 
-func (a *Account) WebfingerResource(ctx context.Context, hostname string, uris_table *URIs) (*webfinger.Resource, error) {
+func (a *Account) WebfingerResource(ctx context.Context, uris_table *URIs) (*webfinger.Resource, error) {
 
 	subject := fmt.Sprintf("acct:%s", a.Name)
 
-	profile_url, err := a.ProfileURL(ctx, hostname, uris_table)
+	profile_url := a.ProfileURL(ctx, uris_table)
 
-	if err != nil {
-		return nil, fmt.Errorf("Failed to derive profile URL, %w", err)
-	}
-
-	activity_url := &url.URL{}
-	activity_url.Scheme = "http" // "https"
-	activity_url.Host = hostname
-	activity_url.Path = AssignResource(uris_table.Activity, a.Name)
+	activity_path := AssignResource(uris_table.Activity, a.Name)
+	activity_url := NewURL(uris_table, activity_path)
 
 	profile_link := webfinger.Link{
 		Rel:  "http://webfinger.net/rel/profile-page",
@@ -80,17 +70,13 @@ func (a *Account) WebfingerResource(ctx context.Context, hostname string, uris_t
 	return r, nil
 }
 
-func (a *Account) ProfileResource(ctx context.Context, hostname string, uris_table *URIs) (*profile.Resource, error) {
+func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*profile.Resource, error) {
 
-	id_url := &url.URL{}
-	id_url.Scheme = "http" // "https"
-	id_url.Host = hostname
-	id_url.Path = AssignResource(uris_table.Id, a.Name)
+	id_path := AssignResource(uris_table.Id, a.Name)
+	id_url := NewURL(uris_table, id_path)
 
-	inbox_url := &url.URL{}
-	inbox_url.Scheme = "http" // "https"
-	inbox_url.Host = hostname
-	inbox_url.Path = AssignResource(uris_table.Inbox, a.Name)
+	inbox_path := AssignResource(uris_table.Inbox, a.Name)
+	inbox_url := NewURL(uris_table, inbox_path)
 
 	pem, err := runtimevar.StringVar(ctx, a.PublicKeyURI)
 

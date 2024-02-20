@@ -19,7 +19,6 @@ type RunOptions struct {
 	NotesDatabaseURI     string
 	MessagesDatabaseURI  string
 	BlocksDatabaseURI    string
-	Hostname             string
 	URIs                 *activitypub.URIs
 	AllowFollow          bool
 	AllowCreate          bool
@@ -42,6 +41,8 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	}
 
 	uris_table := activitypub.DefaultURIs()
+	uris_table.Hostname = hostname
+	uris_table.Insecure = insecure
 
 	opts := &RunOptions{
 		AccountsDatabaseURI:  accounts_database_uri,
@@ -51,7 +52,6 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		MessagesDatabaseURI:  messages_database_uri,
 		BlocksDatabaseURI:    blocks_database_uri,
 		ServerURI:            server_uri,
-		Hostname:             hostname,
 		URIs:                 uris_table,
 		AllowFollow:          allow_follow,
 		AllowCreate:          allow_create,
