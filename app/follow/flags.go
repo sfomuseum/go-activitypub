@@ -18,6 +18,7 @@ var account_name string
 var follow_address string
 
 var undo bool
+var verbose bool
 
 func DefaultFlagSet() *flag.FlagSet {
 
@@ -36,5 +37,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&follow_address, "follow", "", "...")
 
 	fs.BoolVar(&undo, "undo", false, "...")
+
+	fs.BoolVar(&verbose, "verbose", false, "Enable verbose logging")
 	return fs
 }

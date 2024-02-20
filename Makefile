@@ -52,6 +52,7 @@ follow:
 		-account-name bob \
 		-follow alice@localhost:8080 \
 		-hostname localhost:8080 \
+		-verbose \
 		-insecure
 
 # Bob wants to unfollow Alice
@@ -65,6 +66,7 @@ unfollow:
 		-follow alice@localhost:8080 \
 		-hostname localhost:8080 \
 		-insecure \
+		-verbose \
 		-undo
 
 block:

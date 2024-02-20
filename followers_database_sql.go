@@ -116,7 +116,7 @@ func (db *SQLFollowersDatabase) RemoveFollower(ctx context.Context, f *Follower)
 	return nil
 }
 
-func (db *SQLFollowersDatabase) GetFollowersForAccount(ctx context.Context, account_id int64, followers_callback GetFollowersForAccountCallbackFunc) error {
+func (db *SQLFollowersDatabase) GetFollowersForAccount(ctx context.Context, account_id int64, followers_callback GetFollowersCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
 

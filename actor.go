@@ -12,7 +12,7 @@ import (
 	"github.com/sfomuseum/go-activitypub/webfinger"
 )
 
-func RetrieveActor(ctx context.Context, id string) (*ap.Actor, error) {
+func RetrieveActor(ctx context.Context, id string, insecure bool) (*ap.Actor, error) {
 
 	actor_id, actor_hostname, err := ParseAddress(id)
 
@@ -20,11 +20,17 @@ func RetrieveActor(ctx context.Context, id string) (*ap.Actor, error) {
 		return nil, fmt.Errorf("Failed to parse ID, %w", err)
 	}
 
+	webfinger_scheme := "https"
+
+	if insecure {
+		webfinger_scheme = "http"
+	}
+
 	webfinger_q := &url.Values{}
 	webfinger_q.Set("resource", actor_id)
 
 	webfinger_u := &url.URL{}
-	webfinger_u.Scheme = "http" // https
+	webfinger_u.Scheme = webfinger_scheme
 	webfinger_u.Host = actor_hostname
 	webfinger_u.Path = WEBFINGER_URI
 	webfinger_u.RawQuery = webfinger_q.Encode()
@@ -58,6 +64,8 @@ func RetrieveActor(ctx context.Context, id string) (*ap.Actor, error) {
 
 	for _, l := range webfinger_resource.Links {
 
+		// Is this really what we want?
+
 		if l.Rel == "http://webfinger.net/rel/profile-page" {
 			profile_url = l.HRef
 			break
@@ -68,7 +76,7 @@ func RetrieveActor(ctx context.Context, id string) (*ap.Actor, error) {
 		return nil, fmt.Errorf("Failed to derive profile URL from webfinger resource")
 	}
 
-	slog.Info("PROFILE", "url", profile_url)
+	slog.Debug("Profile page for actor", "actor", actor_id, "url", profile_url)
 
 	profile_req, err := http.NewRequestWithContext(ctx, "GET", profile_url, nil)
 
@@ -78,7 +86,6 @@ func RetrieveActor(ctx context.Context, id string) (*ap.Actor, error) {
 
 	profile_req.Header.Set("Accept", ap.ACTIVITYSTREAMS_ACCEPT_HEADER)
 
-	slog.Info("WTF", "accept", profile_req.Header.Get("Accept"))
 	cl := &http.Client{}
 
 	profile_rsp, err := cl.Do(profile_req)

@@ -8,6 +8,7 @@ import (
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
+	ap_slog "github.com/sfomuseum/go-activitypub/slog"
 )
 
 func Run(ctx context.Context, logger *slog.Logger) error {
@@ -28,7 +29,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) 
 
 func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) error {
 
-	slog.SetDefault(logger)
+	ap_slog.ConfigureLogger(logger, opts.Verbose)
 
 	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 

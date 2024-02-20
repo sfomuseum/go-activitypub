@@ -30,7 +30,7 @@ type PostToInboxOptions struct {
 
 func PostToAccount(ctx context.Context, opts *PostToAccountOptions) (*ap.Activity, error) {
 
-	actor, err := RetrieveActor(ctx, opts.To)
+	actor, err := RetrieveActor(ctx, opts.To, opts.URIs.Insecure)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to retrieve actor for %s, %w", opts.To, err)
