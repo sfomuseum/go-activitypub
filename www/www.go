@@ -3,6 +3,7 @@ package www
 import (
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/sfomuseum/go-activitypub/ap"
 )
@@ -24,16 +25,29 @@ func LoggerWithRequest(req *http.Request, logger *slog.Logger) *slog.Logger {
 
 func IsActivityStreamRequest(req *http.Request) bool {
 
-	switch req.Header.Get("Accept") {
+	raw := req.Header.Get("Accept")
+	accept := strings.Split(raw, ",")
 
-	case ap.ACTIVITYSTREAMS_ACCEPT_HEADER:
-		return true
-	case ap.ACTIVITY_CONTENT_TYPE:
-		return true
-	default:
-		return false
+	is_activitystream := false
+
+	for _, h := range accept {
+
+		h = strings.TrimSpace(h)
+
+		switch h {
+
+		case ap.ACTIVITYSTREAMS_ACCEPT_HEADER:
+			is_activitystream = true
+			break
+		case ap.ACTIVITY_CONTENT_TYPE:
+			is_activitystream = true
+			break
+		default:
+			continue
+		}
 	}
 
+	return is_activitystream
 }
 
 func ReadUserIP(req *http.Request) string {
