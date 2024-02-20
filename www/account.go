@@ -70,6 +70,8 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 				return
 			}
+
+			return
 		}
 
 		rsp.Header().Set("Content-type", "text/html")

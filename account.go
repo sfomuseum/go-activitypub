@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/crypto"
-	"github.com/sfomuseum/go-activitypub/profile"
 	"github.com/sfomuseum/go-activitypub/webfinger"
 	"github.com/sfomuseum/runtimevar"
 )
@@ -16,6 +16,9 @@ import (
 type Account struct {
 	Id            int64  `json:"id"`
 	Name          string `json:"name"`
+	DisplayName   string `json:"display_name"`
+	Blurb         string `json:"blurb"`
+	URL           string `json:"url"`
 	PublicKeyURI  string `json:"public_key_uri"`
 	PrivateKeyURI string `json:"private_key_uri"`
 	Created       int64  `json:"created"`
@@ -70,12 +73,21 @@ func (a *Account) WebfingerResource(ctx context.Context, uris_table *URIs) (*web
 	return r, nil
 }
 
-func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*profile.Resource, error) {
+func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*ap.Actor, error) {
 
 	account_url := a.AccountURL(ctx, uris_table)
 
 	inbox_path := AssignResource(uris_table.Inbox, a.Name)
 	inbox_url := NewURL(uris_table, inbox_path)
+
+	icon_path := AssignResource(uris_table.Icon, a.Name)
+	icon_url := NewURL(uris_table, icon_path)
+
+	followers_path := AssignResource(uris_table.Followers, a.Name)
+	followers_url := NewURL(uris_table, followers_path)
+
+	following_path := AssignResource(uris_table.Following, a.Name)
+	following_url := NewURL(uris_table, following_path)
 
 	pem, err := runtimevar.StringVar(ctx, a.PublicKeyURI)
 
@@ -83,10 +95,16 @@ func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*profi
 		return nil, fmt.Errorf("Failed to read public key URI, %w", err)
 	}
 
-	pub_key := profile.PublicKey{
+	pub_key := ap.PublicKey{
 		Id:    account_url.String() + "#main-key",
 		Owner: account_url.String(),
 		PEM:   pem,
+	}
+
+	icon := ap.Icon{
+		Type:      "Image",
+		MediaType: "image/png",
+		URL:       icon_url.String(),
 	}
 
 	context := []string{
@@ -94,13 +112,28 @@ func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*profi
 		"https://w3id.org/security/v1",
 	}
 
-	pr := &profile.Resource{
-		Context:           context,
-		Id:                account_url.String(),
-		Type:              "Person",
-		PreferredUsername: a.Name,
-		Inbox:             inbox_url.String(),
-		PublicKey:         pub_key,
+	// read from prefs or something...
+	discoverable := true
+	manually_approve := false
+
+	now := time.Now()
+
+	pr := &ap.Actor{
+		Context:                   context,
+		Id:                        account_url.String(),
+		Type:                      "Person",
+		PreferredUsername:         a.Name,
+		Name:                      a.DisplayName,
+		Summary:                   a.Blurb,
+		URL:                       a.URL,
+		Followers:                 followers_url.String(),
+		Following:                 following_url.String(),
+		ManuallyApprovesFollowers: manually_approve,
+		Discoverable:              discoverable,
+		Inbox:                     inbox_url.String(),
+		PublicKey:                 pub_key,
+		Icon:                      icon,
+		Published:                 now.Format(time.RFC3339),
 	}
 
 	return pr, nil

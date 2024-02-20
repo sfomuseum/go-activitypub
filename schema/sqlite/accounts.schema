@@ -1,6 +1,9 @@
 CREATE TABLE accounts (
        id INTEGER PRIMARY KEY,
        name TEXT,
+       display_name TEXT,
+       blurb TEXT,
+       url TEXT,
        private_key_uri TEXT,
        public_key_uri TEXT,
        created INTEGER,

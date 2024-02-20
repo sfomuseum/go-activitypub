@@ -45,7 +45,7 @@ func NewSQLAccountsDatabase(ctx context.Context, uri string) (AccountsDatabase, 
 		err := sqlite.SetupConnection(ctx, conn)
 
 		if err != nil {
-			return nil, fmt.Errorf("Failed to live hard and die fast, %w", err)
+			return nil, fmt.Errorf("Failed to set up SQLite, %w", err)
 		}
 	}
 
@@ -58,9 +58,9 @@ func NewSQLAccountsDatabase(ctx context.Context, uri string) (AccountsDatabase, 
 
 func (db *SQLAccountsDatabase) AddAccount(ctx context.Context, a *Account) error {
 
-	q := fmt.Sprintf("INSERT INTO %s (id, name, public_key_uri, private_key_uri, created, lastmodified) VALUES (?, ?, ?, ?, ?, ?)", SQL_ACCOUNTS_TABLE_NAME)
+	q := fmt.Sprintf("INSERT INTO %s (id, name, display_name, blurb, url, public_key_uri, private_key_uri, created, lastmodified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", SQL_ACCOUNTS_TABLE_NAME)
 
-	_, err := db.database.ExecContext(ctx, q, a.Id, a.Name, a.PublicKeyURI, a.PrivateKeyURI, a.Created, a.LastModified)
+	_, err := db.database.ExecContext(ctx, q, a.Id, a.Name, a.DisplayName, a.Blurb, a.URL, a.PublicKeyURI, a.PrivateKeyURI, a.Created, a.LastModified)
 
 	if err != nil {
 		return fmt.Errorf("Failed to add account, %w", err)
@@ -83,16 +83,19 @@ func (db *SQLAccountsDatabase) getAccount(ctx context.Context, where string, arg
 
 	var id int64
 	var name string
+	var display_name string
+	var blurb string
+	var url string
 	var public_key_uri string
 	var private_key_uri string
 	var created int64
 	var lastmod int64
 
-	q := fmt.Sprintf("SELECT id, name, public_key_uri, private_key_uri, created, lastmodified FROM %s WHERE %s", SQL_ACCOUNTS_TABLE_NAME, where)
+	q := fmt.Sprintf("SELECT id, name, display_name, blurb, url, public_key_uri, private_key_uri, created, lastmodified FROM %s WHERE %s", SQL_ACCOUNTS_TABLE_NAME, where)
 
 	row := db.database.QueryRowContext(ctx, q, args...)
 
-	err := row.Scan(&id, &name, &public_key_uri, &private_key_uri, &created, &lastmod)
+	err := row.Scan(&id, &name, &display_name, &blurb, &url, &public_key_uri, &private_key_uri, &created, &lastmod)
 
 	switch {
 	case err == sql.ErrNoRows:
@@ -106,6 +109,9 @@ func (db *SQLAccountsDatabase) getAccount(ctx context.Context, where string, arg
 	a := &Account{
 		Id:            id,
 		Name:          name,
+		DisplayName:   display_name,
+		Blurb:         blurb,
+		URL:           url,
 		PublicKeyURI:  public_key_uri,
 		PrivateKeyURI: private_key_uri,
 		Created:       created,

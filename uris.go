@@ -15,8 +15,8 @@ type URIs struct {
 	Outbox    string `json:"outbox"`
 	Followers string `json:"followers"`
 	Following string `json:"following"`
-	Icon string `json:"icon"`
-	
+	Icon      string `json:"icon"`
+
 	Hostname string `json:"hostname"`
 	Insecure bool   `json:"insecure"`
 }
@@ -31,7 +31,7 @@ func DefaultURIs() *URIs {
 		Outbox:    "/ap/{resource}/outbox",
 		Followers: "/ap/{resource}/followers",
 		Following: "/ap/{resource}/following",
-		Icon: "/ap/{resource}/icon.png",
+		Icon:      "/ap/{resource}/icon.png",
 	}
 
 	return uris_table

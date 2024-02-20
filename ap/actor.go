@@ -15,6 +15,16 @@ type Actor struct {
 	PreferredUsername string    `json:"preferredUsername"`
 	Inbox             string    `json:"inbox"`
 	PublicKey         PublicKey `json:"publicKey"`
+
+	Following                 string `json:"following,omitempty"`
+	Followers                 string `json:"followers,omitempty"`
+	Name                      string `json:"name,omitempty"`
+	Summary                   string `json:"summary,omitempty"`
+	URL                       string `json:"url,omitempty"`
+	ManuallyApprovesFollowers bool   `json:"manuallyApprovesFollowers,omitempty"`
+	Discoverable              bool   `json:"discoverable,omitempty"`
+	Published                 string `json:"published,omitempty"`
+	Icon                      Icon   `json:"icon,omitempty"`
 }
 
 func (a *Actor) PublicKeyRSA(ctx context.Context) (*rsa.PublicKey, error) {
@@ -33,29 +43,4 @@ func (a *Actor) PublicKeyRSA(ctx context.Context) (*rsa.PublicKey, error) {
 	}
 
 	return public_key, nil
-}
-
-type Activity struct {
-	Context string      `json:"@context"`
-	Id      string      `json:"id"`
-	Type    string      `json:"type"`
-	Actor   string      `json:"actor"`
-	To      []string    `json:"to,omitempty"`
-	Object  interface{} `json:"object"`
-}
-
-type Note struct {
-	Type         string `json:"type"`
-	Id           string `json:"id"`
-	AttributedTo string `json:"attributedTo"`
-	To           string `json:"to"`
-	Content      string `json:"content"`
-	URL          string `json:"url"`
-	Published    string `json:"published"`
-}
-
-type PublicKey struct {
-	Id    string `json:"id"`
-	Owner string `json:"owner"`
-	PEM   string `json:"publicKeyPem"`
 }

@@ -47,9 +47,10 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	// outbox_post := fmt.Sprintf("POST %s", run_opts.URIs.Outbox)
 
 	handlers := map[string]handler.RouteHandlerFunc{
-		webfinger_get: webfingerHandlerFunc,
-		account_get:   accountHandlerFunc,
-		inbox_post:    inboxPostHandlerFunc,
+		webfinger_get:      webfingerHandlerFunc,
+		account_get:        accountHandlerFunc,
+		inbox_post:         inboxPostHandlerFunc,
+		run_opts.URIs.Icon: iconHandlerFunc,
 	}
 
 	log_logger := slog.NewLogLogger(logger.Handler(), slog.LevelInfo)
