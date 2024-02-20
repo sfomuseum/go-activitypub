@@ -27,6 +27,8 @@ func IsActivityStreamRequest(req *http.Request) bool {
 
 	case ap.ACTIVITYSTREAMS_ACCEPT_HEADER:
 		return true
+	case ap.ACTIVITY_CONTENT_TYPE:
+		return true
 	default:
 		return false
 	}

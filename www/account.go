@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"time"
 
 	"github.com/sfomuseum/go-activitypub"
 )
@@ -34,6 +35,12 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 		ctx := req.Context()
 
 		logger := LoggerWithRequest(req, nil)
+
+		t1 := time.Now()
+
+		defer func() {
+			logger.Debug("Time to serve request", "ms", time.Since(t1).Milliseconds())
+		}()
 
 		account_name, host, err := activitypub.ParseAddressFromRequest(req)
 
@@ -76,7 +83,7 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 
 			if err != nil {
 				logger.Error("Failed to derive profile response for resource", "error", err)
-				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				http.Error(rsp, "Not acceptable", http.StatusNotAcceptable)
 				return
 			}
 
