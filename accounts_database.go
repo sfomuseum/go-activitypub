@@ -16,6 +16,7 @@ type AccountsDatabase interface {
 	AddAccount(context.Context, *Account) error
 	RemoveAccount(context.Context, *Account) error
 	UpdateAccount(context.Context, *Account) error
+	Close(context.Context) error
 }
 
 var account_database_roster roster.Roster

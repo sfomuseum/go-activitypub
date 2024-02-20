@@ -82,3 +82,7 @@ func (db *DocstoreAccountsDatabase) getAccount(ctx context.Context, q *gc_docsto
 
 	return nil, ErrNotFound
 }
+
+func (db *DocstoreAccountsDatabase) Close(ctx context.Context) error {
+	return db.collection.Close()
+}

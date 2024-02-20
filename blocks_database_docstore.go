@@ -96,3 +96,7 @@ func (db *DocstoreBlocksDatabase) RemoveBlock(ctx context.Context, block *Block)
 
 	return db.collection.Delete(ctx, block)
 }
+
+func (db *DocstoreBlocksDatabase) Close(ctx context.Context) error {
+	return db.collection.Close()
+}

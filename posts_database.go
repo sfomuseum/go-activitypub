@@ -16,6 +16,7 @@ type PostsDatabase interface {
 	AddPost(context.Context, *Post) error
 	RemovePost(context.Context, *Post) error
 	UpdatePost(context.Context, *Post) error
+	Close(context.Context) error
 }
 
 var post_database_roster roster.Roster

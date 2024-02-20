@@ -19,6 +19,7 @@ type NotesDatabase interface {
 	AddNote(context.Context, *Note) error
 	UpdateNote(context.Context, *Note) error
 	RemoveNote(context.Context, *Note) error
+	Close(context.Context) error
 }
 
 var notes_database_roster roster.Roster

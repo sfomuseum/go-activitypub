@@ -93,3 +93,7 @@ func (db *DocstoreNotesDatabase) RemoveNote(ctx context.Context, note *Note) err
 
 	return db.collection.Delete(ctx, note)
 }
+
+func (db *DocstoreNotesDatabase) Close(ctx context.Context) error {
+	return db.collection.Close()
+}

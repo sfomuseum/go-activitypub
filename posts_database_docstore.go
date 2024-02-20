@@ -82,3 +82,7 @@ func (db *DocstorePostsDatabase) getPost(ctx context.Context, q *gc_docstore.Que
 
 	return nil, ErrNotFound
 }
+
+func (db *DocstorePostsDatabase) Close(ctx context.Context) error {
+	return db.collection.Close()
+}

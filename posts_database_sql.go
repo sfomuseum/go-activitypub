@@ -114,3 +114,7 @@ func (db *SQLPostsDatabase) getPost(ctx context.Context, where string, args ...i
 
 	return a, nil
 }
+
+func (db *SQLPostsDatabase) Close(ctx context.Context) error {
+	return db.database.Close()
+}

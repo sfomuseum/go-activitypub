@@ -114,3 +114,7 @@ func (db *SQLAccountsDatabase) getAccount(ctx context.Context, where string, arg
 
 	return a, nil
 }
+
+func (db *SQLAccountsDatabase) Close(ctx context.Context) error {
+	return db.database.Close()
+}

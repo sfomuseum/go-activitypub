@@ -108,3 +108,7 @@ func (db *DocstoreFollowingDatabase) GetFollowingForAccount(ctx context.Context,
 
 	return nil
 }
+
+func (db *DocstoreFollowingDatabase) Close(ctx context.Context) error {
+	return db.collection.Close()
+}

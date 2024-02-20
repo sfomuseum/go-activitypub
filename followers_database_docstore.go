@@ -106,3 +106,7 @@ func (db *DocstoreFollowersDatabase) GetFollowersForAccount(ctx context.Context,
 
 	return nil
 }
+
+func (db *DocstoreFollowersDatabase) Close(ctx context.Context) error {
+	return db.collection.Close()
+}

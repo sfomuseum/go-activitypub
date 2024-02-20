@@ -23,6 +23,7 @@ type MessagesDatabase interface {
 	AddMessage(context.Context, *Message) error
 	UpdateMessage(context.Context, *Message) error
 	RemoveMessage(context.Context, *Message) error
+	Close(context.Context) error
 }
 
 var messages_database_roster roster.Roster

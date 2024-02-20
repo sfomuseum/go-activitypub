@@ -166,3 +166,7 @@ func (db *SQLFollowersDatabase) GetFollowersForAccount(ctx context.Context, acco
 
 	return nil
 }
+
+func (db *SQLFollowersDatabase) Close(ctx context.Context) error {
+	return db.database.Close()
+}

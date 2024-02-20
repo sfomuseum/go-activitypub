@@ -229,3 +229,7 @@ func (db *SQLMessagesDatabase) getMessagesWithCallback(ctx context.Context, wher
 
 	return nil
 }
+
+func (db *SQLMessagesDatabase) Close(ctx context.Context) error {
+	return db.database.Close()
+}

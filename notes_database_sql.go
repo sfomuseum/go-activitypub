@@ -143,3 +143,7 @@ func (db *SQLNotesDatabase) RemoveNote(ctx context.Context, note *Note) error {
 
 	return nil
 }
+
+func (db *SQLNotesDatabase) Close(ctx context.Context) error {
+	return db.database.Close()
+}

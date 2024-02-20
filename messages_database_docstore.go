@@ -137,3 +137,7 @@ func (db *DocstoreMessagesDatabase) getMessagesWithCallback(ctx context.Context,
 
 	return nil
 }
+
+func (db *DocstoreMessagesDatabase) Close(ctx context.Context) error {
+	return db.collection.Close()
+}

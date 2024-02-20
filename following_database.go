@@ -17,6 +17,7 @@ type FollowingDatabase interface {
 	GetFollowing(context.Context, int64, string) (*Following, error)
 	AddFollowing(context.Context, *Following) error
 	RemoveFollowing(context.Context, *Following) error
+	Close(context.Context) error
 }
 
 var following_database_roster roster.Roster

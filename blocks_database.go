@@ -18,6 +18,7 @@ type BlocksDatabase interface {
 	GetBlockWithId(context.Context, int64) (*Block, error)
 	AddBlock(context.Context, *Block) error
 	RemoveBlock(context.Context, *Block) error
+	Close(context.Context) error
 }
 
 var block_database_roster roster.Roster

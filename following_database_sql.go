@@ -164,3 +164,7 @@ func (db *SQLFollowingDatabase) GetFollowingForAccount(ctx context.Context, acco
 
 	return nil
 }
+
+func (db *SQLFollowingDatabase) Close(ctx context.Context) error {
+	return db.database.Close()
+}

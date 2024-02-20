@@ -141,3 +141,7 @@ func (db *SQLBlocksDatabase) RemoveBlock(ctx context.Context, block *Block) erro
 
 	return nil
 }
+
+func (db *SQLBlocksDatabase) Close(ctx context.Context) error {
+	return db.database.Close()
+}

@@ -17,6 +17,7 @@ type FollowersDatabase interface {
 	GetFollower(context.Context, int64, string) (*Follower, error)
 	AddFollower(context.Context, *Follower) error
 	RemoveFollower(context.Context, *Follower) error
+	Close(context.Context) error
 }
 
 var followers_database_roster roster.Roster
