@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
-	_ "log/slog"
+	"log/slog"
 	"net/http"
 	"regexp"
 	"sort"
@@ -104,8 +104,12 @@ func RouteHandlerWithOptions(opts *RouteHandlerOptions) (http.Handler, error) {
 		return len(patterns[i]) > len(patterns[j])
 	})
 
+	logger := slog.Default()
+	
 	fn := func(rsp http.ResponseWriter, req *http.Request) {
 
+		logger.Debug("Derive handler", "method", req.Method, "path", req.URL.Path)
+		
 		derive_rsp, err := deriveHandler(req, opts.Handlers, matches, patterns)
 
 		if err != nil {
@@ -115,16 +119,19 @@ func RouteHandlerWithOptions(opts *RouteHandlerOptions) (http.Handler, error) {
 		}
 
 		if derive_rsp == nil {
+			logger.Debug("Not found", "path", req.URL.Path)
 			http.Error(rsp, "Not found", http.StatusNotFound)
 			return
 		}
 
 		if derive_rsp.Method != "" && derive_rsp.Method != req.Method {
+			logger.Debug("Method not allow", "path", req.URL.Path, "method", req.Method)			
 			http.Error(rsp, "Method not allow", http.StatusMethodNotAllowed)
 			return
 		}
 
 		if derive_rsp.Host != "" && derive_rsp.Host != req.Host {
+			logger.Debug("Host not allow", "path", req.URL.Path, "host", req.Host)						
 			http.Error(rsp, "Not found", http.StatusNotFound)
 			return
 		}
@@ -136,6 +143,8 @@ func RouteHandlerWithOptions(opts *RouteHandlerOptions) (http.Handler, error) {
 			}
 		}
 
+		logger.Debug("Serve path matching pattern", "pattern", derive_rsp.MatchingPattern)
+		
 		derive_rsp.Handler.ServeHTTP(rsp, req)
 		return
 	}
