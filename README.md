@@ -176,10 +176,10 @@ CorsParams:	null
 In console (2) create the necessary tables for the ActivityPub service in DynamoDB.
 
 ```
-$> make dynamo-tables-local TABLE_PREFIX=collection_ap_
+$> make dynamo-tables-local TABLE_PREFIX=custom_
 go run -mod vendor cmd/create-dynamodb-tables/main.go \
 		-refresh \
-		-table-prefix collection_ap_ \
+		-table-prefix custom_ \
 		-dynamodb-client-uri 'awsdynamodb://?local=true'
 ```
 
@@ -188,14 +188,14 @@ Note that we passing a `TABLE_PREFIX` argument. This is to demonstrate how you c
 Start the ActivityPub server:
 
 ```
-$> make server TABLE_PREFIX=collection_ap_
+$> make server TABLE_PREFIX=custom_
 go run cmd/server/main.go \
-		-accounts-database-uri 'awsdynamodb://collection_ap_accounts?partition_key=Id&allow_scans=true&local=true' \
-		-followers-database-uri 'awsdynamodb://collection_ap_followers?partition_key=Id&allow_scans=true&local=true' \
-		-following-database-uri 'awsdynamodb://collection_ap_following?partition_key=Id&allow_scans=true&local=true' \
-		-notes-database-uri 'awsdynamodb://collection_ap_notes?partition_key=Id&allow_scans=true&local=true' \
-		-messages-database-uri 'awsdynamodb://collection_ap_messages?partition_key=Id&allow_scans=true&local=true' \
-		-blocks-database-uri 'awsdynamodb://collection_ap_blocks?partition_key=Id&allow_scans=true&local=true' \
+		-accounts-database-uri 'awsdynamodb://custom_accounts?partition_key=Id&allow_scans=true&local=true' \
+		-followers-database-uri 'awsdynamodb://custom_followers?partition_key=Id&allow_scans=true&local=true' \
+		-following-database-uri 'awsdynamodb://custom_following?partition_key=Id&allow_scans=true&local=true' \
+		-notes-database-uri 'awsdynamodb://custom_notes?partition_key=Id&allow_scans=true&local=true' \
+		-messages-database-uri 'awsdynamodb://custom_messages?partition_key=Id&allow_scans=true&local=true' \
+		-blocks-database-uri 'awsdynamodb://custom_blocks?partition_key=Id&allow_scans=true&local=true' \
 		-allow-create \
 		-verbose \
 		-hostname localhost:8080 \
@@ -211,19 +211,19 @@ Also note the `-hostname` flag. This is when you are running the `server` tool i
 Switch to console (2) and create account records for `bob` and `alice`:
 
 ```
-$> make accounts TABLE_PREFIX=collection_ap_
-go run cmd/add-account/main.go -accounts-database-uri 'awsdynamodb://collection_ap_accounts?partition_key=Id&allow_scans=true&local=true' -account-name bob
-go run cmd/add-account/main.go -accounts-database-uri 'awsdynamodb://collection_ap_accounts?partition_key=Id&allow_scans=true&local=true' -account-name alice
+$> make accounts TABLE_PREFIX=custom_
+go run cmd/add-account/main.go -accounts-database-uri 'awsdynamodb://custom_accounts?partition_key=Id&allow_scans=true&local=true' -account-name bob
+go run cmd/add-account/main.go -accounts-database-uri 'awsdynamodb://custom_accounts?partition_key=Id&allow_scans=true&local=true' -account-name alice
 ```
 
 Next `bob` follows `alice`:
 
 ```
-$> make follow TABLE_PREFIX=collection_ap_
+$> make follow TABLE_PREFIX=custom_
 go run cmd/follow/main.go \
-		-accounts-database-uri 'awsdynamodb://collection_ap_accounts?partition_key=Id&allow_scans=true&local=true' \
-		-following-database-uri 'awsdynamodb://collection_ap_following?partition_key=Id&allow_scans=true&local=true' \
-		-messages-database-uri 'awsdynamodb://collection_ap_messages?partition_key=Id&allow_scans=true&local=true' \
+		-accounts-database-uri 'awsdynamodb://custom_accounts?partition_key=Id&allow_scans=true&local=true' \
+		-following-database-uri 'awsdynamodb://custom_following?partition_key=Id&allow_scans=true&local=true' \
+		-messages-database-uri 'awsdynamodb://custom_messages?partition_key=Id&allow_scans=true&local=true' \
 		-account-name bob \
 		-follow alice@localhost:8080 \
 		-hostname localhost:8080 \
@@ -239,11 +239,11 @@ go run cmd/follow/main.go \
 Then `bob` unfollows `alice`:
 
 ```
-$> make unfollow TABLE_PREFIX=collection_ap_
+$> make unfollow TABLE_PREFIX=custom_
 go run cmd/follow/main.go \
-		-accounts-database-uri 'awsdynamodb://collection_ap_accounts?partition_key=Id&allow_scans=true&local=true' \
-		-following-database-uri 'awsdynamodb://collection_ap_following?partition_key=Id&allow_scans=true&local=true' \
-		-messages-database-uri 'awsdynamodb://collection_ap_messages?partition_key=Id&allow_scans=true&local=true' \
+		-accounts-database-uri 'awsdynamodb://custom_accounts?partition_key=Id&allow_scans=true&local=true' \
+		-following-database-uri 'awsdynamodb://custom_following?partition_key=Id&allow_scans=true&local=true' \
+		-messages-database-uri 'awsdynamodb://custom_messages?partition_key=Id&allow_scans=true&local=true' \
 		-account-name bob \
 		-follow alice@localhost:8080 \
 		-hostname localhost:8080 \
@@ -260,11 +260,11 @@ go run cmd/follow/main.go \
 At some point `alice` posts a message and then delivers it to all of their followers (including `bob` who has followed `alice` again):
 
 ```
-$> make post TABLE_PREFIX=collection_ap_ MESSAGE='This post left intentionally blank'
+$> make post TABLE_PREFIX=custom_ MESSAGE='This post left intentionally blank'
 go run cmd/post/main.go \
-		-accounts-database-uri 'awsdynamodb://collection_ap_accounts?partition_key=Id&allow_scans=true&local=true' \
-		-followers-database-uri 'awsdynamodb://collection_ap_followers?partition_key=Id&allow_scans=true&local=true' \
-		-posts-database-uri 'awsdynamodb://collection_ap_posts?partition_key=Id&allow_scans=true&local=true' \
+		-accounts-database-uri 'awsdynamodb://custom_accounts?partition_key=Id&allow_scans=true&local=true' \
+		-followers-database-uri 'awsdynamodb://custom_followers?partition_key=Id&allow_scans=true&local=true' \
+		-posts-database-uri 'awsdynamodb://custom_posts?partition_key=Id&allow_scans=true&local=true' \
 		-account-name alice \
 		-message "This post left intentionally blank" \
 		-hostname localhost:8080 \
@@ -288,11 +288,11 @@ Switching back to the console running the `server` tool you should see something
 Checking `bob`'s inbox we see the message from Alice:
 
 ```
-$> make inbox TABLE_PREFIX=collection_ap_ ACCOUNT=bob
+$> make inbox TABLE_PREFIX=custom_ ACCOUNT=bob
 go run cmd/inbox/main.go \
-		-accounts-database-uri 'awsdynamodb://collection_ap_accounts?partition_key=Id&allow_scans=true&local=true' \
-		-messages-database-uri 'awsdynamodb://collection_ap_messages?partition_key=Id&allow_scans=true&local=true' \
-		-notes-database-uri 'awsdynamodb://collection_ap_notes?partition_key=Id&allow_scans=true&local=true' \
+		-accounts-database-uri 'awsdynamodb://custom_accounts?partition_key=Id&allow_scans=true&local=true' \
+		-messages-database-uri 'awsdynamodb://custom_messages?partition_key=Id&allow_scans=true&local=true' \
+		-notes-database-uri 'awsdynamodb://custom_notes?partition_key=Id&allow_scans=true&local=true' \
 		-account-name bob
 {"time":"2024-02-20T10:33:31.588716-08:00","level":"INFO","msg":"Get Note","message":1760009464636772352,"id":1760009464624189440}
 {"time":"2024-02-20T10:33:31.592025-08:00","level":"INFO","msg":"NOTE","body":"{\"attributedTo\":\"fix me\",\"content\":\"This post left intentionally blank\",\"id\":\"be26c823-b75e-461c-adea-7260299a7434\",\"published\":\"2024-02-20T10:32:10-08:00\",\"to\":\"https://www.w3.org/ns/activitystreams#Public\",\"type\":\"Note\",\"url\":\"x-urn:fix-me#1760009464481583104\"}"}
@@ -301,11 +301,11 @@ go run cmd/inbox/main.go \
 `bob` unfollows `alice` and then removes all of Alice's posts from (Bob's) inbox:
 
 ```
-$> make unfollow TABLE_PREFIX=collection_ap_
+$> make unfollow TABLE_PREFIX=custom_
 go run cmd/follow/main.go \
-		-accounts-database-uri 'awsdynamodb://collection_ap_accounts?partition_key=Id&allow_scans=true&local=true' \
-		-following-database-uri 'awsdynamodb://collection_ap_following?partition_key=Id&allow_scans=true&local=true' \
-		-messages-database-uri 'awsdynamodb://collection_ap_messages?partition_key=Id&allow_scans=true&local=true' \
+		-accounts-database-uri 'awsdynamodb://custom_accounts?partition_key=Id&allow_scans=true&local=true' \
+		-following-database-uri 'awsdynamodb://custom_following?partition_key=Id&allow_scans=true&local=true' \
+		-messages-database-uri 'awsdynamodb://custom_messages?partition_key=Id&allow_scans=true&local=true' \
 		-account-name bob \
 		-follow alice@localhost:8080 \
 		-hostname localhost:8080 \
@@ -323,11 +323,11 @@ go run cmd/follow/main.go \
 Checking `bob`'s inbox again yields no posts:
 
 ```
-$> make inbox TABLE_PREFIX=collection_ap_ ACCOUNT=bob
+$> make inbox TABLE_PREFIX=custom_ ACCOUNT=bob
 go run cmd/inbox/main.go \
-		-accounts-database-uri 'awsdynamodb://collection_ap_accounts?partition_key=Id&allow_scans=true&local=true' \
-		-messages-database-uri 'awsdynamodb://collection_ap_messages?partition_key=Id&allow_scans=true&local=true' \
-		-notes-database-uri 'awsdynamodb://collection_ap_notes?partition_key=Id&allow_scans=true&local=true' \
+		-accounts-database-uri 'awsdynamodb://custom_accounts?partition_key=Id&allow_scans=true&local=true' \
+		-messages-database-uri 'awsdynamodb://custom_messages?partition_key=Id&allow_scans=true&local=true' \
+		-notes-database-uri 'awsdynamodb://custom_notes?partition_key=Id&allow_scans=true&local=true' \
 		-account-name bob
 ```
 
