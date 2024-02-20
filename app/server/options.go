@@ -29,6 +29,12 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 
 	flagset.Parse(fs)
 
+	err := flagset.SetFlagsFromEnvVars(fs, "ACTIVITYPUB")
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to derive flags from environment variables, %w", err)
+	}
+
 	if hostname == "" {
 
 		u, err := url.Parse(server_uri)
