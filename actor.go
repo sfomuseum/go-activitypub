@@ -26,8 +26,10 @@ func RetrieveActor(ctx context.Context, id string, insecure bool) (*ap.Actor, er
 		webfinger_scheme = "http"
 	}
 
+	webfinger_acct := fmt.Sprintf("acct:%s@%s", actor_id, actor_hostname)
+
 	webfinger_q := &url.Values{}
-	webfinger_q.Set("resource", actor_id)
+	webfinger_q.Set("resource", webfinger_acct)
 
 	webfinger_u := &url.URL{}
 	webfinger_u.Scheme = webfinger_scheme
