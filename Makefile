@@ -4,6 +4,8 @@ LDFLAGS=-s -w
 
 SQLITE3=sqlite3
 
+TABLE_PREFIX=
+
 ACCOUNTS_DB=accounts.db
 FOLLOWERS_DB=followers.db
 FOLLOWING_DB=following.db
@@ -20,13 +22,13 @@ POSTS_DB_URI=sql://sqlite3?dsn=$(POSTS_DB)
 NOTES_DB_URI=sql://sqlite3?dsn=$(NOTES_DB)
 MESSAGES_DB_URI=sql://sqlite3?dsn=$(MESSAGES_DB)
 
-ACCOUNTS_DB_URI=awsdynamodb://accounts?partition_key=Id&allow_scans=true&local=true
-FOLLOWING_DB_URI=awsdynamodb://following?partition_key=Id&allow_scans=true&local=true
-FOLLOWERS_DB_URI=awsdynamodb://followers?partition_key=Id&allow_scans=true&local=true
-BLOCKS_DB_URI=awsdynamodb://blocks?partition_key=Id&allow_scans=true&local=true
-NOTES_DB_URI=awsdynamodb://notes?partition_key=Id&allow_scans=true&local=true
-POSTS_DB_URI=awsdynamodb://posts?partition_key=Id&allow_scans=true&local=true
-MESSAGES_DB_URI=awsdynamodb://messages?partition_key=Id&allow_scans=true&local=true
+ACCOUNTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true
+FOLLOWING_DB_URI=awsdynamodb://$(TABLE_PREFIX)following?partition_key=Id&allow_scans=true&local=true
+FOLLOWERS_DB_URI=awsdynamodb://$(TABLE_PREFIX)followers?partition_key=Id&allow_scans=true&local=true
+BLOCKS_DB_URI=awsdynamodb://$(TABLE_PREFIX)blocks?partition_key=Id&allow_scans=true&local=true
+NOTES_DB_URI=awsdynamodb://$(TABLE_PREFIX)notes?partition_key=Id&allow_scans=true&local=true
+POSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)posts?partition_key=Id&allow_scans=true&local=true
+MESSAGES_DB_URI=awsdynamodb://$(TABLE_PREFIX)messages?partition_key=Id&allow_scans=true&local=true
 
 db-sqlite:
 	rm -f *.db
@@ -125,4 +127,5 @@ dynamo-local:
 dynamo-tables-local:
 	go run -mod vendor cmd/create-dynamodb-tables/main.go \
 		-refresh \
+		-table-prefix $(TABLE_PREFIX) \
 		-dynamodb-client-uri 'awsdynamodb://?local=true'

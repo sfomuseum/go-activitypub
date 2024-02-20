@@ -10,6 +10,7 @@ import (
 type RunOptions struct {
 	Refresh           bool
 	DynamodbClientURI string
+	TablePrefix       string
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -19,6 +20,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	opts := &RunOptions{
 		Refresh:           refresh,
 		DynamodbClientURI: dynamodb_client_uri,
+		TablePrefix:       table_prefix,
 	}
 
 	return opts, nil
