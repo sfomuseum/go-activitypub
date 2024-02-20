@@ -9,8 +9,12 @@ import (
 	"image/png"
 	"net/http"
 	"strconv"
+	"strings"
 
+	"github.com/fogleman/gg"
+	"github.com/golang/freetype/truetype"
 	"github.com/sfomuseum/go-activitypub"
+	"golang.org/x/image/font/gofont/goregular"
 )
 
 type IconHandlerOptions struct {
@@ -19,6 +23,20 @@ type IconHandlerOptions struct {
 }
 
 func IconHandler(opts *IconHandlerOptions) (http.Handler, error) {
+
+	font_size := 48.0
+	im_w := 48
+	im_h := 48
+
+	f, err := truetype.Parse(goregular.TTF)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse font, %w", err)
+	}
+
+	face := truetype.NewFace(f, &truetype.Options{
+		Size: font_size,
+	})
 
 	fn := func(rsp http.ResponseWriter, req *http.Request) {
 
@@ -70,17 +88,40 @@ func IconHandler(opts *IconHandlerOptions) (http.Handler, error) {
 		g := uint8((values >> 8) & 0xFF)
 		b := uint8(values & 0xFF)
 
-		im := image.NewRGBA(image.Rect(0, 0, 220, 220)) // x1,y1,  x2,y2 of background rectangle
-		im_c := color.RGBA{r, g, b, 255}                //  R, G, B, Alpha
+		im := image.NewRGBA(image.Rect(0, 0, im_w, im_h)) // x1,y1,  x2,y2 of background rectangle
+		im_c := color.RGBA{r, g, b, 255}                  //  R, G, B, Alpha
 
 		draw.Draw(im, im.Bounds(), &image.Uniform{im_c}, image.ZP, draw.Src)
 
-		// Add text...
-		// https://josemyduarte.github.io/2021-02-28-quotes-on-images-with-go/
+		// https://pkg.go.dev/github.com/fogleman/gg
+
+		dc := gg.NewContext(im_w, im_h)
+		dc.DrawImage(im, 0, 0)
+
+		dc.SetFontFace(face)
+
+		if err != nil {
+			logger.Error("Failed to load font", "error", err)
+
+			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		x := float64(im_w / 2)
+		y := float64((im_w / 2) - 7)
+
+		max_w := float64(im_w)
+		dc.SetColor(color.White)
+
+		text := strings.ToUpper(account_name[0:1])
+
+		dc.DrawStringWrapped(text, x, y, 0.5, 0.5, max_w, 1.5, gg.AlignCenter)
+
+		final_im := dc.Image()
 
 		rsp.Header().Set("Content-type", "image/png")
 
-		err = png.Encode(rsp, im)
+		err = png.Encode(rsp, final_im)
 
 		if err != nil {
 			logger.Error("Failed to encode PNG icon", "error", err)

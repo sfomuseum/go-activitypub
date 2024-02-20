@@ -3,14 +3,18 @@ module github.com/sfomuseum/go-activitypub
 go 1.22.0
 
 require (
+	github.com/aaronland/go-aws-dynamodb v0.0.5
 	github.com/aaronland/go-http-sanitize v0.0.8
 	github.com/aaronland/go-http-server v1.4.0
 	github.com/aaronland/go-pagination v0.2.0
 	github.com/aaronland/go-pagination-sql v0.2.0
 	github.com/aaronland/go-roster v1.0.0
 	github.com/aaronland/gocloud-docstore v0.0.5
+	github.com/aws/aws-sdk-go v1.49.0
 	github.com/bwmarrin/snowflake v0.3.0
+	github.com/fogleman/gg v1.3.0
 	github.com/go-fed/httpsig v1.1.0
+	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/google/uuid v1.4.0
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/mitchellh/copystructure v1.2.0
@@ -18,16 +22,15 @@ require (
 	github.com/sfomuseum/iso8601duration v1.1.0
 	github.com/sfomuseum/runtimevar v1.1.4
 	gocloud.dev v0.36.0
+	golang.org/x/image v0.15.0
 )
 
 require (
 	github.com/aaronland/go-aws-auth v1.3.0 // indirect
-	github.com/aaronland/go-aws-dynamodb v0.0.5 // indirect
 	github.com/aaronland/go-aws-session v0.0.6 // indirect
 	github.com/aaronland/go-string v0.1.2 // indirect
 	github.com/akrylysov/algnhsa v1.1.0 // indirect
 	github.com/aws/aws-lambda-go v1.46.0 // indirect
-	github.com/aws/aws-sdk-go v1.49.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.24.1 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.26.6 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.16.16 // indirect
