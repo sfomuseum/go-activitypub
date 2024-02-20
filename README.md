@@ -151,7 +151,7 @@ What follows are the output of the different "targets" in the [Makefile](Makefil
 
 If you want to follow along and run these examples your self you will need the following:
 
-* The [Docker]() runtime environment to launch a local instance of DynamoDB.
+* The [Docker Desktop](https://www.docker.com/products/docker-desktop/) runtime environment to launch a local instance of DynamoDB.
 * (3) different terminal windows (or "consoles")
 
 In console (1) start a local instance of DynamoDB. The easiest way to do this is using the Dockerfile that AWS provides:
