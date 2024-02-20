@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/fogleman/gg"
 	"github.com/golang/freetype/truetype"
@@ -43,6 +44,12 @@ func IconHandler(opts *IconHandlerOptions) (http.Handler, error) {
 		ctx := req.Context()
 
 		logger := LoggerWithRequest(req, nil)
+
+		t1 := time.Now()
+
+		defer func() {
+			logger.Info("Time to serve request", "ms", time.Since(t1).Milliseconds())
+		}()
 
 		account_name, host, err := activitypub.ParseAddressFromRequest(req)
 

@@ -34,6 +34,12 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		logger := LoggerWithRequest(req, nil)
 
+		t1 := time.Now()
+
+		defer func() {
+			logger.Info("Time to serve request", "ms", time.Since(t1).Milliseconds())
+		}()
+
 		if !IsActivityStreamRequest(req) {
 			logger.Error("Not activitystream request")
 			http.Error(rsp, "Bad request", http.StatusBadRequest)

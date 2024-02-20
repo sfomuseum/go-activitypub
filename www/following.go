@@ -3,6 +3,7 @@ package www
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
@@ -21,6 +22,12 @@ func FollowingHandler(opts *FollowingHandlerOptions) (http.Handler, error) {
 		ctx := req.Context()
 
 		logger := LoggerWithRequest(req, nil)
+
+		t1 := time.Now()
+
+		defer func() {
+			logger.Info("Time to serve request", "ms", time.Since(t1).Milliseconds())
+		}()
 
 		if !IsActivityStreamRequest(req) {
 			logger.Error("Not activitystream request")

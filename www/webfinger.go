@@ -3,6 +3,7 @@ package www
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/aaronland/go-http-sanitize"
 	"github.com/sfomuseum/go-activitypub"
@@ -20,6 +21,12 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 		ctx := req.Context()
 
 		logger := LoggerWithRequest(req, nil)
+
+		t1 := time.Now()
+
+		defer func() {
+			logger.Info("Time to serve request", "ms", time.Since(t1).Milliseconds())
+		}()
 
 		resource, err := sanitize.GetString(req, "resource")
 

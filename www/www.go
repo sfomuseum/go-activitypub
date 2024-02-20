@@ -16,7 +16,8 @@ func LoggerWithRequest(req *http.Request, logger *slog.Logger) *slog.Logger {
 	logger = logger.With("method", req.Method)
 	logger = logger.With("accept", req.Header.Get("Accept"))
 	logger = logger.With("path", req.URL.Path)
-	logger = logger.With("remote_addr", req.RemoteAddr)
+	logger = logger.With("remote addr", req.RemoteAddr)
+	logger = logger.With("user ip", ReadUserIP(req))
 
 	return logger
 }
@@ -33,4 +34,19 @@ func IsActivityStreamRequest(req *http.Request) bool {
 		return false
 	}
 
+}
+
+func ReadUserIP(req *http.Request) string {
+
+	addr := req.Header.Get("X-Real-Ip")
+
+	if addr == "" {
+		addr = req.Header.Get("X-Forwarded-For")
+	}
+
+	if addr == "" {
+		addr = req.RemoteAddr
+	}
+
+	return addr
 }

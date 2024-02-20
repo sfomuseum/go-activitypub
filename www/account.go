@@ -39,7 +39,7 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 		t1 := time.Now()
 
 		defer func() {
-			logger.Debug("Time to serve request", "ms", time.Since(t1).Milliseconds())
+			logger.Info("Time to serve request", "ms", time.Since(t1).Milliseconds())
 		}()
 
 		account_name, host, err := activitypub.ParseAddressFromRequest(req)

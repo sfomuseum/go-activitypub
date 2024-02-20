@@ -8,10 +8,12 @@ import (
 func TestParseAddressFromRequest(t *testing.T) {
 
 	tests := map[string][2]string{
-		"bob":            [2]string{"bob", ""},
-		"@bob":           [2]string{"bob", ""},
-		"@bob@localhost": [2]string{"bob", "localhost"},
-		"@bob@bob.com":   [2]string{"bob", "bob.com"},
+		"bob":                [2]string{"bob", ""},
+		"@bob":               [2]string{"bob", ""},
+		"@bob@localhost":     [2]string{"bob", "localhost"},
+		"@bob@bob.com":       [2]string{"bob", "bob.com"},
+		"acct:@bob@bob.com":  [2]string{"bob", "bob.com"},
+		"acct:alice@bob.com": [2]string{"alice", "bob.com"},
 	}
 
 	for addr, expected := range tests {
@@ -47,10 +49,12 @@ func TestParseAddressFromRequest(t *testing.T) {
 func TestParseAddress(t *testing.T) {
 
 	tests := map[string][2]string{
-		"bob":            [2]string{"bob", ""},
-		"@bob":           [2]string{"bob", ""},
-		"@bob@localhost": [2]string{"bob", "localhost"},
-		"@bob@bob.com":   [2]string{"bob", "bob.com"},
+		"bob":                [2]string{"bob", ""},
+		"@bob":               [2]string{"bob", ""},
+		"@bob@localhost":     [2]string{"bob", "localhost"},
+		"@bob@bob.com":       [2]string{"bob", "bob.com"},
+		"acct:@bob@bob.com":  [2]string{"bob", "bob.com"},
+		"acct:alice@bob.com": [2]string{"alice", "bob.com"},
 	}
 
 	for addr, expected := range tests {

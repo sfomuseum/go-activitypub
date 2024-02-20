@@ -6,7 +6,7 @@ import (
 	"regexp"
 )
 
-const pat_addr string = `@?([^@]+)(?:@(.*))?`
+const pat_addr string = `(?:acct\:)?@?([^@]+)(?:@(.*))?`
 
 var re_addr = regexp.MustCompile(fmt.Sprintf(`^%s$`, pat_addr))
 
