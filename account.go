@@ -35,13 +35,13 @@ func (a *Account) Address(hostname string) string {
 
 func (a *Account) AccountURL(ctx context.Context, uris_table *URIs) *url.URL {
 
-	account_path := AssignResource(uris_table.Account, a.Name)
+	account_path := AssignResource(uris_table.Account, fmt.Sprintf("@%s", a.Name))
 	return NewURL(uris_table, account_path)
 }
 
 func (a *Account) WebfingerResource(ctx context.Context, uris_table *URIs) (*webfinger.Resource, error) {
 
-	subject := fmt.Sprintf("acct:%s", a.Name)
+	subject := fmt.Sprintf("acct:%s@%s", a.Name, uris_table.Hostname)
 
 	profile_url := a.AccountURL(ctx, uris_table)
 
