@@ -44,13 +44,14 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	webfinger_get := fmt.Sprintf("GET %s", activitypub.WEBFINGER_URI)
 	account_get := fmt.Sprintf("GET %s", run_opts.URIs.Account)
 	inbox_post := fmt.Sprintf("POST %s", run_opts.URIs.Inbox)
-	// outbox_post := fmt.Sprintf("POST %s", run_opts.URIs.Outbox)
 
 	handlers := map[string]handler.RouteHandlerFunc{
-		webfinger_get:      webfingerHandlerFunc,
-		account_get:        accountHandlerFunc,
-		inbox_post:         inboxPostHandlerFunc,
-		run_opts.URIs.Icon: iconHandlerFunc,
+		webfinger_get:           webfingerHandlerFunc,
+		account_get:             accountHandlerFunc,
+		inbox_post:              inboxPostHandlerFunc,
+		run_opts.URIs.Icon:      iconHandlerFunc,
+		run_opts.URIs.Following: followingHandlerFunc,
+		run_opts.URIs.Followers: followersHandlerFunc,
 	}
 
 	log_logger := slog.NewLogLogger(logger.Handler(), slog.LevelInfo)

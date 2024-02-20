@@ -118,3 +118,53 @@ func iconHandlerFunc(ctx context.Context) (http.Handler, error) {
 
 	return www.IconHandler(opts)
 }
+
+func followingHandlerFunc(ctx context.Context) (http.Handler, error) {
+
+	setupAccountsDatabaseOnce.Do(setupAccountsDatabase)
+
+	if setupAccountsDatabaseError != nil {
+		slog.Error("Failed to set up account database configuration", "error", setupAccountsDatabaseError)
+		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAccountsDatabaseError)
+	}
+
+	setupFollowingDatabaseOnce.Do(setupFollowingDatabase)
+
+	if setupFollowingDatabaseError != nil {
+		slog.Error("Failed to set up follower database configuration", "error", setupFollowingDatabaseError)
+		return nil, fmt.Errorf("Failed to set up follower database configuration, %w", setupFollowingDatabaseError)
+	}
+
+	opts := &www.FollowingHandlerOptions{
+		AccountsDatabase:  accounts_db,
+		FollowingDatabase: following_db,
+		URIs:              run_opts.URIs,
+	}
+
+	return www.FollowingHandler(opts)
+}
+
+func followersHandlerFunc(ctx context.Context) (http.Handler, error) {
+
+	setupAccountsDatabaseOnce.Do(setupAccountsDatabase)
+
+	if setupAccountsDatabaseError != nil {
+		slog.Error("Failed to set up account database configuration", "error", setupAccountsDatabaseError)
+		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAccountsDatabaseError)
+	}
+
+	setupFollowersDatabaseOnce.Do(setupFollowersDatabase)
+
+	if setupFollowersDatabaseError != nil {
+		slog.Error("Failed to set up follower database configuration", "error", setupFollowersDatabaseError)
+		return nil, fmt.Errorf("Failed to set up follower database configuration, %w", setupFollowersDatabaseError)
+	}
+
+	opts := &www.FollowersHandlerOptions{
+		AccountsDatabase:  accounts_db,
+		FollowersDatabase: followers_db,
+		URIs:              run_opts.URIs,
+	}
+
+	return www.FollowersHandler(opts)
+}
