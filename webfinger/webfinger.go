@@ -5,6 +5,8 @@ package webfinger
 
 const ContentType string = "application/jrd+json"
 
+const Endpoint string = "/.well-known/webfinger"
+
 type Resource struct {
 	Subject    string            `json:"subject,omitempty"`
 	Aliases    []string          `json:"aliases,omitempty"`

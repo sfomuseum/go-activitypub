@@ -7,6 +7,7 @@ import (
 
 	"github.com/aaronland/go-http-sanitize"
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/webfinger"
 )
 
 type WebfingerHandlerOptions struct {
@@ -84,7 +85,7 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		rsp.Header().Set("Content-type", "application/jrd+json")
+		rsp.Header().Set("Content-type", webfinger.ContentType)
 
 		enc := json.NewEncoder(rsp)
 		err = enc.Encode(wf)

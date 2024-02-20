@@ -9,8 +9,8 @@ import (
 
 	"github.com/aaronland/go-http-server"
 	"github.com/aaronland/go-http-server/handler"
-	"github.com/sfomuseum/go-activitypub"
 	ap_slog "github.com/sfomuseum/go-activitypub/slog"
+	"github.com/sfomuseum/go-activitypub/webfinger"
 )
 
 func Run(ctx context.Context, logger *slog.Logger) error {
@@ -41,7 +41,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	run_opts = v
 
-	webfinger_get := fmt.Sprintf("GET %s", activitypub.WEBFINGER_URI)
+	webfinger_get := fmt.Sprintf("GET %s", webfinger.Endpoint)
 	account_get := fmt.Sprintf("GET %s", run_opts.URIs.Account)
 	inbox_post := fmt.Sprintf("POST %s", run_opts.URIs.Inbox)
 

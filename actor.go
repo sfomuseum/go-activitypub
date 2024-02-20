@@ -34,7 +34,7 @@ func RetrieveActor(ctx context.Context, id string, insecure bool) (*ap.Actor, er
 	webfinger_u := &url.URL{}
 	webfinger_u.Scheme = webfinger_scheme
 	webfinger_u.Host = actor_hostname
-	webfinger_u.Path = WEBFINGER_URI
+	webfinger_u.Path = webfinger.Endpoint
 	webfinger_u.RawQuery = webfinger_q.Encode()
 
 	webfinger_url := webfinger_u.String()

@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-const WEBFINGER_URI string = "/well-known/.webfinger"
-
 type URIs struct {
 	// Webfinger is assigned automatically
 
