@@ -3,16 +3,16 @@ package ap
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"github.com/sfomuseum/go-activitypub/id"
 )
 
 func NewFollowActivity(ctx context.Context, from string, to string) (*Activity, error) {
 
-	guid := uuid.New()
+	uuid := id.NewUUID()
 
 	req := &Activity{
 		Context: ACTIVITYSTREAMS_CONTEXT,
-		Id:      guid.String(),
+		Id:      uuid,
 		Type:    "Follow",
 		Actor:   from,
 		Object:  to,
@@ -23,11 +23,11 @@ func NewFollowActivity(ctx context.Context, from string, to string) (*Activity, 
 
 func NewUnFollowActivity(ctx context.Context, from string, to string) (*Activity, error) {
 
-	guid := uuid.New()
+	uuid := id.NewUUID()
 
 	req := &Activity{
 		Context: ACTIVITYSTREAMS_CONTEXT,
-		Id:      guid.String(),
+		Id:      uuid,
 		Type:    "Undo",
 		Actor:   from,
 		Object:  to,

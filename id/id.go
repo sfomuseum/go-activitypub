@@ -1,10 +1,11 @@
-package activitypub
+package id
 
 import (
 	"fmt"
 	"sync"
 
 	"github.com/bwmarrin/snowflake"
+	"github.com/google/uuid"
 )
 
 var snowflake_node *snowflake.Node
@@ -34,4 +35,9 @@ func NewId() (int64, error) {
 
 	id := snowflake_node.Generate()
 	return id.Int64(), nil
+}
+
+func NewUUID() string {
+	guid := uuid.New()
+	return guid.String()
 }

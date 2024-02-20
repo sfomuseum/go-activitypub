@@ -3,16 +3,16 @@ package ap
 import (
 	"context"
 
-	"github.com/google/uuid"
+	"github.com/sfomuseum/go-activitypub/id"
 )
 
 func NewAcceptActivity(ctx context.Context, from string, to string) (*Activity, error) {
 
-	guid := uuid.New()
+	uuid := id.NewUUID()
 
 	req := &Activity{
 		Context: ACTIVITYSTREAMS_CONTEXT,
-		Id:      guid.String(),
+		Id:      uuid,
 		Type:    "Accept",
 		Actor:   from,
 		Object:  to,

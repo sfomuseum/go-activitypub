@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/id"
 )
 
 type Post struct {
@@ -20,20 +20,20 @@ type Post struct {
 
 func NewPost(ctx context.Context, acct *Account, body []byte) (*Post, error) {
 
-	post_id, err := NewId()
+	post_id, err := id.NewId()
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to derive new post ID, %w", err)
 	}
 
+	uuid := id.NewUUID()
+
 	now := time.Now()
 	ts := now.Unix()
 
-	guid := uuid.New()
-
 	p := &Post{
 		Id:           post_id,
-		UUID:         guid.String(),
+		UUID:         uuid,
 		AccountId:    acct.Id,
 		Body:         body,
 		Created:      ts,

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 	"time"
+
+	"github.com/sfomuseum/go-activitypub/id"
 )
 
 type Following struct {
@@ -36,7 +38,7 @@ func AddFollowing(ctx context.Context, db FollowingDatabase, account_id int64, f
 
 func NewFollowing(ctx context.Context, account_id int64, following_address string) (*Following, error) {
 
-	db_id, err := NewId()
+	db_id, err := id.NewId()
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create new following ID, %w", err)

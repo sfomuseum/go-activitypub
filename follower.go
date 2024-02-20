@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 	"time"
+
+	"github.com/sfomuseum/go-activitypub/id"
 )
 
 type Follower struct {
@@ -36,7 +38,7 @@ func AddFollower(ctx context.Context, db FollowersDatabase, account_id int64, fo
 
 func NewFollower(ctx context.Context, account_id int64, follower_address string) (*Follower, error) {
 
-	db_id, err := NewId()
+	db_id, err := id.NewId()
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create new follower ID, %w", err)

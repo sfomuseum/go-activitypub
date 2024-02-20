@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 	"time"
+
+	"github.com/sfomuseum/go-activitypub/id"
 )
 
 type Message struct {
@@ -18,13 +20,13 @@ type Message struct {
 
 func GetMessage(ctx context.Context, db MessagesDatabase, account_id int64, note_id int64) (*Message, error) {
 
-	slog.Info("Get message", "account", account_id, "note", note_id)
+	slog.Debug("Get message", "account", account_id, "note", note_id)
 	return db.GetMessageWithAccountAndNoteIds(ctx, account_id, note_id)
 }
 
 func AddMessage(ctx context.Context, db MessagesDatabase, account_id int64, note_id int64, author_address string) (*Message, error) {
 
-	slog.Info("Add message", "account", account_id, "note", note_id, "author", author_address)
+	slog.Debug("Add message", "account", account_id, "note", note_id, "author", author_address)
 
 	m, err := NewMessage(ctx, account_id, note_id, author_address)
 
@@ -43,7 +45,7 @@ func AddMessage(ctx context.Context, db MessagesDatabase, account_id int64, note
 
 func UpdateMessage(ctx context.Context, db MessagesDatabase, m *Message) (*Message, error) {
 
-	slog.Info("Update message", "id", m.Id)
+	slog.Debug("Update message", "id", m.Id)
 
 	now := time.Now()
 	ts := now.Unix()
@@ -56,9 +58,9 @@ func UpdateMessage(ctx context.Context, db MessagesDatabase, m *Message) (*Messa
 
 func NewMessage(ctx context.Context, account_id int64, note_id int64, author_address string) (*Message, error) {
 
-	slog.Info("Create new message", "account", account_id, "note", note_id, "author", author_address)
+	slog.Debug("Create new message", "account", account_id, "note", note_id, "author", author_address)
 
-	db_id, err := NewId()
+	db_id, err := id.NewId()
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create new message ID, %w", err)

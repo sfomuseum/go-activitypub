@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 	"time"
+
+	"github.com/sfomuseum/go-activitypub/id"
 )
 
 type Note struct {
@@ -18,7 +20,7 @@ type Note struct {
 
 func AddNote(ctx context.Context, db NotesDatabase, uuid string, author string, body []byte) (*Note, error) {
 
-	slog.Info("Add note", "uuid", uuid, "author", author)
+	slog.Debug("Add note", "uuid", uuid, "author", author)
 
 	n, err := NewNote(ctx, uuid, author, body)
 
@@ -32,15 +34,15 @@ func AddNote(ctx context.Context, db NotesDatabase, uuid string, author string, 
 		return nil, fmt.Errorf("Failed to add note, %w", err)
 	}
 
-	slog.Info("Return new note", "id", n.Id)
+	slog.Debug("Return new note", "id", n.Id)
 	return n, nil
 }
 
 func NewNote(ctx context.Context, uuid string, author string, body []byte) (*Note, error) {
 
-	slog.Info("Create new note", "uuid", uuid, "author", author)
+	slog.Debug("Create new note", "uuid", uuid, "author", author)
 
-	db_id, err := NewId()
+	db_id, err := id.NewId()
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create new note ID, %w", err)

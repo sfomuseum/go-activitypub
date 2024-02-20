@@ -9,6 +9,7 @@ import (
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/crypto"
+	"github.com/sfomuseum/go-activitypub/id"
 )
 
 func Run(ctx context.Context, logger *slog.Logger) error {
@@ -66,7 +67,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	if account_id == 0 {
 
-		id, err := activitypub.NewId()
+		id, err := id.NewId()
 
 		if err != nil {
 			return fmt.Errorf("Failed to create new account ID, %w", err)

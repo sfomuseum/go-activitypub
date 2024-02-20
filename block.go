@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"time"
+
+	"github.com/sfomuseum/go-activitypub/id"
 )
 
 type Block struct {
@@ -17,7 +19,7 @@ type Block struct {
 
 func NewBlock(ctx context.Context, account_id int64, block_host string, block_name string) (*Block, error) {
 
-	block_id, err := NewId()
+	block_id, err := id.NewId()
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create new block ID, %w", err)
