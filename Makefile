@@ -126,9 +126,16 @@ server:
 		-notes-database-uri '$(NOTES_DB_URI)' \
 		-messages-database-uri '$(MESSAGES_DB_URI)' \
 		-blocks-database-uri '$(BLOCKS_DB_URI)' \
+		-posts-database-uri '$(POSTS_DB_URI)' \
 		-allow-create \
 		-verbose \
 		-hostname localhost:8080 \
+		-insecure
+
+retrieve:
+	go run cmd/retrieve-actor/main.go \
+		-address $(ADDRESS) \
+		-verbose \
 		-insecure
 
 # https://aws.amazon.com/about-aws/whats-new/2018/08/use-amazon-dynamodb-local-more-easily-with-the-new-docker-image/

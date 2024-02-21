@@ -39,6 +39,18 @@ func (a *Account) AccountURL(ctx context.Context, uris_table *URIs) *url.URL {
 	return NewURL(uris_table, account_path)
 }
 
+func (a *Account) OutboxURL(ctx context.Context, uris_table *URIs) *url.URL {
+
+	outbox_path := AssignResource(uris_table.Outbox, a.Name)
+	return NewURL(uris_table, outbox_path)
+}
+
+func (a *Account) InboxURL(ctx context.Context, uris_table *URIs) *url.URL {
+
+	inbox_path := AssignResource(uris_table.Inbox, a.Name)
+	return NewURL(uris_table, inbox_path)
+}
+
 func (a *Account) ProfileURL(ctx context.Context, uris_table *URIs) *url.URL {
 
 	account_path := AssignResource(uris_table.Account, fmt.Sprintf("@%s", a.Name))
@@ -47,9 +59,15 @@ func (a *Account) ProfileURL(ctx context.Context, uris_table *URIs) *url.URL {
 
 func (a *Account) WebfingerResource(ctx context.Context, uris_table *URIs) (*webfinger.Resource, error) {
 
+	account_url := a.AccountURL(ctx, uris_table)
+	profile_url := a.ProfileURL(ctx, uris_table)
+
 	subject := fmt.Sprintf("acct:%s@%s", a.Name, uris_table.Hostname)
 
-	account_url := a.AccountURL(ctx, uris_table)
+	aliases := []string{
+		account_url.String(),
+		profile_url.String(),
+	}
 
 	profile_link := webfinger.Link{
 		Rel:  "http://webfinger.net/rel/profile-page",
@@ -70,6 +88,7 @@ func (a *Account) WebfingerResource(ctx context.Context, uris_table *URIs) (*web
 
 	r := &webfinger.Resource{
 		Subject: subject,
+		Aliases: aliases,
 		Links:   links,
 	}
 
@@ -122,13 +141,16 @@ func (a *Account) FollowingResource(ctx context.Context, uris_table *URIs, follo
 
 func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*ap.Actor, error) {
 
+	// https://www.w3.org/TR/activitypub/#actor-objects
+	// https://www.w3.org/TR/activitypub/#obj-id
+	// https://www.w3.org/TR/activitypub/#inbox
+	// https://www.w3.org/TR/activitypub/#outbox
+	// https://www.w3.org/TR/activitystreams-vocabulary/#dfn-orderedcollection
+
 	account_url := a.AccountURL(ctx, uris_table)
 
-	inbox_path := AssignResource(uris_table.Inbox, a.Name)
-	inbox_url := NewURL(uris_table, inbox_path)
-
-	// outbox_path := AssignResource(uris_table.Outbox, a.Name)
-	// outbox_url := NewURL(uris_table, outbox_path)
+	inbox_url := a.InboxURL(ctx, uris_table)
+	outbox_url := a.OutboxURL(ctx, uris_table)
 
 	icon_path := AssignResource(uris_table.Icon, a.Name)
 	icon_url := NewURL(uris_table, icon_path)
@@ -181,10 +203,10 @@ func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*ap.Ac
 		ManuallyApprovesFollowers: manually_approve,
 		Discoverable:              discoverable,
 		Inbox:                     inbox_url.String(),
-		// Outbox:                    outbox_url.String(),
-		PublicKey: pub_key,
-		Icon:      icon,
-		Published: now.Format(time.RFC3339),
+		Outbox:                    outbox_url.String(),
+		PublicKey:                 pub_key,
+		Icon:                      icon,
+		Published:                 now.Format(time.RFC3339),
 	}
 
 	return pr, nil

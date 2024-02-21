@@ -90,3 +90,17 @@ func setupBlocksDatabase() {
 		return
 	}
 }
+
+func setupPostsDatabase() {
+
+	ctx := context.Background()
+	var err error
+
+	// defined in vars.go
+	posts_db, err = activitypub.NewPostsDatabase(ctx, run_opts.PostsDatabaseURI)
+
+	if err != nil {
+		setupPostsDatabaseError = fmt.Errorf("Failed to set up network, %w", err)
+		return
+	}
+}

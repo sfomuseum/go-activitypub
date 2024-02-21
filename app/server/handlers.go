@@ -103,6 +103,31 @@ func inboxPostHandlerFunc(ctx context.Context) (http.Handler, error) {
 	return www.InboxPostHandler(opts)
 }
 
+func outboxGetHandlerFunc(ctx context.Context) (http.Handler, error) {
+
+	setupAccountsDatabaseOnce.Do(setupAccountsDatabase)
+
+	if setupAccountsDatabaseError != nil {
+		slog.Error("Failed to set up account database configuration", "error", setupAccountsDatabaseError)
+		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAccountsDatabaseError)
+	}
+
+	setupPostsDatabaseOnce.Do(setupPostsDatabase)
+
+	if setupPostsDatabaseError != nil {
+		slog.Error("Failed to set up follower database configuration", "error", setupPostsDatabaseError)
+		return nil, fmt.Errorf("Failed to set up follower database configuration, %w", setupPostsDatabaseError)
+	}
+
+	opts := &www.OutboxGetHandlerOptions{
+		AccountsDatabase: accounts_db,
+		PostsDatabase:    posts_db,
+		URIs:             run_opts.URIs,
+	}
+
+	return www.OutboxGetHandler(opts)
+}
+
 func iconHandlerFunc(ctx context.Context) (http.Handler, error) {
 
 	setupAccountsDatabaseOnce.Do(setupAccountsDatabase)
