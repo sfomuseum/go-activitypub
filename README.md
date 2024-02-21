@@ -39,7 +39,7 @@ What needs to happen for this exchange of messages possible?
 
 To recap, we've got:
 
-1. A web server with a minimum of three endpoints: webfinger, inbox, outbox
+1. A web server with a minimum of three endpoints: webfinger, actor, inbox and outbox
 2. A database with the following tables: accounts, followers, following, posts, messages, blocks
 3. Two member accounts: Bob and Alice
 4. A delivery mechanism for sending messages; this might be an in-process loop or an asynchronous message queue but the point is that it is a sufficiently unique part of the process that it deserves to be thought of as distinct from the web server or the database.
@@ -75,7 +75,7 @@ https://bob.com/.well-known/webfinger?resource=acct:@bob@bob.com
 Making a `GET` request to that URL is expected to return a [Webfinger](#) document which will look like this:
 
 ```
-$> curl -s 'https://bob.com/.well-known/webfinger?resource=acct:@bob@bob.com' | jq
+$> curl -s 'https://bob.com/.well-known/webfinger?resource=acct:bob@bob.com' | jq
 {
   "subject": "acct:bob@bob.com",
   "links": [
@@ -117,6 +117,7 @@ $> curl -s -H 'Accept: application/ld+json; profile="https://www.w3.org/ns/activ
   "following": "https://bob.com/ap/bob/following",
   "followers": "https://bob.com/ap/bob/followers",
   "discoverable": true,
+  "manuallyApprovesFollowers": false,
   "published": "2024-02-20T15:55:17-08:00",
   "icon": {
     "type": "Image",
