@@ -60,6 +60,73 @@ Each actor (or account) has a pair of public-private encryption keys. As the nam
 
 _The details of how any given private key is kept secure are not part of the ActivityPub specification and are left as implementation details to someone building a ActivityPub-based webs service._
 
+### Looking up accounts
+
+So let's say you are on a Mastodon instance and you want to follow `bob@bob.com`. To do this you would start by searching for the address `@bob@bob.com`.
+
+_Note: I am just using `bob.com` as an example. It's not an actual ActivityPub endpoint._
+
+The code that runs Mastodon will then derive the hostname (`bob.com`) from the address and construct a URL in the form of:
+
+```
+https://bob.com/.well-known/webfinger?resource=acct:@bob@bob.com
+```
+
+Making a `GET` request to that URL is expected to return a [Webfinger](#) document which will look like this:
+
+```
+$> curl -s 'https://bob.com/.well-known/webfinger?resource=acct:@bob@bob.com' | jq
+{
+  "subject": "acct:bob@bob.com",
+  "links": [
+    {
+      "href": "https://bob.com/ap/bob",
+      "type": "text/html",
+      "rel": "http://webfinger.net/rel/profile-page"
+    },
+    {
+      "href": "https://bob.com/ap/bob",
+      "type": "application/activity+json",
+      "rel": "self"
+    }
+  ]
+}
+```
+
+The code will then iterate through the `links` element of the response searching for `rel=self` and `type=https://bob.com/ap/bob`. It will take the value of the corresponding `href` attribute and issue a second `GET` request assigning the HTTP `Accept` header to be `application/ld+json; profile="https://www.w3.org/ns/activitystreams"`. There's a lot of "content negotiation" going on in ActivityPub and is often the source of confusion and mistakes.
+
+This is expected to return a "person" or "actor" resource in the form of:
+
+```
+$> curl -s -H 'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"' https://bob.com/ap/bob | jq
+{
+  "@content": [
+    "https://www.w3.org/ns/activitystreams",
+    "https://w3id.org/security/v1"
+  ],
+  "id": "https://bob.com/ap/bob",
+  "type": "Person",
+  "preferredUsername": "bob",
+  "inbox": "https://bob.com/ap/bob/inbox",
+  "publicKey": {
+    "id": "https://bob.com/ap/bob#main-key",
+    "owner": "https://bob.com/ap/bob",
+    "publicKeyPem": "-----BEGIN RSA PUBLIC KEY-----\nMIICCgKCAgEAvzo9pTyEGXl9jbJT6zv1p+cEfDP2vVN8bbgBYsltYw5A8LutZD7A\nspATOPJ3i9w43dZCORjmyuAX/0qyljbLfwzx1IEBmeg/3EAs0ON8A8tIbfcmI9JE\nn47UVR+Vn1h6o1dsRFx7X+fGefRIm005f7H/GLbJYTAvTgW3HJcakQI9rbFhaqnT\nmq6E+eEVhFqORVRrBjFMmAMNv6kJHSDtJie2YW76Nd9lqgR1FKV5B2M3a6gtIWv4\nNLOnwHxc266kqllmVUW79LB/2yI9KogMXjbp+MB7NhbtndJTpn1vAMYvUYSwxPhW\nJbWTqq7yhQi7zNaEDmzgOUhDiehHmm2XAqyIhlFEVvdKdOXUpJuIzEyHyxfCTA8Q\nNB9kncrS+L8TNDwdraNBQzgL68sKGp9eE3Rv/H4oNsqDD0/N8FyYwIOy+1BDGa9E\nPlsd/8vDi/3Mf3OBjfj64QwQj3V689jq2S+M1JCX/3EC77p2thT61GZUIFy/VfFZ\nuHUpiPvaxMo9KehsjCNTeRyGwRDBnLv/MWgRwFNGrT2w/m+cafiYoALOI4YB2RF0\ntWS8wK+559zfkV8T+UuQNzZbGAa0q+IpuBMlQhhfiwhEb3Olw7SvTXQUnwPBwmQb\nbbg3Lffg2N2Qz7QN9G99MjFDHIXXSyKyO+/kLsM28pLbitAHmP2KeuUCAwEAAQ==\n-----END RSA PUBLIC KEY-----\n"
+  },
+  "following": "https://bob.com/ap/bob/following",
+  "followers": "https://bob.com/ap/bob/followers",
+  "discoverable": true,
+  "published": "2024-02-20T15:55:17-08:00",
+  "icon": {
+    "type": "Image",
+    "mediaType": "image/png",
+    "url": "https://bob.com/ap/bob/icon.png"
+  }
+}
+```
+
+When I run this code on a public endpoint (not `bob.com`) I can see, in the log files, that Mastodon is requesting both the "webfinger" and the "person" resources but there are no more requests. This suggests that there is something "wrong" in the response being generated but based on my reading it doesn't _look_ wrong. In fact the response looks nearly identical to similar responses from Mastodon servers themselves. Maybe there is a specific attribute, or property, that is missing? If you're readingt this that means I have no idea.
+
 ### Endpoints
 
 _To be written._

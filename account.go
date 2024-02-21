@@ -172,8 +172,8 @@ func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*ap.Ac
 		Context:                   context,
 		Id:                        account_url.String(),
 		Type:                      "Person",
+		Name:                      a.Name,
 		PreferredUsername:         a.Name,
-		Name:                      a.DisplayName,
 		Summary:                   a.Blurb,
 		URL:                       a.URL,
 		Followers:                 followers_url.String(),
@@ -182,9 +182,9 @@ func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*ap.Ac
 		Discoverable:              discoverable,
 		Inbox:                     inbox_url.String(),
 		// Outbox:                    outbox_url.String(),
-		PublicKey:                 pub_key,
-		Icon:                      icon,
-		Published:                 now.Format(time.RFC3339),
+		PublicKey: pub_key,
+		Icon:      icon,
+		Published: now.Format(time.RFC3339),
 	}
 
 	return pr, nil
