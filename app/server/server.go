@@ -45,12 +45,15 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	account_get := fmt.Sprintf("GET %s", run_opts.URIs.Account)
 	inbox_post := fmt.Sprintf("POST %s", run_opts.URIs.Inbox)
 	outbox_get := fmt.Sprintf("GET %s", run_opts.URIs.Outbox)
+	// outbox_post := fmt.Sprintf("POST %s", run_opts.URIs.Outbox)
 
 	handlers := map[string]handler.RouteHandlerFunc{
-		webfinger_get:           webfingerHandlerFunc,
-		account_get:             accountHandlerFunc,
-		inbox_post:              inboxPostHandlerFunc,
-		outbox_get:              outboxGetHandlerFunc,
+		webfinger_get: webfingerHandlerFunc,
+		account_get:   accountHandlerFunc,
+		inbox_post:    inboxPostHandlerFunc,
+		outbox_get:    outboxGetHandlerFunc,
+		// This needs to be fixed in aaronland/go-http-server/handler
+		// outbox_post:              outboxPostHandlerFunc,
 		run_opts.URIs.Icon:      iconHandlerFunc,
 		run_opts.URIs.Following: followingHandlerFunc,
 		run_opts.URIs.Followers: followersHandlerFunc,
