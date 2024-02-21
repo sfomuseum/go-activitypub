@@ -22,7 +22,8 @@ type Actor struct {
 	Name                      string `json:"name,omitempty"`
 	Summary                   string `json:"summary,omitempty"`
 	URL                       string `json:"url,omitempty"`
-	ManuallyApprovesFollowers bool   `json:"manuallyApprovesFollowers,omitempty"`
+	// Don't omitempty because if you do then false values are omitted
+	ManuallyApprovesFollowers bool   `json:"manuallyApprovesFollowers"`
 	Discoverable              bool   `json:"discoverable,omitempty"`
 	Published                 string `json:"published,omitempty"`
 	Icon                      Icon   `json:"icon,omitempty"`

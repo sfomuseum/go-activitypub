@@ -126,7 +126,7 @@ $> curl -s -H 'Accept: application/ld+json; profile="https://www.w3.org/ns/activ
 }
 ```
 
-When I run this code on a public endpoint (not `bob.com`) I can see, in the log files, that Mastodon is requesting both the "webfinger" and the "person" resources but there are no more requests. This suggests that there is something "wrong" in the response being generated but based on my reading it doesn't _look_ wrong. In fact the response looks nearly identical to similar responses from Mastodon servers themselves. Maybe there is a specific attribute, or property, that is missing? If you're readingt this that means I have no idea.
+When I run this code on a public endpoint (not `bob.com`) I can see, in the log files, that Mastodon is requesting both the "webfinger" and the "person" resources but there are no more requests. This suggests that there is something "wrong" in the response being generated but based on my reading it doesn't _look_ wrong. In fact the response looks nearly identical to similar responses from Mastodon servers themselves. Maybe there is a specific attribute, or property, that is missing? If you're readingt this that means I still have no idea.
 
 ### Endpoints
 
@@ -405,3 +405,4 @@ go run cmd/inbox/main.go \
 * https://shkspr.mobi/blog/2024/02/activitypub-server-in-a-single-file/
 * https://blog.joinmastodon.org/2018/07/how-to-make-friends-and-verify-requests/
 * https://seb.jambor.dev/posts/understanding-activitypub/
+* https://justingarrison.com/blog/2022-12-06-mastodon-files-instance/
