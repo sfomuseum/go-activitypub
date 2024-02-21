@@ -6,3 +6,4 @@ CREATE TABLE followers (
 );
 
 CREATE UNIQUE INDEX `followers_by_account` ON followers (`account_id`, `follower_address`);
+CREATE INDEX `followers_by_created` ON followers (`created`);

@@ -189,11 +189,16 @@ func main() {
 }
 ```
 
+##### SQL schemas
+
+* [SQLite](schema/sqlite)
+* [MySQL](schema/mysql) – _Note: These have not been tested yet._
+
 #### gocloud.dev/docstore
 
 Anything that implements the [gocloud.dev/docstore](https://pkg.go.dev/gocloud.dev/docstore) `Docstore` interface. As of this writing only DynamoDB document stores have been tested using the [awsdynamodb](https://gocloud.dev/howto/docstore/#dynamodb) and the [aaronland/gocloud-docstore](https://github.com/aaronland/gocloud-docstore/) packages. A few things to note:
 
-* One side effect of using the `aaronland/gocloud-docstore` package is that the `gocloud.dev/docstore/awsdynamodb` "driver" is always imported and available.
+* One side effect of using the `aaronland/gocloud-docstore` package is that the `gocloud.dev/docstore/awsdynamodb` "driver" is always imported and available regardless of whether you include in an `import` statement.
 * The "global secondary indices" for the [schema/dynamodb](schema/dynamodb) definitions are inefficient and could stand to be optimized at some point in the future.
 
 To add a different docstore "driver", for example MongoDB, you will need to clone the respective tools and add the relevant import statement. For example to update the [cmd/server](cmd/server/main.go) tool to use MongoDB you would replace the `_ "github.com/mattn/go-sqlite3"` import statement with `_ "gocloud.dev/docstore/mongodocstore"` like this:
@@ -219,9 +224,13 @@ func main() {
 }
 ```
 
+##### Document Store table definitions
+
+* [DynamoDB](schema/dynamodb)
+
 ### Example
 
-What follows are the output of the different "targets" in the [Makefile](Makefile) included with this package. These packages are designed to make it easier to test common scenarios and to provide a reference of how things need to be configured.
+What follows are the output of the different "targets" in the [Makefile](Makefile) that is included with this package. These targets are designed to make it easier to test common scenarios and to provide a reference of how things need to be configured.
 
 If you want to follow along and run these examples your self you will need the following:
 

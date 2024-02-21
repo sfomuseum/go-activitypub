@@ -10,4 +10,5 @@ CREATE TABLE messages (
 CREATE UNIQUE INDEX `messages_by_account_note_id` ON messages (`account_id`, `note_id`);
 CREATE INDEX `messages_by_account` ON messages (`account_id`, `created`);
 CREATE INDEX `messages_by_author` ON messages (`author_address`, `created`);
-CREATE INDEX `messages_by_account_author` ON messages (`account_id`, `author_address`, `created`);       
+CREATE INDEX `messages_by_account_author` ON messages (`account_id`, `author_address`, `created`);
+CREATE INDEX `messages_by_created` ON messages (`created`);

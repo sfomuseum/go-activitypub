@@ -10,4 +10,5 @@ CREATE TABLE blocks (
 CREATE UNIQUE INDEX `blocks_by_triple` ON blocks (`account_id`, `host`, `name`);
 CREATE INDEX `blocks_by_account` ON blocks (`account_id`, `created`);
 CREATE INDEX `blocks_by_host` ON blocks (`host`, `created`);
+CREATE INDEX `blocks_by_created` ON blocks (`created`);
        

@@ -1,0 +1,89 @@
+CREATE TABLE accounts (
+       id BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
+       name VARCHAR(255),
+       display_name VARCHAR(255),
+       blurb TEXT,
+       url VARCHAR(255),
+       private_key_uri TEXT,
+       public_key_uri TEXT,
+       created BIGINT(20) UNSIGNED NOT NULL,
+       lastmodified BIGINT(20) UNSIGNED NOT NULL,
+       UNIQUE KEY `accounts_by_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE INDEX `accounts_by_created` ON ACCOUNTS (`created`);
+
+CREATE TABLE blocks (
+       id BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
+       account_id BIGINT(20) UNSIGNED NOT NULL,
+       name VARCHAR(255),
+       host VARCHAR(2550,
+       created BIGINT(20) UNSIGNED NOT NULL,
+       lastmodified BIGINT(20) UNSIGNED NOT NULL,
+       UNIQUE KEY `blocks_by_triple` (`account_id`, `host`, `name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE INDEX `blocks_by_account` ON blocks (`account_id`, `created`);
+CREATE INDEX `blocks_by_host` ON blocks (`host`, `created`);
+CREATE INDEX `blocks_by_created` ON blocks (`created`);
+
+CREATE TABLE followers (
+       id BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
+       account_id BIGINT(20) UNSIGNED NOT NULL,
+       follower_address VARCHAR(255),
+       created BIGINT(20) UNSIGNED NOT NULL,
+       UNIQUE KEY `followers_by_account` (`account_id`, `follower_address`),
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE INDEX `followers_by_created` ON followers (`created`);
+
+CREATE TABLE following (
+       id BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
+       account_id BIGINT(20) UNSIGNED NOT NULL,
+       following_address VARCHAR(255),
+       created BIGINT(20) UNSIGNED NOT NULL,
+       UNIQUE KEY `following_by_account` (`account_id`, `following_address`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE INDEX `following_by_following` ON following (`following_address`, `created`);
+CREATE INDEX `following_by_created` ON following (`created`);
+
+CREATE TABLE messages (
+       id BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
+       note_id BIGINT(20) UNSIGNED NOT NULL,
+       account_id BIGINT(20) UNSIGNED NOT NULL,
+       author_address VARCHAR(255),
+       created BIGINT(20) UNSIGNED NOT NULL,
+       lastmodified BIGINT(20) UNSIGNED NOT NULL,
+       UNIQUE KEY `messages_by_account_note_id` (`account_id`, `note_id`)
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE INDEX `messages_by_account` ON messages (`account_id`, `created`);
+CREATE INDEX `messages_by_author` ON messages (`author_address`, `created`);
+CREATE INDEX `messages_by_account_author` ON messages (`account_id`, `author_address`, `created`);
+CREATE INDEX `messages_by_created` ON messages (`created`);
+
+CREATE TABLE notes (
+       id BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
+       uuid TEXT,
+       author_address VARCHAR(255),
+       body TEXT,
+       created BIGINT(20) UNSIGNED NOT NULL,
+       lastmodified BIGINT(20) UNSIGNED NOT NULL,
+       UNIQUE KEY `notes_by_author_address` (`author_address`, `uuid`),
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE INDEX `notes_by_created` ON notes (`created`);
+
+CREATE TABLE posts (
+       id BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
+       uuid CHAR(36),,
+       account_id BIGINT(20) UNSIGNED NOT NULL,
+       body TEXT,
+       created BIGINT(20) UNSIGNED NOT NULL,
+       lastmodified BIGINT(20) UNSIGNED NOT NULL,
+       UNIQUE KEY `posts_by_uuid` ON posts (`uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE INDEX `posts_by_account` ON posts (`account_id`, `created`);
+CREATE INDEX `posts_by_created` ON posts (`created`);
