@@ -39,7 +39,7 @@ What needs to happen for this exchange of messages possible?
 
 To recap, we've got:
 
-1. A web server with a minimum of three endpoints: webfinger, actor, inbox and outbox
+1. A web server with a minimum of four endpoints: webfinger, actor, inbox and outbox
 2. A database with the following tables: accounts, followers, following, posts, messages, blocks
 3. Two member accounts: Bob and Alice
 4. A delivery mechanism for sending messages; this might be an in-process loop or an asynchronous message queue but the point is that it is a sufficiently unique part of the process that it deserves to be thought of as distinct from the web server or the database.
