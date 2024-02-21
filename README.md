@@ -277,7 +277,7 @@ Note the `-insecure` flag. Normally it is expected that all ActivityPub communic
 
 Also note the `-hostname` flag. This is when you are running the `server` tool in a "serverless" environment which likely has a different domain name than the one associated with public-facing ActivityPub server. If the `-hostname` flag is left empty then its value is derived from the `-server-uri` flag which defaults to "http://localhost:8080".
 
-Switch to console (2) and create account records for `bob` and `alice`:
+Switch to console (3) and create account records for `bob` and `alice`:
 
 ```
 $> make accounts TABLE_PREFIX=custom_
