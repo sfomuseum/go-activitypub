@@ -42,6 +42,15 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 			logger.Info("Time to serve request", "ms", time.Since(t1).Milliseconds())
 		}()
 
+		switch req.Method {
+		case http.MethodGet, http.MethodPost:
+			// pass
+		default:
+			logger.Error("Method not allowed")
+			http.Error(rsp, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
 		account_name, host, err := activitypub.ParseAddressFromRequest(req)
 
 		if err != nil {

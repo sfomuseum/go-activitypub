@@ -29,6 +29,12 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 			logger.Info("Time to serve request", "ms", time.Since(t1).Milliseconds())
 		}()
 
+		if req.Method != http.MethodGet {
+			logger.Error("Method not allowed")
+			http.Error(rsp, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
 		resource, err := sanitize.GetString(req, "resource")
 
 		if err != nil {

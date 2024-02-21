@@ -40,6 +40,12 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			logger.Info("Time to serve request", "ms", time.Since(t1).Milliseconds())
 		}()
 
+		if req.Method != http.MethodPost {
+			logger.Error("Method not allowed")
+			http.Error(rsp, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
 		if !IsActivityStreamRequest(req) {
 			logger.Error("Not activitystream request")
 			http.Error(rsp, "Bad request", http.StatusBadRequest)

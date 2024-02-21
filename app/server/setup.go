@@ -16,7 +16,7 @@ func setupAccountsDatabase() {
 	accounts_db, err = activitypub.NewAccountsDatabase(ctx, run_opts.AccountsDatabaseURI)
 
 	if err != nil {
-		setupAccountsDatabaseError = fmt.Errorf("Failed to set up network, %w", err)
+		setupAccountsDatabaseError = fmt.Errorf("Failed to set up accounts database, %w", err)
 		return
 	}
 }
@@ -30,7 +30,7 @@ func setupFollowersDatabase() {
 	followers_db, err = activitypub.NewFollowersDatabase(ctx, run_opts.FollowersDatabaseURI)
 
 	if err != nil {
-		setupFollowersDatabaseError = fmt.Errorf("Failed to set up network, %w", err)
+		setupFollowersDatabaseError = fmt.Errorf("Failed to set up followers database, %w", err)
 		return
 	}
 }
@@ -44,7 +44,7 @@ func setupFollowingDatabase() {
 	following_db, err = activitypub.NewFollowingDatabase(ctx, run_opts.FollowingDatabaseURI)
 
 	if err != nil {
-		setupFollowingDatabaseError = fmt.Errorf("Failed to set up network, %w", err)
+		setupFollowingDatabaseError = fmt.Errorf("Failed to set up following database, %w", err)
 		return
 	}
 }
@@ -58,7 +58,7 @@ func setupNotesDatabase() {
 	notes_db, err = activitypub.NewNotesDatabase(ctx, run_opts.NotesDatabaseURI)
 
 	if err != nil {
-		setupNotesDatabaseError = fmt.Errorf("Failed to set up network, %w", err)
+		setupNotesDatabaseError = fmt.Errorf("Failed to set up notes database, %w", err)
 		return
 	}
 }
@@ -72,7 +72,7 @@ func setupMessagesDatabase() {
 	messages_db, err = activitypub.NewMessagesDatabase(ctx, run_opts.MessagesDatabaseURI)
 
 	if err != nil {
-		setupMessagesDatabaseError = fmt.Errorf("Failed to set up network, %w", err)
+		setupMessagesDatabaseError = fmt.Errorf("Failed to set up messages database, %w", err)
 		return
 	}
 }
@@ -86,7 +86,7 @@ func setupBlocksDatabase() {
 	blocks_db, err = activitypub.NewBlocksDatabase(ctx, run_opts.BlocksDatabaseURI)
 
 	if err != nil {
-		setupBlocksDatabaseError = fmt.Errorf("Failed to set up network, %w", err)
+		setupBlocksDatabaseError = fmt.Errorf("Failed to set up blocks database, %w", err)
 		return
 	}
 }
@@ -100,7 +100,7 @@ func setupPostsDatabase() {
 	posts_db, err = activitypub.NewPostsDatabase(ctx, run_opts.PostsDatabaseURI)
 
 	if err != nil {
-		setupPostsDatabaseError = fmt.Errorf("Failed to set up network, %w", err)
+		setupPostsDatabaseError = fmt.Errorf("Failed to set up posts database, %w", err)
 		return
 	}
 }

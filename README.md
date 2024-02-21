@@ -108,6 +108,7 @@ $> curl -s -H 'Accept: application/ld+json; profile="https://www.w3.org/ns/activ
   "type": "Person",
   "preferredUsername": "bob",
   "inbox": "https://bob.com/ap/bob/inbox",
+  "outbox": "https://bob.com/ap/bob/outbox",  
   "publicKey": {
     "id": "https://bob.com/ap/bob#main-key",
     "owner": "https://bob.com/ap/bob",
