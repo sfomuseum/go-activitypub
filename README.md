@@ -100,7 +100,7 @@ This is expected to return a "person" or "actor" resource in the form of:
 ```
 $> curl -s -H 'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"' https://bob.com/ap/bob | jq
 {
-  "@content": [
+  "@context": [
     "https://www.w3.org/ns/activitystreams",
     "https://w3id.org/security/v1"
   ],

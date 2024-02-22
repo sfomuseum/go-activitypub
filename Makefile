@@ -109,7 +109,8 @@ post:
 		-account-name alice \
 		-message "$(MESSAGE)" \
 		-hostname localhost:8080 \
-		-insecure
+		-insecure \
+		-verbose
 
 inbox:
 	go run cmd/inbox/main.go \

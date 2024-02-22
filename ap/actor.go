@@ -9,7 +9,7 @@ import (
 )
 
 type Actor struct {
-	Context           []string  `json:"@content"`
+	Context           []string  `json:"@context"`
 	Id                string    `json:"id"`
 	Type              string    `json:"type"`
 	PreferredUsername string    `json:"preferredUsername"`
@@ -17,11 +17,11 @@ type Actor struct {
 	Outbox            string    `json:"outbox"`
 	PublicKey         PublicKey `json:"publicKey"`
 
-	Following                 string `json:"following,omitempty"`
-	Followers                 string `json:"followers,omitempty"`
-	Name                      string `json:"name,omitempty"`
-	Summary                   string `json:"summary,omitempty"`
-	URL                       string `json:"url,omitempty"`
+	Following string `json:"following,omitempty"`
+	Followers string `json:"followers,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Summary   string `json:"summary,omitempty"`
+	URL       string `json:"url,omitempty"`
 	// Don't omitempty because if you do then false values are omitted
 	ManuallyApprovesFollowers bool   `json:"manuallyApprovesFollowers"`
 	Discoverable              bool   `json:"discoverable,omitempty"`

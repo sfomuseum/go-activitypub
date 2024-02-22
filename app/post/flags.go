@@ -18,6 +18,7 @@ var hostname string
 var insecure bool
 
 var message string
+var verbose bool
 
 func DefaultFlagSet() *flag.FlagSet {
 
@@ -35,5 +36,6 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.StringVar(&message, "message", "", "...")
 
+	fs.BoolVar(&verbose, "verbose", false, "Enable verbose logging")
 	return fs
 }
