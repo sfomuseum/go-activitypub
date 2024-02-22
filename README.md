@@ -129,6 +129,13 @@ $> curl -s -H 'Accept: application/ld+json; profile="https://www.w3.org/ns/activ
 
 When I run this code on a public endpoint (not `bob.com`) I can see, in the log files, that Mastodon is requesting both the "webfinger" and the "person" resources but there are no more requests. This suggests that there is something "wrong" in the response being generated but based on my reading it doesn't _look_ wrong. In fact the response looks nearly identical to similar responses from Mastodon servers themselves. Maybe there is a specific attribute, or property, that is missing? If you're readingt this that means I still have no idea.
 
+Related:
+
+* https://docs.joinmastodon.org/spec/webfinger/
+* https://github.com/mastodon/mastodon/blob/main/app/lib/webfinger.rb
+* https://github.com/mastodon/mastodon/blob/main/app/services/resolve_account_service.rb
+* https://github.com/mastodon/mastodon/blob/main/app/services/activitypub/fetch_remote_actor_service.rb
+
 ### Endpoints
 
 _To be written._

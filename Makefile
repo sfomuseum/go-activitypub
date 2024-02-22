@@ -149,3 +149,9 @@ dynamo-tables-local:
 		-refresh \
 		-table-prefix $(TABLE_PREFIX) \
 		-dynamodb-client-uri 'awsdynamodb://?local=true'
+
+# I haven't been able to get this to work yet...
+# https://dev.mysql.com/doc/mysql-installation-excerpt/8.3/en/docker-mysql-getting-started.html#docker-starting-mysql-server
+
+mysql-local:
+	docker run --rm -it -p3306:3306 container-registry.oracle.com/mysql/community-server:latest
