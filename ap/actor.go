@@ -9,13 +9,14 @@ import (
 )
 
 type Actor struct {
-	Context           []string  `json:"@context"`
-	Id                string    `json:"id"`
-	Type              string    `json:"type"`
-	PreferredUsername string    `json:"preferredUsername"`
-	Inbox             string    `json:"inbox"`
-	Outbox            string    `json:"outbox"`
-	PublicKey         PublicKey `json:"publicKey"`
+	// It has to be an interface because JSON-LD... thanks, JSON-LD...
+	Context           []interface{} `json:"@context"`
+	Id                string        `json:"id"`
+	Type              string        `json:"type"`
+	PreferredUsername string        `json:"preferredUsername"`
+	Inbox             string        `json:"inbox"`
+	Outbox            string        `json:"outbox"`
+	PublicKey         PublicKey     `json:"publicKey"`
 
 	Following string `json:"following,omitempty"`
 	Followers string `json:"followers,omitempty"`

@@ -55,6 +55,7 @@ func TestParseAddress(t *testing.T) {
 		"@bob@bob.com":       [2]string{"bob", "bob.com"},
 		"acct:@bob@bob.com":  [2]string{"bob", "bob.com"},
 		"acct:alice@bob.com": [2]string{"alice", "bob.com"},
+		// "https://mastodon.social/users/aaronofsfo": [2]string{ "aaronofsfo", "mastodon.social"},
 	}
 
 	for addr, expected := range tests {

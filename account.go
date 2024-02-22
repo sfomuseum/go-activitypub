@@ -179,7 +179,7 @@ func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*ap.Ac
 		URL:       icon_url.String(),
 	}
 
-	context := []string{
+	context := []interface{}{
 		"https://www.w3.org/ns/activitystreams",
 		"https://w3id.org/security/v1",
 	}

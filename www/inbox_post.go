@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/go-fed/httpsig"
@@ -46,11 +48,17 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		if !IsActivityStreamRequest(req) {
-			logger.Error("Not activitystream request")
-			http.Error(rsp, "Bad request", http.StatusBadRequest)
-			return
-		}
+		// I thought this was necessary but apparently not? Mastodon sends empty Accept headers...
+
+		/*
+
+			if !IsActivityStreamRequest(req) {
+				logger.Error("Not activitystream request")
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+		*/
 
 		account_name, host, err := activitypub.ParseAddressFromRequest(req)
 
@@ -98,18 +106,87 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		sender_address := activity.Actor
-		logger = logger.With("sender_address", sender_address)
+		// enc_activity, _ := json.Marshal(activity)
+		// logger = logger.With("activity", string(enc_activity))
 
-		sender_name, sender_host, err := activitypub.ParseAddress(sender_address)
+		requestor_address := activity.Actor
+		logger = logger.With("requestor_address", requestor_address)
 
-		if err != nil {
-			logger.Error("Failed to parse send ID", "error", err)
-			http.Error(rsp, "Bad request", http.StatusBadRequest)
-			return
+		var requestor_name string
+		var requestor_host string
+
+		if strings.HasPrefix(requestor_address, "http") {
+
+			logger.Debug("Derive requestor address from URL")
+
+			requestor_u, err := url.Parse(requestor_address)
+
+			if err != nil {
+				logger.Error("Failed to parse address URL for requestor", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			profile_req, err := http.NewRequestWithContext(ctx, "GET", requestor_address, nil)
+
+			if err != nil {
+				logger.Error("Failed to create actor/profile request for requestor", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			profile_req.Header.Set("Accept", ap.ACTIVITYSTREAMS_ACCEPT_HEADER)
+
+			profile_rsp, err := http_cl.Do(profile_req)
+
+			if err != nil {
+				logger.Error("Failed to retrieve actor/profile request for requestor", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			defer profile_rsp.Body.Close()
+
+			if profile_rsp.StatusCode != http.StatusOK {
+				logger.Error("Remote endpoint did not return successfully for actor/profile request for requestor", "code", profile_rsp.StatusCode, "status", profile_rsp.Status)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			var actor *ap.Actor
+
+			dec = json.NewDecoder(profile_rsp.Body)
+			err = dec.Decode(&actor)
+
+			if err != nil {
+				logger.Error("Failed to decode actor/profile response for requestor", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			requestor_name = actor.PreferredUsername
+			requestor_host = requestor_u.Host
+
+		} else {
+
+			requestor_name, requestor_host, err = activitypub.ParseAddress(requestor_address)
+
+			if err != nil {
+				logger.Error("Failed to parse requestor address", "error", err)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			if requestor_name == "" || requestor_host == "" {
+				logger.Error("Requestor address missing name or host", "error", err)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
 		}
 
-		is_blocked, err := activitypub.IsBlockedByAccount(ctx, opts.BlocksDatabase, acct.Id, sender_host, sender_name)
+		logger = logger.With("requestor_address", requestor_address, "requestor_name", requestor_name, "requestor_host", requestor_host)
+
+		is_blocked, err := activitypub.IsBlockedByAccount(ctx, opts.BlocksDatabase, acct.Id, requestor_host, requestor_name)
 
 		if err != nil {
 			logger.Error("Failed to determine if sender is blocked", "error", err)
@@ -134,7 +211,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			if sender_name == acct.Name {
+			if requestor_name == acct.Name {
 				logger.Error("Can not follow yourself")
 				http.Error(rsp, "Bad request", http.StatusBadRequest)
 				return
@@ -166,6 +243,10 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		key_id := verifier.KeyId()
 		logger = logger.With("key id", key_id)
+
+		if key_id == requestor_address {
+			logger.Info("KEY ID AND REQUESTOR ADDRESS ARE THE SAME")
+		}
 
 		logger.Info("Fetch key for sender", "key_id", key_id)
 
@@ -231,7 +312,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		switch activity.Type {
 		case "Follow":
 
-			is_following, _, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, sender_address)
+			is_following, _, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)
@@ -245,7 +326,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			err = activitypub.AddFollower(ctx, opts.FollowersDatabase, acct.Id, sender_address)
+			err = activitypub.AddFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
 			if err != nil {
 				logger.Error("Failed to create new follower", "error", err)
@@ -255,7 +336,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		case "Undo":
 
-			is_following, f, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, sender_address)
+			is_following, f, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)
@@ -279,7 +360,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		case "Create":
 
-			is_following, _, err := activitypub.IsFollowing(ctx, opts.FollowingDatabase, acct.Id, sender_address)
+			is_following, _, err := activitypub.IsFollowing(ctx, opts.FollowingDatabase, acct.Id, requestor_address)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)
@@ -314,7 +395,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			note_uuid := note.Id
 			logger = logger.With("note uuid", note_uuid)
 
-			db_note, err := opts.NotesDatabase.GetNoteWithUUIDAndAuthorAddress(ctx, note_uuid, sender_address)
+			db_note, err := opts.NotesDatabase.GetNoteWithUUIDAndAuthorAddress(ctx, note_uuid, requestor_address)
 
 			switch {
 			case err == activitypub.ErrNotFound:
@@ -353,7 +434,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			} else {
 
-				new_note, err := activitypub.AddNote(ctx, opts.NotesDatabase, note_uuid, sender_address, enc_note)
+				new_note, err := activitypub.AddNote(ctx, opts.NotesDatabase, note_uuid, requestor_address, enc_note)
 
 				if err != nil {
 					logger.Error("Failed to create new note", "error", err)
@@ -392,7 +473,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			} else {
 
-				new_message, err := activitypub.AddMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id, sender_address)
+				new_message, err := activitypub.AddMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id, requestor_address)
 
 				if err != nil {
 					logger.Error("Failed to add message", "error", err)
@@ -414,7 +495,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		acct_address := acct.Address(opts.URIs.Hostname)
 
-		accept, err := ap.NewAcceptActivity(ctx, acct_address, sender_address)
+		accept, err := ap.NewAcceptActivity(ctx, acct_address, requestor_address)
 
 		if err != nil {
 			logger.Error("Failed to create new accept activity", "error", err)
