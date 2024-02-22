@@ -6,11 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"regexp"
 )
-
-var re_public_type = regexp.MustCompile(`^(?:RSA\s+)?PUBLIC KEY`)
-var re_private_type = regexp.MustCompile(`^(?:RSA\s+)?PRIVATE KEY`)
 
 func GenerateKeyPair(sz int) ([]byte, []byte, error) {
 
@@ -47,17 +43,23 @@ func RSAPublicKeyFromPEM(str_pem string) (*rsa.PublicKey, error) {
 		return nil, fmt.Errorf("failed to decode PEM block containing public key, key block is nil")
 	}
 
-	if !re_public_type.MatchString(public_key_block.Type) {
-		return nil, fmt.Errorf("Invalid or unknown key block type '%s'", public_key_block.Type)
-	}
+	var public_key any
+	var err error
 
-	public_key, err := x509.ParsePKCS1PublicKey(public_key_block.Bytes)
+	switch public_key_block.Type {
+	case "RSA PUBLIC KEY":
+		public_key, err = x509.ParsePKCS1PublicKey(public_key_block.Bytes)
+	case "PUBLIC KEY":
+		public_key, err = x509.ParsePKIXPublicKey(public_key_block.Bytes)
+	default:
+		err = fmt.Errorf("Invalid or unknown key block type, %s", public_key_block.Type)
+	}
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to parse PEM block containing public key, %w", err)
 	}
 
-	return public_key, nil
+	return public_key.(*rsa.PublicKey), nil
 }
 
 func RSAPrivateKeyFromPEM(str_pem string) (*rsa.PrivateKey, error) {
@@ -68,15 +70,21 @@ func RSAPrivateKeyFromPEM(str_pem string) (*rsa.PrivateKey, error) {
 		return nil, fmt.Errorf("failed to decode PEM block containing private key, key block is nil")
 	}
 
-	if !re_private_type.MatchString(private_key_block.Type) {
-		return nil, fmt.Errorf("Invalid or unknown key block type '%s'", private_key_block.Type)
-	}
+	var private_key any
+	var err error
 
-	private_key, err := x509.ParsePKCS1PrivateKey(private_key_block.Bytes)
+	switch private_key_block.Type {
+	case "RSA PRIVATE KEY":
+		private_key, err = x509.ParsePKCS1PrivateKey(private_key_block.Bytes)
+	case "PRIVATE KEY":
+		private_key, err = x509.ParsePKCS8PrivateKey(private_key_block.Bytes)
+	default:
+		err = fmt.Errorf("Invalid or unknown key block type, %s", private_key_block.Type)
+	}
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to parse private key, %w", err)
 	}
 
-	return private_key, nil
+	return private_key.(*rsa.PrivateKey), nil
 }
