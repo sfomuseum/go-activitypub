@@ -3,6 +3,7 @@ package www
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -48,17 +49,11 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		// I thought this was necessary but apparently not? Mastodon sends empty Accept headers...
-
-		/*
-
-			if !IsActivityStreamRequest(req) {
-				logger.Error("Not activitystream request")
-				http.Error(rsp, "Bad request", http.StatusBadRequest)
-				return
-			}
-
-		*/
+		if !IsActivityStreamRequest(req, "Content-Type") {
+			logger.Error("Not activitystream request")
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
 
 		account_name, host, err := activitypub.ParseAddressFromRequest(req)
 
@@ -114,6 +109,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		var requestor_name string
 		var requestor_host string
+		var requestor_actor *ap.Actor
 
 		if strings.HasPrefix(requestor_address, "http") {
 
@@ -164,8 +160,13 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
+			requestor_actor = actor
 			requestor_name = actor.PreferredUsername
 			requestor_host = requestor_u.Host
+
+			requestor_address = fmt.Sprintf("%s@%s", requestor_name, requestor_host)
+			logger = logger.With("requestor_address", requestor_address)
+			logger.Debug("Re-assign requestor_address variable")
 
 		} else {
 
@@ -189,13 +190,13 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		is_blocked, err := activitypub.IsBlockedByAccount(ctx, opts.BlocksDatabase, acct.Id, requestor_host, requestor_name)
 
 		if err != nil {
-			logger.Error("Failed to determine if sender is blocked", "error", err)
+			logger.Error("Failed to determine if requestor is blocked", "error", err)
 			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
 		if is_blocked {
-			logger.Error("Sender is blocked")
+			logger.Error("Requestor is blocked")
 			http.Error(rsp, "Forbidden", http.StatusForbidden)
 			return
 		}
@@ -233,6 +234,15 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		// START OF verify request
 
+		// This is important if the server is running behind some kind of proxy (for example Lambda)
+		// or the signature verification will fail
+
+		if opts.URIs.Hostname != "" {
+			logger.Debug("Manually set hostname on request", "hostname", opts.URIs.Hostname)
+			req.Header.Set("Host", opts.URIs.Hostname)
+			req.Host = opts.URIs.Hostname
+		}
+
 		verifier, err := httpsig.NewVerifier(req)
 
 		if err != nil {
@@ -244,44 +254,54 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		key_id := verifier.KeyId()
 		logger = logger.With("key id", key_id)
 
-		if key_id == requestor_address {
-			logger.Info("KEY ID AND REQUESTOR ADDRESS ARE THE SAME")
+		var requestor_public_key ap.PublicKey
+
+		if requestor_actor != nil && requestor_actor.PublicKey.Id == key_id {
+			logger.Debug("request public key ID is the same as signature key ID")
+			requestor_public_key = requestor_actor.PublicKey
+		} else {
+
+			logger.Info("Fetch key for requestor", "key_id", key_id)
+
+			// Please stop calling this sender_
+			// Is it safe-not-confusing to call these varaibles requestor_ or should they have a diffrerent prefix...
+
+			sender_req, err := http.NewRequestWithContext(ctx, "GET", key_id, nil)
+
+			if err != nil {
+				logger.Error("Failed to create request for key id", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			sender_req.Header.Set("Accept", ap.ACTIVITYSTREAMS_ACCEPT_HEADER)
+
+			sender_rsp, err := http_cl.Do(sender_req)
+
+			if err != nil {
+				logger.Error("Failed to retrieve key ID", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			defer sender_rsp.Body.Close()
+
+			var sender_actor *ap.Actor
+
+			dec = json.NewDecoder(sender_rsp.Body)
+			err = dec.Decode(&sender_actor)
+
+			if err != nil {
+				logger.Error("Failed to other actor", "error", err)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			requestor_actor = sender_actor
+			requestor_public_key = sender_actor.PublicKey
 		}
 
-		logger.Info("Fetch key for sender", "key_id", key_id)
-
-		sender_req, err := http.NewRequestWithContext(ctx, "GET", key_id, nil)
-
-		if err != nil {
-			logger.Error("Failed to create request for key id", "error", err)
-			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-			return
-		}
-
-		sender_req.Header.Set("Accept", ap.ACTIVITYSTREAMS_ACCEPT_HEADER)
-
-		sender_rsp, err := http_cl.Do(sender_req)
-
-		if err != nil {
-			logger.Error("Failed to retrieve key ID", "error", err)
-			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-			return
-		}
-
-		defer sender_rsp.Body.Close()
-
-		var sender_actor *ap.Actor
-
-		dec = json.NewDecoder(sender_rsp.Body)
-		err = dec.Decode(&sender_actor)
-
-		if err != nil {
-			logger.Error("Failed to other actor", "error", err)
-			http.Error(rsp, "Bad request", http.StatusBadRequest)
-			return
-		}
-
-		public_key_str := sender_actor.PublicKey.PEM
+		public_key_str := requestor_public_key.PEM
 
 		if public_key_str == "" {
 			logger.Error("Other actor missing public key")
@@ -297,12 +317,13 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		algo := httpsig.RSA_SHA512
+		// Read from signature...
+		algo := httpsig.RSA_SHA256
 
 		err = verifier.Verify(public_key, algo)
 
 		if err != nil {
-			logger.Error("Failed to verify signature", "error", err)
+			logger.Error("Failed to verify signature", "error", err, "signature", req.Header.Get("Signature"), "digest", req.Header.Get("Digest"))
 			http.Error(rsp, "Forbidden", http.StatusForbidden)
 			return
 		}

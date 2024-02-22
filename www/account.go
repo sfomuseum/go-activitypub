@@ -86,7 +86,7 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 
 		// Check content-type here and HTML or JSON it up...
 
-		if IsActivityStreamRequest(req) {
+		if IsActivityStreamRequest(req, "Accept") {
 
 			profile, err := acct.ProfileResource(ctx, opts.URIs)
 

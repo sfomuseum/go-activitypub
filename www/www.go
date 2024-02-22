@@ -23,9 +23,9 @@ func LoggerWithRequest(req *http.Request, logger *slog.Logger) *slog.Logger {
 	return logger
 }
 
-func IsActivityStreamRequest(req *http.Request) bool {
+func IsActivityStreamRequest(req *http.Request, header string) bool {
 
-	raw := req.Header.Get("Accept")
+	raw := req.Header.Get(header)
 	accept := strings.Split(raw, ",")
 
 	is_activitystream := false

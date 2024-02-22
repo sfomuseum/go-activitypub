@@ -35,7 +35,7 @@ func FollowersHandler(opts *FollowersHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		if !IsActivityStreamRequest(req) {
+		if !IsActivityStreamRequest(req, "Accept") {
 			logger.Error("Not activitystream request")
 			http.Error(rsp, "Bad request", http.StatusBadRequest)
 			return

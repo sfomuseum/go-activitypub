@@ -31,7 +31,7 @@ func OutboxPostHandler(opts *OutboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		if !IsActivityStreamRequest(req) {
+		if !IsActivityStreamRequest(req, "Content-Type") {
 			logger.Error("Not activitystream request")
 			http.Error(rsp, "Bad request", http.StatusBadRequest)
 			return
