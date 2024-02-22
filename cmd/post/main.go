@@ -17,7 +17,7 @@ func main() {
 	err := post.Run(ctx, logger)
 
 	if err != nil {
-		logger.Error("Failed to follow actor", "error", err)
+		logger.Error("Failed to post message", "error", err)
 		os.Exit(1)
 	}
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/sfomuseum/go-activitypub/id"
 )
 
-func NewAcceptActivity(ctx context.Context, from string, to string) (*Activity, error) {
+func NewAcceptActivity(ctx context.Context, from string, object interface{}) (*Activity, error) {
 
 	uuid := id.NewUUID()
 
@@ -15,7 +15,7 @@ func NewAcceptActivity(ctx context.Context, from string, to string) (*Activity, 
 		Id:      uuid,
 		Type:    "Accept",
 		Actor:   from,
-		Object:  to,
+		Object:  object,
 	}
 
 	return req, nil

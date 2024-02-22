@@ -25,6 +25,14 @@ type InboxPostHandlerOptions struct {
 	URIs              *activitypub.URIs
 	AllowFollow       bool
 	AllowCreate       bool
+
+	// TBD but the idea is that after the signature verification
+	// and block checks are dealt with the best thing would be to
+	// hand off to an activity-specific handler using the http.Next()
+	// trick rather than smushing all the code in to this handler.
+	// It is still unclear which variables need to be pass down to
+	// the final activity handler or how (context.Context probably?)
+	// Activities map[string]http.Handler
 }
 
 func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
@@ -92,7 +100,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		var activity *ap.Activity
 
-		dec := json.NewDecoder(req.Body)
+		activity_r := DefaultLimitedReader(req.Body)
+
+		dec := json.NewDecoder(activity_r)
 		err = dec.Decode(&activity)
 
 		if err != nil {
@@ -151,7 +161,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			var actor *ap.Actor
 
-			dec = json.NewDecoder(profile_rsp.Body)
+			profile_r := DefaultLimitedReader(profile_rsp.Body)
+
+			dec = json.NewDecoder(profile_r)
 			err = dec.Decode(&actor)
 
 			if err != nil {
@@ -286,9 +298,11 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			defer sender_rsp.Body.Close()
 
+			sender_r := DefaultLimitedReader(sender_rsp.Body)
+
 			var sender_actor *ap.Actor
 
-			dec = json.NewDecoder(sender_rsp.Body)
+			dec = json.NewDecoder(sender_r)
 			err = dec.Decode(&sender_actor)
 
 			if err != nil {
@@ -330,6 +344,13 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		// Actually do something
 
+		// So really, at this point we should simple have per actitivy type handlers that
+		// get passed in by opts and we just hand off to them using the http.Next trick.
+		// As written we're going to add another 300+ lines of code which really just makes
+		// everything more confusing...
+
+		var accept_obj interface{}
+
 		switch activity.Type {
 		case "Follow":
 
@@ -355,6 +376,11 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
+			acct_address := acct.AccountURL(ctx, opts.URIs)
+			accept_follow, err := ap.NewFollowActivity(ctx, acct_address.String(), activity.Actor)
+
+			accept_obj = accept_follow
+
 		case "Undo":
 
 			is_following, f, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
@@ -378,6 +404,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 				return
 			}
+
+			// Is this correct?
+			accept_obj = activity.Actor
 
 		case "Create":
 
@@ -508,15 +537,20 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			logger.Info("Note has been added to messages")
 
+			// Is this correct
+			accept_obj = activity.Actor
+
 		default:
 			// pass
 		}
 
-		// return acceptance
+		// Return acceptance - does this need to be refactored in to a thing
+		// that returns different responses based on the activity? Like does a
+		// create activity need to return 201 (it seems like it...) ?
 
-		acct_address := acct.Address(opts.URIs.Hostname)
+		acct_address := acct.AccountURL(ctx, opts.URIs)
 
-		accept, err := ap.NewAcceptActivity(ctx, acct_address, requestor_address)
+		accept, err := ap.NewAcceptActivity(ctx, acct_address.String(), accept_obj)
 
 		if err != nil {
 			logger.Error("Failed to create new accept activity", "error", err)
@@ -525,6 +559,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		}
 
 		logger = logger.With("accept", accept.Id)
+
+		enc_accept, _ := json.Marshal(accept)
+		logger.Debug("ACCEPT", "body", string(enc_accept))
 
 		rsp.Header().Set("Content-type", "application/activity+json")
 

@@ -11,11 +11,10 @@ func NewFollowActivity(ctx context.Context, from string, to string) (*Activity, 
 	uuid := id.NewUUID()
 
 	req := &Activity{
-		Context: ACTIVITYSTREAMS_CONTEXT,
-		Id:      uuid,
-		Type:    "Follow",
-		Actor:   from,
-		Object:  to,
+		Id:     uuid,
+		Type:   "Follow",
+		Actor:  from,
+		Object: to,
 	}
 
 	return req, nil
