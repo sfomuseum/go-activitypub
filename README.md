@@ -281,6 +281,7 @@ What follows are the output of the different "targets" in the [Makefile](Makefil
 
 If you want to follow along and run these examples your self you will need the following:
 
+* The [Go programming language](https://go.dev/dl)
 * The [Docker Desktop](https://www.docker.com/products/docker-desktop/) runtime environment to launch a local instance of DynamoDB.
 * (3) different terminal windows (or "consoles")
 
