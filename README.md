@@ -156,7 +156,7 @@ https://seb.jambor.dev/posts/understanding-activitypub/
 
 Except that this never seems to work as in no errors are thrown but the "following" is never applied on Doug's (`mastodon.server`) server. In fact when Doug search for `@bob@bob.com` again Bob's account is displayed with a "Cancel follow" button.
 
-I know what this "means" but I have no idea why it's happening or whether there is something else I need to do in this code. I have tried changing the `object` in the "Accept" response to be a string (`https://bob.com/ap/bob`) but that doesn't make a difference. Likewise I have updated the `actor` property to point an inbox, per this [blog post from the Mastodon developers](https://blog.joinmastodon.org/2018/07/how-to-make-friends-and-verify-requests) but that doesn't make a difference either...
+I know what this "means" but I have no idea why it's happening or whether there is something else I need to do in this code.
 
 ### Endpoints
 

@@ -594,7 +594,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		// END of debugging...
 
-		rsp.Header().Set("Content-Type", ap.ACTIVITY_CONTENT_TYPE)
+		rsp.Header().Set("Content-Type", ap.ACTIVITY_LD_CONTENT_TYPE)
 
 		enc := json.NewEncoder(rsp)
 		err = enc.Encode(accept)
