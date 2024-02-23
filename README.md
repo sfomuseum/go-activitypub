@@ -168,7 +168,7 @@ I know this means that the Mastodon server doesn't think it's gotten a valid `Ac
 
 Maybe I am not sending the correct response header but if that is not `application/ld+json; profile="https://www.w3.org/ns/activitystreams"` then what is it? Are there other headers that I am supposed to be sending back?
 
-There is [working demo code](#example) (that only requires Go and an instance of DynamoDB running out of a Docker container) below that walks through, and succeeds at, all of these interactions as I understand them. I am totally happy for this problem to be "user error" but I could use some help seeing what those errors are...
+The code that handles all of this is [www/inbox_post.go](www/inbox_post.go) and there is [working demo code](#example) (that only requires Go and an instance of DynamoDB running out of a Docker container) below that walks through, and succeeds at, all of these interactions as I understand them. I am totally happy for this problem to be "user error" but I could use some help seeing what those errors are...
 
 ### Endpoints
 

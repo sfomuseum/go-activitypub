@@ -261,6 +261,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("requestor_address", requestor_address, "requestor_name", requestor_name, "requestor_host", requestor_host)
 
+		// Check if the requestor is being blocked
+
 		is_blocked, err := activitypub.IsBlockedByAccount(ctx, opts.BlocksDatabase, acct.Id, requestor_host, requestor_name)
 
 		if err != nil {
@@ -274,6 +276,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			http.Error(rsp, "Forbidden", http.StatusForbidden)
 			return
 		}
+
+		// One final sanity check
 
 		switch activity.Type {
 		case "Follow", "Undo":
@@ -388,6 +392,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
+		// END OF verify request
+
 		// Actually do something
 
 		// So really, at this point we should simple have per actitivy type handlers that
@@ -395,7 +401,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		// As written we're going to add another 300+ lines of code which really just makes
 		// everything more confusing...
 
-		var accept_obj interface{}
+		accept_obj := activity
 
 		switch activity.Type {
 		case "Follow":
@@ -421,8 +427,6 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 				return
 			}
-
-			accept_obj = activity
 
 		case "Undo":
 
@@ -450,8 +454,6 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			accept_obj = activity
-
 		case "Create":
 
 			is_following, _, err := activitypub.IsFollowing(ctx, opts.FollowingDatabase, acct.Id, requestor_address)
@@ -475,6 +477,11 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				http.Error(rsp, "Bad request", http.StatusBadRequest)
 				return
 			}
+
+			// First store the activity pub note as a local "note" - that is store
+			// the message from person (x) exactly once regardless of how many
+			// different accounts (on this service) that the note is being delivered
+			// to
 
 			var note *ap.Note
 
@@ -540,6 +547,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				logger = logger.With("note id", db_note.Id)
 			}
 
+			// Now store a "message" which is a pointer to the note associated with the account the
+			// note is being delivered to
+
 			db_message, err := activitypub.GetMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id)
 
 			switch {
@@ -590,7 +600,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		// Return acceptance - does this need to be refactored in to a thing
 		// that returns different responses based on the activity? Like does a
-		// create activity need to return 201 (it seems like it...) ?
+		// create activity need to return 201 (it seems like it...) ? See notes
+		// above wrt/ per-activity handlers and the http.Next() trick.
 
 		accept_actor := acct.AccountURL(ctx, opts.URIs).String()
 
