@@ -222,10 +222,8 @@ import (
 )
 
 func main() {
-
 	ctx := context.Background()
 	logger := slog.Default()
-
 	server.Run(ctx, logger)
 }
 ```
@@ -257,10 +255,8 @@ import (
 )
 
 func main() {
-
 	ctx := context.Background()
 	logger := slog.Default()
-
 	server.Run(ctx, logger)
 }
 ```
