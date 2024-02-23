@@ -299,6 +299,8 @@ shouldDelayTransientStatuses:	false
 CorsParams:	null
 ```
 
+_Note: This is an ephemeral Docker container so when you shut it down all the data that has been saved (like accounts and ActivityPub activity below) will be deleted._
+
 In console (2) create the necessary tables for the ActivityPub service in DynamoDB.
 
 ```
