@@ -131,9 +131,9 @@ At this point Doug's Mastodon server (`mastodon.server`) will issue a `POST` req
 
 _TBW_
 
-Bob's server `bob.com` will then verify the request from Doug to follow Bob is valid by _TBW_.
+Bob's server `bob.com` will then verify the request from Doug to follow Bob is valid by... _TBW_.
 
-Bob's server will then create a local entry indiciating that Doug is follow Bob and then return an "Accept" message, like this:
+Bob's server will then create a local entry indiciating that Doug is following Bob and then return an "Accept" message, like this:
 
 ```
 {
