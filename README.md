@@ -196,7 +196,7 @@ type FollowersDatabase interface {
 }
 ```
 
-The idea here is that the various tools for performing actions (posting, server ActivityPub requests, etc.) don't know anything about the underlying database implementation. Maybe you want to run things locally using a SQLite database, or you want to run it in "production" using a MySQL database or in a "serverless" environment using something like DynamoDB. The answer is: Yes. So long as your database of choice implements the different database (or table) interfaces then it is supported.
+The idea here is that the various tools for performing actions (posting, serving ActivityPub requests, etc.) don't know anything about the underlying database implementation. Maybe you want to run things locally using a SQLite database, or you want to run it in "production" using a MySQL database or in a "serverless" environment using something like DynamoDB. The answer is: Yes. So long as your database of choice implements the different database (or table) interfaces then it is supported.
 
 As of this writing two "classes" of databases are supported: 
 
