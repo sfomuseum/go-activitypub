@@ -186,27 +186,27 @@ func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*ap.Ac
 
 	// read from prefs or something...
 	discoverable := true
-	manually_approve := false
+	// manually_approve := false
 
 	now := time.Now()
 
 	pr := &ap.Actor{
-		Context:                   context,
-		Id:                        account_url.String(),
-		Type:                      "Person",
-		Name:                      a.Name,
-		PreferredUsername:         a.Name,
-		Summary:                   a.Blurb,
-		URL:                       a.URL,
-		Followers:                 followers_url.String(),
-		Following:                 following_url.String(),
-		ManuallyApprovesFollowers: manually_approve,
-		Discoverable:              discoverable,
-		Inbox:                     inbox_url.String(),
-		Outbox:                    outbox_url.String(),
-		PublicKey:                 pub_key,
-		Icon:                      icon,
-		Published:                 now.Format(time.RFC3339),
+		Context:           context,
+		Id:                account_url.String(),
+		Type:              "Person",
+		Name:              a.Name,
+		PreferredUsername: a.Name,
+		Summary:           a.Blurb,
+		URL:               a.URL,
+		Followers:         followers_url.String(),
+		Following:         following_url.String(),
+		// ManuallyApprovesFollowers: manually_approve,
+		Discoverable: discoverable,
+		Inbox:        inbox_url.String(),
+		Outbox:       outbox_url.String(),
+		PublicKey:    pub_key,
+		Icon:         icon,
+		Published:    now.Format(time.RFC3339),
 	}
 
 	return pr, nil

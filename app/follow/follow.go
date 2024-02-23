@@ -62,24 +62,25 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	// to make a webfinger/profile query.
 
 	follower_address := follower_acct.Address(opts.URIs.Hostname)
-
 	following_address := opts.FollowAddress
 
-	follow_req, err := ap.NewFollowActivity(ctx, follower_address, following_address)
+	var activity *ap.Activity
+
+	if opts.Undo {
+		activity, err = ap.NewUndoFollowActivity(ctx, follower_address, following_address)
+	} else {
+		activity, err = ap.NewFollowActivity(ctx, follower_address, following_address)
+	}
 
 	if err != nil {
 		return fmt.Errorf("Failed to create follow activity, %w", err)
 	}
 
-	if opts.Undo {
-		follow_req.Type = "Undo"
-	}
-
 	post_opts := &activitypub.PostToAccountOptions{
 		From:    follower_acct,
 		To:      following_address,
+		Message: activity,
 		URIs:    opts.URIs,
-		Message: follow_req,
 	}
 
 	_, err = activitypub.PostToAccount(ctx, post_opts)

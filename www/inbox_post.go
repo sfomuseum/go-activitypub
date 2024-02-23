@@ -13,6 +13,7 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/crypto"
+	"github.com/tidwall/gjson"
 )
 
 type InboxPostHandlerOptions struct {
@@ -86,11 +87,43 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		// There is a not insignificant number of people crawling ActivityPub
 		// endpoints issuing "Delete" activities just to see if they will stick...
 
+		// raw_activity, _ := json.Marshal(activity)
+		// logger.Debug("ACTIVITY", "activity", string(raw_activity))
+
 		switch activity.Type {
-		case "Follow", "Undo":
+		case "Follow":
 
 			if !opts.AllowFollow {
 				logger.Error("Unsupported activity type")
+				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
+				return
+			}
+
+		case "Undo":
+
+			if !opts.AllowFollow {
+				logger.Error("Unsupported activity type")
+				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
+				return
+			}
+
+			enc_obj, err := json.Marshal(activity.Object)
+
+			if err != nil {
+				logger.Error("Failed to marshal activity object", "error", err)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			// Block activities are not supported (yet)
+
+			type_rsp := gjson.GetBytes(enc_obj, "type")
+
+			switch type_rsp.String() {
+			case "Follow":
+				// okay
+			default:
+				logger.Error("Unsupported undo activity type", "type", type_rsp.String())
 				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 				return
 			}
@@ -245,30 +278,16 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		switch activity.Type {
 		case "Follow", "Undo":
 
-			if !opts.AllowFollow {
-				logger.Error("Unsupported activity type")
-				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
-				return
-			}
+			// Note: We have prevented Block Undo activities above
 
 			if requestor_name == acct.Name {
-				logger.Error("Can not follow yourself")
+				logger.Error("Can not (un)follow yourself")
 				http.Error(rsp, "Bad request", http.StatusBadRequest)
 				return
 			}
 
-		case "Create":
-
-			if !opts.AllowCreate {
-				logger.Error("Unsupported activity type")
-				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
-				return
-			}
-
 		default:
-			logger.Error("Unsupported activity type")
-			http.Error(rsp, "Not implemented", http.StatusNotImplemented)
-			return
+			// pass
 		}
 
 		// START OF verify request
@@ -403,10 +422,11 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			activity.Context = "" // Is this important? I have no idea...
 			accept_obj = activity
 
 		case "Undo":
+
+			// Note: We have prevented Block Undo activities above so we're going to assume it's an undo follow request
 
 			is_following, f, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
@@ -430,9 +450,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			// Is this correct?
-			acct_address := acct.AccountURL(ctx, opts.URIs)
-			accept_obj = acct_address
+			accept_obj = activity
 
 		case "Create":
 

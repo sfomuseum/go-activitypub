@@ -24,10 +24,10 @@ type Actor struct {
 	Summary   string `json:"summary,omitempty"`
 	URL       string `json:"url,omitempty"`
 	// Don't omitempty because if you do then false values are omitted
-	ManuallyApprovesFollowers bool   `json:"manuallyApprovesFollowers"`
-	Discoverable              bool   `json:"discoverable,omitempty"`
-	Published                 string `json:"published,omitempty"`
-	Icon                      Icon   `json:"icon,omitempty"`
+	// ManuallyApprovesFollowers bool   `json:"manuallyApprovesFollowers"`
+	Discoverable bool   `json:"discoverable,omitempty"`
+	Published    string `json:"published,omitempty"`
+	Icon         Icon   `json:"icon,omitempty"`
 }
 
 func (a *Actor) PublicKeyRSA(ctx context.Context) (*rsa.PublicKey, error) {

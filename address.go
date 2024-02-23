@@ -2,6 +2,7 @@ package activitypub
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"regexp"
 )
@@ -28,5 +29,6 @@ func ParseAddressFromRequest(req *http.Request) (string, string, error) {
 		return "", "", fmt.Errorf("request is missing {resource} path value")
 	}
 
+	slog.Debug("PARSE FROM REQUEST", "resource", resource)
 	return ParseAddress(resource)
 }

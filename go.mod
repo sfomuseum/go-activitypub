@@ -23,6 +23,7 @@ require (
 	github.com/sfomuseum/go-template v1.9.0
 	github.com/sfomuseum/iso8601duration v1.1.0
 	github.com/sfomuseum/runtimevar v1.1.4
+	github.com/tidwall/gjson v1.17.0
 	gocloud.dev v0.36.0
 	golang.org/x/image v0.15.0
 )
@@ -64,7 +65,6 @@ require (
 	github.com/jtacoma/uritemplates v1.0.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
-	github.com/tidwall/gjson v1.17.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/whosonfirst/go-sanitize v0.1.0 // indirect
