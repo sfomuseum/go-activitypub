@@ -100,7 +100,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		var activity *ap.Activity
 
-		activity_r := DefaultLimitedReader(req.Body)
+		activity_r := activitypub.DefaultLimitedReader(req.Body)
 
 		dec := json.NewDecoder(activity_r)
 		err = dec.Decode(&activity)
@@ -161,7 +161,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			var actor *ap.Actor
 
-			profile_r := DefaultLimitedReader(profile_rsp.Body)
+			profile_r := activitypub.DefaultLimitedReader(profile_rsp.Body)
 
 			dec = json.NewDecoder(profile_r)
 			err = dec.Decode(&actor)
@@ -298,7 +298,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			defer sender_rsp.Body.Close()
 
-			sender_r := DefaultLimitedReader(sender_rsp.Body)
+			sender_r := activitypub.DefaultLimitedReader(sender_rsp.Body)
 
 			var sender_actor *ap.Actor
 
@@ -376,10 +376,12 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			acct_address := acct.AccountURL(ctx, opts.URIs)
-			accept_follow, err := ap.NewFollowActivity(ctx, acct_address.String(), activity.Actor)
+			// I can not figure out what I am suppose to return here...
 
-			accept_obj = accept_follow
+			// activity.Context = "" 	// Is this important? I have no idea...
+			// accept_obj = activity
+
+			accept_obj = acct.AccountURL(ctx, opts.URIs).String()
 
 		case "Undo":
 
@@ -406,7 +408,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			}
 
 			// Is this correct?
-			accept_obj = activity.Actor
+			acct_address := acct.AccountURL(ctx, opts.URIs)
+			accept_obj = acct_address
 
 		case "Create":
 
@@ -537,8 +540,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			logger.Info("Note has been added to messages")
 
-			// Is this correct
-			accept_obj = activity.Actor
+			acct_address := acct.AccountURL(ctx, opts.URIs)
+			accept_obj = acct_address
 
 		default:
 			// pass
@@ -548,9 +551,16 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		// that returns different responses based on the activity? Like does a
 		// create activity need to return 201 (it seems like it...) ?
 
-		acct_address := acct.AccountURL(ctx, opts.URIs)
+		// You'd think it would be "id" as documented here
+		// https://seb.jambor.dev/posts/understanding-activitypub/
+		// But these docs say "inbox"
+		// https://blog.joinmastodon.org/2018/07/how-to-make-friends-and-verify-requests/
+		// And I have no idea...
 
-		accept, err := ap.NewAcceptActivity(ctx, acct_address.String(), accept_obj)
+		accept_actor := requestor_actor.Id
+		// accept_actor := requestor_actor.Inbox
+
+		accept, err := ap.NewAcceptActivity(ctx, accept_actor, accept_obj)
 
 		if err != nil {
 			logger.Error("Failed to create new accept activity", "error", err)
@@ -560,10 +570,15 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("accept", accept.Id)
 
+		// START of debugging...
+
 		enc_accept, _ := json.Marshal(accept)
+		logger.Debug("ACCEPT", "actor", accept_actor)
 		logger.Debug("ACCEPT", "body", string(enc_accept))
 
-		rsp.Header().Set("Content-type", "application/activity+json")
+		// END of debugging...
+
+		rsp.Header().Set("Content-type", ap.ACTIVITY_CONTENT_TYPE)
 
 		enc := json.NewEncoder(rsp)
 		err = enc.Encode(accept)

@@ -62,9 +62,9 @@ _The details of how any given private key is kept secure are not part of the Act
 
 ### Looking up accounts
 
-So let's say you are on a Mastodon instance and you want to follow `bob@bob.com`. To do this you would start by searching for the address `@bob@bob.com`.
+So let's say that Doug is on a Mastodon instance called `mastodon.server` and wants to follow `bob@bob.com`. To do this Doug would start by searching for the address `@bob@bob.com`.
 
-_Note: I am just using `bob.com` as an example. It's not an actual ActivityPub endpoint._
+_Note: I am just using `bob.com` and `mastodon.server` as examples. They are not an actual ActivityPub endpoints._
 
 The code that runs Mastodon will then derive the hostname (`bob.com`) from the address and construct a URL in the form of:
 
@@ -127,14 +127,36 @@ $> curl -s -H 'Accept: application/ld+json; profile="https://www.w3.org/ns/activ
 }
 ```
 
-When I run this code on a public endpoint (not `bob.com`) I can see, in the log files, that Mastodon is requesting both the "webfinger" and the "person" resources but there are no more requests. This suggests that there is something "wrong" in the response being generated but based on my reading it doesn't _look_ wrong. In fact the response looks nearly identical to similar responses from Mastodon servers themselves. Maybe there is a specific attribute, or property, that is missing? If you're readingt this that means I still have no idea.
+At this point Doug's Mastodon server (`mastodon.server`) will issue a `POST` request to `https://bob.com/ap/bob/inbox`. The body of that request will be a "Follow" sctivity that looks like this:
 
-Related:
+_TBW_
 
-* https://docs.joinmastodon.org/spec/webfinger/
-* https://github.com/mastodon/mastodon/blob/main/app/lib/webfinger.rb
-* https://github.com/mastodon/mastodon/blob/main/app/services/resolve_account_service.rb
-* https://github.com/mastodon/mastodon/blob/main/app/services/activitypub/fetch_remote_actor_service.rb
+Bob's server `bob.com` will then verify the request from Doug to follow Bob is valid by _TBW_.
+
+Bob's server will then create a local entry indiciating that Doug is follow Bob and then return an "Accept" message, like this:
+
+```
+{
+  "@context": "https://www.w3.org/ns/activitystreams",
+  "id": "0b8f64a3-2ab1-46c8-9f2c-4230a9f62689",
+  "type": "Accept",
+  "actor": "https://bob.com/ap/bob",
+  "object": {
+    "id": "1d37838b-7d18-4bba-929e-6b349400aa4d",
+    "type": "Follow",
+    "actor": "https://mastodon.server/users/doug",
+    "object": "https://bob.com/ap/bob"
+  }
+}
+```
+
+This matches the flow described here:
+
+https://seb.jambor.dev/posts/understanding-activitypub/
+
+Except that this never seems to work as in no errors are thrown but the "following" is never applied on Doug's (`mastodon.server`) server. In fact when Doug search for `@bob@bob.com` again Bob's account is displayed with a "Cancel follow" button.
+
+I know what this "means" but I have no idea why it's happening or whether there is something else I need to do in this code. I have tried changing the `object` in the "Accept" response to be a string (`https://bob.com/ap/bob`) but that doesn't make a difference. Likewise I have updated the `actor` property to point an inbox, per this [blog post from the Mastodon developers](https://blog.joinmastodon.org/2018/07/how-to-make-friends-and-verify-requests) but that doesn't make a difference either...
 
 ### Endpoints
 

@@ -130,7 +130,9 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 
 	var activity *ap.Activity
 
-	dec := json.NewDecoder(http_rsp.Body)
+	activity_r := DefaultLimitedReader(http_rsp.Body)
+
+	dec := json.NewDecoder(activity_r)
 	err = dec.Decode(&activity)
 
 	if err != nil {

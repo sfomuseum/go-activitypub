@@ -1,7 +1,6 @@
 package www
 
 import (
-	"io"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -64,18 +63,4 @@ func ReadUserIP(req *http.Request) string {
 	}
 
 	return addr
-}
-
-func DefaultLimitedReader(r io.Reader) io.Reader {
-
-	n := int64(1024 * 1024)
-	return NewLimitedReader(r, n)
-}
-
-func NewLimitedReader(r io.Reader, n int64) io.Reader {
-
-	return &io.LimitedReader{
-		R: r,
-		N: n,
-	}
 }
