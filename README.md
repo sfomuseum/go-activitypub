@@ -64,7 +64,7 @@ _The details of how any given private key is kept secure are not part of the Act
 
 So let's say that Doug is on a Mastodon instance called `mastodon.server` and wants to follow `bob@bob.com`. To do this Doug would start by searching for the address `@bob@bob.com`.
 
-_Note: I am just using `bob.com` and `mastodon.server` as examples. They are not an actual ActivityPub endpoints._
+_Note: I am just using `bob.com` and `mastodon.server` as examples. They are not an actual ActivityPub or Mastodon endpoints._
 
 The code that runs Mastodon will then derive the hostname (`bob.com`) from the address and construct a URL in the form of:
 
