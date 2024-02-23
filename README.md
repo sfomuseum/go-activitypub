@@ -93,9 +93,11 @@ $> curl -s 'https://bob.com/.well-known/webfinger?resource=acct:bob@bob.com' | j
 }
 ```
 
-The code will then iterate through the `links` element of the response searching for `rel=self` and `type=https://bob.com/ap/bob`. It will take the value of the corresponding `href` attribute and issue a second `GET` request assigning the HTTP `Accept` header to be `application/ld+json; profile="https://www.w3.org/ns/activitystreams"`. There's a lot of "content negotiation" going on in ActivityPub and is often the source of confusion and mistakes.
+The code will then iterate through the `links` element of the response searching for `rel=self` and `type=application/activity+json`. It will take the value of the corresponding `href` attribute and issue a second `GET` request assigning the HTTP `Accept` header to be `application/ld+json; profile="https://www.w3.org/ns/activitystreams"`.
 
-This is expected to return a "person" or "actor" resource in the form of:
+(There's a lot of "content negotiation" going on in ActivityPub and is often the source of confusion and mistakes.)
+
+This `GET` request is expected to return a "person" or "actor" resource in the form of:
 
 ```
 $> curl -s -H 'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"' https://bob.com/ap/bob | jq
@@ -126,7 +128,7 @@ $> curl -s -H 'Accept: application/ld+json; profile="https://www.w3.org/ns/activ
 }
 ```
 
-At this point Doug's Mastodon server (`mastodon.server`) will issue a `POST` request to `https://bob.com/ap/bob/inbox`. The body of that request will be a "Follow" sctivity that looks like this:
+At this point Doug's Mastodon server (`mastodon.server`) will issue a `POST` request to `https://bob.com/ap/bob/inbox` (or whatever the value is of the `inbox` property in the document that is returned). The body of that request will be a "Follow" sctivity that looks like this:
 
 {
    "@context" : "https://www.w3.org/ns/activitystreams",
@@ -162,7 +164,9 @@ https://seb.jambor.dev/posts/understanding-activitypub/
 
 Except that this never seems to work as in no errors are thrown but the "following" is never applied on Doug's (`mastodon.server`) server. In fact when Doug search for `@bob@bob.com` again Bob's account is displayed with a "Cancel follow" button.
 
-I know this means that the Mastodon server doesn't think it's gotten a valid `Accept` message yet. For example, it may think that Bob has inidicated that all follower requests must be manually approved but that is not the case as indicated by Bob's `actor` resource (above). Maybe I am not sending the correct response header but if that is not `application/ld+json; profile="https://www.w3.org/ns/activitystreams"` then what is it? Are there other headers that I am supposed to be sending back?
+I know this means that the Mastodon server doesn't think it's gotten a valid `Accept` message yet. For example, it may think that Bob has inidicated that all follower requests must be manually approved but that is not the case as indicated by Bob's `actor` resource (above).
+
+Maybe I am not sending the correct response header but if that is not `application/ld+json; profile="https://www.w3.org/ns/activitystreams"` then what is it? Are there other headers that I am supposed to be sending back?
 
 There is [working demo code](#example) (that only requires Go and an instance of DynamoDB running out of a Docker container) below that walks through, and succeeds at, all of these interactions as I understand them. I am totally happy for this problem to be "user error" but I could use some help seeing what those errors are...
 
