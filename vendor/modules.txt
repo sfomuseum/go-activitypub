@@ -4,8 +4,8 @@ github.com/aaronland/go-aws-auth
 # github.com/aaronland/go-aws-dynamodb v0.0.5
 ## explicit; go 1.18
 github.com/aaronland/go-aws-dynamodb
-# github.com/aaronland/go-aws-session v0.0.6
-## explicit; go 1.12
+# github.com/aaronland/go-aws-session v0.2.1
+## explicit; go 1.18
 github.com/aaronland/go-aws-session
 # github.com/aaronland/go-http-sanitize v0.0.8
 ## explicit; go 1.12
@@ -24,8 +24,8 @@ github.com/aaronland/go-pagination-sql
 # github.com/aaronland/go-roster v1.0.0
 ## explicit; go 1.16
 github.com/aaronland/go-roster
-# github.com/aaronland/go-string v0.1.2
-## explicit; go 1.12
+# github.com/aaronland/go-string v1.0.0
+## explicit; go 1.16
 github.com/aaronland/go-string/dsn
 # github.com/aaronland/gocloud-docstore v0.0.5
 ## explicit; go 1.18
@@ -40,7 +40,7 @@ github.com/aws/aws-lambda-go/lambda
 github.com/aws/aws-lambda-go/lambda/handlertrace
 github.com/aws/aws-lambda-go/lambda/messages
 github.com/aws/aws-lambda-go/lambdacontext
-# github.com/aws/aws-sdk-go v1.49.0
+# github.com/aws/aws-sdk-go v1.50.23
 ## explicit; go 1.19
 github.com/aws/aws-sdk-go/aws
 github.com/aws/aws-sdk-go/aws/auth/bearer
@@ -83,6 +83,8 @@ github.com/aws/aws-sdk-go/private/protocol/xml/xmlutil
 github.com/aws/aws-sdk-go/service/dynamodb
 github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute
 github.com/aws/aws-sdk-go/service/dynamodb/expression
+github.com/aws/aws-sdk-go/service/sns
+github.com/aws/aws-sdk-go/service/sqs
 github.com/aws/aws-sdk-go/service/ssm
 github.com/aws/aws-sdk-go/service/sso
 github.com/aws/aws-sdk-go/service/sso/ssoiface
@@ -155,6 +157,16 @@ github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding
 # github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.10.10
 ## explicit; go 1.19
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url
+# github.com/aws/aws-sdk-go-v2/service/sns v1.26.5
+## explicit; go 1.19
+github.com/aws/aws-sdk-go-v2/service/sns
+github.com/aws/aws-sdk-go-v2/service/sns/internal/endpoints
+github.com/aws/aws-sdk-go-v2/service/sns/types
+# github.com/aws/aws-sdk-go-v2/service/sqs v1.29.5
+## explicit; go 1.19
+github.com/aws/aws-sdk-go-v2/service/sqs
+github.com/aws/aws-sdk-go-v2/service/sqs/internal/endpoints
+github.com/aws/aws-sdk-go-v2/service/sqs/types
 # github.com/aws/aws-sdk-go-v2/service/ssm v1.45.0
 ## explicit; go 1.19
 github.com/aws/aws-sdk-go-v2/service/ssm
@@ -201,6 +213,12 @@ github.com/aws/smithy-go/waiter
 # github.com/bwmarrin/snowflake v0.3.0
 ## explicit
 github.com/bwmarrin/snowflake
+# github.com/cespare/xxhash/v2 v2.2.0
+## explicit; go 1.11
+github.com/cespare/xxhash/v2
+# github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f
+## explicit
+github.com/dgryski/go-rendezvous
 # github.com/fogleman/gg v1.3.0
 ## explicit
 github.com/fogleman/gg
@@ -213,6 +231,16 @@ github.com/go-fed/httpsig
 # github.com/go-ini/ini v1.67.0
 ## explicit
 github.com/go-ini/ini
+# github.com/go-redis/redis/v8 v8.11.5
+## explicit; go 1.17
+github.com/go-redis/redis/v8
+github.com/go-redis/redis/v8/internal
+github.com/go-redis/redis/v8/internal/hashtag
+github.com/go-redis/redis/v8/internal/hscan
+github.com/go-redis/redis/v8/internal/pool
+github.com/go-redis/redis/v8/internal/proto
+github.com/go-redis/redis/v8/internal/rand
+github.com/go-redis/redis/v8/internal/util
 # github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 ## explicit
 github.com/golang/freetype/raster
@@ -259,6 +287,10 @@ github.com/mitchellh/reflectwalk
 # github.com/sfomuseum/go-flags v0.10.0
 ## explicit; go 1.16
 github.com/sfomuseum/go-flags/flagset
+# github.com/sfomuseum/go-pubsub v0.0.14
+## explicit; go 1.21
+github.com/sfomuseum/go-pubsub
+github.com/sfomuseum/go-pubsub/publisher
 # github.com/sfomuseum/go-template v1.9.0
 ## explicit; go 1.18
 github.com/sfomuseum/go-template/funcs
@@ -311,11 +343,13 @@ gocloud.dev/docstore/awsdynamodb
 gocloud.dev/docstore/driver
 gocloud.dev/docstore/internal/fields
 gocloud.dev/gcerrors
+gocloud.dev/internal/escape
 gocloud.dev/internal/gcerr
 gocloud.dev/internal/oc
 gocloud.dev/internal/openurl
 gocloud.dev/internal/retry
 gocloud.dev/pubsub
+gocloud.dev/pubsub/awssnssqs
 gocloud.dev/pubsub/batcher
 gocloud.dev/pubsub/driver
 gocloud.dev/runtimevar

@@ -5,30 +5,34 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"gocloud.dev/pubsub"
+	"github.com/sfomuseum/go-pubsub/publisher"
 )
 
 type PubSubDeliveryQueue struct {
 	DeliveryQueue
-	topic *pubsub.Topic
+	publisher publisher.Publisher
 }
 
 func init() {
-	// ctx := context.Background()
-	// RegisterDeliveryQueue(ctx, "pubSub", NewPubsubDeliveryQueue)
+
+	for _, scheme := range publisher.PublisherSchemes() {
+		ctx := context.Background()
+		RegisterDeliveryQueue(ctx, scheme, NewPubSubDeliveryQueue)
+	}
 }
 
 func NewPubSubDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, error) {
 
-	topic, err := pubsub.OpenTopic(ctx, uri)
+	pub, err := publisher.NewPublisher(ctx, uri)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to open pubsub topic, %w", err)
+		return nil, fmt.Errorf("Failed to create publisher, %w", err)
 	}
 
 	q := &PubSubDeliveryQueue{
-		topic: topic,
+		publisher: pub,
 	}
+
 	return q, nil
 }
 
@@ -40,11 +44,7 @@ func (q *PubSubDeliveryQueue) DeliverPost(ctx context.Context, opts *DeliverPost
 		return fmt.Errorf("Failed to marshal post options, %w", err)
 	}
 
-	msg := &pubsub.Message{
-		Body: enc_opts,
-	}
-
-	err = q.topic.Send(ctx, msg)
+	err = q.publisher.Publish(ctx, string(enc_opts))
 
 	if err != nil {
 		return fmt.Errorf("Failed to send message, %w", err)
