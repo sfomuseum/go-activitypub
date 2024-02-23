@@ -62,7 +62,7 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 
 	now := time.Now()
 	http_req.Header.Set("Date", now.Format(time.RFC3339))
-	http_req.Header.Set("Accept", ap.ACTIVITYSTREAMS_ACCEPT_HEADER)
+	http_req.Header.Set("Content-Type", ap.ACTIVITYSTREAMS_ACCEPT_HEADER)
 
 	// Note that "key_id" here means a pointer to the actor/profile page where the public key
 	// for the follower can be retrieved
@@ -81,7 +81,9 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 	// https://datatracker.ietf.org/doc/html/draft-cavage-http-signatures#section-1.1
 	// https://pkg.go.dev/github.com/go-fed/httpsig
 
-	prefs := []httpsig.Algorithm{httpsig.RSA_SHA512, httpsig.RSA_SHA256}
+	// prefs := []httpsig.Algorithm{httpsig.RSA_SHA512, httpsig.RSA_SHA256}
+
+	prefs := []httpsig.Algorithm{httpsig.RSA_SHA256}
 	digestAlgorithm := httpsig.DigestSha256
 
 	headersToSign := []string{
@@ -120,7 +122,7 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 		return nil, fmt.Errorf("Failed to execute post to inbox request, %w", err)
 	}
 
-	// logger.Info("Response", "code", http_rsp.StatusCode)
+	// slog.Debug("Response", "code", http_rsp.StatusCode, "headers", http_rsp.Header)
 
 	defer http_rsp.Body.Close()
 

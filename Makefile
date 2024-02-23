@@ -148,7 +148,7 @@ dynamo-local:
 dynamo-tables-local:
 	go run -mod vendor cmd/create-dynamodb-tables/main.go \
 		-refresh \
-		-table-prefix $(TABLE_PREFIX) \
+		-table-prefix '$(TABLE_PREFIX)' \
 		-dynamodb-client-uri 'awsdynamodb://?local=true'
 
 # I haven't been able to get this to work yet...

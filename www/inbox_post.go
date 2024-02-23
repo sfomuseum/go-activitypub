@@ -63,6 +63,54 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			return
 		}
 
+		// Start by doing some initial sanity checking on the message body
+
+		var activity *ap.Activity
+
+		activity_r := activitypub.DefaultLimitedReader(req.Body)
+
+		dec := json.NewDecoder(activity_r)
+		err := dec.Decode(&activity)
+
+		if err != nil {
+			logger.Error("Failed to decode message body", "error", err)
+			http.Error(rsp, "Bad request", http.StatusBadRequest)
+			return
+		}
+
+		requestor_address := activity.Actor
+
+		logger = logger.With("requestor_address", requestor_address)
+		logger = logger.With("activity_type", activity.Type)
+
+		// There is a not insignificant number of people crawling ActivityPub
+		// endpoints issuing "Delete" activities just to see if they will stick...
+
+		switch activity.Type {
+		case "Follow", "Undo":
+
+			if !opts.AllowFollow {
+				logger.Error("Unsupported activity type")
+				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
+				return
+			}
+
+		case "Create":
+
+			if !opts.AllowCreate {
+				logger.Error("Unsupported activity type")
+				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
+				return
+			}
+
+		default:
+			logger.Error("Unsupported activity type")
+			http.Error(rsp, "Not implemented", http.StatusNotImplemented)
+			return
+		}
+
+		// Ensure the account being poked exists
+
 		account_name, host, err := activitypub.ParseAddressFromRequest(req)
 
 		if err != nil {
@@ -96,26 +144,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("account id", acct.Id)
 
-		//
-
-		var activity *ap.Activity
-
-		activity_r := activitypub.DefaultLimitedReader(req.Body)
-
-		dec := json.NewDecoder(activity_r)
-		err = dec.Decode(&activity)
-
-		if err != nil {
-			logger.Error("Failed to decode message body", "error", err)
-			http.Error(rsp, "Bad request", http.StatusBadRequest)
-			return
-		}
-
-		// enc_activity, _ := json.Marshal(activity)
-		// logger = logger.With("activity", string(enc_activity))
-
-		requestor_address := activity.Actor
-		logger = logger.With("requestor_address", requestor_address)
+		// Figure out who is doing the poking
 
 		var requestor_name string
 		var requestor_host string
@@ -212,8 +241,6 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			http.Error(rsp, "Forbidden", http.StatusForbidden)
 			return
 		}
-
-		logger = logger.With("activity-type", activity.Type)
 
 		switch activity.Type {
 		case "Follow", "Undo":
@@ -376,12 +403,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			// I can not figure out what I am suppose to return here...
-
-			// activity.Context = "" 	// Is this important? I have no idea...
-			// accept_obj = activity
-
-			accept_obj = acct.AccountURL(ctx, opts.URIs).String()
+			activity.Context = "" // Is this important? I have no idea...
+			accept_obj = activity
 
 		case "Undo":
 
@@ -551,14 +574,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		// that returns different responses based on the activity? Like does a
 		// create activity need to return 201 (it seems like it...) ?
 
-		// You'd think it would be "id" as documented here
-		// https://seb.jambor.dev/posts/understanding-activitypub/
-		// But these docs say "inbox"
-		// https://blog.joinmastodon.org/2018/07/how-to-make-friends-and-verify-requests/
-		// And I have no idea...
-
-		accept_actor := requestor_actor.Id
-		// accept_actor := requestor_actor.Inbox
+		accept_actor := acct.AccountURL(ctx, opts.URIs).String()
 
 		accept, err := ap.NewAcceptActivity(ctx, accept_actor, accept_obj)
 
@@ -578,7 +594,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		// END of debugging...
 
-		rsp.Header().Set("Content-type", ap.ACTIVITY_CONTENT_TYPE)
+		rsp.Header().Set("Content-Type", ap.ACTIVITY_CONTENT_TYPE)
 
 		enc := json.NewEncoder(rsp)
 		err = enc.Encode(accept)
