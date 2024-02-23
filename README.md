@@ -60,7 +60,7 @@ Each actor (or account) has a pair of public-private encryption keys. As the nam
 
 _The details of how any given private key is kept secure are not part of the ActivityPub specification and are left as implementation details to someone building a ActivityPub-based webs service._
 
-### Looking up accounts
+### Looking up and following accounts
 
 So let's say that Doug is on a Mastodon instance called `mastodon.server` and wants to follow `bob@bob.com`. To do this Doug would start by searching for the address `@bob@bob.com`.
 
@@ -117,7 +117,6 @@ $> curl -s -H 'Accept: application/ld+json; profile="https://www.w3.org/ns/activ
   "following": "https://bob.com/ap/bob/following",
   "followers": "https://bob.com/ap/bob/followers",
   "discoverable": true,
-  "manuallyApprovesFollowers": false,
   "published": "2024-02-20T15:55:17-08:00",
   "icon": {
     "type": "Image",
@@ -129,7 +128,14 @@ $> curl -s -H 'Accept: application/ld+json; profile="https://www.w3.org/ns/activ
 
 At this point Doug's Mastodon server (`mastodon.server`) will issue a `POST` request to `https://bob.com/ap/bob/inbox`. The body of that request will be a "Follow" sctivity that looks like this:
 
-_TBW_
+{
+   "@context" : "https://www.w3.org/ns/activitystreams",
+   "actor" : "https://mastodon.server/users/doug",
+   "id" : "https://mastodon.server/52c7a999-a6bb-4ce5-82ca-5f21aec51811",
+   "object" : "https://bob.bom/ap/bob",
+   "type" : "Follow"
+}
+
 
 Bob's server `bob.com` will then verify the request from Doug to follow Bob is valid by... _TBW_.
 
@@ -142,7 +148,7 @@ Bob's server will then create a local entry indiciating that Doug is following B
   "type": "Accept",
   "actor": "https://bob.com/ap/bob",
   "object": {
-    "id": "1d37838b-7d18-4bba-929e-6b349400aa4d",
+    "id" : "https://mastodon.server/52c7a999-a6bb-4ce5-82ca-5f21aec51811",  
     "type": "Follow",
     "actor": "https://mastodon.server/users/doug",
     "object": "https://bob.com/ap/bob"
@@ -156,7 +162,9 @@ https://seb.jambor.dev/posts/understanding-activitypub/
 
 Except that this never seems to work as in no errors are thrown but the "following" is never applied on Doug's (`mastodon.server`) server. In fact when Doug search for `@bob@bob.com` again Bob's account is displayed with a "Cancel follow" button.
 
-I know what this "means" but I have no idea why it's happening or whether there is something else I need to do in this code.
+I know this means that the Mastodon server doesn't think it's gotten a valid `Accept` message yet. For example, it may think that Bob has inidicated that all follower requests must be manually approved but that is not the case as indicated by Bob's `actor` resource (above). Maybe I am not sending the correct response header but if that is not `application/ld+json; profile="https://www.w3.org/ns/activitystreams"` then what is it? Are there other headers that I am supposed to be sending back?
+
+There is [working demo code](#example) (that only requires Go and an instance of DynamoDB running out of a Docker container) below that walks through, and succeeds at, all of these interactions as I understand them. I am totally happy for this problem to be "user error" but I could use some help seeing what those errors are...
 
 ### Endpoints
 
@@ -256,6 +264,12 @@ func main() {
 ##### Document Store table definitions
 
 * [DynamoDB](schema/dynamodb)
+
+### Delivery Queues
+
+_TBW_
+
+The default delivery queue is [SynchronousDeliveryQueue](delivery_queue_synchronous.go) which delivers posts to each follower in the order they are received.
 
 ### Example
 

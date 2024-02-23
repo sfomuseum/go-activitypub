@@ -29,6 +29,6 @@ func ParseAddressFromRequest(req *http.Request) (string, string, error) {
 		return "", "", fmt.Errorf("request is missing {resource} path value")
 	}
 
-	slog.Debug("PARSE FROM REQUEST", "resource", resource)
+	slog.Debug("Parse address from request", "path", req.URL.Path, "resource", resource)
 	return ParseAddress(resource)
 }
