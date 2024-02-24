@@ -141,9 +141,16 @@ At this point Doug's Mastodon server (`mastodon.server`) will issue a `POST` req
 
 Bob's server `bob.com` will then verify the request from Doug to follow Bob is valid by... _TBW_.
 
-Bob's server will then create a local entry indiciating that Doug is following Bob and then return an "Accept" message, like this:
+Bob's server will then create a local entry indiciating that Doug is following Bob and then post (as in HTTP `POST` method) an "Accept" message to Doug's inbox:
 
 ```
+POST /users/doug/inbox HTTP/1.1
+Host: mastodon.server
+Content-Type: application/ld+json; profile="https://www.w3.org/ns/activitystreams"
+Date: 2024-02-24T02:28:21Z
+Digest: SHA-256=DrqW7OcDFoVsm/1G9mRx5576MkWm5rK5BwI0NglugJo=
+Signature: keyId="https://bob.com/ap/bob",algorithm="hs2019",headers="(request-target) host date",signature="..."
+
 {
   "@context": "https://www.w3.org/ns/activitystreams",
   "id": "0b8f64a3-2ab1-46c8-9f2c-4230a9f62689",
@@ -158,15 +165,14 @@ Bob's server will then create a local entry indiciating that Doug is following B
 }
 ```
 
-This matches the flow described here:
+There are two things to note:
 
-https://seb.jambor.dev/posts/understanding-activitypub/
+1. It appears that ActivityPub services sending messages to an inbox don't care about, and don't evaluate, responses that those inboxes return. Basically inboxes return a 2XX HTTP status code if everything went okay and everyone waits for the next message to arrive in an inbox before deciding what to do next. I am unclear if this is really true or not.
+2. There is no requirement to send the `POST` right away. In fact many services don't because they want to allow people to manually approve followers and so final "Accept" messages are often sent "out-of-band".
 
-Except that this never seems to work as in no errors are thrown but the "following" is never applied on Doug's (`mastodon.server`) server. In fact when Doug search for `@bob@bob.com` again Bob's account is displayed with a "Cancel follow" button.
+For the purposes of this example the code is sending the Accept message right away because a) I want to understand what Doug's server (`mastodon.server`) will return and b) because it's not working.
 
-I know this means that the Mastodon server doesn't think it's gotten a valid `Accept` message yet. For example, it may think that Bob has inidicated that all follower requests must be manually approved but that is not the case as indicated by Bob's `actor` resource (above).
-
-Maybe I am not sending the correct response header but if that is not `application/ld+json; profile="https://www.w3.org/ns/activitystreams"` then what is it? Are there other headers that I am supposed to be sending back?
+Specifically, I am getting HTTP 500 errors without any information to help understand why. Is it an [HTTP signature](https://datatracker.ietf.org/doc/rfc9421/) thing? If you're reading this it means I don't know yet.
 
 The code that handles all of this is [www/inbox_post.go](www/inbox_post.go) and there is [working demo code](#example) (that only requires Go and an instance of DynamoDB running out of a Docker container) below that walks through, and succeeds at, all of these interactions as I understand them. I am totally happy for this problem to be "user error" but I could use some help seeing what those errors are...
 

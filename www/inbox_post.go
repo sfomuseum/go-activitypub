@@ -60,7 +60,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		}
 
 		if !IsActivityStreamRequest(req, "Content-Type") {
-			logger.Error("Not activitystream request")
+			logger.Error("Not activitystream request", "content-type", req.Header.Get("Content-Type"))
 			http.Error(rsp, "Bad request", http.StatusBadRequest)
 			return
 		}
@@ -88,10 +88,16 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		// There is a not insignificant number of people crawling ActivityPub
 		// endpoints issuing "Delete" activities just to see if they will stick...
 
-		// raw_activity, _ := json.Marshal(activity)
-		// logger.Debug("ACTIVITY", "activity", string(raw_activity))
+		raw_activity, _ := json.Marshal(activity)
+		logger.Debug("ACTIVITY", "path", req.URL.Path, "activity", string(raw_activity))
 
 		switch activity.Type {
+		case "Accept":
+
+			logger.Debug("Received 'Accept' activity", "response code", http.StatusAccepted)
+			rsp.WriteHeader(http.StatusAccepted)
+			return
+
 		case "Follow":
 
 			if !opts.AllowFollow {
@@ -300,11 +306,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		// This is important if the server is running behind some kind of proxy (for example Lambda)
 		// or the signature verification will fail
 
-		if opts.URIs.Hostname != "" {
-			logger.Debug("Manually set hostname on request", "hostname", opts.URIs.Hostname)
-			req.Header.Set("Host", opts.URIs.Hostname)
-			req.Host = opts.URIs.Hostname
-		}
+		logger.Debug("Manually set hostname on request", "hostname", opts.URIs.Hostname)
+		req.Header.Set("Host", opts.URIs.Hostname)
+		req.Host = opts.URIs.Hostname
 
 		verifier, err := httpsig.NewVerifier(req)
 
@@ -429,6 +433,77 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
+			// START OF wut...
+
+			// Note: Because we actually have to post (like HTTP POST) an Accept message back to the
+			// requestor's inbox this should be deferred until after that happens.
+			//
+			// Also, more reasons to break all of this in to multiple http.Next() handlers and also
+			// do we need to POST an accept for every activity?
+
+			// Return acceptance - does this need to be refactored in to a thing
+			// that returns different responses based on the activity? Like does a
+			// create activity need to return 201 (it seems like it...) ? See notes
+			// above wrt/ per-activity handlers and the http.Next() trick.
+
+			accept_actor := acct.AccountURL(ctx, opts.URIs).String()
+
+			accept, err := ap.NewAcceptActivity(ctx, opts.URIs, accept_actor, accept_obj)
+
+			if err != nil {
+				logger.Error("Failed to create new accept activity", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			logger = logger.With("accept", accept.Id)
+
+			// START of debugging...
+
+			enc_accept, _ := json.Marshal(accept)
+			logger.Debug("ACCEPT", "actor", accept_actor)
+			logger.Debug("ACCEPT", "body", string(enc_accept))
+
+			// END of debugging...
+
+			// See notes above wrt/ adding folowers before or after this operation is complete and
+			// whether we need to do this operation for every activity?
+
+			post_opts := &activitypub.PostToInboxOptions{
+				From:    acct,
+				Inbox:   requestor_actor.Inbox,
+				Message: accept,
+				URIs:    opts.URIs,
+			}
+
+			wut, err := activitypub.PostToInbox(ctx, post_opts)
+
+			if err != nil {
+
+				logger.Error("Failed to post accept activity to requestor", "to", requestor_actor.Inbox, "error", err)
+
+				f, err := activitypub.GetFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
+
+				if err != nil {
+					logger.Error("Failed to retrieve newly created follower to remove", "error", err)
+				} else {
+
+					err = opts.FollowersDatabase.RemoveFollower(ctx, f)
+
+					if err != nil {
+						logger.Error("Failed to remove follower", "id", f.Id, "error", err)
+					}
+				}
+
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			enc_wut, _ := json.Marshal(wut)
+			logger.Debug("WUT", "wut", string(enc_wut))
+
+			// END OF wut...
+
 		case "Undo":
 
 			// Note: We have prevented Block Undo activities above so we're going to assume it's an undo follow request
@@ -441,18 +516,15 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			if !is_following {
-				logger.Error("Not following")
-				http.Error(rsp, "Bad request", http.StatusBadRequest)
-				return
-			}
+			if is_following {
 
-			err = opts.FollowersDatabase.RemoveFollower(ctx, f)
+				err = opts.FollowersDatabase.RemoveFollower(ctx, f)
 
-			if err != nil {
-				logger.Error("Failed to remove follower", "error", err)
-				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-				return
+				if err != nil {
+					logger.Error("Failed to remove follower", "error", err)
+					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+					return
+				}
 			}
 
 		case "Create":
@@ -596,41 +668,23 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			// pass
 		}
 
-		// Return acceptance - does this need to be refactored in to a thing
-		// that returns different responses based on the activity? Like does a
-		// create activity need to return 201 (it seems like it...) ? See notes
-		// above wrt/ per-activity handlers and the http.Next() trick.
+		// See notes in Follow activity...
+		return
 
-		accept_actor := acct.AccountURL(ctx, opts.URIs).String()
+		// Apparently unnecessary?
 
-		accept, err := ap.NewAcceptActivity(ctx, opts.URIs, accept_actor, accept_obj)
+		/*
+			rsp.Header().Set("Content-Type", ap.ACTIVITY_LD_CONTENT_TYPE)
 
-		if err != nil {
-			logger.Error("Failed to create new accept activity", "error", err)
-			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-			return
-		}
+			enc := json.NewEncoder(rsp)
+			err = enc.Encode(accept)
 
-		logger = logger.With("accept", accept.Id)
-
-		// START of debugging...
-
-		enc_accept, _ := json.Marshal(accept)
-		logger.Debug("ACCEPT", "actor", accept_actor)
-		logger.Debug("ACCEPT", "body", string(enc_accept))
-
-		// END of debugging...
-
-		rsp.Header().Set("Content-Type", ap.ACTIVITY_LD_CONTENT_TYPE)
-
-		enc := json.NewEncoder(rsp)
-		err = enc.Encode(accept)
-
-		if err != nil {
-			logger.Error("Failed to encode accept activity", "error", err)
-			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-			return
-		}
+			if err != nil {
+				logger.Error("Failed to encode accept activity", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+		*/
 	}
 
 	return http.HandlerFunc(fn), nil

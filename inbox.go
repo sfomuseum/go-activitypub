@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"net/http/httputil"
 	"time"
 
 	"github.com/go-fed/httpsig"
@@ -62,8 +63,12 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 	}
 
 	now := time.Now()
+
+	http_req.Header.Set("Content-Type", ap.ACTIVITY_LD_CONTENT_TYPE)
+
 	http_req.Header.Set("Date", now.Format(time.RFC3339))
-	http_req.Header.Set("Content-Type", ap.ACTIVITYSTREAMS_ACCEPT_HEADER)
+	http_req.Header.Set("Host", opts.URIs.Hostname)
+	http_req.Host = opts.URIs.Hostname
 
 	// Note that "key_id" here means a pointer to the actor/profile page where the public key
 	// for the follower can be retrieved
@@ -89,8 +94,9 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 
 	headersToSign := []string{
 		httpsig.RequestTarget,
+		"Host",
 		"Date",
-		"Digest",
+		// "Digest",
 	}
 
 	str_ttl := "PT1M"
@@ -115,36 +121,61 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 		return nil, fmt.Errorf("Failed to sign request, %w", err)
 	}
 
-	http_cl := http.Client{}
+	// START OF debugging
+	// https://pkg.go.dev/net/http/httputil#DumpRequest
 
+	dump, err := httputil.DumpRequest(http_req, true)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to dump request, %w", err)
+	}
+
+	slog.Debug("REQUEST", "body", string(dump))
+
+	// END OF debugging
+
+	http_cl := http.Client{}
 	http_rsp, err := http_cl.Do(http_req)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to execute post to inbox request, %w", err)
 	}
 
-	// slog.Debug("Response", "code", http_rsp.StatusCode, "headers", http_rsp.Header)
-
 	defer http_rsp.Body.Close()
 
-	if http_rsp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Follow request failed %d, %s", http_rsp.StatusCode, http_rsp.Status)
+	slog.Debug("Response", "inbox", opts.Inbox, "code", http_rsp.StatusCode, "content-type", http_rsp.Header.Get("Content-Type"))
+
+	// https://www.w3.org/wiki/ActivityPub/Primer/HTTP_status_codes_for_delivery
+
+	switch http_rsp.StatusCode {
+	// HTTP 201, 202, 204
+	case http.StatusCreated, http.StatusAccepted, http.StatusNoContent:
+		return nil, nil
+	case http.StatusOK:
+
+		/*
+			var activity *ap.Activity
+
+			activity_r := DefaultLimitedReader(http_rsp.Body)
+
+			dec := json.NewDecoder(activity_r)
+			err = dec.Decode(&activity)
+
+			if err != nil {
+				return nil, fmt.Errorf("Failed to decode response, %w", err)
+			}
+
+			if activity.Type != "Accept" {
+				return nil, fmt.Errorf("Unexpected activity type, %s", activity.Type)
+			}
+
+			return activity, nil
+		*/
+
+		return nil, nil
+	default:
+		//
 	}
 
-	var activity *ap.Activity
-
-	activity_r := DefaultLimitedReader(http_rsp.Body)
-
-	dec := json.NewDecoder(activity_r)
-	err = dec.Decode(&activity)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to decode response, %w", err)
-	}
-
-	if activity.Type != "Accept" {
-		return nil, fmt.Errorf("Unexpected activity type, %s", activity.Type)
-	}
-
-	return activity, nil
+	return nil, fmt.Errorf("Follow request failed %d, %s", http_rsp.StatusCode, http_rsp.Status)
 }
