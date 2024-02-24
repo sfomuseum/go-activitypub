@@ -8,6 +8,7 @@ import (
 type URIs struct {
 	// Webfinger is assigned automatically
 
+	Root      string `json:"root"`
 	Account   string `json:"account"`
 	Inbox     string `json:"inbox"`
 	Outbox    string `json:"outbox"`
@@ -24,6 +25,7 @@ func DefaultURIs() *URIs {
 	uris_table := &URIs{
 		// Webfinger is assigned automatically
 
+		Root:      "/ap",
 		Account:   "/ap/{resource}",
 		Inbox:     "/ap/{resource}/inbox",
 		Outbox:    "/ap/{resource}/outbox",
