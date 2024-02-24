@@ -24,7 +24,7 @@ The mechanics of the code are discussed later in this document.
 
 ## How does ActivityPub work?
 
-Let's say there are two people, Bob and Alice, who want to exchange messages. A "message" might be text or images or video of some combination of all three. An "exchange" is the act of sending those messages from one person to another an email-like addressing scheme but instead of using an email-specific protocol messages are sent over HTTP(S).
+Let's say there are two people, Bob and Alice, who want to exchange messages. A "message" might be text or images or video of some combination of all three. An "exchange" is the act of sending those messages from one person to another using an email-like addressing scheme but instead of using an email-specific protocol messages are sent over HTTP(S).
 
 Both Bob and Alice have their own respective public-private key pairs. When Bob sends a message it is signed using Bob's _private key_. When Alice receives a message from Bob the authenticity of that message (trust that it was sent by Bob) is verified by Alice using Bob's _public_ key.
 
