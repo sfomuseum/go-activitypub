@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type DeliverPostOptions struct {
@@ -15,7 +16,7 @@ type DeliverPostOptions struct {
 	To       string
 	Post     *Post
 	Hostname string
-	URIs     *URIs
+	URIs     *uris.URIs
 }
 
 type DeliveryQueue interface {

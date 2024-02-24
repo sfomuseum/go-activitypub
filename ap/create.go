@@ -3,16 +3,16 @@ package ap
 import (
 	"context"
 
-	"github.com/sfomuseum/go-activitypub/id"
+	"github.com/sfomuseum/go-activitypub/uris"
 )
 
-func NewCreateActivity(ctx context.Context, from string, to []string, object interface{}) (*Activity, error) {
+func NewCreateActivity(ctx context.Context, uris_table *uris.URIs, from string, to []string, object interface{}) (*Activity, error) {
 
-	uuid := id.NewUUID()
+	ap_id := NewId(uris_table)
 
 	req := &Activity{
 		Context: ACTIVITYSTREAMS_CONTEXT,
-		Id:      uuid,
+		Id:      ap_id,
 		Type:    "Create",
 		Actor:   from,
 		To:      to,

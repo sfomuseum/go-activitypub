@@ -5,12 +5,13 @@ import (
 	"time"
 
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type OutboxPostHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
 	PostsDatabase    activitypub.PostsDatabase
-	URIs             *activitypub.URIs
+	URIs             *uris.URIs
 }
 
 func OutboxPostHandler(opts *OutboxPostHandlerOptions) (http.Handler, error) {

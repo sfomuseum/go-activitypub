@@ -8,11 +8,12 @@ import (
 	"time"
 
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type AccountHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
-	URIs             *activitypub.URIs
+	URIs             *uris.URIs
 	Templates        *template.Template
 }
 
@@ -114,8 +115,8 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 
 		account_url := acct.AccountURL(ctx, opts.URIs)
 
-		icon_path := activitypub.AssignResource(opts.URIs.Icon, acct.Name)
-		icon_url := activitypub.NewURL(opts.URIs, icon_path)
+		icon_path := uris.AssignResource(opts.URIs.Icon, acct.Name)
+		icon_url := uris.NewURL(opts.URIs, icon_path)
 
 		vars := AccountTemplateVars{
 			Account:    acct,

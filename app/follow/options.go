@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/sfomuseum/go-flags/flagset"
 )
 
@@ -18,7 +18,7 @@ type RunOptions struct {
 	AccountName          string
 	FollowAddress        string
 	Undo                 bool
-	URIs                 *activitypub.URIs
+	URIs                 *uris.URIs
 	Verbose              bool
 }
 
@@ -32,7 +32,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		return nil, fmt.Errorf("Failed to derive flags from environment variables, %w", err)
 	}
 
-	uris_table := activitypub.DefaultURIs()
+	uris_table := uris.DefaultURIs()
 	uris_table.Hostname = hostname
 	uris_table.Insecure = insecure
 

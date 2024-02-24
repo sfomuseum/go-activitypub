@@ -9,6 +9,7 @@ import (
 
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/crypto"
+	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/sfomuseum/go-activitypub/webfinger"
 	"github.com/sfomuseum/runtimevar"
 )
@@ -33,31 +34,31 @@ func (a *Account) Address(hostname string) string {
 	return fmt.Sprintf("%s@%s", a.Name, hostname)
 }
 
-func (a *Account) AccountURL(ctx context.Context, uris_table *URIs) *url.URL {
+func (a *Account) AccountURL(ctx context.Context, uris_table *uris.URIs) *url.URL {
 
-	account_path := AssignResource(uris_table.Account, a.Name)
-	return NewURL(uris_table, account_path)
+	account_path := uris.AssignResource(uris_table.Account, a.Name)
+	return uris.NewURL(uris_table, account_path)
 }
 
-func (a *Account) OutboxURL(ctx context.Context, uris_table *URIs) *url.URL {
+func (a *Account) OutboxURL(ctx context.Context, uris_table *uris.URIs) *url.URL {
 
-	outbox_path := AssignResource(uris_table.Outbox, a.Name)
-	return NewURL(uris_table, outbox_path)
+	outbox_path := uris.AssignResource(uris_table.Outbox, a.Name)
+	return uris.NewURL(uris_table, outbox_path)
 }
 
-func (a *Account) InboxURL(ctx context.Context, uris_table *URIs) *url.URL {
+func (a *Account) InboxURL(ctx context.Context, uris_table *uris.URIs) *url.URL {
 
-	inbox_path := AssignResource(uris_table.Inbox, a.Name)
-	return NewURL(uris_table, inbox_path)
+	inbox_path := uris.AssignResource(uris_table.Inbox, a.Name)
+	return uris.NewURL(uris_table, inbox_path)
 }
 
-func (a *Account) ProfileURL(ctx context.Context, uris_table *URIs) *url.URL {
+func (a *Account) ProfileURL(ctx context.Context, uris_table *uris.URIs) *url.URL {
 
-	account_path := AssignResource(uris_table.Account, fmt.Sprintf("@%s", a.Name))
-	return NewURL(uris_table, account_path)
+	account_path := uris.AssignResource(uris_table.Account, fmt.Sprintf("@%s", a.Name))
+	return uris.NewURL(uris_table, account_path)
 }
 
-func (a *Account) WebfingerResource(ctx context.Context, uris_table *URIs) (*webfinger.Resource, error) {
+func (a *Account) WebfingerResource(ctx context.Context, uris_table *uris.URIs) (*webfinger.Resource, error) {
 
 	account_url := a.AccountURL(ctx, uris_table)
 	profile_url := a.ProfileURL(ctx, uris_table)
@@ -95,10 +96,10 @@ func (a *Account) WebfingerResource(ctx context.Context, uris_table *URIs) (*web
 	return r, nil
 }
 
-func (a *Account) FollowersResource(ctx context.Context, uris_table *URIs, followers_database FollowersDatabase) (*ap.Followers, error) {
+func (a *Account) FollowersResource(ctx context.Context, uris_table *uris.URIs, followers_database FollowersDatabase) (*ap.Followers, error) {
 
-	followers_path := AssignResource(uris_table.Followers, a.Name)
-	followers_url := NewURL(uris_table, followers_path)
+	followers_path := uris.AssignResource(uris_table.Followers, a.Name)
+	followers_url := uris.NewURL(uris_table, followers_path)
 
 	count, err := CountFollowers(ctx, followers_database, a.Id)
 
@@ -117,10 +118,10 @@ func (a *Account) FollowersResource(ctx context.Context, uris_table *URIs, follo
 	return f, nil
 }
 
-func (a *Account) FollowingResource(ctx context.Context, uris_table *URIs, following_database FollowingDatabase) (*ap.Following, error) {
+func (a *Account) FollowingResource(ctx context.Context, uris_table *uris.URIs, following_database FollowingDatabase) (*ap.Following, error) {
 
-	following_path := AssignResource(uris_table.Following, a.Name)
-	following_url := NewURL(uris_table, following_path)
+	following_path := uris.AssignResource(uris_table.Following, a.Name)
+	following_url := uris.NewURL(uris_table, following_path)
 
 	count, err := CountFollowing(ctx, following_database, a.Id)
 
@@ -139,7 +140,7 @@ func (a *Account) FollowingResource(ctx context.Context, uris_table *URIs, follo
 	return f, nil
 }
 
-func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*ap.Actor, error) {
+func (a *Account) ProfileResource(ctx context.Context, uris_table *uris.URIs) (*ap.Actor, error) {
 
 	// https://www.w3.org/TR/activitypub/#actor-objects
 	// https://www.w3.org/TR/activitypub/#obj-id
@@ -152,14 +153,14 @@ func (a *Account) ProfileResource(ctx context.Context, uris_table *URIs) (*ap.Ac
 	inbox_url := a.InboxURL(ctx, uris_table)
 	outbox_url := a.OutboxURL(ctx, uris_table)
 
-	icon_path := AssignResource(uris_table.Icon, a.Name)
-	icon_url := NewURL(uris_table, icon_path)
+	icon_path := uris.AssignResource(uris_table.Icon, a.Name)
+	icon_url := uris.NewURL(uris_table, icon_path)
 
-	followers_path := AssignResource(uris_table.Followers, a.Name)
-	followers_url := NewURL(uris_table, followers_path)
+	followers_path := uris.AssignResource(uris_table.Followers, a.Name)
+	followers_url := uris.NewURL(uris_table, followers_path)
 
-	following_path := AssignResource(uris_table.Following, a.Name)
-	following_url := NewURL(uris_table, following_path)
+	following_path := uris.AssignResource(uris_table.Following, a.Name)
+	following_url := uris.NewURL(uris_table, following_path)
 
 	pem, err := runtimevar.StringVar(ctx, a.PublicKeyURI)
 

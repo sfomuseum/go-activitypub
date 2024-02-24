@@ -13,6 +13,7 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/crypto"
+	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/tidwall/gjson"
 )
 
@@ -23,7 +24,7 @@ type InboxPostHandlerOptions struct {
 	MessagesDatabase  activitypub.MessagesDatabase
 	NotesDatabase     activitypub.NotesDatabase
 	BlocksDatabase    activitypub.BlocksDatabase
-	URIs              *activitypub.URIs
+	URIs              *uris.URIs
 	AllowFollow       bool
 	AllowCreate       bool
 
@@ -591,9 +592,6 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			logger.Info("Note has been added to messages")
 
-			acct_address := acct.AccountURL(ctx, opts.URIs)
-			accept_obj = acct_address
-
 		default:
 			// pass
 		}
@@ -605,7 +603,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		accept_actor := acct.AccountURL(ctx, opts.URIs).String()
 
-		accept, err := ap.NewAcceptActivity(ctx, accept_actor, accept_obj)
+		accept, err := ap.NewAcceptActivity(ctx, opts.URIs, accept_actor, accept_obj)
 
 		if err != nil {
 			logger.Error("Failed to create new accept activity", "error", err)

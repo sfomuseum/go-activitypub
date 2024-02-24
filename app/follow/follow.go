@@ -67,9 +67,9 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	var activity *ap.Activity
 
 	if opts.Undo {
-		activity, err = ap.NewUndoFollowActivity(ctx, follower_address, following_address)
+		activity, err = ap.NewUndoFollowActivity(ctx, opts.URIs, follower_address, following_address)
 	} else {
-		activity, err = ap.NewFollowActivity(ctx, follower_address, following_address)
+		activity, err = ap.NewFollowActivity(ctx, opts.URIs, follower_address, following_address)
 	}
 
 	if err != nil {

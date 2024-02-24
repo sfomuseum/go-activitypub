@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-fed/httpsig"
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/sfomuseum/iso8601duration"
 )
 
@@ -18,14 +19,14 @@ type PostToAccountOptions struct {
 	From    *Account
 	To      string
 	Message interface{}
-	URIs    *URIs
+	URIs    *uris.URIs
 }
 
 type PostToInboxOptions struct {
 	From    *Account
 	Inbox   string
 	Message interface{}
-	URIs    *URIs
+	URIs    *uris.URIs
 }
 
 func PostToAccount(ctx context.Context, opts *PostToAccountOptions) (*ap.Activity, error) {

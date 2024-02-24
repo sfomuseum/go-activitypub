@@ -8,8 +8,8 @@ import (
 	"net/url"
 
 	"github.com/mitchellh/copystructure"
-	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/templates/html"
+	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/sfomuseum/go-flags/flagset"
 )
 
@@ -22,7 +22,7 @@ type RunOptions struct {
 	MessagesDatabaseURI  string
 	BlocksDatabaseURI    string
 	PostsDatabaseURI     string
-	URIs                 *activitypub.URIs
+	URIs                 *uris.URIs
 	AllowFollow          bool
 	AllowCreate          bool
 	Verbose              bool
@@ -51,7 +51,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		hostname = u.Host
 	}
 
-	uris_table := activitypub.DefaultURIs()
+	uris_table := uris.DefaultURIs()
 	uris_table.Hostname = hostname
 	uris_table.Insecure = insecure
 

@@ -7,12 +7,13 @@ import (
 
 	"github.com/aaronland/go-http-sanitize"
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/sfomuseum/go-activitypub/webfinger"
 )
 
 type WebfingerHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
-	URIs             *activitypub.URIs
+	URIs             *uris.URIs
 }
 
 func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {

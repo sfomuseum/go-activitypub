@@ -15,12 +15,13 @@ import (
 	"github.com/fogleman/gg"
 	"github.com/golang/freetype/truetype"
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/uris"
 	"golang.org/x/image/font/gofont/goregular"
 )
 
 type IconHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
-	URIs             *activitypub.URIs
+	URIs             *uris.URIs
 }
 
 func IconHandler(opts *IconHandlerOptions) (http.Handler, error) {

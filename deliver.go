@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type DeliverPostToFollowersOptions struct {
@@ -13,7 +14,7 @@ type DeliverPostToFollowersOptions struct {
 	FollowersDatabase FollowersDatabase
 	DeliveryQueue     DeliveryQueue
 	Post              *Post
-	URIs              *URIs
+	URIs              *uris.URIs
 }
 
 func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOptions) error {
@@ -67,7 +68,7 @@ func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) (*ap.Ac
 		opts.To,
 	}
 
-	create_activity, err := ap.NewCreateActivity(ctx, from_uri, to_list, note)
+	create_activity, err := ap.NewCreateActivity(ctx, opts.URIs, from_uri, to_list, note)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create activity from post, %w", err)

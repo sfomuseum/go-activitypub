@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sfomuseum/go-activitypub/id"
+	"github.com/sfomuseum/go-activitypub/uris"
 )
 
-func NewFollowActivity(ctx context.Context, from string, to string) (*Activity, error) {
+func NewFollowActivity(ctx context.Context, uris_table *uris.URIs, from string, to string) (*Activity, error) {
 
-	uuid := id.NewUUID()
+	ap_id := NewId(uris_table)
 
 	req := &Activity{
-		Id:     uuid,
+		Id:     ap_id,
 		Type:   "Follow",
 		Actor:  from,
 		Object: to,
@@ -21,11 +21,11 @@ func NewFollowActivity(ctx context.Context, from string, to string) (*Activity, 
 	return req, nil
 }
 
-func NewUndoFollowActivity(ctx context.Context, from string, to string) (*Activity, error) {
+func NewUndoFollowActivity(ctx context.Context, uris_table *uris.URIs, from string, to string) (*Activity, error) {
 
-	uuid := id.NewUUID()
+	ap_id := NewId(uris_table)
 
-	follow_activity, err := NewFollowActivity(ctx, from, to)
+	follow_activity, err := NewFollowActivity(ctx, uris_table, from, to)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create follow activity (to undo), %w", err)
@@ -33,7 +33,7 @@ func NewUndoFollowActivity(ctx context.Context, from string, to string) (*Activi
 
 	req := &Activity{
 		Context: ACTIVITYSTREAMS_CONTEXT,
-		Id:      uuid,
+		Id:      ap_id,
 		Type:    "Undo",
 		Actor:   from,
 		Object:  follow_activity,
