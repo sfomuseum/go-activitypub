@@ -69,7 +69,7 @@ _Note: I am just using `bob.com` and `mastodon.server` as examples. They are not
 The code that runs Mastodon will then derive the hostname (`bob.com`) from the address and construct a URL in the form of:
 
 ```
-https://bob.com/.well-known/webfinger?resource=acct:@bob@bob.com
+https://bob.com/.well-known/webfinger?resource=acct:bob@bob.com
 ```
 
 Making a `GET` request to that URL is expected to return a [Webfinger](#) document which will look like this:
