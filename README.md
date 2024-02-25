@@ -190,6 +190,12 @@ Basically: Treat every message sent to the ActivityPub inbox as an offline task.
  
 ### Posting messages (to followers)
 
+Posting to a remote Mastodon server, this is currently failing with HTTP signature errors:
+
+```
+{"time":"2024-02-24T18:15:31.879981-08:00","level":"DEBUG","msg":"ERROR","body":"{\"error\":\"Signed request date outside acceptable time window\"}"}
+```
+
 ### Endpoints
 
 _To be written._

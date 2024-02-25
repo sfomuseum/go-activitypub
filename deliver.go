@@ -56,13 +56,13 @@ func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) error {
 
 	slog.Debug("Deliver post", "post", opts.Post.Id, "from", opts.From.Id, "to", opts.To)
 
-	note, err := opts.Post.AsNote(ctx, opts.URIs)
+	note, err := NoteFromPost(ctx, opts.URIs, opts.From, opts.Post)
 
 	if err != nil {
 		return fmt.Errorf("Failed to derive note from post, %w", err)
 	}
 
-	from_uri := opts.From.Address(opts.URIs.Hostname)
+	from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
 
 	to_list := []string{
 		opts.To,

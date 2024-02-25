@@ -3,6 +3,7 @@ package activitypub
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/sfomuseum/go-activitypub/ap"
@@ -46,31 +47,25 @@ func NewPost(ctx context.Context, acct *Account, body string) (*Post, error) {
 	return p, nil
 }
 
-// Need to pass in either the Account or the AccountsDatabase...
-// OR:
-// Just move this in a standalone funciton that accepts Accept, Post, etc...
-
-func (p *Post) AsNote(ctx context.Context, uris_table *uris.URIs) (*ap.Note, error) {
-
-	// https://paul.kinlan.me/adding-activity-pub-to-your-static-site/
-
-	// Need hostname and URIs and possible accounts database?
-	url := fmt.Sprintf("x-urn:fix-me#%d", p.Id)
+func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, post *Post) (*ap.Note, error) {
 
 	// Need account or accounts database...
-	attr := "fix me"
+	attr := acct.ProfileURL(ctx, uris_table).String()
+
+	// FIX ME
+	url := fmt.Sprintf("%s#%d", attr, post.Id)
 
 	ap_id := ap.NewId(uris_table)
 
-	t := time.Unix(p.Created, 0)
+	t := time.Unix(post.Created, 0)
 
 	n := &ap.Note{
 		Type:         "Note",
 		Id:           ap_id,
 		AttributedTo: attr,
 		To:           "https://www.w3.org/ns/activitystreams#Public", // what?
-		Content:      p.Body,
-		Published:    t.Format(time.RFC3339),
+		Content:      post.Body,
+		Published:    t.Format(http.TimeFormat),
 		URL:          url,
 	}
 

@@ -58,6 +58,15 @@ func (a *Account) ProfileURL(ctx context.Context, uris_table *uris.URIs) *url.UR
 	return uris.NewURL(uris_table, account_path)
 }
 
+//TBD...
+/*
+func (a *Account) PostURL(ctx context.Context, uris_table *uris.URIs, post *Post) *url.URL {
+
+	account_path := uris.AssignResource(uris_table.Account, fmt.Sprintf("@%s", a.Name))
+	return uris.NewURL(uris_table, account_path)
+}
+*/
+
 func (a *Account) WebfingerResource(ctx context.Context, uris_table *uris.URIs) (*webfinger.Resource, error) {
 
 	account_url := a.AccountURL(ctx, uris_table)

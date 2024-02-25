@@ -48,16 +48,20 @@ func PostToAccount(ctx context.Context, opts *PostToAccountOptions) error {
 	}
 
 	inbox_opts := &PostToInboxOptions{
-		From:    opts.From,
-		Inbox:   actor.Inbox,
-		Message: opts.Message,
-		URIs:    opts.URIs,
+		From:               opts.From,
+		Inbox:              actor.Inbox,
+		Message:            opts.Message,
+		URIs:               opts.URIs,
+		LogRequest:         true,
+		LogResponseOnError: true,
 	}
 
 	return PostToInbox(ctx, inbox_opts)
 }
 
 func PostToInbox(ctx context.Context, opts *PostToInboxOptions) error {
+
+	slog.Debug("Post to inbox", "inbox", opts.Inbox)
 
 	enc_req, err := json.Marshal(opts.Message)
 
