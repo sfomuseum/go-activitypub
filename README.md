@@ -60,6 +60,20 @@ Each actor (or account) has a pair of public-private encryption keys. As the nam
 
 _The details of how any given private key is kept secure are not part of the ActivityPub specification and are left as implementation details to someone building a ActivityPub-based webs service._
 
+### Exchanging messages
+
+#### Identifiers
+
+_TBW_
+
+#### Signatures
+
+_TBW_
+
+#### Call and response
+
+_TBW_
+
 ### Looking up and following accounts
 
 So let's say that Doug is on a Mastodon instance called `mastodon.server` and wants to follow `bob@bob.com`. To do this Doug would start by searching for the address `@bob@bob.com`.
@@ -165,16 +179,16 @@ Signature: keyId="https://bob.com/ap/bob",algorithm="hs2019",headers="(request-t
 }
 ```
 
-There are two things to note:
+There are a fews things to note:
 
 1. It appears that ActivityPub services sending messages to an inbox don't care about, and don't evaluate, responses that those inboxes return. Basically inboxes return a 2XX HTTP status code if everything went okay and everyone waits for the next message to arrive in an inbox before deciding what to do next. I am unclear if this is really true or not.
 2. There is no requirement to send the `POST` right away. In fact many services don't because they want to allow people to manually approve followers and so final "Accept" messages are often sent "out-of-band".
 
-For the purposes of this example the code is sending the Accept message right away because a) I want to understand what Doug's server (`mastodon.server`) will return and b) because it's not working.
+For the purposes of this example the code is sending the "Accept" message immediately after the `HTTP 202 Accepted` response is sent in a Go language deferred (`defer`) function. As mentioned, it is unclear whether it is really necessary to send the "Accept" message in a deferred function (or whether it can be sent inline before the HTTP 202 response is sent). On the other there are accept activities which are specifically meant to happen "out-of-band", like follower requests that are manually approved, so the easiest way to think about things is that they will (maybe?) get moved in to its own delivery queue (distinct from posts) to happen after the inbox handler has completed.
 
-Specifically, I am getting HTTP 500 errors without any information to help understand why. Is it an [HTTP signature](https://datatracker.ietf.org/doc/rfc9421/) thing? If you're reading this it means I don't know yet.
-
-The code that handles all of this is [www/inbox_post.go](www/inbox_post.go) and there is [working demo code](#example) (that only requires Go and an instance of DynamoDB running out of a Docker container) below that walks through, and succeeds at, all of these interactions as I understand them. I am totally happy for this problem to be "user error" but I could use some help seeing what those errors are...
+Basically: Treat every message sent to the ActivityPub inbox as an offline task. I am still trying to determine if that's an accurate assumption but what that suggests is, especially for languages that don't have deferred functions (for example PHP), the minimal viable ActivityPub service needs an additional database and delivery queue for these kinds of activities.
+ 
+### Posting messages (to followers)
 
 ### Endpoints
 
