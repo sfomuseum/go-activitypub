@@ -52,14 +52,14 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 	return nil
 }
 
-func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) (*ap.Activity, error) {
+func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) error {
 
 	slog.Debug("Deliver post", "post", opts.Post.Id, "from", opts.From.Id, "to", opts.To)
 
 	note, err := opts.Post.AsNote(ctx)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to derive note from post, %w", err)
+		return fmt.Errorf("Failed to derive note from post, %w", err)
 	}
 
 	from_uri := opts.From.Address(opts.URIs.Hostname)
@@ -71,7 +71,7 @@ func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) (*ap.Ac
 	create_activity, err := ap.NewCreateActivity(ctx, opts.URIs, from_uri, to_list, note)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create activity from post, %w", err)
+		return fmt.Errorf("Failed to create activity from post, %w", err)
 	}
 
 	post_opts := &PostToAccountOptions{
@@ -81,11 +81,11 @@ func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) (*ap.Ac
 		URIs:    opts.URIs,
 	}
 
-	activity, err := PostToAccount(ctx, post_opts)
+	err = PostToAccount(ctx, post_opts)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to post to inbox, %w", err)
+		return fmt.Errorf("Failed to post to inbox, %w", err)
 	}
 
-	return activity, nil
+	return nil
 }

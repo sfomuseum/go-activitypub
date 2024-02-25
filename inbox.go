@@ -5,9 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"time"
 
 	"github.com/go-fed/httpsig"
@@ -28,14 +30,21 @@ type PostToInboxOptions struct {
 	Inbox   string
 	Message interface{}
 	URIs    *uris.URIs
+	// Log POST requests before they are sent using the default [log/slog] Logger. Note that this will
+	// include the HTTP signature sent with the request so you should apply all the necessary care that
+	// these values are logged somewhere you don't want unauthorized eyes to see the.
+	LogRequest bool
+	// Log the body of the POST response if it contains a status code that is not 200-202 or 204 using
+	// the default [log/slog] Logger
+	LogResponseOnError bool
 }
 
-func PostToAccount(ctx context.Context, opts *PostToAccountOptions) (*ap.Activity, error) {
+func PostToAccount(ctx context.Context, opts *PostToAccountOptions) error {
 
 	actor, err := RetrieveActor(ctx, opts.To, opts.URIs.Insecure)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to retrieve actor for %s, %w", opts.To, err)
+		return fmt.Errorf("Failed to retrieve actor for %s, %w", opts.To, err)
 	}
 
 	inbox_opts := &PostToInboxOptions{
@@ -48,27 +57,36 @@ func PostToAccount(ctx context.Context, opts *PostToAccountOptions) (*ap.Activit
 	return PostToInbox(ctx, inbox_opts)
 }
 
-func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, error) {
+func PostToInbox(ctx context.Context, opts *PostToInboxOptions) error {
 
 	enc_req, err := json.Marshal(opts.Message)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to marshal follow activity request, %w", err)
+		return fmt.Errorf("Failed to marshal follow activity request, %w", err)
 	}
 
 	http_req, err := http.NewRequestWithContext(ctx, "POST", opts.Inbox, bytes.NewBuffer(enc_req))
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create new request to %s, %w", opts.Inbox, err)
+		return fmt.Errorf("Failed to create new request to %s, %w", opts.Inbox, err)
 	}
 
 	now := time.Now()
 
 	http_req.Header.Set("Content-Type", ap.ACTIVITY_LD_CONTENT_TYPE)
 
-	http_req.Header.Set("Date", now.Format(time.RFC3339))
-	http_req.Header.Set("Host", opts.URIs.Hostname)
-	http_req.Host = opts.URIs.Hostname
+	// RFC 2612 dates are required
+	http_req.Header.Set("Date", now.Format(http.TimeFormat))
+
+	// START OF this is necessary for HTTP signature hoohah...
+	inbox_u, err := url.Parse(opts.Inbox)
+
+	if err != nil {
+		return fmt.Errorf("Failed to parse inbox URL, %w", err)
+	}
+
+	http_req.Header.Set("Host", inbox_u.Host)
+	// END OF this is necessary for HTTP signature hoohah...
 
 	// Note that "key_id" here means a pointer to the actor/profile page where the public key
 	// for the follower can be retrieved
@@ -81,7 +99,7 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 	private_key, err := opts.From.PrivateKeyRSA(ctx)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to derive private key for from account, %w", err)
+		return fmt.Errorf("Failed to derive private key for from account, %w", err)
 	}
 
 	// https://datatracker.ietf.org/doc/html/draft-cavage-http-signatures#section-1.1
@@ -96,7 +114,7 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 		httpsig.RequestTarget,
 		"Host",
 		"Date",
-		// "Digest",
+		"Digest",
 	}
 
 	str_ttl := "PT1M"
@@ -104,7 +122,7 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 	d, err := duration.FromString(str_ttl)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to derive duration, %w", err)
+		return fmt.Errorf("Failed to derive duration, %w", err)
 	}
 
 	ttl := int64(d.ToDuration().Seconds())
@@ -112,33 +130,33 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 	signer, _, err := httpsig.NewSigner(prefs, digestAlgorithm, headersToSign, httpsig.Signature, ttl)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create new signer, %w", err)
+		return fmt.Errorf("Failed to create new signer, %w", err)
 	}
 
 	err = signer.SignRequest(private_key, key_id, http_req, enc_req)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to sign request, %w", err)
+		return fmt.Errorf("Failed to sign request, %w", err)
 	}
 
-	// START OF debugging
 	// https://pkg.go.dev/net/http/httputil#DumpRequest
 
-	dump, err := httputil.DumpRequest(http_req, true)
+	if opts.LogRequest {
 
-	if err != nil {
-		return nil, fmt.Errorf("Failed to dump request, %w", err)
+		dump, err := httputil.DumpRequest(http_req, true)
+
+		if err != nil {
+			return fmt.Errorf("Failed to dump request, %w", err)
+		}
+
+		slog.Debug("REQUEST", "body", string(dump))
 	}
-
-	slog.Debug("REQUEST", "body", string(dump))
-
-	// END OF debugging
 
 	http_cl := http.Client{}
 	http_rsp, err := http_cl.Do(http_req)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to execute post to inbox request, %w", err)
+		return fmt.Errorf("Failed to execute post to inbox request, %w", err)
 	}
 
 	defer http_rsp.Body.Close()
@@ -148,34 +166,22 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) (*ap.Activity, e
 	// https://www.w3.org/wiki/ActivityPub/Primer/HTTP_status_codes_for_delivery
 
 	switch http_rsp.StatusCode {
-	// HTTP 201, 202, 204
-	case http.StatusCreated, http.StatusAccepted, http.StatusNoContent:
-		return nil, nil
-	case http.StatusOK:
-
-		/*
-			var activity *ap.Activity
-
-			activity_r := DefaultLimitedReader(http_rsp.Body)
-
-			dec := json.NewDecoder(activity_r)
-			err = dec.Decode(&activity)
-
-			if err != nil {
-				return nil, fmt.Errorf("Failed to decode response, %w", err)
-			}
-
-			if activity.Type != "Accept" {
-				return nil, fmt.Errorf("Unexpected activity type, %s", activity.Type)
-			}
-
-			return activity, nil
-		*/
-
-		return nil, nil
+	// HTTP 200, 201, 202, 204
+	case http.StatusOK, http.StatusCreated, http.StatusAccepted, http.StatusNoContent:
+		return nil
 	default:
-		//
+
+		if opts.LogResponseOnError {
+
+			body, read_err := io.ReadAll(http_rsp.Body)
+
+			if read_err != nil {
+				return fmt.Errorf("Follow request failed %d, %s; read body also failed", http_rsp.StatusCode, http_rsp.Status, read_err)
+			}
+
+			slog.Debug("ERROR", "body", string(body))
+		}
 	}
 
-	return nil, fmt.Errorf("Follow request failed %d, %s", http_rsp.StatusCode, http_rsp.Status)
+	return fmt.Errorf("Follow request failed %d, %s", http_rsp.StatusCode, http_rsp.Status)
 }

@@ -433,76 +433,61 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			// START OF wut...
+			// It is unclear whether it is really necessary to send this request in a deferred
+			// function (or whether it can be sent inline before the HTTP 202 response is sent
+			// below. On the other there are accept activities which are specifically meant to
+			// happen "out-of-band", like follower requests that are manually approved, so the
+			// easiest way to think about things is that they will (maybe?) get moved in to its
+			// own delivery queue (distinct from posts) to happen after the inbox handler has
+			// completed. Basically: Treat every message sent to the ActivityPub inbox as an
+			// offline task. I am still trying to determine if that's an accurate assumption.
 
-			// Note: Because we actually have to post (like HTTP POST) an Accept message back to the
-			// requestor's inbox this should be deferred until after that happens.
-			//
-			// Also, more reasons to break all of this in to multiple http.Next() handlers and also
-			// do we need to POST an accept for every activity?
+			defer func() {
 
-			// Return acceptance - does this need to be refactored in to a thing
-			// that returns different responses based on the activity? Like does a
-			// create activity need to return 201 (it seems like it...) ? See notes
-			// above wrt/ per-activity handlers and the http.Next() trick.
+				accept_actor := acct.AccountURL(ctx, opts.URIs).String()
+				logger.Debug("Send Accept activity in defer", "actor", accept_actor)
 
-			accept_actor := acct.AccountURL(ctx, opts.URIs).String()
-
-			accept, err := ap.NewAcceptActivity(ctx, opts.URIs, accept_actor, accept_obj)
-
-			if err != nil {
-				logger.Error("Failed to create new accept activity", "error", err)
-				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-				return
-			}
-
-			logger = logger.With("accept", accept.Id)
-
-			// START of debugging...
-
-			enc_accept, _ := json.Marshal(accept)
-			logger.Debug("ACCEPT", "actor", accept_actor)
-			logger.Debug("ACCEPT", "body", string(enc_accept))
-
-			// END of debugging...
-
-			// See notes above wrt/ adding folowers before or after this operation is complete and
-			// whether we need to do this operation for every activity?
-
-			post_opts := &activitypub.PostToInboxOptions{
-				From:    acct,
-				Inbox:   requestor_actor.Inbox,
-				Message: accept,
-				URIs:    opts.URIs,
-			}
-
-			wut, err := activitypub.PostToInbox(ctx, post_opts)
-
-			if err != nil {
-
-				logger.Error("Failed to post accept activity to requestor", "to", requestor_actor.Inbox, "error", err)
-
-				f, err := activitypub.GetFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
+				accept, err := ap.NewAcceptActivity(ctx, opts.URIs, accept_actor, accept_obj)
 
 				if err != nil {
-					logger.Error("Failed to retrieve newly created follower to remove", "error", err)
-				} else {
-
-					err = opts.FollowersDatabase.RemoveFollower(ctx, f)
-
-					if err != nil {
-						logger.Error("Failed to remove follower", "id", f.Id, "error", err)
-					}
+					logger.Error("Failed to create new accept activity", "error", err)
+					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+					return
 				}
 
-				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-				return
-			}
+				logger = logger.With("accept", accept.Id)
 
-			enc_wut, _ := json.Marshal(wut)
-			logger.Debug("WUT", "wut", string(enc_wut))
+				post_opts := &activitypub.PostToInboxOptions{
+					From:    acct,
+					Inbox:   requestor_actor.Inbox,
+					Message: accept,
+					URIs:    opts.URIs,
+				}
 
-			// END OF wut...
+				err = activitypub.PostToInbox(ctx, post_opts)
+
+				if err != nil {
+
+					logger.Error("Failed to post accept activity to requestor, remove follower", "to", requestor_actor.Inbox, "error", err)
+
+					f, err := activitypub.GetFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
+
+					if err != nil {
+						logger.Error("Failed to retrieve newly created follower to remove", "error", err)
+					} else {
+
+						err = opts.FollowersDatabase.RemoveFollower(ctx, f)
+
+						if err != nil {
+							logger.Error("Failed to remove follower", "id", f.Id, "error", err)
+						}
+					}
+
+					// Note: We are not returning a HTTP response since we have already returned HTTP 202 below
+					return
+				}
+
+			}()
 
 		case "Undo":
 
@@ -668,7 +653,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			// pass
 		}
 
-		// See notes in Follow activity...
+		logger.Debug("Inbox post complete", "status", http.StatusAccepted)
+		rsp.WriteHeader(http.StatusAccepted)
 		return
 
 		// Apparently unnecessary?

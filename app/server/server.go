@@ -41,11 +41,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	run_opts = v
 
+	// Use a "route handler" to defer creating any given route until it is
+	// invoked. This is useful in "serverless" environments like AWS Lambda.
+
 	webfinger_get := fmt.Sprintf("GET %s", webfinger.Endpoint)
 	account_get := fmt.Sprintf("GET %s", run_opts.URIs.Account)
 	inbox_post := fmt.Sprintf("POST %s", run_opts.URIs.Inbox)
 	outbox_get := fmt.Sprintf("GET %s", run_opts.URIs.Outbox)
-	// outbox_post := fmt.Sprintf("POST %s", run_opts.URIs.Outbox)
 
 	handlers := map[string]handler.RouteHandlerFunc{
 		webfinger_get: webfingerHandlerFunc,

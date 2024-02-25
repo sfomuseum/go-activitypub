@@ -83,7 +83,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		URIs:    opts.URIs,
 	}
 
-	_, err = activitypub.PostToAccount(ctx, post_opts)
+	err = activitypub.PostToAccount(ctx, post_opts)
 
 	if err != nil {
 		return fmt.Errorf("Failed to deliver follow activity, %w", err)

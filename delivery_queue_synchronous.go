@@ -21,7 +21,7 @@ func NewSynchronousDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue
 
 func (q *SynchronousDeliveryQueue) DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
-	_, err := DeliverPostToAccount(ctx, opts)
+	err := DeliverPostToAccount(ctx, opts)
 
 	if err != nil {
 		return fmt.Errorf("Failed to deliver post, %w", err)
