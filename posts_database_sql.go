@@ -84,7 +84,7 @@ func (db *SQLPostsDatabase) getPost(ctx context.Context, where string, args ...i
 	var id int64
 	var uuid string
 	var account_id int64
-	var body []byte
+	var body string
 	var created int64
 	var lastmod int64
 

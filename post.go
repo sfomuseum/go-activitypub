@@ -7,18 +7,21 @@ import (
 
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/id"
+	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type Post struct {
-	Id           int64  `json:"id"`
-	UUID         string `json:"uuid"`
-	AccountId    int64  `json:"account_id"`
-	Body         []byte `json:"body"`
+	Id        int64  `json:"id"`
+	UUID      string `json:"uuid"`
+	AccountId int64  `json:"account_id"`
+	// This is a string mostly because []byte thingies get encoded incorrectly
+	// in DynamoDB
+	Body         string `json:"body"`
 	Created      int64  `json:"created"`
 	LastModified int64  `json:"lastmodified"`
 }
 
-func NewPost(ctx context.Context, acct *Account, body []byte) (*Post, error) {
+func NewPost(ctx context.Context, acct *Account, body string) (*Post, error) {
 
 	post_id, err := id.NewId()
 
@@ -43,7 +46,11 @@ func NewPost(ctx context.Context, acct *Account, body []byte) (*Post, error) {
 	return p, nil
 }
 
-func (p *Post) AsNote(ctx context.Context) (*ap.Note, error) {
+// Need to pass in either the Account or the AccountsDatabase...
+// OR:
+// Just move this in a standalone funciton that accepts Accept, Post, etc...
+
+func (p *Post) AsNote(ctx context.Context, uris_table *uris.URIs) (*ap.Note, error) {
 
 	// https://paul.kinlan.me/adding-activity-pub-to-your-static-site/
 
@@ -53,16 +60,16 @@ func (p *Post) AsNote(ctx context.Context) (*ap.Note, error) {
 	// Need account or accounts database...
 	attr := "fix me"
 
-	guid := p.UUID
+	ap_id := ap.NewId(uris_table)
 
 	t := time.Unix(p.Created, 0)
 
 	n := &ap.Note{
 		Type:         "Note",
-		Id:           guid,
+		Id:           ap_id,
 		AttributedTo: attr,
 		To:           "https://www.w3.org/ns/activitystreams#Public", // what?
-		Content:      string(p.Body),
+		Content:      p.Body,
 		Published:    t.Format(time.RFC3339),
 		URL:          url,
 	}

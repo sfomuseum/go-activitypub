@@ -56,7 +56,7 @@ func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) error {
 
 	slog.Debug("Deliver post", "post", opts.Post.Id, "from", opts.From.Id, "to", opts.To)
 
-	note, err := opts.Post.AsNote(ctx)
+	note, err := opts.Post.AsNote(ctx, opts.URIs)
 
 	if err != nil {
 		return fmt.Errorf("Failed to derive note from post, %w", err)
