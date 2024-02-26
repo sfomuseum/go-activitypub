@@ -33,30 +33,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	ap_slog.ConfigureLogger(logger, opts.Verbose)
 
-	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
-
-	if err != nil {
-		return fmt.Errorf("Failed to create new database, %w", err)
-	}
-
-	defer accounts_db.Close(ctx)
-
-	followers_db, err := activitypub.NewFollowersDatabase(ctx, opts.FollowersDatabaseURI)
-
-	if err != nil {
-		return fmt.Errorf("Failed to instantiate followers database, %w", err)
-	}
-
-	defer followers_db.Close(ctx)
-
-	posts_db, err := activitypub.NewPostsDatabase(ctx, opts.PostsDatabaseURI)
-
-	if err != nil {
-		return fmt.Errorf("Failed to create instantiate posts database, %w", err)
-	}
-
-	defer posts_db.Close(ctx)
-
 	deliveries_db, err := activitypub.NewDeliveriesDatabase(ctx, opts.DeliveriesDatabaseURI)
 
 	if err != nil {
@@ -71,7 +47,32 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to create new delivery queue, %w", err)
 	}
 
-	deliverPost := func(ctx context.Context, post_id int64) error {
+	switch opts.Mode {
+	case "cli":
+
+		accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
+
+		if err != nil {
+			return fmt.Errorf("Failed to create new database, %w", err)
+		}
+
+		defer accounts_db.Close(ctx)
+
+		followers_db, err := activitypub.NewFollowersDatabase(ctx, opts.FollowersDatabaseURI)
+
+		if err != nil {
+			return fmt.Errorf("Failed to instantiate followers database, %w", err)
+		}
+
+		defer followers_db.Close(ctx)
+
+		posts_db, err := activitypub.NewPostsDatabase(ctx, opts.PostsDatabaseURI)
+
+		if err != nil {
+			return fmt.Errorf("Failed to create instantiate posts database, %w", err)
+		}
+
+		defer posts_db.Close(ctx)
 
 		post, err := posts_db.GetPostWithId(ctx, opts.PostId)
 
@@ -95,11 +96,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		}
 
 		return nil
-	}
 
-	switch opts.Mode {
-	case "cli":
-		return deliverPost(ctx, opts.PostId)
 	case "lambda":
 
 		handler := func(ctx context.Context, snsEvent events.SNSEvent) error {
