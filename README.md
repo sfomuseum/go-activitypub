@@ -34,8 +34,9 @@ What needs to happen for this exchange of messages possible?
 2. Those web services need to have the concept of "member" accounts, in this case Bob or Alice.
 3. Each web service needs to implement an endpoint for looking up other ActivityPub-specific endpoints for each member account, namely there ActivityPub "inbox" and "outbox". The detail of the inbox and outbox are discussed below.
 4. Some kind of persistent database for the web service to store information about member accounts, relationships between individual members and the people they want to send and receive messages from, the messages that have been sent and the messages that have been received.
-4a. Though not required an additional database to track accounts that an individual member does not want to interact with, referred to here as "blocking" is generally considered to be an unfortunate necessity.
-5. A delivery mechanism to send messages published by Alice to all the people who have "followed" them (in this case Bob). The act of delivering a message consists of Alice sending that message to their "outbox" with a list of recipients. The "outbox" is resposible for coordinating the process of relaying that message to each recipient's ActivityPub (web service) "inbox".
+5. Though not required an additional database to track accounts that an individual member does not want to interact with, referred to here as "blocking" is generally considered to be an unfortunate necessity.
+6. A delivery mechanism to send messages published by Alice to all the people who have "followed" them (in this case Bob). The act of delivering a message consists of Alice sending that message to their "outbox" with a list of recipients. The "outbox" is resposible for coordinating the process of relaying that message to each recipient's ActivityPub (web service) "inbox".
+7. In practice you will also need somewhere to store and serve account icon images from. This might be a filesystem, a remote hosting storage system (like AWS S3) or even by storing the images as base64-encoded blobs in one or your databases. The point is that there is a requirement for this whole other layer of generating, storing, tracking and serveing account icon images.
 
 To recap, we've got:
 
