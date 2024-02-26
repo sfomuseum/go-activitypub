@@ -10,14 +10,15 @@ import (
 )
 
 type RunOptions struct {
-	AccountsDatabaseURI  string
-	FollowersDatabaseURI string
-	PostsDatabaseURI     string
-	DeliveryQueueURI     string
-	AccountName          string
-	Message              string
-	URIs                 *uris.URIs
-	Verbose              bool
+	AccountsDatabaseURI   string
+	FollowersDatabaseURI  string
+	PostsDatabaseURI      string
+	DeliveriesDatabaseURI string
+	DeliveryQueueURI      string
+	AccountName           string
+	Message               string
+	URIs                  *uris.URIs
+	Verbose               bool
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -35,14 +36,15 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	uris_table.Insecure = insecure
 
 	opts := &RunOptions{
-		AccountsDatabaseURI:  accounts_database_uri,
-		FollowersDatabaseURI: followers_database_uri,
-		PostsDatabaseURI:     posts_database_uri,
-		DeliveryQueueURI:     delivery_queue_uri,
-		AccountName:          account_name,
-		Message:              message,
-		URIs:                 uris_table,
-		Verbose:              verbose,
+		AccountsDatabaseURI:   accounts_database_uri,
+		FollowersDatabaseURI:  followers_database_uri,
+		PostsDatabaseURI:      posts_database_uri,
+		DeliveriesDatabaseURI: deliveries_database_uri,
+		DeliveryQueueURI:      delivery_queue_uri,
+		AccountName:           account_name,
+		Message:               message,
+		URIs:                  uris_table,
+		Verbose:               verbose,
 	}
 
 	return opts, nil

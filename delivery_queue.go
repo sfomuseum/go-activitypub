@@ -8,16 +8,7 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
-	"github.com/sfomuseum/go-activitypub/uris"
 )
-
-type DeliverPostOptions struct {
-	From     *Account
-	To       string
-	Post     *Post
-	Hostname string
-	URIs     *uris.URIs
-}
 
 type DeliveryQueue interface {
 	DeliverPost(context.Context, *DeliverPostOptions) error

@@ -20,11 +20,10 @@ import (
 )
 
 type PostToAccountOptions struct {
-	From               *Account
-	To                 string
-	Activity           *ap.Activity
-	URIs               *uris.URIs
-	DeliveriesDatabase DeliveriesDatabase
+	From     *Account
+	To       string
+	Activity *ap.Activity
+	URIs     *uris.URIs
 }
 
 type PostToInboxOptions struct {
@@ -39,7 +38,6 @@ type PostToInboxOptions struct {
 	// Log the body of the POST response if it contains a status code that is not 200-202 or 204 using
 	// the default [log/slog] Logger
 	LogResponseOnError bool
-	DeliveriesDatabase DeliveriesDatabase
 }
 
 func PostToAccount(ctx context.Context, opts *PostToAccountOptions) error {
@@ -51,11 +49,10 @@ func PostToAccount(ctx context.Context, opts *PostToAccountOptions) error {
 	}
 
 	inbox_opts := &PostToInboxOptions{
-		From:               opts.From,
-		Inbox:              actor.Inbox,
-		Activity:           opts.Activity,
-		URIs:               opts.URIs,
-		DeliveriesDatabase: opts.DeliveriesDatabase,
+		From:     opts.From,
+		Inbox:    actor.Inbox,
+		Activity: opts.Activity,
+		URIs:     opts.URIs,
 	}
 
 	return PostToInbox(ctx, inbox_opts)

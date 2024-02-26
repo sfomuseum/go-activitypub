@@ -38,17 +38,31 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to create new database, %w", err)
 	}
 
+	defer accounts_db.Close(ctx)
+
 	followers_db, err := activitypub.NewFollowersDatabase(ctx, opts.FollowersDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to instantiate followers database, %w", err)
 	}
 
+	defer followers_db.Close(ctx)
+
 	posts_db, err := activitypub.NewPostsDatabase(ctx, opts.PostsDatabaseURI)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create instatiate posts database, %w", err)
+		return fmt.Errorf("Failed to create instantiate posts database, %w", err)
 	}
+
+	defer posts_db.Close(ctx)
+
+	deliveries_db, err := activitypub.NewDeliveriesDatabase(ctx, opts.DeliveriesDatabaseURI)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create instantiate deliveries database, %w", err)
+	}
+
+	defer deliveries_db.Close(ctx)
 
 	delivery_q, err := activitypub.NewDeliveryQueue(ctx, opts.DeliveryQueueURI)
 
@@ -94,11 +108,12 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	}
 
 	deliver_opts := &activitypub.DeliverPostToFollowersOptions{
-		AccountsDatabase:  accounts_db,
-		FollowersDatabase: followers_db,
-		DeliveryQueue:     delivery_q,
-		Post:              p,
-		URIs:              opts.URIs,
+		AccountsDatabase:   accounts_db,
+		FollowersDatabase:  followers_db,
+		DeliveriesDatabase: deliveries_db,
+		DeliveryQueue:      delivery_q,
+		Post:               p,
+		URIs:               opts.URIs,
 	}
 
 	err = activitypub.DeliverPostToFollowers(ctx, deliver_opts)

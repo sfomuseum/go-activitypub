@@ -26,6 +26,7 @@ POSTS_DB=posts.db
 NOTES_DB=notes.db
 MESSAGES_DB=messages.db
 BLOCKS_DB=blocks.db
+DELIVERIES_DB=deliveries.db
 
 ACCOUNTS_DB_URI=sql://sqlite3?dsn=$(ACCOUNTS_DB)
 FOLLOWERS_DB_URI=sql://sqlite3?dsn=$(FOLLOWERS_DB)
@@ -34,6 +35,7 @@ BLOCKS_DB_URI=sql://sqlite3?dsn=$(BLOCKS_DB)
 POSTS_DB_URI=sql://sqlite3?dsn=$(POSTS_DB)
 NOTES_DB_URI=sql://sqlite3?dsn=$(NOTES_DB)
 MESSAGES_DB_URI=sql://sqlite3?dsn=$(MESSAGES_DB)
+DELIVERIES_DB_URI=sql://sqlite3?dsn=$(DELIVERIES_DB)
 
 ACCOUNTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true
 FOLLOWING_DB_URI=awsdynamodb://$(TABLE_PREFIX)following?partition_key=Id&allow_scans=true&local=true
@@ -42,6 +44,7 @@ BLOCKS_DB_URI=awsdynamodb://$(TABLE_PREFIX)blocks?partition_key=Id&allow_scans=t
 NOTES_DB_URI=awsdynamodb://$(TABLE_PREFIX)notes?partition_key=Id&allow_scans=true&local=true
 POSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)posts?partition_key=Id&allow_scans=true&local=true
 MESSAGES_DB_URI=awsdynamodb://$(TABLE_PREFIX)messages?partition_key=Id&allow_scans=true&local=true
+DELIVERIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)deliveries?partition_key=Id&allow_scans=true&local=true
 
 db-sqlite:
 	rm -f *.db
@@ -52,6 +55,7 @@ db-sqlite:
 	$(SQLITE3) $(NOTES_DB) < schema/sqlite/notes.schema
 	$(SQLITE3) $(MESSAGES_DB) < schema/sqlite/messages.schema
 	$(SQLITE3) $(BLOCKS_DB) < schema/sqlite/blocks.schema
+	$(SQLITE3) $(DELIVERIES_DB) < schema/sqlite/deliveries.schema
 
 accounts:
 	go run cmd/add-account/main.go -accounts-database-uri '$(ACCOUNTS_DB_URI)' -account-name bob
@@ -106,6 +110,7 @@ post:
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
 		-posts-database-uri '$(POSTS_DB_URI)' \
+		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
 		-account-name alice \
 		-message "$(MESSAGE)" \
 		-hostname localhost:8080 \

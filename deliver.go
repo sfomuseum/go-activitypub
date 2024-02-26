@@ -4,17 +4,28 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
+type DeliverPostOptions struct {
+	From               *Account
+	To                 string
+	Post               *Post
+	Hostname           string
+	URIs               *uris.URIs
+	DeliveriesDatabase DeliveriesDatabase
+}
+
 type DeliverPostToFollowersOptions struct {
-	AccountsDatabase  AccountsDatabase
-	FollowersDatabase FollowersDatabase
-	DeliveryQueue     DeliveryQueue
-	Post              *Post
-	URIs              *uris.URIs
+	AccountsDatabase   AccountsDatabase
+	FollowersDatabase  FollowersDatabase
+	DeliveriesDatabase DeliveriesDatabase
+	DeliveryQueue      DeliveryQueue
+	Post               *Post
+	URIs               *uris.URIs
 }
 
 func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOptions) error {
@@ -28,10 +39,11 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 	followers_cb := func(ctx context.Context, follower_uri string) error {
 
 		post_opts := &DeliverPostOptions{
-			From: acct,
-			To:   follower_uri,
-			Post: opts.Post,
-			URIs: opts.URIs,
+			From:               acct,
+			To:                 follower_uri,
+			Post:               opts.Post,
+			URIs:               opts.URIs,
+			DeliveriesDatabase: opts.DeliveriesDatabase,
 		}
 
 		err := opts.DeliveryQueue.DeliverPost(ctx, post_opts)
@@ -52,7 +64,7 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 	return nil
 }
 
-func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) error {
+func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 	slog.Debug("Deliver post", "post", opts.Post.Id, "from", opts.From.Id, "to", opts.To)
 
@@ -74,6 +86,26 @@ func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) error {
 		return fmt.Errorf("Failed to create activity from post, %w", err)
 	}
 
+	now := time.Now()
+	ts := now.Unix()
+
+	d := &Delivery{
+		Id:        create_activity.Id,
+		PostId:    opts.Post.Id,
+		AccountId: opts.From.Id,
+		Recipient: opts.To,
+		Created:   ts,
+	}
+
+	defer func() {
+
+		err := opts.DeliveriesDatabase.AddDelivery(ctx, d)
+
+		if err != nil {
+			slog.Error("Failed to add delivery", "post_id", opts.Post.Id, "recipienct", d.Recipient, "error", err)
+		}
+	}()
+
 	post_opts := &PostToAccountOptions{
 		From:     opts.From,
 		To:       opts.To,
@@ -83,7 +115,15 @@ func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) error {
 
 	err = PostToAccount(ctx, post_opts)
 
+	now = time.Now()
+	ts = now.Unix()
+
+	d.Completed = ts
+	d.Success = true
+
 	if err != nil {
+		d.Success = false
+		d.Error = err.Error()
 		return fmt.Errorf("Failed to post to inbox, %w", err)
 	}
 
