@@ -36,7 +36,7 @@ What needs to happen for this exchange of messages possible?
 4. Some kind of persistent database for the web service to store information about member accounts, relationships between individual members and the people they want to send and receive messages from, the messages that have been sent and the messages that have been received.
 5. Though not required an additional database to track accounts that an individual member does not want to interact with, referred to here as "blocking" is generally considered to be an unfortunate necessity.
 6. A delivery mechanism to send messages published by Alice to all the people who have "followed" them (in this case Bob). The act of delivering a message consists of Alice sending that message to their "outbox" with a list of recipients. The "outbox" is resposible for coordinating the process of relaying that message to each recipient's ActivityPub (web service) "inbox".
-7. In practice you will also need somewhere to store and serve account icon images from. This might be a filesystem, a remote hosting storage system (like AWS S3) or even by storing the images as base64-encoded blobs in one or your databases. The point is that there is a requirement for this whole other layer of generating, storing, tracking and serveing account icon images.
+7. In practice you will also need somewhere to store and serve account icon images from. This might be a filesystem, a remote hosting storage system (like AWS S3) or even by storing the images as base64-encoded blobs in one or your databases. The point is that there is a requirement for this whole other layer of generating, storing, tracking and serveing account icon images. _Note: The code included in this package has support for generating generic coloured-background-and-capital-letter style icons on demand but there are plenty of scenarios where those icons might be considered insufficient._
 
 To recap, we've got:
 
@@ -44,6 +44,7 @@ To recap, we've got:
 2. A database with the following tables: accounts, followers, following, posts, messages, blocks
 3. Two member accounts: Bob and Alice
 4. A delivery mechanism for sending messages; this might be an in-process loop or an asynchronous message queue but the point is that it is a sufficiently unique part of the process that it deserves to be thought of as distinct from the web server or the database.
+5. A web server, or equivalent platform, for storing and serving account icon images.
 
 For the purposes of these examples and for testing the assumption is that Bob and Alice have member accounts on the same server.
 
@@ -345,6 +346,7 @@ go run cmd/server/main.go \
 		-blocks-database-uri 'awsdynamodb://custom_blocks?partition_key=Id&allow_scans=true&local=true' \
 		-allow-create \
 		-verbose \
+		-allow-remote-icon-uri \
 		-hostname localhost:8080 \
 		-insecure
 {"time":"2024-02-20T10:29:49.505754-08:00","level":"DEBUG","msg":"Verbose logging enabled"}
@@ -359,8 +361,17 @@ Switch to console (3) and create account records for `bob` and `alice`:
 
 ```
 $> make accounts TABLE_PREFIX=custom_
-go run cmd/add-account/main.go -accounts-database-uri 'awsdynamodb://custom_accounts?partition_key=Id&allow_scans=true&local=true' -account-name bob
-go run cmd/add-account/main.go -accounts-database-uri 'awsdynamodb://custom_accounts?partition_key=Id&allow_scans=true&local=true' -account-name alice
+
+> make accounts
+go run cmd/add-account/main.go \
+		-accounts-database-uri 'awsdynamodb://custom_accounts?partition_key=Id&allow_scans=true&local=true' \
+		-account-name bob \
+		-account-icon-uri fixtures/icons/bob.jpg
+go run cmd/add-account/main.go \
+		-accounts-database-uri 'awsdynamodb://custom_accounts?partition_key=Id&allow_scans=true&local=true' \
+		-account-name alice \
+		-allow-remote-icon-uri \
+		-account-icon-uri https://static.sfomuseum.org/media/172/956/659/5/1729566595_kjcAQKRw176gxIieIWZySjhlNzgKNxoA_s.jpg
 ```
 
 Next `bob` follows `alice`:
@@ -407,15 +418,25 @@ go run cmd/follow/main.go \
 At some point `alice` posts a message and then delivers it to all of their followers (including `bob` who has followed `alice` again):
 
 ```
-$> make post TABLE_PREFIX=custom_ MESSAGE='This post left intentionally blank'
+$> make post MESSAGE='This message left intentionally blank'
 go run cmd/post/main.go \
-		-accounts-database-uri 'awsdynamodb://custom_accounts?partition_key=Id&allow_scans=true&local=true' \
-		-followers-database-uri 'awsdynamodb://custom_followers?partition_key=Id&allow_scans=true&local=true' \
-		-posts-database-uri 'awsdynamodb://custom_posts?partition_key=Id&allow_scans=true&local=true' \
+		-accounts-database-uri 'awsdynamodb://accounts?partition_key=Id&allow_scans=true&local=true' \
+		-followers-database-uri 'awsdynamodb://followers?partition_key=Id&allow_scans=true&local=true' \
+		-posts-database-uri 'awsdynamodb://posts?partition_key=Id&allow_scans=true&local=true' \
+		-deliveries-database-uri 'awsdynamodb://deliveries?partition_key=Id&allow_scans=true&local=true' \
 		-account-name alice \
-		-message "This post left intentionally blank" \
+		-message "This message left intentionally blank" \
 		-hostname localhost:8080 \
-		-insecure
+		-insecure \
+		-verbose
+{"time":"2024-02-26T11:59:16.636181-08:00","level":"DEBUG","msg":"Verbose logging enabled"}
+{"time":"2024-02-26T11:59:16.66917-08:00","level":"DEBUG","msg":"Deliver post","post":1762205712257126400,"from":1762201778486513664,"to":"bob@localhost:8080"}
+{"time":"2024-02-26T11:59:16.669221-08:00","level":"DEBUG","msg":"Webfinger URL for resource","resource":"bob","url":"http://localhost:8080/.well-known/webfinger?resource=acct%3Abob%40localhost%3A8080"}
+{"time":"2024-02-26T11:59:16.673629-08:00","level":"DEBUG","msg":"Profile page for actor","actor":"bob","url":"http://localhost:8080/ap/bob"}
+{"time":"2024-02-26T11:59:16.676805-08:00","level":"DEBUG","msg":"Post to inbox","inbox":"http://localhost:8080/ap/bob/inbox"}
+{"time":"2024-02-26T11:59:16.676888-08:00","level":"DEBUG","msg":"Post to inbox","inbox":"http://localhost:8080/ap/bob/inbox","key_id":"http://localhost:8080/ap/alice"}
+{"time":"2024-02-26T11:59:16.706987-08:00","level":"DEBUG","msg":"Response","inbox":"http://localhost:8080/ap/bob/inbox","code":202,"content-type":""}
+{"time":"2024-02-26T11:59:16.707027-08:00","level":"DEBUG","msg":"Add delivery for post","delivery id":1762205712303263744,"post id":1762205712257126400,"recipient":"bob@localhost:8080","success":true}
 ```
 
 Switching back to the console running the `server` tool you should see something like this:
@@ -430,6 +451,18 @@ Switching back to the console running the `server` tool you should see something
 {"time":"2024-02-20T10:32:10.422455-08:00","level":"DEBUG","msg":"Add message","account":1760009124885565440,"note":1760009464624189440,"author":"alice@localhost:8080"}
 {"time":"2024-02-20T10:32:10.422462-08:00","level":"DEBUG","msg":"Create new message","account":1760009124885565440,"note":1760009464624189440,"author":"alice@localhost:8080"}
 {"time":"2024-02-20T10:32:10.424299-08:00","level":"INFO","msg":"Note has been added to messages","method":"POST","accept":"application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"","path":"/ap/bob/inbox","remote_addr":"127.0.0.1:55271","account":"bob","account id":1760009124885565440,"sender_address":"alice@localhost:8080","activity-type":"Create","key id":"http://localhost:8080/ap/alice","note uuid":"be26c823-b75e-461c-adea-7260299a7434","note id":1760009464624189440,"message id":1760009464636772352}
+```
+
+Did you notice the "Add delivery for post" debug message when posting the message? Deliveries for post messages are logged in a "deliveries database". These logs record where and when posts were sent and whether the delivery was successful. For example:
+
+```
+$> make delivery ID=1762205712303263744 
+go run cmd/retrieve-delivery/main.go \
+		-deliveries-database-uri 'awsdynamodb://deliveries?partition_key=Id&allow_scans=true&local=true' \
+		-delivery-id 1762205712303263744 \
+		-verbose
+{"time":"2024-02-26T12:00:47.086377-08:00","level":"DEBUG","msg":"Verbose logging enabled"}
+{"id":1762205712303263744,"activity_id":"http://localhost:8080/ap#as-f555a16d-9b09-452a-886f-0aae2cd52506","post_id":1762205712257126400,"account_id":1762201778486513664,"recipient":"bob@localhost:8080","inbox":"http://localhost:8080/ap/bob/inbox","created":1708977556,"completed":1708977556,"success":true}
 ```
 
 Checking `bob`'s inbox we see the message from Alice:
