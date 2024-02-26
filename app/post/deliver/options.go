@@ -1,4 +1,4 @@
-package post
+package deliver
 
 import (
 	"context"
@@ -15,9 +15,9 @@ type RunOptions struct {
 	PostsDatabaseURI      string
 	DeliveriesDatabaseURI string
 	DeliveryQueueURI      string
-	AccountName           string
-	Message               string
 	URIs                  *uris.URIs
+	Mode                  string
+	PostId                int64
 	Verbose               bool
 }
 
@@ -41,8 +41,8 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		PostsDatabaseURI:      posts_database_uri,
 		DeliveriesDatabaseURI: deliveries_database_uri,
 		DeliveryQueueURI:      delivery_queue_uri,
-		AccountName:           account_name,
-		Message:               message,
+		Mode:                  mode,
+		PostId:                post_id,
 		URIs:                  uris_table,
 		Verbose:               verbose,
 	}

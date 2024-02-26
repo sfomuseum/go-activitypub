@@ -6,12 +6,20 @@ cli:
 
 lambda:
 	@make lambda-server
+	@make lambda-deliver-post
 
 lambda-server:
 	if test -f bootstrap; then rm -f bootstrap; fi
 	if test -f server.zip; then rm -f server.zip; fi
 	GOARCH=arm64 GOOS=linux go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -tags lambda.norpc -o bootstrap cmd/server/main.go
 	zip server.zip bootstrap
+	rm -f bootstrap
+
+lambda-deliver-post:
+	if test -f bootstrap; then rm -f bootstrap; fi
+	if test -f deliver.zip; then rm -f deliver.zip; fi
+	GOARCH=arm64 GOOS=linux go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -tags lambda.norpc -o bootstrap cmd/deliver-post/main.go
+	zip deliver.zip bootstrap
 	rm -f bootstrap
 
 # The rest of these Makefile targets are for local testing

@@ -39,6 +39,28 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 
 	followers_cb := func(ctx context.Context, follower_uri string) error {
 
+		already_delivered := false
+
+		deliveries_cb := func(ctx context.Context, d *Delivery) error {
+
+			if d.Success {
+				already_delivered = true
+			}
+
+			return nil
+		}
+
+		err := opts.DeliveriesDatabase.GetDeliveriesWithPostIdAndRecipient(ctx, opts.Post.Id, follower_uri, deliveries_cb)
+
+		if err != nil {
+			return fmt.Errorf("Failed to retrieve deliveries for post (%d) and recipient (%s), %w", opts.Post.Id, follower_uri, err)
+		}
+
+		if already_delivered {
+			slog.Debug("Post already delivered", "post id", opts.Post.Id, "recipient", follower_uri)
+			return nil
+		}
+
 		post_opts := &DeliverPostOptions{
 			From:               acct,
 			To:                 follower_uri,
@@ -47,7 +69,7 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 			DeliveriesDatabase: opts.DeliveriesDatabase,
 		}
 
-		err := opts.DeliveryQueue.DeliverPost(ctx, post_opts)
+		err = opts.DeliveryQueue.DeliverPost(ctx, post_opts)
 
 		if err != nil {
 			return fmt.Errorf("Failed to deliver post to %s, %w", follower_uri, err)

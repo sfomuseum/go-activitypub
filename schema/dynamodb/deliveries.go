@@ -83,6 +83,22 @@ var DynamoDBDeliveriesTable = &dynamodb.CreateTableInput{
 				ProjectionType: aws.String("ALL"),
 			},
 		},
+		{
+			IndexName: aws.String("by_post_recipient"),
+			KeySchema: []*dynamodb.KeySchemaElement{
+				{
+					AttributeName: aws.String("PostId"),
+					KeyType:       aws.String("HASH"),
+				},
+				{
+					AttributeName: aws.String("Recipient"),
+					KeyType:       aws.String("RANGE"),
+				},
+			},
+			Projection: &dynamodb.Projection{
+				ProjectionType: aws.String("ALL"),
+			},
+		},
 	},
 	BillingMode: BILLING_MODE,
 	TableName:   &DELIVERIES_TABLE_NAME,

@@ -26,6 +26,10 @@ func (db *NullDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id int6
 	return nil, ErrNotFound
 }
 
+func (db *NullDeliveriesDatabase) GetDeliveriesWithPostIdAndRecipient(ctx context.Context, post_id int64, recipient string, cb GetDeliveriesCallbackFunc) error {
+	return nil
+}
+
 func (db *NullDeliveriesDatabase) Close(ctx context.Context) error {
 	return nil
 }

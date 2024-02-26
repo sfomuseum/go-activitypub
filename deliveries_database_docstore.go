@@ -54,6 +54,37 @@ func (db *DocstoreDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id 
 	return db.getDelivery(ctx, q)
 }
 
+func (db *DocstoreDeliveriesDatabase) GetDelieriesWithPostIdAndRecipient(ctx context.Context, post_id int64, recipient string, deliveries_callback GetDeliveriesCallbackFunc) error {
+
+	q := db.collection.Query()
+	q = q.Where("PostId", "=", post_id)
+	q = q.Where("Recipient", "=", recipient)
+
+	iter := q.Get(ctx)
+	defer iter.Stop()
+
+	for {
+
+		var d Delivery
+		err := iter.Next(ctx, &d)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+
+			err := deliveries_callback(ctx, &d)
+
+			if err != nil {
+				return fmt.Errorf("Failed to execute deliveries callback for '%d', %w", d.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreDeliveriesDatabase) Close(ctx context.Context) error {
 	return db.collection.Close()
 }
