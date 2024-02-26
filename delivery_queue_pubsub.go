@@ -8,6 +8,12 @@ import (
 	"github.com/sfomuseum/go-pubsub/publisher"
 )
 
+type PubSubDeliveryQueuePostOptions struct {
+	AccountId int64  `json:"account_id"`
+	Recipient string `json:"recipient"`
+	PostId    int64  `json:"post_id"`
+}
+
 type PubSubDeliveryQueue struct {
 	DeliveryQueue
 	publisher publisher.Publisher
@@ -47,7 +53,13 @@ func NewPubSubDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, err
 
 func (q *PubSubDeliveryQueue) DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
-	enc_opts, err := json.Marshal(opts)
+	ps_opts := PubSubDeliveryQueuePostOptions{
+		AccountId: opts.From.Id,
+		Recipient: opts.To,
+		PostId:    opts.Post.Id,
+	}
+
+	enc_opts, err := json.Marshal(ps_opts)
 
 	if err != nil {
 		return fmt.Errorf("Failed to marshal post options, %w", err)
