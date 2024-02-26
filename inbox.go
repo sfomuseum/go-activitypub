@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/go-fed/httpsig"
@@ -92,6 +93,26 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) error {
 	http_req.Header.Set("Host", inbox_u.Host)
 	// END OF this is necessary for HTTP signature hoohah...
 
+	// Should this value be configurable?
+	str_ttl := "PT5M"
+
+	d, err := duration.FromString(str_ttl)
+
+	if err != nil {
+		return fmt.Errorf("Failed to derive duration, %w", err)
+	}
+
+	ttl := int64(d.ToDuration().Seconds())
+
+	// Created and Expires headers are important for posting to Mastodon
+	// https://github.com/mastodon/mastodon/blob/main/app/controllers/concerns/signature_verification.rb#L183
+
+	created := now.Unix()
+	expires := created + ttl
+
+	http_req.Header.Set("Created", strconv.FormatInt(created, 10))
+	http_req.Header.Set("Expires", strconv.FormatInt(expires, 10))
+
 	// Note that "key_id" here means a pointer to the actor/profile page where the public key
 	// for the follower can be retrieved
 
@@ -119,17 +140,11 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) error {
 		"Host",
 		"Date",
 		"Digest",
+		// See the way this is "(created)" and not "Created". That's a go-fed/httpsig thing... or maybe it's a spec thing?
+		// https://github.com/go-fed/httpsig/blob/master/signing.go#L220-L229
+		"(created)",
+		"(expires)",
 	}
-
-	str_ttl := "PT1M"
-
-	d, err := duration.FromString(str_ttl)
-
-	if err != nil {
-		return fmt.Errorf("Failed to derive duration, %w", err)
-	}
-
-	ttl := int64(d.ToDuration().Seconds())
 
 	signer, _, err := httpsig.NewSigner(prefs, digestAlgorithm, headersToSign, httpsig.Signature, ttl)
 
