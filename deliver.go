@@ -75,10 +75,10 @@ func DeliverPostToAccount(ctx context.Context, opts *DeliverPostOptions) error {
 	}
 
 	post_opts := &PostToAccountOptions{
-		From:    opts.From,
-		To:      opts.To,
-		Message: create_activity,
-		URIs:    opts.URIs,
+		From:     opts.From,
+		To:       opts.To,
+		Activity: create_activity,
+		URIs:     opts.URIs,
 	}
 
 	err = PostToAccount(ctx, post_opts)

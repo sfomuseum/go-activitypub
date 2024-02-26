@@ -20,17 +20,18 @@ import (
 )
 
 type PostToAccountOptions struct {
-	From    *Account
-	To      string
-	Message interface{}
-	URIs    *uris.URIs
+	From               *Account
+	To                 string
+	Activity           *ap.Activity
+	URIs               *uris.URIs
+	DeliveriesDatabase DeliveriesDatabase
 }
 
 type PostToInboxOptions struct {
-	From    *Account
-	Inbox   string
-	Message interface{}
-	URIs    *uris.URIs
+	From     *Account
+	Inbox    string
+	Activity *ap.Activity
+	URIs     *uris.URIs
 	// Log POST requests before they are sent using the default [log/slog] Logger. Note that this will
 	// include the HTTP signature sent with the request so you should apply all the necessary care that
 	// these values are logged somewhere you don't want unauthorized eyes to see the.
@@ -38,6 +39,7 @@ type PostToInboxOptions struct {
 	// Log the body of the POST response if it contains a status code that is not 200-202 or 204 using
 	// the default [log/slog] Logger
 	LogResponseOnError bool
+	DeliveriesDatabase DeliveriesDatabase
 }
 
 func PostToAccount(ctx context.Context, opts *PostToAccountOptions) error {
@@ -51,10 +53,9 @@ func PostToAccount(ctx context.Context, opts *PostToAccountOptions) error {
 	inbox_opts := &PostToInboxOptions{
 		From:               opts.From,
 		Inbox:              actor.Inbox,
-		Message:            opts.Message,
+		Activity:           opts.Activity,
 		URIs:               opts.URIs,
-		LogRequest:         true,
-		LogResponseOnError: true,
+		DeliveriesDatabase: opts.DeliveriesDatabase,
 	}
 
 	return PostToInbox(ctx, inbox_opts)
@@ -64,7 +65,7 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) error {
 
 	slog.Debug("Post to inbox", "inbox", opts.Inbox)
 
-	enc_req, err := json.Marshal(opts.Message)
+	enc_req, err := json.Marshal(opts.Activity)
 
 	if err != nil {
 		return fmt.Errorf("Failed to marshal follow activity request, %w", err)

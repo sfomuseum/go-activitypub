@@ -10,6 +10,8 @@ type URIs struct {
 
 	Root      string `json:"root"`
 	Account   string `json:"account"`
+	Posts     string `json:"posts"`
+	Post      string `json:"post"`
 	Inbox     string `json:"inbox"`
 	Outbox    string `json:"outbox"`
 	Followers string `json:"followers"`
@@ -27,6 +29,8 @@ func DefaultURIs() *URIs {
 
 		Root:      "/ap",
 		Account:   "/ap/{resource}",
+		Posts:     "/ap/{resource}/posts",
+		Post:      "/ap/{resource}/posts/{id}",
 		Inbox:     "/ap/{resource}/inbox",
 		Outbox:    "/ap/{resource}/outbox",
 		Followers: "/ap/{resource}/followers",
@@ -39,6 +43,10 @@ func DefaultURIs() *URIs {
 
 func AssignResource(uri string, resource string) string {
 	return strings.Replace(uri, "{resource}", resource, -1)
+}
+
+func AssignId(uri string, id string) string {
+	return strings.Replace(uri, "{id}", id, -1)
 }
 
 func NewURL(uris_table *URIs, path string) *url.URL {

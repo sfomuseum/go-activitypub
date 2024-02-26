@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"fmt"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/sfomuseum/go-activitypub/ap"
@@ -15,15 +16,18 @@ import (
 )
 
 type Account struct {
-	Id            int64  `json:"id"`
-	Name          string `json:"name"`
-	DisplayName   string `json:"display_name"`
-	Blurb         string `json:"blurb"`
-	URL           string `json:"url"`
-	PublicKeyURI  string `json:"public_key_uri"`
-	PrivateKeyURI string `json:"private_key_uri"`
-	Created       int64  `json:"created"`
-	LastModified  int64  `json:"lastmodified"`
+	Id                       int64  `json:"id"`
+	Name                     string `json:"name"`
+	DisplayName              string `json:"display_name"`
+	Blurb                    string `json:"blurb"`
+	URL                      string `json:"url"`
+	PublicKeyURI             string `json:"public_key_uri"`
+	PrivateKeyURI            string `json:"private_key_uri"`
+	ManuallyApproveFollowers bool   `json:"manually_approve_followers"`
+	Discoverable             bool   `json:"discoverable"`
+	IconURI                  string `json:"icon_uri"`
+	Created                  int64  `json:"created"`
+	LastModified             int64  `json:"lastmodified"`
 }
 
 func (a *Account) String() string {
@@ -58,14 +62,12 @@ func (a *Account) ProfileURL(ctx context.Context, uris_table *uris.URIs) *url.UR
 	return uris.NewURL(uris_table, account_path)
 }
 
-//TBD...
-/*
 func (a *Account) PostURL(ctx context.Context, uris_table *uris.URIs, post *Post) *url.URL {
 
-	account_path := uris.AssignResource(uris_table.Account, fmt.Sprintf("@%s", a.Name))
-	return uris.NewURL(uris_table, account_path)
+	account_path := uris.AssignResource(uris_table.Post, fmt.Sprintf("@%s", a.Name))
+	post_path := uris.AssignId(account_path, strconv.FormatInt(post.Id, 10))
+	return uris.NewURL(uris_table, post_path)
 }
-*/
 
 func (a *Account) WebfingerResource(ctx context.Context, uris_table *uris.URIs) (*webfinger.Resource, error) {
 

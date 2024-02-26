@@ -77,10 +77,10 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	}
 
 	post_opts := &activitypub.PostToAccountOptions{
-		From:    follower_acct,
-		To:      following_address,
-		Message: activity,
-		URIs:    opts.URIs,
+		From:     follower_acct,
+		To:       following_address,
+		Activity: activity,
+		URIs:     opts.URIs,
 	}
 
 	err = activitypub.PostToAccount(ctx, post_opts)

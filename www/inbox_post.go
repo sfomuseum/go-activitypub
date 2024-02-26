@@ -458,10 +458,10 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				logger = logger.With("accept", accept.Id)
 
 				post_opts := &activitypub.PostToInboxOptions{
-					From:    acct,
-					Inbox:   requestor_actor.Inbox,
-					Message: accept,
-					URIs:    opts.URIs,
+					From:     acct,
+					Inbox:    requestor_actor.Inbox,
+					Activity: accept,
+					URIs:     opts.URIs,
 				}
 
 				err = activitypub.PostToInbox(ctx, post_opts)

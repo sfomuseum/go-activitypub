@@ -52,8 +52,7 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, pos
 	// Need account or accounts database...
 	attr := acct.ProfileURL(ctx, uris_table).String()
 
-	// FIX ME
-	url := fmt.Sprintf("%s#%d", attr, post.Id)
+	post_url := acct.PostURL(ctx, uris_table, post)
 
 	ap_id := ap.NewId(uris_table)
 
@@ -66,7 +65,7 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, pos
 		To:           "https://www.w3.org/ns/activitystreams#Public", // what?
 		Content:      post.Body,
 		Published:    t.Format(http.TimeFormat),
-		URL:          url,
+		URL:          post_url.String(),
 	}
 
 	return n, nil
