@@ -12,12 +12,12 @@ import (
 )
 
 type DeliverPostOptions struct {
-	From               *Account
-	To                 string
-	Post               *Post
-	Hostname           string
-	URIs               *uris.URIs
-	DeliveriesDatabase DeliveriesDatabase
+	From               *Account           `json:"from"`
+	To                 string             `json:"to"`
+	Post               *Post              `json:"post"`
+	Hostname           string             `json:"hostname"`
+	URIs               *uris.URIs         `json:"uris"`
+	DeliveriesDatabase DeliveriesDatabase `json:"deliveries_database,omitempty"`
 }
 
 type DeliverPostToFollowersOptions struct {

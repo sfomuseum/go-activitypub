@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/sfomuseum/go-activitypub"
 	ap_slog "github.com/sfomuseum/go-activitypub/slog"
+	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 func Run(ctx context.Context, logger *slog.Logger) error {
@@ -99,24 +100,42 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	case "lambda":
 
-		handler := func(ctx context.Context, snsEvent events.SNSEvent) error {
+		type sqsPostOptions struct {
+			From     *activitypub.Account `json:"from"`
+			To       string               `json:"to"`
+			Post     *activitypub.Post    `json:"post"`
+			Hostname string               `json:"hostname"`
+			URIs     *uris.URIs           `json:"uris"`
+		}
 
-			for _, record := range snsEvent.Records {
+		handler := func(ctx context.Context, sqsEvent events.SQSEvent) error {
 
-				var opts *activitypub.DeliverPostOptions
-				opts.DeliveriesDatabase = deliveries_db // It's not great having to do this so what is better...?
+			for _, message := range sqsEvent.Records {
 
-				err := json.Unmarshal([]byte(record.SNS.Message), &opts)
+				slog.Debug("SQQ", "message", message.Body)
+
+				var sqs_opts *sqsPostOptions
+
+				err := json.Unmarshal([]byte(message.Body), &sqs_opts)
 
 				if err != nil {
-					slog.Error("Failed to unmarshal post options", "error", err)
+					slog.Error("Failed to unmarshal post options", "message id", message.MessageId, "error", err)
 					return fmt.Errorf("Failed to unmarshal post options, %w", err)
+				}
+
+				opts := &activitypub.DeliverPostOptions{
+					From:               sqs_opts.From,
+					To:                 sqs_opts.To,
+					Post:               sqs_opts.Post,
+					Hostname:           sqs_opts.Hostname,
+					URIs:               sqs_opts.URIs,
+					DeliveriesDatabase: deliveries_db,
 				}
 
 				err = activitypub.DeliverPost(ctx, opts)
 
 				if err != nil {
-					slog.Error("Failed to deliver post", "error", err)
+					slog.Error("Failed to deliver post", "message id", message.MessageId, "error", err)
 					return fmt.Errorf("Failed to deliver post, %w", err)
 				}
 
