@@ -11,7 +11,7 @@ type SlogDeliveriesDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterDeliveriesDatabase(ctx, "null", NewSlogDeliveriesDatabase)
+	RegisterDeliveriesDatabase(ctx, "slog", NewSlogDeliveriesDatabase)
 }
 
 func NewSlogDeliveriesDatabase(ctx context.Context, uri string) (DeliveriesDatabase, error) {

@@ -11,7 +11,7 @@ type SlogDeliveryQueue struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterDeliveryQueue(ctx, "null", NewSlogDeliveryQueue)
+	RegisterDeliveryQueue(ctx, "slog", NewSlogDeliveryQueue)
 }
 
 func NewSlogDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, error) {
