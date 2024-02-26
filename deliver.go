@@ -128,7 +128,9 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		URIs:     opts.URIs,
 	}
 
-	err = PostToAccount(ctx, post_opts)
+	inbox, err := PostToAccount(ctx, post_opts)
+
+	d.Inbox = inbox
 
 	if err != nil {
 		d.Error = err.Error()

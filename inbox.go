@@ -40,12 +40,12 @@ type PostToInboxOptions struct {
 	LogResponseOnError bool
 }
 
-func PostToAccount(ctx context.Context, opts *PostToAccountOptions) error {
+func PostToAccount(ctx context.Context, opts *PostToAccountOptions) (string, error) {
 
 	actor, err := RetrieveActor(ctx, opts.To, opts.URIs.Insecure)
 
 	if err != nil {
-		return fmt.Errorf("Failed to retrieve actor for %s, %w", opts.To, err)
+		return "", fmt.Errorf("Failed to retrieve actor for %s, %w", opts.To, err)
 	}
 
 	inbox_opts := &PostToInboxOptions{
@@ -55,7 +55,7 @@ func PostToAccount(ctx context.Context, opts *PostToAccountOptions) error {
 		URIs:     opts.URIs,
 	}
 
-	return PostToInbox(ctx, inbox_opts)
+	return actor.Inbox, PostToInbox(ctx, inbox_opts)
 }
 
 func PostToInbox(ctx context.Context, opts *PostToInboxOptions) error {

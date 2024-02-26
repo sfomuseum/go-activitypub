@@ -6,6 +6,7 @@ type Delivery struct {
 	PostId     int64  `json:"post_id"`
 	AccountId  int64  `json:"account_id"`
 	Recipient  string `json:"recipient"`
+	Inbox      string `json:"inbox"`
 	Created    int64  `json:"created"`
 	Completed  int64  `json:"completed"`
 	Success    bool   `json:"success"`

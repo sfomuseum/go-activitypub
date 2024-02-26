@@ -93,6 +93,7 @@ CREATE TABLE deliveries (
        activity_id VARCHAR(255),
        account_id BIGINT(20) NOT NULL,
        recipient VARCHAR(255),
+       inbox VARCHAR(255),
        created BIGINT(20) NOT NULL,
        completed BIGINT(20) NOT NULL,
        success BIGINT(20) NOT NULL,

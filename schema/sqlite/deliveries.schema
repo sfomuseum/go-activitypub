@@ -3,6 +3,7 @@ CREATE TABLE deliveries (
        activity_id TEXT,
        account_id INTEGER,
        recipient TEXT,
+       inbox TEXT,
        created INTEGER,
        completed INTEGER,
        success INTEGER,
