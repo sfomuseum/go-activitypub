@@ -15,8 +15,17 @@ type PubSubDeliveryQueue struct {
 
 func init() {
 
+	ctx := context.Background()
+
+	to_register := []string{
+		"awssqs-creds",
+	}
+
+	for _, scheme := range to_register {
+		RegisterDeliveryQueue(ctx, scheme, NewPubSubDeliveryQueue)
+	}
+
 	for _, scheme := range publisher.PublisherSchemes() {
-		ctx := context.Background()
 		RegisterDeliveryQueue(ctx, scheme, NewPubSubDeliveryQueue)
 	}
 }
