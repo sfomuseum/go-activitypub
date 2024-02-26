@@ -25,9 +25,9 @@ type RunOptions struct {
 	URIs                 *uris.URIs
 	AllowFollow          bool
 	AllowCreate          bool
+	AllowRemoteIconURI   bool
 	Verbose              bool
-
-	Templates *template.Template
+	Templates            *template.Template
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -73,12 +73,15 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		URIs:                 uris_table,
 		AllowFollow:          allow_follow,
 		AllowCreate:          allow_create,
+		AllowRemoteIconURI:   allow_remote_icon_uri,
 		Verbose:              verbose,
 		Templates:            t,
 	}
 
 	return opts, nil
 }
+
+// Is this (clone) really necessary? I am starting to think it is not...
 
 func (o *RunOptions) clone() (*RunOptions, error) {
 

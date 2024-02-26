@@ -165,6 +165,7 @@ func iconHandlerFunc(ctx context.Context) (http.Handler, error) {
 	opts := &www.IconHandlerOptions{
 		AccountsDatabase: accounts_db,
 		URIs:             run_opts.URIs,
+		AllowRemote:      run_opts.AllowRemoteIconURI,
 	}
 
 	return www.IconHandler(opts)

@@ -15,6 +15,8 @@ import (
 	"github.com/sfomuseum/runtimevar"
 )
 
+// https://www.w3.org/TR/activitypub/#actor-objects
+
 type Account struct {
 	Id                       int64  `json:"id"`
 	Name                     string `json:"name"`

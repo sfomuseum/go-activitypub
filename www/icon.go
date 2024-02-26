@@ -1,13 +1,19 @@
 package www
 
 import (
+	"bytes"
 	"crypto/md5"
+	"encoding/base64"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
+	_ "image/gif"
+	_ "image/jpeg"
 	"image/png"
 	"net/http"
+	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -19,9 +25,13 @@ import (
 	"golang.org/x/image/font/gofont/goregular"
 )
 
+var re_data_url = regexp.MustCompile(`^data:image\/[^;]+;base64,(.*)`)
+var re_http_url = regexp.MustCompile(`^https?\:\/\/(.*)`)
+
 type IconHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
 	URIs             *uris.URIs
+	AllowRemote      bool
 }
 
 func IconHandler(opts *IconHandlerOptions) (http.Handler, error) {
@@ -90,6 +100,76 @@ func IconHandler(opts *IconHandlerOptions) (http.Handler, error) {
 		}
 
 		logger = logger.With("account id", acct.Id)
+
+		// START OF check to see if there is a custom account icon image
+
+		switch {
+		case re_http_url.MatchString(acct.IconURI):
+
+			logger.Debug("Account image is a pointer to a remote address", "address", acct.IconURI)
+
+			if opts.AllowRemote {
+
+				icon_u, err := url.Parse(acct.IconURI)
+
+				if err != nil {
+					logger.Error("Failed to parse remote address for account image", "error", err)
+				} else {
+					http.Redirect(rsp, req, icon_u.String(), http.StatusSeeOther)
+					return
+				}
+
+			} else {
+				logger.Error("Server configuration disallows remote account icon images")
+			}
+
+		case re_data_url.MatchString(acct.IconURI):
+
+			logger.Debug("Account image matches base64-encoded data URL")
+
+			m := re_data_url.FindStringSubmatch(acct.IconURI)
+			b64 := m[1]
+
+			data, err := base64.StdEncoding.DecodeString(b64)
+
+			if err != nil {
+				logger.Error("Failed to decode account image URL from base64", "error", err)
+			} else {
+
+				im_r := bytes.NewReader(data)
+
+				im, _, err := image.Decode(im_r)
+
+				if err != nil {
+					logger.Error("Failed to decode account image URL as image", "error", err)
+				} else {
+
+					err := png.Encode(rsp, im)
+
+					if err != nil {
+						logger.Error("Failed to encode account image URL as PNG", "error", err)
+					}
+				}
+			}
+
+		case acct.IconURI != "":
+
+			// This case is not support by app/account/add (yet)
+
+			icon_u, err := url.Parse(acct.IconURI)
+
+			if err != nil {
+				logger.Error("Account icon url failed parsing", "uri", acct.IconURI, "error", err)
+			} else {
+				http.Redirect(rsp, req, icon_u.String(), http.StatusSeeOther)
+				return
+			}
+
+		default:
+			logger.Debug("No custom account image URL, generate on demand")
+		}
+
+		// END OF check to see if there is a custom account icon image
 
 		data := []byte(account_name)
 		hash := fmt.Sprintf("%x", md5.Sum(data))

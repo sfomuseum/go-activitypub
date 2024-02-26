@@ -17,6 +17,8 @@ type RunOptions struct {
 	URL                 string
 	PublicKeyURI        string
 	PrivateKeyURI       string
+	AccountIconURI      string
+	AllowRemoteIconURI  bool
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -33,6 +35,8 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		AccountsDatabaseURI: accounts_database_uri,
 		AccountId:           account_id,
 		AccountName:         account_name,
+		AccountIconURI:      account_icon_uri,
+		AllowRemoteIconURI:  allow_remote_icon_uri,
 		DisplayName:         display_name,
 		Blurb:               blurb,
 		URL:                 account_url,

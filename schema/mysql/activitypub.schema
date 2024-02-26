@@ -6,6 +6,9 @@ CREATE TABLE accounts (
        url VARCHAR(255),
        private_key_uri TEXT,
        public_key_uri TEXT,
+       discoverable BOOL,
+       manually_approve_followers BOOL,
+       icon_uri TEXT,       
        created BIGINT(20) UNSIGNED NOT NULL,
        lastmodified BIGINT(20) UNSIGNED NOT NULL,
        UNIQUE KEY `accounts_by_name` (`name`)

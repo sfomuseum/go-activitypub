@@ -1,16 +1,27 @@
 package add
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"flag"
 	"fmt"
+	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+	"io"
 	"log/slog"
 	"net/url"
+	"os"
+	"regexp"
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/crypto"
 	"github.com/sfomuseum/go-activitypub/id"
 )
+
+var re_http_url = regexp.MustCompile(`^https?\:\/\/(.*)`)
 
 func Run(ctx context.Context, logger *slog.Logger) error {
 	fs := DefaultFlagSet()
@@ -76,6 +87,54 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		account_id = id
 	}
 
+	icon_uri := ""
+
+	if opts.AccountIconURI != "" {
+
+		if re_http_url.MatchString(opts.AccountIconURI) {
+
+			if !opts.AllowRemoteIconURI {
+				return fmt.Errorf("Remote account icon URIs are not allowed")
+			}
+
+			icon_u, err := url.Parse(opts.AccountIconURI)
+
+			if err != nil {
+				return fmt.Errorf("Failed to parse remote icon URI, %w", err)
+			}
+
+			icon_uri = icon_u.String()
+
+		} else {
+
+			r, err := os.Open(opts.AccountIconURI)
+
+			if err != nil {
+				return fmt.Errorf("Failed to open icon URI for reading, %w", err)
+			}
+
+			defer r.Close()
+
+			data, err := io.ReadAll(r)
+
+			if err != nil {
+				return fmt.Errorf("Failed to read icon URI, %w", err)
+			}
+
+			br := bytes.NewReader(data)
+
+			_, format, err := image.Decode(br)
+
+			if err != nil {
+				return fmt.Errorf("Failed to decode icon URI, %w", err)
+			}
+
+			b64 := base64.StdEncoding.EncodeToString(data)
+
+			icon_uri = fmt.Sprintf("data:image/%s;base64,%s", format, b64)
+		}
+	}
+
 	a := &activitypub.Account{
 		Id:            account_id,
 		Name:          opts.AccountName,
@@ -84,6 +143,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		URL:           opts.URL,
 		PrivateKeyURI: private_key_uri,
 		PublicKeyURI:  public_key_uri,
+		IconURI:       icon_uri,
 	}
 
 	a, err = activitypub.AddAccount(ctx, db, a)

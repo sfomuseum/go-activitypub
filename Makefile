@@ -58,8 +58,15 @@ db-sqlite:
 	$(SQLITE3) $(DELIVERIES_DB) < schema/sqlite/deliveries.schema
 
 accounts:
-	go run cmd/add-account/main.go -accounts-database-uri '$(ACCOUNTS_DB_URI)' -account-name bob
-	go run cmd/add-account/main.go -accounts-database-uri '$(ACCOUNTS_DB_URI)' -account-name alice
+	go run cmd/add-account/main.go \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-account-name bob \
+		-account-icon-uri fixtures/icons/bob.jpg
+	go run cmd/add-account/main.go \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-account-name alice \
+		-allow-remote-icon-uri \
+		-account-icon-uri https://static.sfomuseum.org/media/172/956/659/5/1729566595_kjcAQKRw176gxIieIWZySjhlNzgKNxoA_s.jpg
 
 # Bob wants to follow Alice
 
@@ -139,6 +146,7 @@ server:
 		-messages-database-uri '$(MESSAGES_DB_URI)' \
 		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-posts-database-uri '$(POSTS_DB_URI)' \
+		-allow-remote-icon-uri \
 		-allow-create \
 		-verbose \
 		-hostname localhost:8080 \

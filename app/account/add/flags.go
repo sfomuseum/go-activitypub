@@ -18,6 +18,9 @@ var account_id int64
 var public_key_uri string
 var private_key_uri string
 
+var account_icon_uri string
+var allow_remote_icon_uri bool
+
 func DefaultFlagSet() *flag.FlagSet {
 
 	fs := flagset.NewFlagSet("activitypub")
@@ -33,5 +36,8 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.StringVar(&public_key_uri, "public-key-uri", "", "...")
 	fs.StringVar(&private_key_uri, "private-key-uri", "", "...")
+
+	fs.StringVar(&account_icon_uri, "account-icon-uri", "", "...")
+	fs.BoolVar(&allow_remote_icon_uri, "allow-remote-icon-uri", false, "...")
 	return fs
 }

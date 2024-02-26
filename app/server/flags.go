@@ -20,6 +20,7 @@ var insecure bool
 
 var allow_follow bool
 var allow_create bool
+var allow_remote_icon_uri bool
 
 var verbose bool
 
@@ -42,6 +43,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&hostname, "hostname", "", "...")
 	fs.BoolVar(&insecure, "insecure", false, "...")
 
+	fs.BoolVar(&allow_remote_icon_uri, "allow-remote-icon-uri", false, "...")
 	fs.BoolVar(&verbose, "verbose", false, "Enable verbose logging")
 	return fs
 }

@@ -6,6 +6,9 @@ CREATE TABLE accounts (
        url TEXT,
        private_key_uri TEXT,
        public_key_uri TEXT,
+       discoverable INTEGER,
+       manually_approve_followers INTEGER,
+       icon_uri TEXT,
        created INTEGER,
        lastmodified INTEGER
 );
