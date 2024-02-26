@@ -1,0 +1,16 @@
+CREATE TABLE deliveries (
+       id INTEGER PRIMARY KEY,
+       activity_id TEXT,
+       account_id INTEGER,
+       recipient TEXT,
+       created INTEGER,
+       completed INTEGER,
+       success INTEGER,
+       error TEXT
+);
+
+CREATE INDEX `deliveries_by_account` ON posts (`account_id`, `created`);
+CREATE INDEX `deliveries_by_post` ON posts (`post_id`, `created`);
+CREATE INDEX `deliveries_by_recipient` ON posts (`recipient`, `created`);
+CREATE INDEX `deliveries_by_created` ON posts (`created`);
+       

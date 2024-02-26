@@ -117,6 +117,12 @@ post:
 		-insecure \
 		-verbose
 
+delivery:
+	go run cmd/retrieve-delivery/main.go \
+		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
+		-delivery-id $(ID) \
+		-verbose
+
 inbox:
 	go run cmd/inbox/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \

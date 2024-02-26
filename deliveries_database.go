@@ -22,6 +22,7 @@ type GetDeliveriesQuery struct {
 
 type DeliveriesDatabase interface {
 	AddDelivery(context.Context, *Delivery) error
+	GetDeliveryWithId(context.Context, int64) (*Delivery, error)
 	// GetDeliveries(context.Context, *GetDeliveriesQuery, GetDeliveriesCallbackFunc) error
 	Close(context.Context) error
 }

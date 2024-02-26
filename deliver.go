@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/id"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
@@ -68,9 +69,40 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 	slog.Debug("Deliver post", "post", opts.Post.Id, "from", opts.From.Id, "to", opts.To)
 
+	// Sort out dealing with Snowflake errors sooner...
+	delivery_id, _ := id.NewId()
+
+	now := time.Now()
+	ts := now.Unix()
+
+	d := &Delivery{
+		Id:        delivery_id,
+		PostId:    opts.Post.Id,
+		AccountId: opts.From.Id, // This is still a bob@bob.com which suggests that we need to store actual inbox addresses...
+		Recipient: opts.To,
+		Created:   ts,
+		Success:   false,
+	}
+
+	defer func() {
+
+		now := time.Now()
+		ts := now.Unix()
+
+		d.Completed = ts
+
+		slog.Debug("Add delivery for post", "delivery id", d.Id, "post id", d.PostId, "recipient", d.Recipient, "success", d.Success)
+		err := opts.DeliveriesDatabase.AddDelivery(ctx, d)
+
+		if err != nil {
+			slog.Error("Failed to add delivery", "post_id", opts.Post.Id, "recipienct", d.Recipient, "error", err)
+		}
+	}()
+
 	note, err := NoteFromPost(ctx, opts.URIs, opts.From, opts.Post)
 
 	if err != nil {
+		d.Error = err.Error()
 		return fmt.Errorf("Failed to derive note from post, %w", err)
 	}
 
@@ -83,28 +115,11 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 	create_activity, err := ap.NewCreateActivity(ctx, opts.URIs, from_uri, to_list, note)
 
 	if err != nil {
+		d.Error = err.Error()
 		return fmt.Errorf("Failed to create activity from post, %w", err)
 	}
 
-	now := time.Now()
-	ts := now.Unix()
-
-	d := &Delivery{
-		Id:        create_activity.Id,
-		PostId:    opts.Post.Id,
-		AccountId: opts.From.Id,
-		Recipient: opts.To,
-		Created:   ts,
-	}
-
-	defer func() {
-
-		err := opts.DeliveriesDatabase.AddDelivery(ctx, d)
-
-		if err != nil {
-			slog.Error("Failed to add delivery", "post_id", opts.Post.Id, "recipienct", d.Recipient, "error", err)
-		}
-	}()
+	d.ActivityId = create_activity.Id
 
 	post_opts := &PostToAccountOptions{
 		From:     opts.From,
@@ -115,17 +130,11 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 	err = PostToAccount(ctx, post_opts)
 
-	now = time.Now()
-	ts = now.Unix()
-
-	d.Completed = ts
-	d.Success = true
-
 	if err != nil {
-		d.Success = false
 		d.Error = err.Error()
 		return fmt.Errorf("Failed to post to inbox, %w", err)
 	}
 
+	d.Success = true
 	return nil
 }

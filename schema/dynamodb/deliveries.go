@@ -15,7 +15,7 @@ var DynamoDBDeliveriesTable = &dynamodb.CreateTableInput{
 	AttributeDefinitions: []*dynamodb.AttributeDefinition{
 		{
 			AttributeName: aws.String("Id"),
-			AttributeType: aws.String("S"),
+			AttributeType: aws.String("N"),
 		},
 		{
 			AttributeName: aws.String("PostId"),

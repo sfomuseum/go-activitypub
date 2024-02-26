@@ -22,6 +22,10 @@ func (db *NullDeliveriesDatabase) AddDelivery(ctx context.Context, d *Delivery) 
 	return nil
 }
 
+func (db *NullDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id int64) (*Delivery, error) {
+	return nil, ErrNotFound
+}
+
 func (db *NullDeliveriesDatabase) Close(ctx context.Context) error {
 	return nil
 }

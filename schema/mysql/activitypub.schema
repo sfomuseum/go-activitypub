@@ -77,7 +77,7 @@ CREATE INDEX `notes_by_created` ON notes (`created`);
 
 CREATE TABLE posts (
        id BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
-       uuid CHAR(36),,
+       uuid CHAR(36),
        account_id BIGINT(20) UNSIGNED NOT NULL,
        body TEXT,
        created BIGINT(20) UNSIGNED NOT NULL,
@@ -87,3 +87,20 @@ CREATE TABLE posts (
 
 CREATE INDEX `posts_by_account` ON posts (`account_id`, `created`);
 CREATE INDEX `posts_by_created` ON posts (`created`);
+
+CREATE TABLE deliveries (
+       id BIGINT(20) NOT NULL PRIMARY KEY,
+       activity_id VARCHAR(255),
+       account_id BIGINT(20) NOT NULL,
+       recipient VARCHAR(255),
+       created BIGINT(20) NOT NULL,
+       completed BIGINT(20) NOT NULL,
+       success BIGINT(20) NOT NULL,
+       error VARHAR(255)
+);
+
+CREATE INDEX `deliveries_by_account` ON posts (`account_id`, `created`);
+CREATE INDEX `deliveries_by_post` ON posts (`post_id`, `created`);
+CREATE INDEX `deliveries_by_recipient` ON posts (`recipient`, `created`);
+CREATE INDEX `deliveries_by_created` ON posts (`created`);
+       
