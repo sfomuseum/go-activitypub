@@ -1,5 +1,6 @@
 CREATE TABLE accounts (
        id INTEGER PRIMARY KEY,
+       account_type INTEGER,
        name TEXT,
        display_name TEXT,
        blurb TEXT,

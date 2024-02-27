@@ -15,21 +15,54 @@ import (
 	"github.com/sfomuseum/runtimevar"
 )
 
+type AccountType uint32
+
+const (
+	_ AccountType = iota
+	PersonType
+	ServiceType
+)
+
+func (t AccountType) String() string {
+
+	switch t {
+	case PersonType:
+		return "Person"
+	case ServiceType:
+		return "Service"
+	default:
+		return ""
+	}
+}
+
+func AccountTypeFromString(str_type string) (AccountType, error) {
+
+	switch str_type {
+	case "Person":
+		return PersonType, nil
+	case "Service":
+		return ServiceType, nil
+	default:
+		return 0, fmt.Errorf("Invalid or unsupported account type")
+	}
+}
+
 // https://www.w3.org/TR/activitypub/#actor-objects
 
 type Account struct {
-	Id                       int64  `json:"id"`
-	Name                     string `json:"name"`
-	DisplayName              string `json:"display_name"`
-	Blurb                    string `json:"blurb"`
-	URL                      string `json:"url"`
-	PublicKeyURI             string `json:"public_key_uri"`
-	PrivateKeyURI            string `json:"private_key_uri"`
-	ManuallyApproveFollowers bool   `json:"manually_approve_followers"`
-	Discoverable             bool   `json:"discoverable"`
-	IconURI                  string `json:"icon_uri"`
-	Created                  int64  `json:"created"`
-	LastModified             int64  `json:"lastmodified"`
+	Id                       int64       `json:"id"`
+	AccountType              AccountType `json:"account_type"`
+	Name                     string      `json:"name"`
+	DisplayName              string      `json:"display_name"`
+	Blurb                    string      `json:"blurb"`
+	URL                      string      `json:"url"`
+	PublicKeyURI             string      `json:"public_key_uri"`
+	PrivateKeyURI            string      `json:"private_key_uri"`
+	ManuallyApproveFollowers bool        `json:"manually_approve_followers"`
+	Discoverable             bool        `json:"discoverable"`
+	IconURI                  string      `json:"icon_uri"`
+	Created                  int64       `json:"created"`
+	LastModified             int64       `json:"lastmodified"`
 }
 
 func (a *Account) String() string {
@@ -207,7 +240,7 @@ func (a *Account) ProfileResource(ctx context.Context, uris_table *uris.URIs) (*
 	pr := &ap.Actor{
 		Context:           context,
 		Id:                account_url.String(),
-		Type:              "Person",
+		Type:              a.AccountType.String(),
 		Name:              a.Name,
 		PreferredUsername: a.Name,
 		Summary:           a.Blurb,

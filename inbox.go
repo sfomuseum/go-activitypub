@@ -193,7 +193,7 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) error {
 			body, read_err := io.ReadAll(http_rsp.Body)
 
 			if read_err != nil {
-				return fmt.Errorf("Follow request failed %d, %s; read body also failed", http_rsp.StatusCode, http_rsp.Status, read_err)
+				return fmt.Errorf("Follow request failed %d, %s; read body also failed, %w", http_rsp.StatusCode, http_rsp.Status, read_err)
 			}
 
 			slog.Debug("ERROR", "body", string(body))

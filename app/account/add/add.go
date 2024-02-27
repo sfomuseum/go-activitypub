@@ -87,6 +87,12 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		account_id = id
 	}
 
+	account_type, err := activitypub.AccountTypeFromString(opts.AccountType)
+
+	if err != nil {
+		return fmt.Errorf("Failed to derive account type from string, %w", err)
+	}
+
 	icon_uri := ""
 
 	if opts.AccountIconURI != "" {
@@ -138,6 +144,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	a := &activitypub.Account{
 		Id:            account_id,
 		Name:          opts.AccountName,
+		AccountType:   account_type,
 		DisplayName:   opts.DisplayName,
 		Blurb:         opts.Blurb,
 		URL:           opts.URL,

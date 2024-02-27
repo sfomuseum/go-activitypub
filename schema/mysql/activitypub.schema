@@ -1,5 +1,6 @@
 CREATE TABLE accounts (
        id BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
+       account_type TINYINT(3) NOT NULL,
        name VARCHAR(255),
        display_name VARCHAR(255),
        blurb TEXT,

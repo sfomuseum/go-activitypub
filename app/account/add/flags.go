@@ -12,6 +12,7 @@ var account_name string
 var display_name string
 var blurb string
 var account_url string
+var account_type string
 
 var account_id int64
 
@@ -33,6 +34,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&display_name, "display-name", "", "...")
 	fs.StringVar(&blurb, "blurb", "", "...")
 	fs.StringVar(&account_url, "url", "", "...")
+	fs.StringVar(&account_type, "account-type", "Person", "...")
 
 	fs.StringVar(&public_key_uri, "public-key-uri", "", "...")
 	fs.StringVar(&private_key_uri, "private-key-uri", "", "...")
