@@ -4,9 +4,10 @@ import (
 	"context"
 	"os"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/aaronland/gocloud-blob-s3"
 	"github.com/sfomuseum/go-activitypub/app/server"
 	"github.com/sfomuseum/go-activitypub/slog"
+	_ "gocloud.dev/blob/fileblob"
 )
 
 func main() {

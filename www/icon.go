@@ -11,13 +11,16 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	"image/png"
+	"io"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/aaronland/gocloud-blob/bucket"
 	"github.com/fogleman/gg"
 	"github.com/golang/freetype/truetype"
 	"github.com/sfomuseum/go-activitypub"
@@ -102,6 +105,10 @@ func IconHandler(opts *IconHandlerOptions) (http.Handler, error) {
 		logger = logger.With("account id", acct.Id)
 
 		// START OF check to see if there is a custom account icon image
+		// START OF move this in to a separate package or something
+
+		// Until then this is a twisty mess of if/else blocks because we always want
+		// to fail over to the auto-generate icons if necessary. Womp womp...
 
 		switch {
 		case re_http_url.MatchString(acct.IconURI):
@@ -154,21 +161,72 @@ func IconHandler(opts *IconHandlerOptions) (http.Handler, error) {
 
 		case acct.IconURI != "":
 
-			// This case is not support by app/account/add (yet)
-
 			icon_u, err := url.Parse(acct.IconURI)
 
 			if err != nil {
-				logger.Error("Account icon url failed parsing", "uri", acct.IconURI, "error", err)
+				logger.Error("Failed to parse icon url", "error", err)
 			} else {
-				http.Redirect(rsp, req, icon_u.String(), http.StatusSeeOther)
-				return
+
+				// START OF put me in a function (probably in aaronland/gocloud-blob/bucket)
+				root := filepath.Dir(icon_u.Path)
+				fname := filepath.Base(icon_u.Path)
+
+				root = strings.TrimLeft(root, "/")
+				root = strings.TrimRight(root, "/")
+
+				icon_q := icon_u.Query()
+				icon_q.Set("prefix", fmt.Sprintf("%s/", root))
+
+				icon_u.Path = ""
+				icon_u.RawQuery = icon_q.Encode()
+
+				bucket_uri := icon_u.String()
+				// END OF put me in a function (probably in aaronland/gocloud-blob/bucket)
+
+				logger = logger.With("bucket uri", bucket_uri)
+				logger = logger.With("bucket key", fname)
+
+				b, err := bucket.OpenBucket(ctx, bucket_uri)
+
+				if err != nil {
+					logger.Error("Failed to open bucket", "bucket uri", bucket_uri, "error", err)
+				} else {
+
+					defer b.Close()
+
+					attrs, err := b.Attributes(ctx, fname)
+
+					if err != nil {
+						logger.Error("Failed to derive attributes for icon", "error", err)
+					} else {
+
+						r, err := b.NewReader(ctx, fname, nil)
+
+						if err != nil {
+							logger.Error("Failed to open icon file for reading", "filename", fname, "error", err)
+						} else {
+
+							defer r.Close()
+
+							rsp.Header().Set("Content-Type", attrs.ContentType)
+
+							_, err := io.Copy(rsp, r)
+
+							if err != nil {
+								logger.Error("Failed to copy icon file", "error", err)
+							}
+
+							return
+						}
+					}
+				}
 			}
 
 		default:
 			logger.Debug("No custom account image URL, generate on demand")
 		}
 
+		// END OF move this in to a separate package or something
 		// END OF check to see if there is a custom account icon image
 
 		data := []byte(account_name)

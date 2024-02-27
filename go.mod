@@ -9,6 +9,8 @@ require (
 	github.com/aaronland/go-pagination v0.2.0
 	github.com/aaronland/go-pagination-sql v0.2.0
 	github.com/aaronland/go-roster v1.0.0
+	github.com/aaronland/gocloud-blob v0.0.15
+	github.com/aaronland/gocloud-blob-s3 v0.2.4
 	github.com/aaronland/gocloud-docstore v0.0.5
 	github.com/aws/aws-lambda-go v1.46.0
 	github.com/aws/aws-sdk-go v1.50.27
@@ -35,16 +37,22 @@ require (
 	github.com/aaronland/go-string v1.0.0 // indirect
 	github.com/akrylysov/algnhsa v1.1.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.24.1 // indirect
+	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.5.4 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.26.6 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.16.16 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.14.11 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.15.7 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.2.10 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.5.10 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.7.3 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/v4a v1.2.9 // indirect
 	github.com/aws/aws-sdk-go-v2/service/cognitoidentity v1.21.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/iam v1.28.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.10.4 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.2.9 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.10.10 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.16.9 // indirect
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.47.5 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sns v1.26.5 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.29.5 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.45.0 // indirect
@@ -67,6 +75,7 @@ require (
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
+	github.com/whosonfirst/go-ioutil v1.0.2 // indirect
 	github.com/whosonfirst/go-sanitize v0.1.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	golang.org/x/crypto v0.17.0 // indirect

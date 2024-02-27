@@ -56,7 +56,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	}
 
 	logger.Info("CREATE", "refresh", refresh)
-	
+
 	create_opts := &aa_dynamodb.CreateTablesOptions{
 		Tables:  tables,
 		Refresh: opts.Refresh,

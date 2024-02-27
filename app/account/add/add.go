@@ -97,7 +97,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	if opts.AccountIconURI != "" {
 
-		if re_http_url.MatchString(opts.AccountIconURI) {
+		switch {
+		case re_http_url.MatchString(opts.AccountIconURI):
 
 			if !opts.AllowRemoteIconURI {
 				return fmt.Errorf("Remote account icon URIs are not allowed")
@@ -111,7 +112,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 			icon_uri = icon_u.String()
 
-		} else {
+		case opts.EmbedIconURI:
 
 			r, err := os.Open(opts.AccountIconURI)
 
@@ -138,6 +139,9 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 			b64 := base64.StdEncoding.EncodeToString(data)
 
 			icon_uri = fmt.Sprintf("data:image/%s;base64,%s", format, b64)
+
+		default:
+			icon_uri = opts.AccountIconURI
 		}
 	}
 

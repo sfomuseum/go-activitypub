@@ -21,6 +21,7 @@ var private_key_uri string
 
 var account_icon_uri string
 var allow_remote_icon_uri bool
+var embed_icon_uri bool
 
 func DefaultFlagSet() *flag.FlagSet {
 
@@ -41,5 +42,6 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.StringVar(&account_icon_uri, "account-icon-uri", "", "...")
 	fs.BoolVar(&allow_remote_icon_uri, "allow-remote-icon-uri", false, "...")
+	fs.BoolVar(&embed_icon_uri, "embed-icon-uri", false, "...")
 	return fs
 }
