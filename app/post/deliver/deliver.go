@@ -57,8 +57,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer posts_db.Close(ctx)
 
-	post, err := posts_db.GetPostWithId(ctx, opts.PostId)
-
 	followers_db, err := activitypub.NewFollowersDatabase(ctx, opts.FollowersDatabaseURI)
 
 	if err != nil {
@@ -67,18 +65,20 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer followers_db.Close(ctx)
 
-	if err != nil {
-		return fmt.Errorf("Failed to retrieve post, %w", err)
-	}
-
-	delivery_q, err := activitypub.NewDeliveryQueue(ctx, opts.DeliveryQueueURI)
-
-	if err != nil {
-		return fmt.Errorf("Failed to create new delivery queue, %w", err)
-	}
-
 	switch opts.Mode {
 	case "cli":
+
+		delivery_q, err := activitypub.NewDeliveryQueue(ctx, opts.DeliveryQueueURI)
+
+		if err != nil {
+			return fmt.Errorf("Failed to create new delivery queue, %w", err)
+		}
+
+		post, err := posts_db.GetPostWithId(ctx, opts.PostId)
+
+		if err != nil {
+			return fmt.Errorf("Failed to retrieve post, %w", err)
+		}
 
 		deliver_opts := &activitypub.DeliverPostToFollowersOptions{
 			AccountsDatabase:   accounts_db,
@@ -106,7 +106,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 				logger := slog.Default()
 				logger = logger.With("message id", message.MessageId)
 
-				logger.Debug("SQS", "message", message.Body)
+				// logger.Debug("SQS", "message", message.Body)
 
 				var ps_opts *activitypub.PubSubDeliveryQueuePostOptions
 
@@ -169,6 +169,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 					return fmt.Errorf("Failed to deliver post, %w", err)
 				}
 
+				logger.Info("Post delivered")
 			}
 
 			return nil
