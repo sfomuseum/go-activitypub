@@ -1,7 +1,11 @@
 package dynamodb
 
 import (
+	"context"
 	"fmt"
+	"log/slog"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 )
@@ -19,6 +23,8 @@ func CreateTables(client *aws_dynamodb.DynamoDB, opts *CreateTablesOptions) erro
 
 	for table_name, def := range opts.Tables {
 
+		// To do: Do this concurrently because of the delay waiting for table deletion to complete
+
 		has_table, err := HasTable(client, table_name)
 
 		if err != nil {
@@ -35,7 +41,73 @@ func CreateTables(client *aws_dynamodb.DynamoDB, opts *CreateTablesOptions) erro
 				TableName: aws.String(table_name),
 			}
 
-			client.DeleteTable(req)
+			_, err := client.DeleteTable(req)
+
+			if err != nil {
+				return fmt.Errorf("Failed to delete table '%s', %w", table_name, err)
+			}
+
+			// Now wait for the deletion to complete...
+			slog.Debug("Table deleted, now waiting for completion", "table_name", table_name)
+
+			ctx := context.Background()
+
+			ticker_ctx, ticker_cancel := context.WithTimeout(ctx, 30*time.Second)
+			defer ticker_cancel()
+
+			ticker := time.NewTicker(5 * time.Second)
+
+			done_ch := make(chan bool)
+			ready_ch := make(chan bool)
+			err_ch := make(chan error)
+
+			go func() {
+				for {
+					select {
+					case <-ticker_ctx.Done():
+						return
+					case <-done_ch:
+						return
+					case <-ticker.C:
+
+						has_table, err := HasTable(client, table_name)
+
+						if err != nil {
+							slog.Error("Failed to determine if table exists", "table name", table_name, "error", err)
+						} else {
+							slog.Debug("Has table check", "table name", table_name, "has_table", has_table)
+						}
+
+						if !has_table {
+							ready_ch <- true
+						}
+
+					}
+				}
+			}()
+
+			table_ready := false
+
+			for {
+				select {
+				case <-ticker_ctx.Done():
+					return fmt.Errorf("Ticker to delete table timed out")
+				case err := <-err_ch:
+					return fmt.Errorf("Failed to delete table, %w", err)
+				case <-ready_ch:
+					table_ready = true
+				}
+
+				if table_ready {
+					break
+
+					go func() {
+						ticker.Stop()
+						done_ch <- true
+					}()
+				}
+			}
+
 		}
 
 		def.TableName = aws.String(table_name)

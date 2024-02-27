@@ -3,7 +3,7 @@ module github.com/sfomuseum/go-activitypub
 go 1.22.0
 
 require (
-	github.com/aaronland/go-aws-dynamodb v0.0.5
+	github.com/aaronland/go-aws-dynamodb v0.0.7
 	github.com/aaronland/go-http-sanitize v0.0.8
 	github.com/aaronland/go-http-server v1.4.0
 	github.com/aaronland/go-pagination v0.2.0
@@ -11,7 +11,7 @@ require (
 	github.com/aaronland/go-roster v1.0.0
 	github.com/aaronland/gocloud-docstore v0.0.5
 	github.com/aws/aws-lambda-go v1.46.0
-	github.com/aws/aws-sdk-go v1.50.23
+	github.com/aws/aws-sdk-go v1.50.27
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/fogleman/gg v1.3.0
 	github.com/go-fed/httpsig v1.1.0

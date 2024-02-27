@@ -1,8 +1,8 @@
 # github.com/aaronland/go-aws-auth v1.3.0
 ## explicit; go 1.22rc2
 github.com/aaronland/go-aws-auth
-# github.com/aaronland/go-aws-dynamodb v0.0.5
-## explicit; go 1.18
+# github.com/aaronland/go-aws-dynamodb v0.0.7
+## explicit; go 1.21
 github.com/aaronland/go-aws-dynamodb
 # github.com/aaronland/go-aws-session v0.2.1
 ## explicit; go 1.18
@@ -40,7 +40,7 @@ github.com/aws/aws-lambda-go/lambda
 github.com/aws/aws-lambda-go/lambda/handlertrace
 github.com/aws/aws-lambda-go/lambda/messages
 github.com/aws/aws-lambda-go/lambdacontext
-# github.com/aws/aws-sdk-go v1.50.23
+# github.com/aws/aws-sdk-go v1.50.27
 ## explicit; go 1.19
 github.com/aws/aws-sdk-go/aws
 github.com/aws/aws-sdk-go/aws/auth/bearer
