@@ -40,6 +40,24 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	tables := ap_dynamodb.DynamoDBTables
 
+	if len(table_names) > 0 {
+
+		tables_named := make(map[string]*dynamodb.CreateTableInput)
+
+		for _, n := range table_names {
+
+			details, exists := tables[n]
+
+			if !exists {
+				return fmt.Errorf("Missing table definition for '%s'", n)
+			}
+
+			tables_named[n] = details
+		}
+
+		tables = tables_named
+	}
+
 	if table_prefix != "" {
 
 		tables_prefixed := make(map[string]*dynamodb.CreateTableInput)
@@ -54,8 +72,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 		tables = tables_prefixed
 	}
-
-	logger.Info("CREATE", "refresh", refresh)
 
 	create_opts := &aa_dynamodb.CreateTablesOptions{
 		Tables:  tables,
