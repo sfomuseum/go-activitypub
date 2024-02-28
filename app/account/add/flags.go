@@ -4,9 +4,11 @@ import (
 	"flag"
 
 	"github.com/sfomuseum/go-flags/flagset"
+	"github.com/sfomuseum/go-flags/multi"
 )
 
 var accounts_database_uri string
+var aliases_database_uri string
 
 var account_name string
 var display_name string
@@ -25,15 +27,20 @@ var embed_icon_uri bool
 
 var discoverable bool
 
+var aliases multi.MultiString
+
 func DefaultFlagSet() *flag.FlagSet {
 
 	fs := flagset.NewFlagSet("activitypub")
 
 	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "...")
+	fs.StringVar(&aliases_database_uri, "aliases-database-uri", "", "...")
 
 	fs.Int64Var(&account_id, "account-id", 0, "...")
 
 	fs.StringVar(&account_name, "account-name", "", "...")
+	fs.Var(&aliases, "alias", "...")
+
 	fs.StringVar(&display_name, "display-name", "", "...")
 	fs.StringVar(&blurb, "blurb", "", "...")
 	fs.StringVar(&account_url, "url", "", "...")

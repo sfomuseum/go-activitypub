@@ -15,6 +15,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"time"
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/crypto"
@@ -47,8 +48,18 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create new database, %w", err)
+		return fmt.Errorf("Failed to instantiate accounts database, %w", err)
 	}
+
+	aliases_db, err := activitypub.NewAliasesDatabase(ctx, opts.AliasesDatabaseURI)
+
+	if err != nil {
+		return fmt.Errorf("Failed to instantiate aliases database, %w", err)
+	}
+
+	// START OF check for existing account name and aliases
+
+	// END OF check for existing account name and aliases
 
 	if opts.PublicKeyURI == "" && opts.PrivateKeyURI != "" {
 		return fmt.Errorf("Missing public key URI")
@@ -163,6 +174,39 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	if err != nil {
 		return fmt.Errorf("Failed to add new account, %w", err)
+	}
+
+	// Aliases
+
+	for _, name := range opts.Aliases {
+
+		a, err := aliases_db.GetAliasWithName(ctx, name)
+
+		if err != nil && err != activitypub.ErrNotFound {
+			return fmt.Errorf("Failed to retrieve alias for name '%s', %w", name, err)
+		}
+
+		if a != nil {
+
+			if a.AccountId != account_id {
+				return fmt.Errorf("Alias '%s' is already in use", name)
+			}
+		}
+
+		now := time.Now()
+		ts := now.Unix()
+
+		a = &activitypub.Alias{
+			Name:      name,
+			AccountId: account_id,
+			Created:   ts,
+		}
+
+		err = aliases_db.AddAlias(ctx, a)
+
+		if err != nil {
+			return fmt.Errorf("Failed to add alias for name '%s', %w", name, err)
+		}
 	}
 
 	return nil
