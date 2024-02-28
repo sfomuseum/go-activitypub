@@ -21,6 +21,7 @@ import (
 	"github.com/sfomuseum/go-activitypub/id"
 )
 
+// Reconcile with www/icon.go
 var re_http_url = regexp.MustCompile(`^https?\:\/\/(.*)`)
 
 func Run(ctx context.Context, logger *slog.Logger) error {
@@ -151,6 +152,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		AccountType:   account_type,
 		DisplayName:   opts.DisplayName,
 		Blurb:         opts.Blurb,
+		Discoverable:  opts.Discoverable,
 		URL:           opts.URL,
 		PrivateKeyURI: private_key_uri,
 		PublicKeyURI:  public_key_uri,

@@ -28,6 +28,8 @@ import (
 	"golang.org/x/image/font/gofont/goregular"
 )
 
+// Reconcile with app/account/add/add.go
+
 var re_data_url = regexp.MustCompile(`^data:image\/[^;]+;base64,(.*)`)
 var re_http_url = regexp.MustCompile(`^https?\:\/\/(.*)`)
 

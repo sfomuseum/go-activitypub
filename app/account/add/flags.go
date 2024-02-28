@@ -23,6 +23,8 @@ var account_icon_uri string
 var allow_remote_icon_uri bool
 var embed_icon_uri bool
 
+var discoverable bool
+
 func DefaultFlagSet() *flag.FlagSet {
 
 	fs := flagset.NewFlagSet("activitypub")
@@ -36,6 +38,8 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&blurb, "blurb", "", "...")
 	fs.StringVar(&account_url, "url", "", "...")
 	fs.StringVar(&account_type, "account-type", "Person", "...")
+
+	fs.BoolVar(&discoverable, "discoverable", true, "...")
 
 	fs.StringVar(&public_key_uri, "public-key-uri", "", "...")
 	fs.StringVar(&private_key_uri, "private-key-uri", "", "...")
