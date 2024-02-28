@@ -13,6 +13,7 @@ import (
 
 type WebfingerHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
+	AliasesDatabase  activitypub.AliasesDatabase
 	URIs             *uris.URIs
 }
 
@@ -82,6 +83,10 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 			return
 		}
 
+		// START OF lookup account by alias
+
+		// END OF lookup account by alias
+
 		logger = logger.With("account id", acct.Id)
 
 		wf, err := acct.WebfingerResource(ctx, opts.URIs)
@@ -90,6 +95,12 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 			logger.Error("Failed to derive webfinger response for resource", "error", err)
 			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
+		}
+
+		err = activitypub.AppendAliasesToWebfingerResource(ctx, opts.AliasesDatabase, acct, wf)
+
+		if err != nil {
+			logger.Error("Failed to append aliases", "error", err)
 		}
 
 		rsp.Header().Set("Content-type", webfinger.ContentType)

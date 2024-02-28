@@ -18,8 +18,16 @@ func webfingerHandlerFunc(ctx context.Context) (http.Handler, error) {
 		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAccountsDatabaseError)
 	}
 
+	setupAliasesDatabaseOnce.Do(setupAliasesDatabase)
+
+	if setupAliasesDatabaseError != nil {
+		slog.Error("Failed to set up account database configuration", "error", setupAliasesDatabaseError)
+		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAliasesDatabaseError)
+	}
+
 	opts := &www.WebfingerHandlerOptions{
 		AccountsDatabase: accounts_db,
+		AliasesDatabase:  aliases_db,
 		URIs:             run_opts.URIs,
 	}
 

@@ -24,7 +24,7 @@ var BILLING_MODE = aws.String("PAY_PER_REQUEST")
 
 var DynamoDBTables = map[string]*dynamodb.CreateTableInput{
 	ACCOUNTS_TABLE_NAME:   DynamoDBAccountsTable,
-	ALIASES_TABLE_NAME:   DynamoDBAliasesTable,	
+	ALIASES_TABLE_NAME:    DynamoDBAliasesTable,
 	FOLLOWERS_TABLE_NAME:  DynamoDBFollowersTable,
 	FOLLOWING_TABLE_NAME:  DynamoDBFollowingTable,
 	POSTS_TABLE_NAME:      DynamoDBPostsTable,

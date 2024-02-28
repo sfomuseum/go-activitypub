@@ -3,6 +3,8 @@ package activitypub
 import (
 	"context"
 	"fmt"
+
+	"github.com/sfomuseum/go-activitypub/webfinger"
 )
 
 type Alias struct {
@@ -13,6 +15,25 @@ type Alias struct {
 
 func (a *Alias) String() string {
 	return a.Name
+}
+
+func AppendAliasesToWebfingerResource(ctx context.Context, aliases_db AliasesDatabase, acct *Account, wf *webfinger.Resource) error {
+
+	aliases := make([]string, 0)
+
+	aliases_cb := func(ctx context.Context, alias *Alias) error {
+		aliases = append(aliases, alias.Name)
+		return nil
+	}
+
+	err := aliases_db.GetAliasesForAccount(ctx, acct.Id, aliases_cb)
+
+	if err != nil {
+		return fmt.Errorf("Failed to retrieve aliases for account, %w", err)
+	}
+
+	wf.Aliases = aliases
+	return nil
 }
 
 func IsAliasNameTaken(ctx context.Context, aliases_db AliasesDatabase, name string) (bool, error) {

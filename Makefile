@@ -156,6 +156,7 @@ inbox:
 server:
 	go run cmd/server/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-aliases-database-uri '$(ALIASES_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
 		-following-database-uri '$(FOLLOWING_DB_URI)' \
 		-notes-database-uri '$(NOTES_DB_URI)' \

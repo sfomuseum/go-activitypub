@@ -16,7 +16,7 @@ var DynamoDBAliasesTable = &dynamodb.CreateTableInput{
 		{
 			AttributeName: aws.String("Name"),
 			AttributeType: aws.String("S"),
-		},		
+		},
 		{
 			AttributeName: aws.String("AccountId"),
 			AttributeType: aws.String("N"),
@@ -37,7 +37,7 @@ var DynamoDBAliasesTable = &dynamodb.CreateTableInput{
 				{
 					AttributeName: aws.String("Created"),
 					KeyType:       aws.String("RANGE"),
-				},				
+				},
 			},
 			Projection: &dynamodb.Projection{
 				ProjectionType: aws.String("ALL"),
