@@ -27,7 +27,8 @@ type InboxPostHandlerOptions struct {
 	URIs              *uris.URIs
 	AllowFollow       bool
 	AllowCreate       bool
-
+	AllowLike 	  bool
+	
 	// TBD but the idea is that after the signature verification
 	// and block checks are dealt with the best thing would be to
 	// hand off to an activity-specific handler using the http.Next()
@@ -98,6 +99,14 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			rsp.WriteHeader(http.StatusAccepted)
 			return
 
+		case "Like":
+
+			if !opts.AllowLike {
+				logger.Error("Unsupported activity type")
+				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
+				return
+			}
+			
 		case "Follow":
 
 			if !opts.AllowFollow {
@@ -409,6 +418,10 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		accept_obj := activity
 
 		switch activity.Type {
+		case "Like":
+
+			// What does the activity look like...
+			
 		case "Follow":
 
 			is_following, _, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
