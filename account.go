@@ -104,6 +104,21 @@ func (a *Account) PostURL(ctx context.Context, uris_table *uris.URIs, post *Post
 	return uris.NewURL(uris_table, post_path)
 }
 
+func (a *Account) WebfingerURL(ctx context.Context, uris_table *uris.URIs) *url.URL {
+
+	address := a.Address(uris_table.Hostname)
+	acct := fmt.Sprintf("acct:%s", address)
+
+	wf_q := &url.Values{}
+	wf_q.Set("resource", acct)
+
+	wf_u := &url.URL{}
+	wf_u.Path = webfinger.Endpoint
+	wf_u.RawQuery = wf_q.Encode()
+
+	return wf_u
+}
+
 func (a *Account) WebfingerResource(ctx context.Context, uris_table *uris.URIs) (*webfinger.Resource, error) {
 
 	account_url := a.AccountURL(ctx, uris_table)

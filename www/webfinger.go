@@ -114,7 +114,11 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			logger.Debug("Retrieve account with alias", "account id", acct.Id, "alias", name)
+			wf_u := acct.WebfingerURL(ctx, opts.URIs)
+			logger.Debug("Redirect to webfinger endpoint", "endpoint", wf_u.String())
+
+			http.Redirect(rsp, req, wf_u.String(), http.StatusSeeOther)
+			return
 		}
 
 		// END OF lookup account by alias
