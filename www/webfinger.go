@@ -71,19 +71,51 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 
 		acct, err := opts.AccountsDatabase.GetAccountWithName(ctx, name)
 
-		if err != nil {
+		if err != nil && err != activitypub.ErrNotFound {
+
 			logger.Error("Failed to retrieve account for resource", "error", err)
-
-			if err == activitypub.ErrNotFound {
-				http.Error(rsp, "Not found", http.StatusNotFound)
-				return
-			}
-
 			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
 		// START OF lookup account by alias
+
+		if err != nil {
+
+			logger.Debug("Lookup resource by alias")
+
+			alias, err := opts.AliasesDatabase.GetAliasWithName(ctx, name)
+
+			if err != nil {
+
+				logger.Error("Failed to retrieve account for resource alias", "alias", name, "error", err)
+
+				if err == activitypub.ErrNotFound {
+					http.Error(rsp, "Not found", http.StatusNotFound)
+					return
+				}
+
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			acct, err = opts.AccountsDatabase.GetAccountWithId(ctx, alias.AccountId)
+
+			if err != nil {
+
+				logger.Error("Failed to retrieve account with ID for resource alias", "alias", name, "account id", alias.AccountId, "error", err)
+
+				if err == activitypub.ErrNotFound {
+					http.Error(rsp, "Not found", http.StatusNotFound)
+					return
+				}
+
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			logger.Debug("Retrieve account with alias", "account id", acct.Id, "alias", name)
+		}
 
 		// END OF lookup account by alias
 
