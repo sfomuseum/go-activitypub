@@ -133,12 +133,6 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		err = activitypub.AppendAliasesToWebfingerResource(ctx, opts.AliasesDatabase, acct, wf)
-
-		if err != nil {
-			logger.Error("Failed to append aliases", "error", err)
-		}
-
 		rsp.Header().Set("Content-type", webfinger.ContentType)
 
 		enc := json.NewEncoder(rsp)
