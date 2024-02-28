@@ -59,6 +59,29 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	// START OF check for existing account name and aliases
 
+	acct_taken, err := activitypub.IsAccountNameTaken(ctx, db, opts.AccountName)
+
+	if err != nil {
+		return fmt.Errorf("Failed to determine if account name is taken, %w", err)
+	}
+
+	if acct_taken {
+		return fmt.Errorf("Account name is not available")
+	}
+
+	for _, name := range opts.Aliases {
+
+		alias_taken, err := activitypub.IsAliasNameTaken(ctx, aliases_db, name)
+
+		if err != nil {
+			return fmt.Errorf("Failed to determine if alias name '%s' is taken, %w", name, err)
+		}
+
+		if alias_taken {
+			return fmt.Errorf("Account name '%s' is not available", name)
+		}
+	}
+
 	// END OF check for existing account name and aliases
 
 	if opts.PublicKeyURI == "" && opts.PrivateKeyURI != "" {

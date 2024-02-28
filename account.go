@@ -325,3 +325,19 @@ func UpdateAccount(ctx context.Context, db AccountsDatabase, a *Account) (*Accou
 
 	return a, nil
 }
+
+func IsAccountNameTaken(ctx context.Context, accounts_db AccountsDatabase, name string) (bool, error) {
+
+	_, err := accounts_db.GetAccountWithName(ctx, name)
+
+	if err != nil {
+
+		if err != ErrNotFound {
+			return false, fmt.Errorf("Failed to determine is name is taken, %w", err)
+		}
+
+		return false, nil
+	}
+
+	return true, nil
+}
