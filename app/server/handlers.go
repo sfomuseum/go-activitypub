@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/sfomuseum/go-activitypub/www"
+	"github.com/rs/cors"
 )
 
 func webfingerHandlerFunc(ctx context.Context) (http.Handler, error) {
@@ -31,7 +32,14 @@ func webfingerHandlerFunc(ctx context.Context) (http.Handler, error) {
 		URIs:             run_opts.URIs,
 	}
 
-	return www.WebfingerHandler(opts)
+	wf_handler, err := www.WebfingerHandler(opts)
+
+	if err != nil {
+		return nil, err
+	}
+
+	wf_handler = cors.Default().Handler(wf_handler)
+	return wf_handler, nil
 }
 
 func accountHandlerFunc(ctx context.Context) (http.Handler, error) {
