@@ -256,8 +256,8 @@ func (a *Account) ProfileResource(ctx context.Context, uris_table *uris.URIs) (*
 		Context:           context,
 		Id:                account_url.String(),
 		Type:              a.AccountType.String(),
-		Name:              a.Name,
-		PreferredUsername: a.Name,
+		Name:              a.DisplayName, // name is display name
+		PreferredUsername: a.Name,        // preferred username is account (user)name
 		Summary:           a.Blurb,
 		URL:               a.URL,
 		Followers:         followers_url.String(),

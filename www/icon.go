@@ -232,7 +232,7 @@ func IconHandler(opts *IconHandlerOptions) (http.Handler, error) {
 		// END OF check to see if there is a custom account icon image
 
 		// START OF replace with icon/GenerateIcon
-		
+
 		data := []byte(account_name)
 		hash := fmt.Sprintf("%x", md5.Sum(data))
 		hex := hash[0:6]
@@ -282,7 +282,7 @@ func IconHandler(opts *IconHandlerOptions) (http.Handler, error) {
 		final_im := dc.Image()
 
 		// END OF replace with icon/GenerateIcon
-		
+
 		rsp.Header().Set("Content-type", "image/png")
 
 		err = png.Encode(rsp, final_im)
