@@ -41,6 +41,31 @@ func NewDocstoreFollowersDatabase(ctx context.Context, uri string) (FollowersDat
 	return db, nil
 }
 
+func (db *DocstoreFollowersDatabase) HasFollowers(ctx context.Context, account_id int64) (bool, error) {
+
+	q := db.collection.Query()
+	q = q.Where("AccountId", "=", account_id)
+	q = q.Limit(1)
+
+	iter := q.Get(ctx)
+	defer iter.Stop()
+
+	for {
+
+		var f Follower
+		err := iter.Next(ctx, &f)
+
+		if err == io.EOF {
+			return false, nil
+		} else if err != nil {
+			return false, fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			return true, nil
+		}
+	}
+
+}
+
 func (db *DocstoreFollowersDatabase) GetFollower(ctx context.Context, account_id int64, follower_address string) (*Follower, error) {
 
 	q := db.collection.Query()

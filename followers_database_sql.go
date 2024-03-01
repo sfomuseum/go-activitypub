@@ -60,6 +60,30 @@ func NewSQLFollowersDatabase(ctx context.Context, uri string) (FollowersDatabase
 	return db, nil
 }
 
+func (db *SQLFollowersDatabase) HasFollower(ctx context.Context, account_id int64, follower_address string) (bool, error) {
+
+	q := fmt.Sprintf("SELECT COUNT(id) AS count FROM %s WHERE account_id = ?", SQL_FOLLOWERS_TABLE_NAME)
+
+	row := db.database.QueryRowContext(ctx, q, account_id)
+
+	var count int
+
+	err := row.Scan(&count)
+
+	switch {
+	case err == sql.ErrNoRows:
+		return false, nil
+	case err != nil:
+		return false, fmt.Errorf("Failed to query database, %w", err)
+	default:
+		if count > 0 {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 func (db *SQLFollowersDatabase) GetFollower(ctx context.Context, account_id int64, follower_address string) (*Follower, error) {
 
 	q := fmt.Sprintf("SELECT id, created FROM %s WHERE account_id = ? AND follower_address = ?", SQL_FOLLOWERS_TABLE_NAME)

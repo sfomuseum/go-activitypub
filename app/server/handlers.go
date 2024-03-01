@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/sfomuseum/go-activitypub/www"
 	"github.com/rs/cors"
+	"github.com/sfomuseum/go-activitypub/www"
 )
 
 func webfingerHandlerFunc(ctx context.Context) (http.Handler, error) {
