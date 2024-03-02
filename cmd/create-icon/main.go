@@ -21,8 +21,8 @@ func main() {
 	flag.StringVar(&label, "label", "", "...")
 	flag.IntVar(&trim_to, "trim-to", 0, "...")
 	flag.StringVar(&outfile, "out", "icon.png", "...")
-	flag.Float64Var(&font_size, "font-size", 48.0, "...")
-
+	flag.Float64Var(&font_size, "font-size", 0, "...")
+	
 	flag.Parse()
 
 	ctx := context.Background()

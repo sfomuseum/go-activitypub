@@ -28,9 +28,9 @@ func GenerateIcon(ctx context.Context, opts *GenerateIconOptions) (image.Image, 
 
 	logger := slog.Default()
 
-	font_size := 48.0
-	im_w := 48
-	im_h := 48
+	font_size := 82.0
+	im_w := 200
+	im_h := 200
 
 	if opts.FontSize != 0 {
 		font_size = opts.FontSize
