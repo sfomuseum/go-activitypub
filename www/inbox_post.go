@@ -492,7 +492,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			post, err := activitypub.GetPostFromObjectURI(ctx, opts.PostsDatabase, object_uri)
+			post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
 
 			if err != nil {
 
@@ -504,6 +504,14 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				}
 
 				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			logger = logger.With("post id", post.Id)
+
+			if post.AccountId != acct.Id {
+				logger.Error("Trying to act on post for different account", "post account", post.AccountId)
+				http.Error(rsp, "Forbidden", http.StatusForbidden)
 				return
 			}
 
@@ -551,7 +559,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			post, err := activitypub.GetPostFromObjectURI(ctx, opts.PostsDatabase, object_uri)
+			post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
 
 			if err != nil {
 
@@ -563,6 +571,14 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				}
 
 				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			logger = logger.With("post id", post.Id)
+
+			if post.AccountId != acct.Id {
+				logger.Error("Trying to act on post for different account", "post account", post.AccountId)
+				http.Error(rsp, "Forbidden", http.StatusForbidden)
 				return
 			}
 
@@ -737,7 +753,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				logger = logger.With("object uri", object_uri)
 
-				post, err := activitypub.GetPostFromObjectURI(ctx, opts.PostsDatabase, object_uri)
+				post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
 
 				if err != nil {
 
@@ -752,7 +768,13 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 					return
 				}
 
-				logger = logger.With("post", post.Id)
+				logger = logger.With("post id", post.Id)
+
+				if post.AccountId != acct.Id {
+					logger.Error("Trying to act on post for different account", "post account", post.AccountId)
+					http.Error(rsp, "Forbidden", http.StatusForbidden)
+					return
+				}
 
 				like, err := opts.LikesDatabase.GetLikeWithPostIdAndActor(ctx, post.Id, activity.Actor)
 
@@ -765,7 +787,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				logger = logger.With("like", like.Id)
 
 				if like != nil {
-					err := opts.LikeDatabase.RemoveLike(ctx, boot)
+
+					err := opts.LikesDatabase.RemoveLike(ctx, like)
 
 					if err != nil {
 						logger.Error("Failed to remove like", "error", err)
@@ -773,7 +796,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 						return
 					}
 
-					logger.Info("Remove like")
+					logger.Info("Removed like")
 				}
 
 			case "Announce":
@@ -793,7 +816,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				logger = logger.With("object uri", object_uri)
 
-				post, err := activitypub.GetPostFromObjectURI(ctx, opts.PostsDatabase, object_uri)
+				post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
 
 				if err != nil {
 
@@ -808,7 +831,13 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 					return
 				}
 
-				logger = logger.With("post", post.Id)
+				logger = logger.With("post id", post.Id)
+
+				if post.AccountId != acct.Id {
+					logger.Error("Trying to act on post for different account", "post account", post.AccountId)
+					http.Error(rsp, "Forbidden", http.StatusForbidden)
+					return
+				}
 
 				boost, err := opts.BoostsDatabase.GetBoostWithPostIdAndActor(ctx, post.Id, activity.Actor)
 
@@ -821,7 +850,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				logger = logger.With("boost", boost.Id)
 
 				if boost != nil {
-					err := opts.BoostDatabase.RemoveBoost(ctx, boot)
+
+					err := opts.BoostsDatabase.RemoveBoost(ctx, boost)
 
 					if err != nil {
 						logger.Error("Failed to remove boost", "error", err)
@@ -829,11 +859,11 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 						return
 					}
 
-					logger.Info("Remove boost")
+					logger.Info("Removed boost")
 				}
 
 			default:
-				logger.Error("Unsupported object type for undo", "type", object_type)
+				logger.Error("Unsupported object type for undo", "type", object_activity.Type)
 				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 				return
 			}

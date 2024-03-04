@@ -66,21 +66,17 @@ func (db *DocstorePostsDatabase) getPost(ctx context.Context, q *gc_docstore.Que
 	iter := q.Get(ctx)
 	defer iter.Stop()
 
-	for {
+	var p Post
+	err := iter.Next(ctx, &p)
 
-		var p Post
-		err := iter.Next(ctx, &p)
-
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			return nil, fmt.Errorf("Failed to interate, %w", err)
-		} else {
-			return &p, nil
-		}
+	if err == io.EOF {
+		return nil, ErrNotFound
+	} else if err != nil {
+		return nil, fmt.Errorf("Failed to interate, %w", err)
+	} else {
+		return &p, nil
 	}
 
-	return nil, ErrNotFound
 }
 
 func (db *DocstorePostsDatabase) Close(ctx context.Context) error {

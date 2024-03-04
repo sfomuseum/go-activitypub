@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/sfomuseum/go-activitypub/ap"
@@ -57,13 +59,14 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, pos
 
 	post_url := acct.PostURL(ctx, uris_table, post)
 
-	ap_id := ap.NewId(uris_table)
+	// this is what we used to do...
+	// ap_id := ap.NewId(uris_table)
 
 	t := time.Unix(post.Created, 0)
 
 	n := &ap.Note{
 		Type:         "Note",
-		Id:           ap_id,
+		Id:           post_url.String(),
 		AttributedTo: attr,
 		To:           "https://www.w3.org/ns/activitystreams#Public", // what?
 		Content:      post.Body,
@@ -74,9 +77,13 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, pos
 	return n, nil
 }
 
-func GetPostFromObjectURI(ctx context.Context, posts_db PostsDatabase, object_uri string) (*Post, error) {
+func GetPostFromObjectURI(ctx context.Context, uris_table *uris.URIs, posts_db PostsDatabase, object_uri string) (*Post, error) {
 
-	re_uuid, err := regexp.Compile(`^as-(.*)$`)
+	pat_post := uris_table.Post
+	pat_post = strings.Replace(pat_post, "{resource}", "(?:@[^\\/]+)", 1)
+	pat_post = strings.Replace(pat_post, "{id}", "(\\d+)", 1)
+
+	re_post, err := regexp.Compile(pat_post)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to compile post URI pattern, %w", err)
@@ -85,19 +92,24 @@ func GetPostFromObjectURI(ctx context.Context, posts_db PostsDatabase, object_ur
 	u, err := url.Parse(object_uri)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to parse object URI, %w", err)
+		return nil, fmt.Errorf("Failed to parse URI, %w", err)
 	}
 
-	fragment := u.Fragment
+	object_path := u.Path
 
-	if !re_uuid.MatchString(fragment) {
-		slog.Debug("Invalid or unsupport post URI", "fragment", fragment)
+	if !re_post.MatchString(object_path) {
+		slog.Debug("Invalid or unsupport post URI", "uri", object_uri)
 		return nil, fmt.Errorf("Invalid or unsupport post URI")
 	}
 
-	m := re_uuid.FindStringSubmatch(fragment)
+	m := re_post.FindStringSubmatch(object_path)
 
-	uuid := m[1]
+	str_id := m[1]
+	post_id, err := strconv.ParseInt(str_id, 10, 64)
 
-	return posts_db.GetPostWithUUID(ctx, uuid)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse ID derived from object URI, %w", err)
+	}
+
+	return posts_db.GetPostWithId(ctx, post_id)
 }
