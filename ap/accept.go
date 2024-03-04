@@ -11,7 +11,7 @@ func NewAcceptActivity(ctx context.Context, uris_table *uris.URIs, from string, 
 	ap_id := NewId(uris_table)
 
 	req := &Activity{
-		Context: []string{
+		Context: []interface{}{
 			ACTIVITYSTREAMS_CONTEXT,
 		},
 		Id:     ap_id,

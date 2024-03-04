@@ -32,13 +32,11 @@ func NewUndoFollowActivity(ctx context.Context, uris_table *uris.URIs, from stri
 	}
 
 	req := &Activity{
-		Context: []string{
-			ACTIVITYSTREAMS_CONTEXT,
-		},
-		Id:     ap_id,
-		Type:   "Undo",
-		Actor:  from,
-		Object: follow_activity,
+		Context: ACTIVITYSTREAMS_CONTEXT,
+		Id:      ap_id,
+		Type:    "Undo",
+		Actor:   from,
+		Object:  follow_activity,
 	}
 
 	return req, nil
