@@ -1,6 +1,6 @@
 package activitypub
 
-type Like struct {
+type Boost struct {
 	Id        int64  `json:"id"`
 	AccountId int64  `json:"account_id"`
 	PostId    int64  `json:"post_id"`

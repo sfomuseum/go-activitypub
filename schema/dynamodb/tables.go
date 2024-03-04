@@ -19,6 +19,8 @@ var NOTES_TABLE_NAME = "notes"
 var MESSAGES_TABLE_NAME = "messages"
 var BLOCKS_TABLE_NAME = "blocks"
 var DELIVERIES_TABLE_NAME = "deliveries"
+var LIKES_TABLE_NAME = "likes"
+var BOOSTS_TABLE_NAME = "boosts"
 
 var BILLING_MODE = aws.String("PAY_PER_REQUEST")
 
@@ -32,4 +34,6 @@ var DynamoDBTables = map[string]*dynamodb.CreateTableInput{
 	MESSAGES_TABLE_NAME:   DynamoDBMessagesTable,
 	BLOCKS_TABLE_NAME:     DynamoDBBlocksTable,
 	DELIVERIES_TABLE_NAME: DynamoDBDeliveriesTable,
+	LIKES_TABLE_NAME:      DynamoDBLikesTable,
+	BOOSTS_TABLE_NAME:     DynamoDBBoostsTable,
 }

@@ -13,8 +13,12 @@ import (
 type GetLikesCallbackFunc func(context.Context, *Like) error
 
 type LikesDatabase interface {
+	// GetLikesForCreator(context.Context, string, GetLikesCallbackFunc) error
+	// GetLikesForAccountId(context.Context, int64, GetLikesCallbackFunc) error
+	GetLikesForPost(context.Context, int64, GetLikesCallbackFunc) error
 	GetLikeWithId(context.Context, int64) (*Like, error)
 	AddLike(context.Context, *Like) error
+	RemoveLike(context.Context, *Like) error
 	Close(context.Context) error
 }
 

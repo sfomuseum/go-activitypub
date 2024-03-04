@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -27,8 +28,9 @@ type InboxPostHandlerOptions struct {
 	URIs              *uris.URIs
 	AllowFollow       bool
 	AllowCreate       bool
-	AllowLike 	  bool
-	
+	AllowLike         bool
+	AllowBoost        bool
+
 	// TBD but the idea is that after the signature verification
 	// and block checks are dealt with the best thing would be to
 	// hand off to an activity-specific handler using the http.Next()
@@ -69,8 +71,33 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		// Start by doing some initial sanity checking on the message body
 
 		var activity *ap.Activity
+		var activity_r io.Reader
 
-		activity_r := activitypub.DefaultLimitedReader(req.Body)
+		// START OF necessary to track down message parsing errors...
+
+		limited_r := activitypub.DefaultLimitedReader(req.Body)
+
+		// Make me a flag...
+		log_body := true
+
+		if log_body {
+
+			body, err := io.ReadAll(limited_r)
+
+			if err != nil {
+				logger.Error("Failed to read message body", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			logger.Debug("DEBUG", "body", string(body))
+			activity_r = bytes.NewReader(body)
+
+		} else {
+			activity_r = limited_r
+		}
+
+		// END OF necessary to track down message parsing errors...
 
 		dec := json.NewDecoder(activity_r)
 		err := dec.Decode(&activity)
@@ -99,14 +126,17 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			rsp.WriteHeader(http.StatusAccepted)
 			return
 
-		case "Like":
+		case "Like", "Announce":
+
+			enc, _ := json.Marshal(activity)
+			logger.Info("DEBUG", "activity", string(enc))
 
 			if !opts.AllowLike {
 				logger.Error("Unsupported activity type")
 				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 				return
 			}
-			
+
 		case "Follow":
 
 			if !opts.AllowFollow {
@@ -116,6 +146,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			}
 
 		case "Undo":
+
+			enc, _ := json.Marshal(activity)
+			logger.Info("UNDO", "activity", string(enc))
 
 			if !opts.AllowFollow {
 				logger.Error("Unsupported activity type")
@@ -421,7 +454,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		case "Like":
 
 			// What does the activity look like...
-			
+
 		case "Follow":
 
 			is_following, _, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
