@@ -231,6 +231,8 @@ func IconHandler(opts *IconHandlerOptions) (http.Handler, error) {
 		// END OF move this in to a separate package or something
 		// END OF check to see if there is a custom account icon image
 
+		// START OF replace with icon/GenerateIcon
+
 		data := []byte(account_name)
 		hash := fmt.Sprintf("%x", md5.Sum(data))
 		hex := hash[0:6]
@@ -278,6 +280,8 @@ func IconHandler(opts *IconHandlerOptions) (http.Handler, error) {
 		dc.DrawStringWrapped(text, x, y, 0.5, 0.5, max_w, 1.5, gg.AlignCenter)
 
 		final_im := dc.Image()
+
+		// END OF replace with icon/GenerateIcon
 
 		rsp.Header().Set("Content-type", "image/png")
 

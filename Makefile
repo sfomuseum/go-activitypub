@@ -53,6 +53,7 @@ NOTES_DB_URI=awsdynamodb://$(TABLE_PREFIX)notes?partition_key=Id&allow_scans=tru
 POSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)posts?partition_key=Id&allow_scans=true&local=true
 MESSAGES_DB_URI=awsdynamodb://$(TABLE_PREFIX)messages?partition_key=Id&allow_scans=true&local=true
 DELIVERIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)deliveries?partition_key=Id&allow_scans=true&local=true
+ALIASES_DB_URI=awsdynamodb://$(TABLE_PREFIX)aliases?partition_key=Name&allow_scans=true&local=true
 
 db-sqlite:
 	rm -f *.db
@@ -68,12 +69,15 @@ db-sqlite:
 accounts:
 	go run cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-aliases-database-uri '$(ALIASES_DB_URI)' \
 		-account-name bob \
+		-alias robert \
 		-account-type Service \
 		-account-icon-uri fixtures/icons/bob.jpg \
 		-embed-icon-uri
 	go run cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-aliases-database-uri '$(ALIASES_DB_URI)' \
 		-account-name alice \
 		-account-type Person \
 		-account-icon-uri 's3blob://sfomuseum-media/ap/icons/sfo.jpg?region=us-west-2&credentials=session'
@@ -152,6 +156,7 @@ inbox:
 server:
 	go run cmd/server/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-aliases-database-uri '$(ALIASES_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
 		-following-database-uri '$(FOLLOWING_DB_URI)' \
 		-notes-database-uri '$(NOTES_DB_URI)' \

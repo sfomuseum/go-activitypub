@@ -13,6 +13,7 @@ import (
 
 type WebfingerHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
+	AliasesDatabase  activitypub.AliasesDatabase
 	URIs             *uris.URIs
 }
 
@@ -70,17 +71,57 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 
 		acct, err := opts.AccountsDatabase.GetAccountWithName(ctx, name)
 
-		if err != nil {
+		if err != nil && err != activitypub.ErrNotFound {
+
 			logger.Error("Failed to retrieve account for resource", "error", err)
-
-			if err == activitypub.ErrNotFound {
-				http.Error(rsp, "Not found", http.StatusNotFound)
-				return
-			}
-
 			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
 		}
+
+		// START OF lookup account by alias
+
+		if err != nil {
+
+			logger.Debug("Lookup resource by alias")
+
+			alias, err := opts.AliasesDatabase.GetAliasWithName(ctx, name)
+
+			if err != nil {
+
+				logger.Error("Failed to retrieve account for resource alias", "alias", name, "error", err)
+
+				if err == activitypub.ErrNotFound {
+					http.Error(rsp, "Not found", http.StatusNotFound)
+					return
+				}
+
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			acct, err = opts.AccountsDatabase.GetAccountWithId(ctx, alias.AccountId)
+
+			if err != nil {
+
+				logger.Error("Failed to retrieve account with ID for resource alias", "alias", name, "account id", alias.AccountId, "error", err)
+
+				if err == activitypub.ErrNotFound {
+					http.Error(rsp, "Not found", http.StatusNotFound)
+					return
+				}
+
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			wf_u := acct.WebfingerURL(ctx, opts.URIs)
+			logger.Debug("Redirect to webfinger endpoint", "endpoint", wf_u.String())
+
+			http.Redirect(rsp, req, wf_u.String(), http.StatusSeeOther)
+			return
+		}
+
+		// END OF lookup account by alias
 
 		logger = logger.With("account id", acct.Id)
 

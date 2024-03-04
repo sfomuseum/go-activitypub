@@ -10,8 +10,10 @@ import (
 
 type RunOptions struct {
 	AccountsDatabaseURI string
+	AliasesDatabaseURI  string
 	AccountId           int64
 	AccountName         string
+	Aliases             []string
 	AccountType         string
 	Discoverable        bool
 	DisplayName         string
@@ -36,8 +38,10 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 
 	opts := &RunOptions{
 		AccountsDatabaseURI: accounts_database_uri,
+		AliasesDatabaseURI:  aliases_database_uri,
 		AccountId:           account_id,
 		AccountName:         account_name,
+		Aliases:             aliases,
 		AccountType:         account_type,
 		AccountIconURI:      account_icon_uri,
 		AllowRemoteIconURI:  allow_remote_icon_uri,

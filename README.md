@@ -518,3 +518,4 @@ go run cmd/inbox/main.go \
 * https://blog.joinmastodon.org/2018/07/how-to-make-friends-and-verify-requests/
 * https://seb.jambor.dev/posts/understanding-activitypub/
 * https://justingarrison.com/blog/2022-12-06-mastodon-files-instance/
+* https://paul.kinlan.me/adding-activity-pub-to-your-static-site/

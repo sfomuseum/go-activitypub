@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/rs/cors"
 	"github.com/sfomuseum/go-activitypub/www"
 )
 
@@ -18,12 +19,27 @@ func webfingerHandlerFunc(ctx context.Context) (http.Handler, error) {
 		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAccountsDatabaseError)
 	}
 
+	setupAliasesDatabaseOnce.Do(setupAliasesDatabase)
+
+	if setupAliasesDatabaseError != nil {
+		slog.Error("Failed to set up account database configuration", "error", setupAliasesDatabaseError)
+		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAliasesDatabaseError)
+	}
+
 	opts := &www.WebfingerHandlerOptions{
 		AccountsDatabase: accounts_db,
+		AliasesDatabase:  aliases_db,
 		URIs:             run_opts.URIs,
 	}
 
-	return www.WebfingerHandler(opts)
+	wf_handler, err := www.WebfingerHandler(opts)
+
+	if err != nil {
+		return nil, err
+	}
+
+	wf_handler = cors.Default().Handler(wf_handler)
+	return wf_handler, nil
 }
 
 func accountHandlerFunc(ctx context.Context) (http.Handler, error) {

@@ -21,6 +21,20 @@ func setupAccountsDatabase() {
 	}
 }
 
+func setupAliasesDatabase() {
+
+	ctx := context.Background()
+	var err error
+
+	// defined in vars.go
+	aliases_db, err = activitypub.NewAliasesDatabase(ctx, run_opts.AliasesDatabaseURI)
+
+	if err != nil {
+		setupAliasesDatabaseError = fmt.Errorf("Failed to set up aliases database, %w", err)
+		return
+	}
+}
+
 func setupFollowersDatabase() {
 
 	ctx := context.Background()

@@ -21,6 +21,7 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/mitchellh/copystructure v1.2.0
+	github.com/rs/cors v1.10.1
 	github.com/sfomuseum/go-flags v0.10.0
 	github.com/sfomuseum/go-pubsub v0.0.14
 	github.com/sfomuseum/go-template v1.9.0

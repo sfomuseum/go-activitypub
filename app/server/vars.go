@@ -12,6 +12,10 @@ var accounts_db activitypub.AccountsDatabase
 var setupAccountsDatabaseOnce sync.Once
 var setupAccountsDatabaseError error
 
+var aliases_db activitypub.AliasesDatabase
+var setupAliasesDatabaseOnce sync.Once
+var setupAliasesDatabaseError error
+
 var followers_db activitypub.FollowersDatabase
 var setupFollowersDatabaseOnce sync.Once
 var setupFollowersDatabaseError error
