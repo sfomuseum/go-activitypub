@@ -22,7 +22,7 @@ func (db *NullBoostsDatabase) GetBoostWithId(ctx context.Context, id int64) (*Bo
 	return nil, ErrNotFound
 }
 
-func (db *NullBoostsDatabase) GetBoostWithPostIdAndCreator(ctx context.Context, id int64, creator string) (*Boost, error) {
+func (db *NullBoostsDatabase) GetBoostWithPostIdAndActor(ctx context.Context, id int64, actor string) (*Boost, error) {
 	return nil, ErrNotFound
 }
 

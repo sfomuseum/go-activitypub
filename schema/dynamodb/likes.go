@@ -26,7 +26,7 @@ var DynamoDBLikesTable = &dynamodb.CreateTableInput{
 			AttributeType: aws.String("N"),
 		},
 		{
-			AttributeName: aws.String("Creator"),
+			AttributeName: aws.String("Actor"),
 			AttributeType: aws.String("S"),
 		},
 		{
@@ -68,10 +68,10 @@ var DynamoDBLikesTable = &dynamodb.CreateTableInput{
 			},
 		},
 		{
-			IndexName: aws.String("by_creator"),
+			IndexName: aws.String("by_actor"),
 			KeySchema: []*dynamodb.KeySchemaElement{
 				{
-					AttributeName: aws.String("Creator"),
+					AttributeName: aws.String("Actor"),
 					KeyType:       aws.String("HASH"),
 				},
 				{

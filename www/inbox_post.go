@@ -24,6 +24,7 @@ type InboxPostHandlerOptions struct {
 	FollowingDatabase activitypub.FollowingDatabase
 	MessagesDatabase  activitypub.MessagesDatabase
 	NotesDatabase     activitypub.NotesDatabase
+	PostsDatabase     activitypub.PostsDatabase
 	BlocksDatabase    activitypub.BlocksDatabase
 	LikesDatabase     activitypub.LikesDatabase
 	BoostsDatabase    activitypub.BoostsDatabase
@@ -119,11 +120,10 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		// There is a not insignificant number of people crawling ActivityPub
 		// endpoints issuing "Delete" activities just to see if they will stick...
 
-		raw_activity, _ := json.Marshal(activity)
-		logger.Debug("ACTIVITY", "path", req.URL.Path, "activity", string(raw_activity))
-
 		switch activity.Type {
 		case "Accept":
+
+			// To do: Actually implement this with checks/validation...
 
 			logger.Debug("Received 'Accept' activity", "response code", http.StatusAccepted)
 			rsp.WriteHeader(http.StatusAccepted)
@@ -137,7 +137,6 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			logger.Debug("LIKE")
 		case "Announce":
 
 			if !opts.AllowBoosts {
@@ -145,8 +144,6 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 				return
 			}
-
-			logger.Debug("BOOST")
 
 		case "Follow":
 
@@ -193,8 +190,6 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 					return
 				}
 
-				logger.Debug("UNLIKE")
-
 			case "Announce":
 
 				if !opts.AllowBoosts {
@@ -202,8 +197,6 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 					http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 					return
 				}
-
-				logger.Debug("UNBOOST")
 
 			default:
 				logger.Error("Unsupported undo activity type", "type", type_rsp.String())
@@ -365,12 +358,11 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		// One final sanity check
 
 		switch activity.Type {
-		case "Follow", "Undo":
+		case "Follow", "Undo", "Like", "Announce":
 
 			// Note: We have prevented Block Undo activities above
 
 			if requestor_name == acct.Name {
-				logger.Error("Can not (un)follow yourself")
 				http.Error(rsp, "Bad request", http.StatusBadRequest)
 				return
 			}
@@ -487,9 +479,123 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		accept_obj := activity
 
 		switch activity.Type {
+		case "Announce":
+
+			var object_uri string
+
+			switch activity.Object.(type) {
+			case string:
+				object_uri = activity.Object.(string)
+			default:
+				logger.Error("Invalid or unsupport activity object type", "type", fmt.Sprintf("%T", activity.Object))
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			post, err := activitypub.GetPostFromObjectURI(ctx, opts.PostsDatabase, object_uri)
+
+			if err != nil {
+
+				logger.Error("Failed to derive post from object URI", "object uri", object_uri, "error", err)
+
+				if err == activitypub.ErrNotFound {
+					http.Error(rsp, "Not found", http.StatusNotFound)
+					return
+				}
+
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			boost, err := opts.BoostsDatabase.GetBoostWithPostIdAndActor(ctx, post.Id, activity.Actor)
+
+			if err != nil && err != activitypub.ErrNotFound {
+				logger.Error("Failed to derive boost from post and actor", "post id", post.Id, "actor", activity.Actor, "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			if boost == nil {
+
+				boost, err = activitypub.NewBoost(ctx, post, activity.Actor)
+
+				if err != nil {
+					logger.Error("Failed to create new boost for post and actor", "post id", post.Id, "actor", activity.Actor, "error", err)
+					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+
+				err = opts.BoostsDatabase.AddBoost(ctx, boost)
+
+				if err != nil {
+					logger.Error("Failed to add new boost for post and actor", "post id", post.Id, "actor", activity.Actor, "error", err)
+					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+
+				logger.Info("Create new boost", "post id", post.Id, "actor", activity.Actor, "boost", boost.Id)
+			}
+
+			// Do we need to defer accept here?
+
 		case "Like":
 
-			// What does the activity look like...
+			var object_uri string
+
+			switch activity.Object.(type) {
+			case string:
+				object_uri = activity.Object.(string)
+			default:
+				logger.Error("Invalid or unsupport activity object type", "type", fmt.Sprintf("%T", activity.Object))
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			post, err := activitypub.GetPostFromObjectURI(ctx, opts.PostsDatabase, object_uri)
+
+			if err != nil {
+
+				logger.Error("Failed to derive post from object URI", "object uri", object_uri, "error", err)
+
+				if err == activitypub.ErrNotFound {
+					http.Error(rsp, "Not found", http.StatusNotFound)
+					return
+				}
+
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			like, err := opts.LikesDatabase.GetLikeWithPostIdAndActor(ctx, post.Id, activity.Actor)
+
+			if err != nil && err != activitypub.ErrNotFound {
+				logger.Error("Failed to derive like from post and actor", "post id", post.Id, "actor", activity.Actor, "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			if like == nil {
+
+				like, err = activitypub.NewLike(ctx, post, activity.Actor)
+
+				if err != nil {
+					logger.Error("Failed to create new like for post and actor", "post id", post.Id, "actor", activity.Actor, "error", err)
+					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+
+				err = opts.LikesDatabase.AddLike(ctx, like)
+
+				if err != nil {
+					logger.Error("Failed to add new like for post and actor", "post id", post.Id, "actor", activity.Actor, "error", err)
+					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+
+				logger.Info("Create new like", "post id", post.Id, "actor", activity.Actor, "like", like.Id)
+			}
+
+			// Do we need to defer accept here?
 
 		case "Follow":
 
@@ -573,25 +679,163 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		case "Undo":
 
-			// Note: We have prevented Block Undo activities above so we're going to assume it's an undo follow request
-
-			is_following, f, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
+			enc_obj, err := json.Marshal(activity.Object)
 
 			if err != nil {
-				logger.Error("Failed to determine if following", "error", err)
+				logger.Error("Failed to marshal activity object", "error", err)
 				http.Error(rsp, "Bad request", http.StatusBadRequest)
 				return
 			}
 
-			if is_following {
+			var object_activity *ap.Activity
 
-				err = opts.FollowersDatabase.RemoveFollower(ctx, f)
+			err = json.Unmarshal(enc_obj, &object_activity)
+
+			if err != nil {
+				logger.Error("Failed to derive activity from object", "error", err)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
+
+			switch object_activity.Type {
+			case "Follow":
+
+				// Note: We have prevented Block Undo activities above so we're going to assume it's an undo follow request
+
+				is_following, f, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
 				if err != nil {
-					logger.Error("Failed to remove follower", "error", err)
+					logger.Error("Failed to determine if following", "error", err)
+					http.Error(rsp, "Bad request", http.StatusBadRequest)
+					return
+				}
+
+				if is_following {
+
+					err = opts.FollowersDatabase.RemoveFollower(ctx, f)
+
+					if err != nil {
+						logger.Error("Failed to remove follower", "error", err)
+						http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+						return
+					}
+				}
+			case "Like":
+
+				logger = logger.With("actor", activity.Actor)
+
+				var object_uri string
+
+				switch activity.Object.(type) {
+				case string:
+					object_uri = activity.Object.(string)
+				default:
+					logger.Error("Invalid or unsupport activity object type", "type", fmt.Sprintf("%T", activity.Object))
+					http.Error(rsp, "Bad request", http.StatusBadRequest)
+					return
+				}
+
+				logger = logger.With("object uri", object_uri)
+
+				post, err := activitypub.GetPostFromObjectURI(ctx, opts.PostsDatabase, object_uri)
+
+				if err != nil {
+
+					logger.Error("Failed to derive post from object URI", "error", err)
+
+					if err == activitypub.ErrNotFound {
+						http.Error(rsp, "Not found", http.StatusNotFound)
+						return
+					}
+
 					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 					return
 				}
+
+				logger = logger.With("post", post.Id)
+
+				like, err := opts.LikesDatabase.GetLikeWithPostIdAndActor(ctx, post.Id, activity.Actor)
+
+				if err != nil && err != activitypub.ErrNotFound {
+					logger.Error("Failed to derive like from post and actor", "error", err)
+					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+
+				logger = logger.With("like", like.Id)
+
+				if like != nil {
+					err := opts.LikeDatabase.RemoveLike(ctx, boot)
+
+					if err != nil {
+						logger.Error("Failed to remove like", "error", err)
+						http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+						return
+					}
+
+					logger.Info("Remove like")
+				}
+
+			case "Announce":
+
+				logger = logger.With("actor", activity.Actor)
+
+				var object_uri string
+
+				switch activity.Object.(type) {
+				case string:
+					object_uri = activity.Object.(string)
+				default:
+					logger.Error("Invalid or unsupport activity object type", "type", fmt.Sprintf("%T", activity.Object))
+					http.Error(rsp, "Bad request", http.StatusBadRequest)
+					return
+				}
+
+				logger = logger.With("object uri", object_uri)
+
+				post, err := activitypub.GetPostFromObjectURI(ctx, opts.PostsDatabase, object_uri)
+
+				if err != nil {
+
+					logger.Error("Failed to derive post from object URI", "error", err)
+
+					if err == activitypub.ErrNotFound {
+						http.Error(rsp, "Not found", http.StatusNotFound)
+						return
+					}
+
+					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+
+				logger = logger.With("post", post.Id)
+
+				boost, err := opts.BoostsDatabase.GetBoostWithPostIdAndActor(ctx, post.Id, activity.Actor)
+
+				if err != nil && err != activitypub.ErrNotFound {
+					logger.Error("Failed to derive boost from post and actor", "error", err)
+					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+
+				logger = logger.With("boost", boost.Id)
+
+				if boost != nil {
+					err := opts.BoostDatabase.RemoveBoost(ctx, boot)
+
+					if err != nil {
+						logger.Error("Failed to remove boost", "error", err)
+						http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+						return
+					}
+
+					logger.Info("Remove boost")
+				}
+
+			default:
+				logger.Error("Unsupported object type for undo", "type", object_type)
+				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
+				return
 			}
 
 		case "Create":

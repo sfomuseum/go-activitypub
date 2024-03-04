@@ -3,7 +3,10 @@ package activitypub
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
+	"net/url"
+	"regexp"
 	"time"
 
 	"github.com/sfomuseum/go-activitypub/ap"
@@ -69,4 +72,32 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, pos
 	}
 
 	return n, nil
+}
+
+func GetPostFromObjectURI(ctx context.Context, posts_db PostsDatabase, object_uri string) (*Post, error) {
+
+	re_uuid, err := regexp.Compile(`^as-(.*)$`)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to compile post URI pattern, %w", err)
+	}
+
+	u, err := url.Parse(object_uri)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse object URI, %w", err)
+	}
+
+	fragment := u.Fragment
+
+	if !re_uuid.MatchString(fragment) {
+		slog.Debug("Invalid or unsupport post URI", "fragment", fragment)
+		return nil, fmt.Errorf("Invalid or unsupport post URI")
+	}
+
+	m := re_uuid.FindStringSubmatch(fragment)
+
+	uuid := m[1]
+
+	return posts_db.GetPostWithUUID(ctx, uuid)
 }

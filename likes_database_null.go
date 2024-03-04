@@ -22,7 +22,7 @@ func (db *NullLikesDatabase) GetLikeWithId(ctx context.Context, id int64) (*Like
 	return nil, ErrNotFound
 }
 
-func (db *NullLikesDatabase) GetLikeWithPostIdAndCreator(ctx context.Context, id int64, creator string) (*Like, error) {
+func (db *NullLikesDatabase) GetLikeWithPostIdAndActor(ctx context.Context, id int64, actor string) (*Like, error) {
 	return nil, ErrNotFound
 }
 
