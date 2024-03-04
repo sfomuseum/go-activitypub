@@ -48,6 +48,15 @@ func (db *DocstoreLikesDatabase) GetLikeWithId(ctx context.Context, id int64) (*
 	return db.getLike(ctx, q)
 }
 
+func (db *DocstoreLikesDatabase) GetLikeWithPostIdAndCreator(ctx context.Context, post_id int64, creator string) (*Like, error) {
+
+	q := db.collection.Query()
+	q = q.Where("PostId", "=", post_id)
+	q = q.Where("Creator", "=", creator)
+
+	return db.getLike(ctx, q)
+}
+
 func (db *DocstoreLikesDatabase) GetLikesForPost(ctx context.Context, post_id int64, cb GetLikesCallbackFunc) error {
 
 	q := db.collection.Query()

@@ -16,6 +16,7 @@ type BoostsDatabase interface {
 	// GetBoostsForCreator(context.Context, string, GetBoostsCallbackFunc) error
 	// GetBoostsForAccountId(context.Context, int64, GetBoostsCallbackFunc) error
 	GetBoostsForPost(context.Context, int64, GetBoostsCallbackFunc) error
+	GetBoostWithPostIdAndCreator(context.Context, int64, string) (*Boost, error)
 	GetBoostWithId(context.Context, int64) (*Boost, error)
 	AddBoost(context.Context, *Boost) error
 	RemoveBoost(context.Context, *Boost) error

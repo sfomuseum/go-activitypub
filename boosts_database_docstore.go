@@ -48,6 +48,15 @@ func (db *DocstoreBoostsDatabase) GetBoostWithId(ctx context.Context, id int64) 
 	return db.getBoost(ctx, q)
 }
 
+func (db *DocstoreBoostsDatabase) GetBoostWithPostIdAndCreator(ctx context.Context, post_id int64, creator string) (*Boost, error) {
+
+	q := db.collection.Query()
+	q = q.Where("PostId", "=", post_id)
+	q = q.Where("Creator", "=", creator)
+
+	return db.getBoost(ctx, q)
+}
+
 func (db *DocstoreBoostsDatabase) GetBoostsForPost(ctx context.Context, post_id int64, cb GetBoostsCallbackFunc) error {
 
 	q := db.collection.Query()

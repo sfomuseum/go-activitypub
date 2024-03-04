@@ -118,3 +118,31 @@ func setupPostsDatabase() {
 		return
 	}
 }
+
+func setupLikesDatabase() {
+
+	ctx := context.Background()
+	var err error
+
+	// defined in vars.go
+	likes_db, err = activitypub.NewLikesDatabase(ctx, run_opts.LikesDatabaseURI)
+
+	if err != nil {
+		setupLikesDatabaseError = fmt.Errorf("Failed to set up likes database, %w", err)
+		return
+	}
+}
+
+func setupBoostsDatabase() {
+
+	ctx := context.Background()
+	var err error
+
+	// defined in vars.go
+	boosts_db, err = activitypub.NewBoostsDatabase(ctx, run_opts.BoostsDatabaseURI)
+
+	if err != nil {
+		setupBoostsDatabaseError = fmt.Errorf("Failed to set up boosts database, %w", err)
+		return
+	}
+}

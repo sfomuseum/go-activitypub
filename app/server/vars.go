@@ -39,3 +39,11 @@ var setupBlocksDatabaseError error
 var posts_db activitypub.PostsDatabase
 var setupPostsDatabaseOnce sync.Once
 var setupPostsDatabaseError error
+
+var likes_db activitypub.LikesDatabase
+var setupLikesDatabaseOnce sync.Once
+var setupLikesDatabaseError error
+
+var boosts_db activitypub.BoostsDatabase
+var setupBoostsDatabaseOnce sync.Once
+var setupBoostsDatabaseError error

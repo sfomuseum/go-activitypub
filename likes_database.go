@@ -16,6 +16,7 @@ type LikesDatabase interface {
 	// GetLikesForCreator(context.Context, string, GetLikesCallbackFunc) error
 	// GetLikesForAccountId(context.Context, int64, GetLikesCallbackFunc) error
 	GetLikesForPost(context.Context, int64, GetLikesCallbackFunc) error
+	GetLikeWithPostIdAndCreator(context.Context, int64, string) (*Like, error)
 	GetLikeWithId(context.Context, int64) (*Like, error)
 	AddLike(context.Context, *Like) error
 	RemoveLike(context.Context, *Like) error

@@ -14,6 +14,8 @@ var notes_database_uri string
 var messages_database_uri string
 var posts_database_uri string
 var blocks_database_uri string
+var likes_database_uri string
+var boosts_database_uri string
 
 var server_uri string
 var hostname string
@@ -21,6 +23,9 @@ var insecure bool
 
 var allow_follow bool
 var allow_create bool
+var allow_likes bool
+var allow_boosts bool
+
 var allow_remote_icon_uri bool
 
 var verbose bool
@@ -38,8 +43,13 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&blocks_database_uri, "blocks-database-uri", "", "...")
 	fs.StringVar(&posts_database_uri, "posts-database-uri", "", "...")
 
+	fs.StringVar(&likes_database_uri, "likes-database-uri", "", "...")
+	fs.StringVar(&boosts_database_uri, "boosts-database-uri", "", "...")
+
 	fs.BoolVar(&allow_follow, "allow-follow", true, "...")
 	fs.BoolVar(&allow_create, "allow-create", false, "...")
+	fs.BoolVar(&allow_likes, "allow-likes", true, "...")
+	fs.BoolVar(&allow_boosts, "allow-boosts", true, "...")
 
 	fs.StringVar(&server_uri, "server-uri", "http://localhost:8080", "...")
 	fs.StringVar(&hostname, "hostname", "", "...")

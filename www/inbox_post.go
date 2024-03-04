@@ -25,11 +25,13 @@ type InboxPostHandlerOptions struct {
 	MessagesDatabase  activitypub.MessagesDatabase
 	NotesDatabase     activitypub.NotesDatabase
 	BlocksDatabase    activitypub.BlocksDatabase
+	LikesDatabase     activitypub.LikesDatabase
+	BoostsDatabase    activitypub.BoostsDatabase
 	URIs              *uris.URIs
 	AllowFollow       bool
 	AllowCreate       bool
-	AllowLike         bool
-	AllowBoost        bool
+	AllowLikes        bool
+	AllowBoosts       bool
 
 	// TBD but the idea is that after the signature verification
 	// and block checks are dealt with the best thing would be to
@@ -78,7 +80,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		limited_r := activitypub.DefaultLimitedReader(req.Body)
 
 		// Make me a flag...
-		log_body := true
+		// Or maybe not...
+		log_body := false
 
 		if log_body {
 
@@ -126,16 +129,24 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			rsp.WriteHeader(http.StatusAccepted)
 			return
 
-		case "Like", "Announce":
+		case "Like":
 
-			enc, _ := json.Marshal(activity)
-			logger.Info("DEBUG", "activity", string(enc))
-
-			if !opts.AllowLike {
-				logger.Error("Unsupported activity type")
+			if !opts.AllowLikes {
+				logger.Error("Unsupported activity type, likes are disabled")
 				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 				return
 			}
+
+			logger.Debug("LIKE")
+		case "Announce":
+
+			if !opts.AllowBoosts {
+				logger.Error("Unsupported activity type, boosts are disabled")
+				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
+				return
+			}
+
+			logger.Debug("BOOST")
 
 		case "Follow":
 
@@ -147,10 +158,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		case "Undo":
 
-			enc, _ := json.Marshal(activity)
-			logger.Info("UNDO", "activity", string(enc))
-
-			if !opts.AllowFollow {
+			if !opts.AllowFollow && !opts.AllowLikes && !opts.AllowBoosts {
 				logger.Error("Unsupported activity type")
 				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 				return
@@ -170,7 +178,33 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			switch type_rsp.String() {
 			case "Follow":
-				// okay
+
+				if !opts.AllowFollow {
+					logger.Error("Unsupported activity type, follows are disabled")
+					http.Error(rsp, "Not implemented", http.StatusNotImplemented)
+					return
+				}
+
+			case "Like":
+
+				if !opts.AllowLikes {
+					logger.Error("Unsupported activity type, likes are disabled")
+					http.Error(rsp, "Not implemented", http.StatusNotImplemented)
+					return
+				}
+
+				logger.Debug("UNLIKE")
+
+			case "Announce":
+
+				if !opts.AllowBoosts {
+					logger.Error("Unsupported activity type, boosts are disabled")
+					http.Error(rsp, "Not implemented", http.StatusNotImplemented)
+					return
+				}
+
+				logger.Debug("UNBOOST")
+
 			default:
 				logger.Error("Unsupported undo activity type", "type", type_rsp.String())
 				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
@@ -184,6 +218,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 				return
 			}
+
+			// To do: Is this a post or a reply?
 
 		default:
 			logger.Error("Unsupported activity type")

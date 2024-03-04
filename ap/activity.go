@@ -1,5 +1,7 @@
 package ap
 
+// https://www.w3.org/TR/activitystreams-vocabulary/
+
 type Activity struct {
 	// Context needs to be a "whatever" (interface{}) because ActivityPub (JSON-LD)
 	// mixes and matches string URIs, arbritrary data structures and arrays of string
