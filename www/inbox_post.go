@@ -713,6 +713,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
+			logger = logger.With("object type", object_activity.Type)
+
 			switch object_activity.Type {
 			case "Follow":
 
@@ -736,17 +738,18 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 						return
 					}
 				}
+
 			case "Like":
 
 				logger = logger.With("actor", activity.Actor)
 
 				var object_uri string
 
-				switch activity.Object.(type) {
+				switch object_activity.Object.(type) {
 				case string:
-					object_uri = activity.Object.(string)
+					object_uri = object_activity.Object.(string)
 				default:
-					logger.Error("Invalid or unsupport activity object type", "type", fmt.Sprintf("%T", activity.Object))
+					logger.Error("Invalid or unsupport activity object type", "type", fmt.Sprintf("%T", object_activity.Object))
 					http.Error(rsp, "Bad request", http.StatusBadRequest)
 					return
 				}
@@ -784,9 +787,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 					return
 				}
 
-				logger = logger.With("like", like.Id)
-
 				if like != nil {
+
+					logger = logger.With("like", like.Id)
 
 					err := opts.LikesDatabase.RemoveLike(ctx, like)
 
@@ -805,11 +808,11 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				var object_uri string
 
-				switch activity.Object.(type) {
+				switch object_activity.Object.(type) {
 				case string:
-					object_uri = activity.Object.(string)
+					object_uri = object_activity.Object.(string)
 				default:
-					logger.Error("Invalid or unsupport activity object type", "type", fmt.Sprintf("%T", activity.Object))
+					logger.Error("Invalid or unsupport activity object type", "type", fmt.Sprintf("%T", object_activity.Object))
 					http.Error(rsp, "Bad request", http.StatusBadRequest)
 					return
 				}
@@ -847,9 +850,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 					return
 				}
 
-				logger = logger.With("boost", boost.Id)
-
 				if boost != nil {
+
+					logger = logger.With("boost", boost.Id)
 
 					err := opts.BoostsDatabase.RemoveBoost(ctx, boost)
 
