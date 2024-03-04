@@ -35,6 +35,8 @@ NOTES_DB=notes.db
 MESSAGES_DB=messages.db
 BLOCKS_DB=blocks.db
 DELIVERIES_DB=deliveries.db
+BOOSTS_DB=boosts.db
+LIKES_DB=likes.db
 
 ACCOUNTS_DB_URI=sql://sqlite3?dsn=$(ACCOUNTS_DB)
 FOLLOWERS_DB_URI=sql://sqlite3?dsn=$(FOLLOWERS_DB)
@@ -44,6 +46,9 @@ POSTS_DB_URI=sql://sqlite3?dsn=$(POSTS_DB)
 NOTES_DB_URI=sql://sqlite3?dsn=$(NOTES_DB)
 MESSAGES_DB_URI=sql://sqlite3?dsn=$(MESSAGES_DB)
 DELIVERIES_DB_URI=sql://sqlite3?dsn=$(DELIVERIES_DB)
+BOOSTS_DB_URI=sql://sqlite3?dsn=$(BOOSTS_DB)
+LIKES_DB_URI=sql://sqlite3?dsn=$(LIKES_DB)
+
 
 ACCOUNTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true
 FOLLOWING_DB_URI=awsdynamodb://$(TABLE_PREFIX)following?partition_key=Id&allow_scans=true&local=true
@@ -54,6 +59,8 @@ POSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)posts?partition_key=Id&allow_scans=tru
 MESSAGES_DB_URI=awsdynamodb://$(TABLE_PREFIX)messages?partition_key=Id&allow_scans=true&local=true
 DELIVERIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)deliveries?partition_key=Id&allow_scans=true&local=true
 ALIASES_DB_URI=awsdynamodb://$(TABLE_PREFIX)aliases?partition_key=Name&allow_scans=true&local=true
+BOOSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)boosts?partition_key=Name&allow_scans=true&local=true
+LIKES_DB_URI=awsdynamodb://$(TABLE_PREFIX)likes?partition_key=Name&allow_scans=true&local=true
 
 db-sqlite:
 	rm -f *.db
@@ -65,6 +72,8 @@ db-sqlite:
 	$(SQLITE3) $(MESSAGES_DB) < schema/sqlite/messages.schema
 	$(SQLITE3) $(BLOCKS_DB) < schema/sqlite/blocks.schema
 	$(SQLITE3) $(DELIVERIES_DB) < schema/sqlite/deliveries.schema
+	$(SQLITE3) $(BOOSTS_DB) < schema/sqlite/boosts.schema
+	$(SQLITE3) $(LIKES_DB) < schema/sqlite/likes.schema
 
 accounts:
 	go run cmd/add-account/main.go \
@@ -163,6 +172,8 @@ server:
 		-messages-database-uri '$(MESSAGES_DB_URI)' \
 		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-posts-database-uri '$(POSTS_DB_URI)' \
+		-boosts-database-uri '$(BOOSTS_DB_URI)' \
+		-likes-database-uri '$(LIKES_DB_URI)' \
 		-allow-remote-icon-uri \
 		-allow-create \
 		-verbose \
