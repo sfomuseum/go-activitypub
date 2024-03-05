@@ -36,7 +36,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&hostname, "hostname", "localhost:8080", "...")
 	fs.BoolVar(&insecure, "insecure", false, "...")
 
-	fs.StringVar(&in_reply_to, "in-reply-to", "", "...")	
+	fs.StringVar(&in_reply_to, "in-reply-to", "", "...")
 	fs.StringVar(&message, "message", "", "...")
 
 	fs.BoolVar(&verbose, "verbose", false, "Enable verbose logging")

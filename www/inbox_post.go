@@ -939,6 +939,10 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, note.InReplyTo)
 
+				// So this failure scenario is incorrect. Specifically, maybe we are being
+				// mentioned in a reply to an entire other post/note. In which case we need
+				// to check that acct is list in the object.tag array with type=Mention
+
 				if err != nil {
 					logger.Error("Failed to determine if object URI references post", "error", err)
 

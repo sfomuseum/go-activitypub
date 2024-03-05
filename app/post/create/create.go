@@ -103,8 +103,10 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	if opts.InReplyTo != "" {
 		p.InReplyTo = opts.InReplyTo
+
+		// mentions/tags here...
 	}
-	
+
 	err = posts_db.AddPost(ctx, p)
 
 	if err != nil {
