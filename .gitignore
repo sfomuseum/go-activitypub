@@ -3,3 +3,4 @@ bin
 *.db
 *.zip
 work
+.DS_Store

@@ -140,6 +140,18 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		return fmt.Errorf("Failed to create activity from post, %w", err)
 	}
 
+	// START OF is this really necessary?
+	// Also, what if this isn't a post?
+
+	uuid := id.NewUUID()
+
+	post_url := opts.From.PostURL(ctx, opts.URIs, opts.Post)
+	post_id := fmt.Sprintf("%s#%s", post_url.String(), uuid)
+
+	create_activity.Id = post_id
+
+	// END OF is this really necessary?
+
 	d.ActivityId = create_activity.Id
 
 	post_opts := &PostToAccountOptions{
