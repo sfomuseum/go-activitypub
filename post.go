@@ -17,9 +17,8 @@ import (
 )
 
 type Post struct {
-	Id        int64  `json:"id"`
-	UUID      string `json:"uuid"`
-	AccountId int64  `json:"account_id"`
+	Id        int64 `json:"id"`
+	AccountId int64 `json:"account_id"`
 	// This is a string mostly because []byte thingies get encoded incorrectly
 	// in DynamoDB
 	Body         string `json:"body"`
@@ -35,14 +34,11 @@ func NewPost(ctx context.Context, acct *Account, body string) (*Post, error) {
 		return nil, fmt.Errorf("Failed to derive new post ID, %w", err)
 	}
 
-	uuid := id.NewUUID()
-
 	now := time.Now()
 	ts := now.Unix()
 
 	p := &Post{
 		Id:           post_id,
-		UUID:         uuid,
 		AccountId:    acct.Id,
 		Body:         body,
 		Created:      ts,

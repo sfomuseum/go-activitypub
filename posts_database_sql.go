@@ -58,9 +58,9 @@ func NewSQLPostsDatabase(ctx context.Context, uri string) (PostsDatabase, error)
 
 func (db *SQLPostsDatabase) AddPost(ctx context.Context, p *Post) error {
 
-	q := fmt.Sprintf("INSERT INTO %s (id, uuid, account_id, body, created, lastmodified) VALUES (?, ?, ?, ?, ?, ?)", SQL_POSTS_TABLE_NAME)
+	q := fmt.Sprintf("INSERT INTO %s (id, account_id, body, created, lastmodified) VALUES (?, ?, ?, ?, ?)", SQL_POSTS_TABLE_NAME)
 
-	_, err := db.database.ExecContext(ctx, q, p.Id, p.UUID, p.AccountId, p.Body, p.Created, p.LastModified)
+	_, err := db.database.ExecContext(ctx, q, p.Id, p.AccountId, p.Body, p.Created, p.LastModified)
 
 	if err != nil {
 		return fmt.Errorf("Failed to add post, %w", err)
@@ -74,25 +74,19 @@ func (db *SQLPostsDatabase) GetPostWithId(ctx context.Context, id int64) (*Post,
 	return db.getPost(ctx, where, id)
 }
 
-func (db *SQLPostsDatabase) GetPostWithUUID(ctx context.Context, uuid string) (*Post, error) {
-	where := "uuid = ?"
-	return db.getPost(ctx, where, uuid)
-}
-
 func (db *SQLPostsDatabase) getPost(ctx context.Context, where string, args ...interface{}) (*Post, error) {
 
 	var id int64
-	var uuid string
 	var account_id int64
 	var body string
 	var created int64
 	var lastmod int64
 
-	q := fmt.Sprintf("SELECT id, uuid, account_id, body, created, lastmodified FROM %s WHERE %s", SQL_POSTS_TABLE_NAME, where)
+	q := fmt.Sprintf("SELECT id, account_id, body, created, lastmodified FROM %s WHERE %s", SQL_POSTS_TABLE_NAME, where)
 
 	row := db.database.QueryRowContext(ctx, q, id)
 
-	err := row.Scan(&id, &uuid, &account_id, &body, &created, &lastmod)
+	err := row.Scan(&id, &account_id, &body, &created, &lastmod)
 
 	switch {
 	case err == sql.ErrNoRows:
@@ -105,7 +99,6 @@ func (db *SQLPostsDatabase) getPost(ctx context.Context, where string, args ...i
 
 	a := &Post{
 		Id:           id,
-		UUID:         uuid,
 		AccountId:    account_id,
 		Body:         body,
 		Created:      created,

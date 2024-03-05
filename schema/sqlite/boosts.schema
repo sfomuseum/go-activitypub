@@ -1,0 +1,13 @@
+CREATE TABLE boosts (
+       id INTEGER PRIMARY KEY,
+       account_id INTEGER,
+       post_id INTEGER,       
+       actor TEXT,
+       created INTEGER
+);
+
+CREATE UNIQUE INDEX `boosts_by_post_actor` ON boosts (`post_id`, `actor_id`);
+CREATE INDEX `boosts_by_account` ON boosts (`account_id`, `created`);
+CREATE INDEX `boosts_by_post` ON boosts (`post_id`, `created`);
+CREATE INDEX `boosts_by_created` ON boosts (`created`);
+       

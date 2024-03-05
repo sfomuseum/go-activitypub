@@ -12,7 +12,6 @@ import (
 
 type PostsDatabase interface {
 	GetPostWithId(context.Context, int64) (*Post, error)
-	GetPostWithUUID(context.Context, string) (*Post, error)
 	AddPost(context.Context, *Post) error
 	RemovePost(context.Context, *Post) error
 	UpdatePost(context.Context, *Post) error

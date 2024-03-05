@@ -1,13 +1,11 @@
 CREATE TABLE posts (
        id INTEGER PRIMARY KEY,
-       uuid TEXT,
        account_id INTEGER,
        body TEXT,
        created INTEGER,
        lastmodified INTEGER
 );
 
-CREATE UNIQUE INDEX `posts_by_uuid` ON posts (`uuid`);
 CREATE INDEX `posts_by_account` ON posts (`account_id`, `created`);
 CREATE INDEX `posts_by_created` ON posts (`created`);
        

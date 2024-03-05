@@ -81,12 +81,10 @@ CREATE INDEX `notes_by_created` ON notes (`created`);
 
 CREATE TABLE posts (
        id BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
-       uuid CHAR(36),
        account_id BIGINT(20) UNSIGNED NOT NULL,
        body TEXT,
        created BIGINT(20) UNSIGNED NOT NULL,
-       lastmodified BIGINT(20) UNSIGNED NOT NULL,
-       UNIQUE KEY `posts_by_uuid` ON posts (`uuid`)
+       lastmodified BIGINT(20) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE INDEX `posts_by_account` ON posts (`account_id`, `created`);

@@ -53,14 +53,6 @@ func (db *DocstorePostsDatabase) GetPostWithId(ctx context.Context, id int64) (*
 	return db.getPost(ctx, q)
 }
 
-func (db *DocstorePostsDatabase) GetPostWithUUID(ctx context.Context, uuid string) (*Post, error) {
-
-	q := db.collection.Query()
-	q = q.Where("UUID", "=", uuid)
-
-	return db.getPost(ctx, q)
-}
-
 func (db *DocstorePostsDatabase) getPost(ctx context.Context, q *gc_docstore.Query) (*Post, error) {
 
 	iter := q.Get(ctx)
