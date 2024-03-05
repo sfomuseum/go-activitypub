@@ -61,6 +61,7 @@ DELIVERIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)deliveries?partition_key=Id&allow
 ALIASES_DB_URI=awsdynamodb://$(TABLE_PREFIX)aliases?partition_key=Name&allow_scans=true&local=true
 BOOSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)boosts?partition_key=Name&allow_scans=true&local=true
 LIKES_DB_URI=awsdynamodb://$(TABLE_PREFIX)likes?partition_key=Name&allow_scans=true&local=true
+REPLIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)replies?partition_key=Name&allow_scans=true&local=true
 
 db-sqlite:
 	rm -f *.db
@@ -138,7 +139,7 @@ unblock:
 # Alice wants to post something (to Bob, if Bob is following Alice)
 
 post:
-	go run cmd/post/main.go \
+	go run cmd/create-post/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
 		-posts-database-uri '$(POSTS_DB_URI)' \
@@ -174,6 +175,7 @@ server:
 		-posts-database-uri '$(POSTS_DB_URI)' \
 		-boosts-database-uri '$(BOOSTS_DB_URI)' \
 		-likes-database-uri '$(LIKES_DB_URI)' \
+		-replies-database-uri '$(REPLIES_DB_URI)' \
 		-allow-remote-icon-uri \
 		-allow-create \
 		-verbose \
