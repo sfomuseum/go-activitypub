@@ -9,6 +9,7 @@ import (
 var accounts_database_uri string
 var followers_database_uri string
 var posts_database_uri string
+var post_tags_database_uri string
 var deliveries_database_uri string
 
 var delivery_queue_uri string
@@ -27,6 +28,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "...")
 	fs.StringVar(&followers_database_uri, "followers-database-uri", "", "...")
 	fs.StringVar(&posts_database_uri, "posts-database-uri", "", "...")
+	fs.StringVar(&post_tags_database_uri, "post-tags-database-uri", "null://", "...")
 	fs.StringVar(&deliveries_database_uri, "deliveries-database-uri", "", "...")
 
 	fs.StringVar(&delivery_queue_uri, "delivery-queue-uri", "synchronous://", "...")

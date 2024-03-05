@@ -84,6 +84,8 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 		return fmt.Errorf("Failed to get followers for post author, %w", err)
 	}
 
+	// tags/mentions
+
 	tags_cb := func(ctx context.Context, tag *PostTag) error {
 
 		if tag.Type != "Mention" {
@@ -93,7 +95,7 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 		return followers_cb(ctx, tag.Name) // name or href?
 	}
 
-	err = opts.PostTagsDatabase.GetTagsForPostId(ctx, opts.Post.Id, tags_cb)
+	err = opts.PostTagsDatabase.GetPostTagsForPost(ctx, opts.Post.Id, tags_cb)
 
 	if err != nil {
 		return fmt.Errorf("Failed to get tags for post, %w", err)

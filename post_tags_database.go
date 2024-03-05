@@ -10,14 +10,15 @@ import (
 	"github.com/aaronland/go-roster"
 )
 
-type GetPostTagCallbackFunc func(context.Context, *PostTag) error
+type GetPostTagsCallbackFunc func(context.Context, *PostTag) error
 
 type PostTagsDatabase interface {
-	GetTagsForName(context.Context, string, GetPostTagCallbackFunc) error
-	GetTagsForAccountId(context.Context, int64, GetPostTagCallbackFunc) error
-	GetTagsForPostId(context.Context, int64, GetPostTagCallbackFunc) error
-	AddTag(context.Context, *PostTag) error
-	RemoveTag(context.Context, *PostTag) error
+	GetPostTagsForName(context.Context, string, GetPostTagsCallbackFunc) error
+	GetPostTagsForAccount(context.Context, int64, GetPostTagsCallbackFunc) error
+	GetPostTagsForPost(context.Context, int64, GetPostTagsCallbackFunc) error
+	GetPostTagWithId(context.Context, int64) (*PostTag, error)
+	AddPostTag(context.Context, *PostTag) error
+	RemovePostTag(context.Context, *PostTag) error
 	Close(context.Context) error
 }
 

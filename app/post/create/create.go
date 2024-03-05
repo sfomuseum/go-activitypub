@@ -56,6 +56,14 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer posts_db.Close(ctx)
 
+	post_tags_db, err := activitypub.NewPostTagsDatabase(ctx, opts.PostTagsDatabaseURI)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create instantiate post tags database, %w", err)
+	}
+
+	defer post_tags_db.Close(ctx)
+
 	deliveries_db, err := activitypub.NewDeliveriesDatabase(ctx, opts.DeliveriesDatabaseURI)
 
 	if err != nil {
@@ -103,8 +111,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	if opts.InReplyTo != "" {
 		p.InReplyTo = opts.InReplyTo
-
-		// mentions/tags here...
 	}
 
 	err = posts_db.AddPost(ctx, p)
@@ -113,9 +119,29 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to add post, %w", err)
 	}
 
+	// Something something something extract mentions from opts.Message too...
+
+	for _, name := range opts.Mentions {
+
+		href := "fix me"
+
+		t, err := activitypub.NewMention(ctx, p, name, href)
+
+		if err != nil {
+			return fmt.Errorf("Failed to create mention for '%s', %w", name, err)
+		}
+
+		err = post_tags_db.AddPostTag(ctx, t)
+
+		if err != nil {
+			return fmt.Errorf("Failed to record post tag (mention) for '%s', %w", name, err)
+		}
+	}
+
 	deliver_opts := &activitypub.DeliverPostToFollowersOptions{
 		AccountsDatabase:   accounts_db,
 		FollowersDatabase:  followers_db,
+		PostTagsDatabase:   post_tags_db,
 		DeliveriesDatabase: deliveries_db,
 		DeliveryQueue:      delivery_q,
 		Post:               p,

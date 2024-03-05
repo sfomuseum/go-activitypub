@@ -15,6 +15,7 @@ var ALIASES_TABLE_NAME = "aliases"
 var FOLLOWERS_TABLE_NAME = "followers"
 var FOLLOWING_TABLE_NAME = "following"
 var POSTS_TABLE_NAME = "posts"
+var POST_TAGS_TABLE_NAME = "post_tags"
 var NOTES_TABLE_NAME = "notes"
 var MESSAGES_TABLE_NAME = "messages"
 var BLOCKS_TABLE_NAME = "blocks"
@@ -31,6 +32,7 @@ var DynamoDBTables = map[string]*dynamodb.CreateTableInput{
 	FOLLOWERS_TABLE_NAME:  DynamoDBFollowersTable,
 	FOLLOWING_TABLE_NAME:  DynamoDBFollowingTable,
 	POSTS_TABLE_NAME:      DynamoDBPostsTable,
+	POST_TAGS_TABLE_NAME:  DynamoDBPostTagsTable,
 	NOTES_TABLE_NAME:      DynamoDBNotesTable,
 	MESSAGES_TABLE_NAME:   DynamoDBMessagesTable,
 	BLOCKS_TABLE_NAME:     DynamoDBBlocksTable,

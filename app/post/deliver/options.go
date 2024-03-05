@@ -13,6 +13,7 @@ type RunOptions struct {
 	AccountsDatabaseURI   string
 	FollowersDatabaseURI  string
 	PostsDatabaseURI      string
+	PostTagsDatabaseURI   string
 	DeliveriesDatabaseURI string
 	DeliveryQueueURI      string
 	URIs                  *uris.URIs
@@ -39,6 +40,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		AccountsDatabaseURI:   accounts_database_uri,
 		FollowersDatabaseURI:  followers_database_uri,
 		PostsDatabaseURI:      posts_database_uri,
+		PostTagsDatabaseURI:   post_tags_database_uri,
 		DeliveriesDatabaseURI: deliveries_database_uri,
 		DeliveryQueueURI:      delivery_queue_uri,
 		Mode:                  mode,

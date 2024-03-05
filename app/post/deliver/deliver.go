@@ -57,6 +57,14 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer posts_db.Close(ctx)
 
+	post_tags_db, err := activitypub.NewPostTagsDatabase(ctx, opts.PostTagsDatabaseURI)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create instantiate post tags database, %w", err)
+	}
+
+	defer post_tags_db.Close(ctx)
+
 	followers_db, err := activitypub.NewFollowersDatabase(ctx, opts.FollowersDatabaseURI)
 
 	if err != nil {
@@ -83,6 +91,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		deliver_opts := &activitypub.DeliverPostToFollowersOptions{
 			AccountsDatabase:   accounts_db,
 			FollowersDatabase:  followers_db,
+			PostTagsDatabase:   post_tags_db,
 			DeliveriesDatabase: deliveries_db,
 			DeliveryQueue:      delivery_q,
 			Post:               post,
