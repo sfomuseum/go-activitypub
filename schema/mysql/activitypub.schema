@@ -83,11 +83,13 @@ CREATE TABLE posts (
        id BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
        account_id BIGINT(20) UNSIGNED NOT NULL,
        body TEXT,
+       in_reply_to VARCHAR(255),       	    
        created BIGINT(20) UNSIGNED NOT NULL,
        lastmodified BIGINT(20) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE INDEX `posts_by_account` ON posts (`account_id`, `created`);
+CREATE INDEX `posts_by_reply_to` ON posts (`in_reply_to`, `created`);
 CREATE INDEX `posts_by_created` ON posts (`created`);
 
 CREATE TABLE deliveries (

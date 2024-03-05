@@ -58,9 +58,9 @@ func NewSQLPostsDatabase(ctx context.Context, uri string) (PostsDatabase, error)
 
 func (db *SQLPostsDatabase) AddPost(ctx context.Context, p *Post) error {
 
-	q := fmt.Sprintf("INSERT INTO %s (id, account_id, body, created, lastmodified) VALUES (?, ?, ?, ?, ?)", SQL_POSTS_TABLE_NAME)
+	q := fmt.Sprintf("INSERT INTO %s (id, account_id, body, in_reply_to, created, lastmodified) VALUES (?, ?, ?, ?, ?, ?)", SQL_POSTS_TABLE_NAME)
 
-	_, err := db.database.ExecContext(ctx, q, p.Id, p.AccountId, p.Body, p.Created, p.LastModified)
+	_, err := db.database.ExecContext(ctx, q, p.Id, p.AccountId, p.Body, p.InReplyTo, p.Created, p.LastModified)
 
 	if err != nil {
 		return fmt.Errorf("Failed to add post, %w", err)
@@ -79,14 +79,15 @@ func (db *SQLPostsDatabase) getPost(ctx context.Context, where string, args ...i
 	var id int64
 	var account_id int64
 	var body string
+	var in_reply_to string
 	var created int64
 	var lastmod int64
 
-	q := fmt.Sprintf("SELECT id, account_id, body, created, lastmodified FROM %s WHERE %s", SQL_POSTS_TABLE_NAME, where)
+	q := fmt.Sprintf("SELECT id, account_id, body, in_reply_to, created, lastmodified FROM %s WHERE %s", SQL_POSTS_TABLE_NAME, where)
 
 	row := db.database.QueryRowContext(ctx, q, id)
 
-	err := row.Scan(&id, &account_id, &body, &created, &lastmod)
+	err := row.Scan(&id, &account_id, &body, &in_reply_to, &created, &lastmod)
 
 	switch {
 	case err == sql.ErrNoRows:
@@ -101,6 +102,7 @@ func (db *SQLPostsDatabase) getPost(ctx context.Context, where string, args ...i
 		Id:           id,
 		AccountId:    account_id,
 		Body:         body,
+		InReplyTo:    in_reply_to,
 		Created:      created,
 		LastModified: lastmod,
 	}

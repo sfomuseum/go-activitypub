@@ -25,6 +25,10 @@ var DynamoDBPostsTable = &dynamodb.CreateTableInput{
 			AttributeName: aws.String("Created"),
 			AttributeType: aws.String("N"),
 		},
+		{
+			AttributeName: aws.String("InReplyTo"),
+			AttributeType: aws.String("S"),
+		},
 	},
 	GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
 		{
@@ -32,6 +36,22 @@ var DynamoDBPostsTable = &dynamodb.CreateTableInput{
 			KeySchema: []*dynamodb.KeySchemaElement{
 				{
 					AttributeName: aws.String("AccountId"),
+					KeyType:       aws.String("HASH"),
+				},
+				{
+					AttributeName: aws.String("Created"),
+					KeyType:       aws.String("RANGE"),
+				},
+			},
+			Projection: &dynamodb.Projection{
+				ProjectionType: aws.String("ALL"),
+			},
+		},
+		{
+			IndexName: aws.String("in_reply_to"),
+			KeySchema: []*dynamodb.KeySchemaElement{
+				{
+					AttributeName: aws.String("InReplyTo"),
 					KeyType:       aws.String("HASH"),
 				},
 				{

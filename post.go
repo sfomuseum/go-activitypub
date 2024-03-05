@@ -22,6 +22,7 @@ type Post struct {
 	// This is a string mostly because []byte thingies get encoded incorrectly
 	// in DynamoDB
 	Body         string `json:"body"`
+	InReplyTo    string `json:"in_reply_to,omitempty"`
 	Created      int64  `json:"created"`
 	LastModified int64  `json:"lastmodified"`
 }

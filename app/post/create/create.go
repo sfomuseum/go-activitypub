@@ -101,6 +101,10 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to create new post, %w", err)
 	}
 
+	if opts.InReplyTo != "" {
+		p.InReplyTo = opts.InReplyTo
+	}
+	
 	err = posts_db.AddPost(ctx, p)
 
 	if err != nil {

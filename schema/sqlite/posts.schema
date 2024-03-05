@@ -2,10 +2,12 @@ CREATE TABLE posts (
        id INTEGER PRIMARY KEY,
        account_id INTEGER,
        body TEXT,
+       in_reply_to TEXT,
        created INTEGER,
        lastmodified INTEGER
 );
 
 CREATE INDEX `posts_by_account` ON posts (`account_id`, `created`);
+CREATE INDEX `posts_by_reply_to` ON posts (`in_reply_to`, `created`);
 CREATE INDEX `posts_by_created` ON posts (`created`);
        

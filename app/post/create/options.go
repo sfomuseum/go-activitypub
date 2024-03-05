@@ -17,6 +17,7 @@ type RunOptions struct {
 	DeliveryQueueURI      string
 	AccountName           string
 	Message               string
+	InReplyTo string
 	URIs                  *uris.URIs
 	Verbose               bool
 }
@@ -43,6 +44,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		DeliveryQueueURI:      delivery_queue_uri,
 		AccountName:           account_name,
 		Message:               message,
+		InReplyTo: in_reply_to,
 		URIs:                  uris_table,
 		Verbose:               verbose,
 	}

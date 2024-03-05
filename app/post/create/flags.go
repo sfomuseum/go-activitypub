@@ -14,11 +14,11 @@ var deliveries_database_uri string
 var delivery_queue_uri string
 
 var account_name string
+var message string
+var in_reply_to string
 
 var hostname string
 var insecure bool
-
-var message string
 var verbose bool
 
 func DefaultFlagSet() *flag.FlagSet {
@@ -36,6 +36,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&hostname, "hostname", "localhost:8080", "...")
 	fs.BoolVar(&insecure, "insecure", false, "...")
 
+	fs.StringVar(&in_reply_to, "in-reply-to", "", "...")	
 	fs.StringVar(&message, "message", "", "...")
 
 	fs.BoolVar(&verbose, "verbose", false, "Enable verbose logging")
