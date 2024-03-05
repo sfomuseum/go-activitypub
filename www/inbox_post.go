@@ -32,8 +32,8 @@ type InboxPostHandlerOptions struct {
 	AllowFollow       bool
 	AllowCreate       bool
 	// AllowReplies	  bool
-	AllowLikes        bool
-	AllowBoosts       bool
+	AllowLikes  bool
+	AllowBoosts bool
 
 	// TBD but the idea is that after the signature verification
 	// and block checks are dealt with the best thing would be to
@@ -545,7 +545,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				logger.Info("Create new boost", "post id", post.Id, "actor", activity.Actor, "boost", boost.Id)
 			}
 
-			// Do we need to defer accept here? Apparently not...			
+			// Do we need to defer accept here? Apparently not...
 
 		case "Like":
 
@@ -875,7 +875,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		case "Create":
 
 			// To do: Is this a reply?
-			
+
 			is_following, _, err := activitypub.IsFollowing(ctx, opts.FollowingDatabase, acct.Id, requestor_address)
 
 			if err != nil {
