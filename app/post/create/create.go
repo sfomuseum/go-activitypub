@@ -113,6 +113,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		p.InReplyTo = opts.InReplyTo
 	}
 
+	slog.Info("POST", "p", p)
+
 	err = posts_db.AddPost(ctx, p)
 
 	if err != nil {
