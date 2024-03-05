@@ -122,5 +122,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to deliver post, %w", err)
 	}
 
+	logger.Info("Delivered post", "ID", acct.PostURL(ctx, opts.URIs, p).String())
 	return nil
 }
