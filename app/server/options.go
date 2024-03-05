@@ -15,6 +15,7 @@ import (
 
 type RunOptions struct {
 	ServerURI            string
+	URIs                 *uris.URIs
 	AccountsDatabaseURI  string
 	AliasesDatabaseURI   string
 	FollowersDatabaseURI string
@@ -25,11 +26,12 @@ type RunOptions struct {
 	PostsDatabaseURI     string
 	LikesDatabaseURI     string
 	BoostsDatabaseURI    string
-	URIs                 *uris.URIs
+	RepliesDatabaseURI   string
 	AllowFollow          bool
 	AllowCreate          bool
 	AllowLikes           bool
 	AllowBoosts          bool
+	AllowReplies         bool
 	AllowRemoteIconURI   bool
 	Verbose              bool
 	Templates            *template.Template
@@ -77,12 +79,14 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		BlocksDatabaseURI:    blocks_database_uri,
 		LikesDatabaseURI:     likes_database_uri,
 		BoostsDatabaseURI:    boosts_database_uri,
+		RepliesDatabaseURI:   replies_database_uri,
 		ServerURI:            server_uri,
 		URIs:                 uris_table,
 		AllowFollow:          allow_follow,
 		AllowCreate:          allow_create,
 		AllowBoosts:          allow_boosts,
 		AllowLikes:           allow_likes,
+		AllowReplies:         allow_replies,
 		AllowRemoteIconURI:   allow_remote_icon_uri,
 		Verbose:              verbose,
 		Templates:            t,

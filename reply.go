@@ -1,5 +1,11 @@
 package activitypub
 
+import (
+	"context"
+
+	"github.com/sfomuseum/go-activitypub/ap"
+)
+
 type Reply struct {
 	Id        int64  `json:"id"`
 	AccountId int64  `json:"account_id"`
@@ -11,5 +17,9 @@ type Reply struct {
 }
 
 func (r *Reply) Content() ([]byte, error) {
+	return nil, ErrNotImplemented
+}
+
+func NewReply(ctx context.Context, note *ap.Note, post *Post) (*Reply, error) {
 	return nil, ErrNotImplemented
 }
