@@ -15,6 +15,7 @@ type DeliverPostOptions struct {
 	From               *Account           `json:"from"`
 	To                 string             `json:"to"`
 	Post               *Post              `json:"post"`
+	PostTags           []*PostTag         `json:"post_tags"`
 	URIs               *uris.URIs         `json:"uris"`
 	DeliveriesDatabase DeliveriesDatabase `json:"deliveries_database,omitempty"`
 }
@@ -26,6 +27,7 @@ type DeliverPostToFollowersOptions struct {
 	DeliveriesDatabase DeliveriesDatabase
 	DeliveryQueue      DeliveryQueue
 	Post               *Post
+	PostTags           []*PostTag `json:"post_tags"`
 	URIs               *uris.URIs
 }
 
@@ -65,6 +67,7 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 			From:               acct,
 			To:                 follower_uri,
 			Post:               opts.Post,
+			PostTags:           opts.PostTags,
 			URIs:               opts.URIs,
 			DeliveriesDatabase: opts.DeliveriesDatabase,
 		}
@@ -86,19 +89,11 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 
 	// tags/mentions
 
-	tags_cb := func(ctx context.Context, tag *PostTag) error {
+	for _, t := range opts.PostTags {
 
-		if tag.Type != "Mention" {
-			return nil
-		}
+		slog.Info("TAG", "t", t)
 
-		return followers_cb(ctx, tag.Name) // name or href?
-	}
-
-	err = opts.PostTagsDatabase.GetPostTagsForPost(ctx, opts.Post.Id, tags_cb)
-
-	if err != nil {
-		return fmt.Errorf("Failed to get tags for post, %w", err)
+		// err := followers_cb(ctx, tag.Name) // name or href?
 	}
 
 	return nil
@@ -138,7 +133,7 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		}
 	}()
 
-	note, err := NoteFromPost(ctx, opts.URIs, opts.From, opts.Post)
+	note, err := NoteFromPost(ctx, opts.URIs, opts.From, opts.Post, opts.PostTags)
 
 	if err != nil {
 		d.Error = err.Error()

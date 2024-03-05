@@ -147,10 +147,25 @@ post:
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
 		-posts-database-uri '$(POSTS_DB_URI)' \
-		-posts-tags-database-uri '$(POST_TAGS_DB_URI)' \
+		-post-tags-database-uri '$(POST_TAGS_DB_URI)' \
 		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
 		-account-name alice \
 		-message "$(MESSAGE)" \
+		-hostname localhost:8080 \
+		-insecure \
+		-verbose
+
+reply:
+	go run cmd/create-post/main.go \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
+		-posts-database-uri '$(POSTS_DB_URI)' \
+		-post-tags-database-uri '$(POST_TAGS_DB_URI)' \
+		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
+		-account-name bob \
+		-message "$(MESSAGE)" \
+		-in-reply-to $(INREPLYTO) \
+		-mention $(MENTION) \
 		-hostname localhost:8080 \
 		-insecure \
 		-verbose

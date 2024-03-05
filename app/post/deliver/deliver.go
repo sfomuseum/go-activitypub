@@ -163,10 +163,25 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 					return fmt.Errorf("Post owned by different account")
 				}
 
+				post_tags := make([]*activitypub.PostTag, 0)
+
+				post_tags_cb := func(ctx context.Context, t *activitypub.PostTag) error {
+					post_tags = append(post_tags, t)
+					return nil
+				}
+
+				err = post_tags_db.GetPostTagsForPost(ctx, post.Id, post_tags_cb)
+
+				if err != nil {
+					slog.Error("Failed to retrieve post tags for post", "error", err)
+					return fmt.Errorf("Failed to retrieve post tags for post, %w", err)
+				}
+
 				opts := &activitypub.DeliverPostOptions{
 					From:               acct,
 					To:                 ps_opts.Recipient,
 					Post:               post,
+					PostTags:           post_tags,
 					URIs:               opts.URIs,
 					DeliveriesDatabase: deliveries_db,
 				}

@@ -49,17 +49,25 @@ func NewPost(ctx context.Context, acct *Account, body string) (*Post, error) {
 	return p, nil
 }
 
-func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, post *Post) (*ap.Note, error) {
+func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, post *Post, post_tags []*PostTag) (*ap.Note, error) {
 
-	// Need account or accounts database...
 	attr := acct.ProfileURL(ctx, uris_table).String()
-
 	post_url := acct.PostURL(ctx, uris_table, post)
 
-	// this is what we used to do...
-	// ap_id := ap.NewId(uris_table)
-
 	t := time.Unix(post.Created, 0)
+
+	tags := make([]*ap.Tag, len(post_tags))
+
+	for idx, pt := range post_tags {
+
+		t := &ap.Tag{
+			Name: pt.Name,
+			Href: pt.Href,
+			Type: pt.Type,
+		}
+
+		tags[idx] = t
+	}
 
 	n := &ap.Note{
 		Type:         "Note",
@@ -68,6 +76,8 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, pos
 		To:           "https://www.w3.org/ns/activitystreams#Public", // what?
 		Content:      post.Body,
 		Published:    t.Format(http.TimeFormat),
+		InReplyTo:    post.InReplyTo,
+		Tags:         tags,
 		URL:          post_url.String(),
 	}
 

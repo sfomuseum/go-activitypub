@@ -121,6 +121,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	// Something something something extract mentions from opts.Message too...
 
+	post_tags := make([]*activitypub.PostTag, 0)
+
 	for _, name := range opts.Mentions {
 
 		href := "fix me"
@@ -136,6 +138,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		if err != nil {
 			return fmt.Errorf("Failed to record post tag (mention) for '%s', %w", name, err)
 		}
+
+		post_tags = append(post_tags, t)
 	}
 
 	deliver_opts := &activitypub.DeliverPostToFollowersOptions{
@@ -145,6 +149,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		DeliveriesDatabase: deliveries_db,
 		DeliveryQueue:      delivery_q,
 		Post:               p,
+		PostTags:           post_tags,
 		URIs:               opts.URIs,
 	}
 
