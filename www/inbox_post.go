@@ -31,6 +31,7 @@ type InboxPostHandlerOptions struct {
 	URIs              *uris.URIs
 	AllowFollow       bool
 	AllowCreate       bool
+	// AllowReplies	  bool
 	AllowLikes        bool
 	AllowBoosts       bool
 
@@ -544,7 +545,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				logger.Info("Create new boost", "post id", post.Id, "actor", activity.Actor, "boost", boost.Id)
 			}
 
-			// Do we need to defer accept here?
+			// Do we need to defer accept here? Apparently not...			
 
 		case "Like":
 
@@ -611,7 +612,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				logger.Info("Create new like", "post id", post.Id, "actor", activity.Actor, "like", like.Id)
 			}
 
-			// Do we need to defer accept here?
+			// Do we need to defer accept here? Apparently not...
 
 		case "Follow":
 
@@ -873,6 +874,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		case "Create":
 
+			// To do: Is this a reply?
+			
 			is_following, _, err := activitypub.IsFollowing(ctx, opts.FollowingDatabase, acct.Id, requestor_address)
 
 			if err != nil {
@@ -1015,21 +1018,6 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		logger.Debug("Inbox post complete", "status", http.StatusAccepted)
 		rsp.WriteHeader(http.StatusAccepted)
 		return
-
-		// Apparently unnecessary?
-
-		/*
-			rsp.Header().Set("Content-Type", ap.ACTIVITY_LD_CONTENT_TYPE)
-
-			enc := json.NewEncoder(rsp)
-			err = enc.Encode(accept)
-
-			if err != nil {
-				logger.Error("Failed to encode accept activity", "error", err)
-				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-				return
-			}
-		*/
 	}
 
 	return http.HandlerFunc(fn), nil
