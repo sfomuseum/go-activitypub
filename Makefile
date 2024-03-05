@@ -195,7 +195,6 @@ server:
 		-posts-database-uri '$(POSTS_DB_URI)' \
 		-boosts-database-uri '$(BOOSTS_DB_URI)' \
 		-likes-database-uri '$(LIKES_DB_URI)' \
-		-replies-database-uri '$(REPLIES_DB_URI)' \
 		-allow-remote-icon-uri \
 		-allow-create \
 		-verbose \

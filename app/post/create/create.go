@@ -113,8 +113,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		p.InReplyTo = opts.InReplyTo
 	}
 
-	slog.Info("POST", "p", p)
-
 	err = posts_db.AddPost(ctx, p)
 
 	if err != nil {
@@ -127,7 +125,14 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	for _, name := range opts.Mentions {
 
-		href := "fix me"
+		actor, err := activitypub.RetrieveActor(ctx, name, opts.URIs.Insecure)
+
+		if err != nil {
+			slog.Error("Failed to retrieve actor data for name, skipping", "name", name, "error", err)
+			continue
+		}
+
+		href := actor.Id
 
 		t, err := activitypub.NewMention(ctx, p, name, href)
 

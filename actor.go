@@ -109,53 +109,5 @@ func RetrieveActor(ctx context.Context, id string, insecure bool) (*ap.Actor, er
 		return nil, fmt.Errorf("Failed to decode profile response, %w", err)
 	}
 
-	// START OF this is what Mastodon does but is it really necessary?
-	/*
-
-		u, _ := url.Parse(profile_url)
-
-		webfinger_acct2 := fmt.Sprintf("acct:%s@%s", actor.PreferredUsername, u.Host)
-
-		webfinger_q2 := &url.Values{}
-		webfinger_q2.Set("resource", webfinger_acct2)
-
-		webfinger_u2 := &url.URL{}
-		webfinger_u2.Scheme = webfinger_scheme
-		webfinger_u2.Host = u.Host
-		webfinger_u2.Path = webfinger.Endpoint
-		webfinger_u2.RawQuery = webfinger_q.Encode()
-
-		webfinger_url2 := webfinger_u2.String()
-
-		slog.Debug("Webfinger URL for resource", "resource", webfinger_acct2, "url", webfinger_url2)
-
-		webfinger_rsp2, err := http.Get(webfinger_url2)
-
-		if err != nil {
-			return nil, fmt.Errorf("Failed to perform webfinger (%s) for actor, %w", webfinger_url2, err)
-		}
-
-		defer webfinger_rsp2.Body.Close()
-
-		if webfinger_rsp2.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("Remote endpoint did not return successfully %d, %s", webfinger_rsp2.StatusCode, webfinger_rsp.Status)
-		}
-
-		var webfinger_resource2 *webfinger.Resource
-
-		dec = json.NewDecoder(webfinger_rsp2.Body)
-		err = dec.Decode(&webfinger_resource2)
-
-		if err != nil {
-			return nil, fmt.Errorf("Failed to decode webfinger resource, %w", err)
-		}
-
-		if webfinger_acct2 != webfinger_resource2.Subject {
-			return nil, fmt.Errorf("Second webfinger request yields a different subject. Expected '%s' but got '%s'", webfinger_acct2, webfinger_resource2.Subject)
-		}
-
-	*/
-	// END OF this is what Mastodon does but is it really necessary?
-
 	return actor, nil
 }

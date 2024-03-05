@@ -28,11 +28,9 @@ type InboxPostHandlerOptions struct {
 	BlocksDatabase    activitypub.BlocksDatabase
 	LikesDatabase     activitypub.LikesDatabase
 	BoostsDatabase    activitypub.BoostsDatabase
-	RepliesDatabase   activitypub.RepliesDatabase
 	URIs              *uris.URIs
 	AllowFollow       bool
 	AllowCreate       bool
-	AllowReplies      bool
 	AllowLikes        bool
 	AllowBoosts       bool
 
@@ -228,17 +226,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			switch type_rsp.String() {
 			case "Note":
-
-				// Is this a post or a reply?
-
-				replyto_rsp := gjson.GetBytes(enc_obj, "inReplyTo")
-
-				if replyto_rsp.Exists() && !opts.AllowReplies {
-					logger.Error("Note is in reply to and replies are not enabled")
-					http.Error(rsp, "Not implemented", http.StatusNotImplemented)
-					return
-				}
-
+				// Okay
 			default:
 				logger.Error("Unsupported undo activity type", "type", type_rsp.String())
 				http.Error(rsp, "Not implemented", http.StatusNotImplemented)
@@ -506,6 +494,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		// get passed in by opts and we just hand off to them using the http.Next trick.
 		// As written we're going to add another 300+ lines of code which really just makes
 		// everything more confusing...
+		//
+		// But really it's more like another 800+ lines of code now that boosts, likes and
+		// replies are handled...
 
 		accept_obj := activity
 
@@ -922,203 +913,188 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			// if replyto here...
+			logger = logger.With("note id", note.Id)
 
-			if note.InReplyTo != "" {
+			is_following, _, err := activitypub.IsFollowing(ctx, opts.FollowingDatabase, acct.Id, requestor_address)
 
-				// This should never happen because of checks above but
-				// "measure twice, cut once" and all that...
+			if err != nil {
+				logger.Error("Failed to determine if following", "error", err)
+				http.Error(rsp, "Bad request", http.StatusBadRequest)
+				return
+			}
 
-				if !opts.AllowReplies {
-					http.Error(rsp, "Not implemented", http.StatusNotImplemented)
-					return
-				}
+			logger = logger.With("is following", is_following)
 
-				logger = logger.With("note id", note.Id)
-				logger = logger.With("in reply to", note.InReplyTo)
+			// Just a plain old Note; make sure acct is following the author
 
-				post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, note.InReplyTo)
-
-				// So this failure scenario is incorrect. Specifically, maybe we are being
-				// mentioned in a reply to an entire other post/note. In which case we need
-				// to check that acct is list in the object.tag array with type=Mention
-
-				if err != nil {
-					logger.Error("Failed to determine if object URI references post", "error", err)
-
-					if err == activitypub.ErrNotFound {
-						http.Error(rsp, "Not found", http.StatusNotFound)
-						return
-					}
-
-					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-					return
-				}
-
-				logger = logger.With("post id", post.Id)
-
-				if post.AccountId != acct.Id {
-					logger.Error("Referencing post owned by another account", "post account", post.AccountId)
-					http.Error(rsp, "Forbiddden", http.StatusForbidden)
-					return
-				}
-
-				var reply *activitypub.Reply
-
-				reply, err = opts.RepliesDatabase.GetReplyWithReplyId(ctx, note.Id)
-
-				if err != nil {
-					logger.Error("Failed to retrieve reply by reply ID", "error", err)
-					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-					return
-				}
-
-				if reply == nil {
-
-					reply, err := activitypub.NewReply(ctx, note, post)
-
-					if err != nil {
-						logger.Error("Failed to create new reply", "error", err)
-						http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-						return
-					}
-
-					err = opts.RepliesDatabase.AddReply(ctx, reply)
-
-					if err != nil {
-						logger.Error("Failed to record new reply", "error", err)
-						http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-						return
-					}
-
-					logger = logger.With("reply id", reply.Id)
-					logger.Info("Reply has been recorded")
-				}
-
-				// defer Accept hoohah?
-
-			} else {
-
-				// carry on, create note/message here
-
-				is_following, _, err := activitypub.IsFollowing(ctx, opts.FollowingDatabase, acct.Id, requestor_address)
-
-				if err != nil {
-					logger.Error("Failed to determine if following", "error", err)
-					http.Error(rsp, "Bad request", http.StatusBadRequest)
-					return
-				}
+			if note.InReplyTo == "" {
 
 				if !is_following {
 					logger.Error("Not following")
+					http.Error(rsp, "Forbidden", http.StatusForbidden)
+					return
+				}
+
+			} else {
+
+				logger = logger.With("in reply to", note.InReplyTo)
+
+				// If we are not already following the author then
+
+				if !is_following {
+
+					// Fetch the (in-reply-to) post in question and check to see if it
+					// was authored by acct
+
+					is_own_post := false
+
+					post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, note.InReplyTo)
+
+					if err != nil && err != activitypub.ErrNotFound {
+						logger.Error("Failed to determine if object URI references post", "error", err)
+						http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+						return
+					}
+
+					if post != nil {
+
+						logger = logger.With("post id", post.Id)
+
+						if post.AccountId == acct.Id {
+							is_own_post = true
+						}
+					}
+
+					// If it was not then check to see whether acct is mentioned in the tags
+
+					if !is_own_post {
+
+						acct_name := acct.Address(opts.URIs.Hostname)
+						is_mentioned := false
+
+						for _, t := range note.Tags {
+
+							if t.Type != "Mention" {
+								continue
+							}
+
+							if t.Name == acct_name {
+								is_mentioned = true
+								break
+							}
+						}
+
+						if !is_mentioned {
+							logger.Error("Target account not mentioned in reply")
+							http.Error(rsp, "Forbidden", http.StatusForbidden)
+							return
+						}
+					}
+				}
+			}
+
+			// First store the activity pub note as a local "note" - that is store
+			// the message from person (x) exactly once regardless of how many
+			// different accounts (on this service) that the note is being delivered
+			// to
+
+			note_uuid := note.Id
+			logger = logger.With("note uuid", note_uuid)
+
+			db_note, err := opts.NotesDatabase.GetNoteWithUUIDAndAuthorAddress(ctx, note_uuid, requestor_address)
+
+			switch {
+			case err == activitypub.ErrNotFound:
+				// pass
+			case err != nil:
+				logger.Error("Failed to retrive note", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			default:
+				// pass
+			}
+
+			now := time.Now()
+			ts := now.Unix()
+
+			if db_note != nil {
+
+				logger = logger.With("note id", db_note.Id)
+
+				if bytes.Equal(enc_obj, db_note.Body) {
+					logger.Error("Note already registered")
 					http.Error(rsp, "Bad request", http.StatusBadRequest)
 					return
 				}
 
-				// First store the activity pub note as a local "note" - that is store
-				// the message from person (x) exactly once regardless of how many
-				// different accounts (on this service) that the note is being delivered
-				// to
+				db_note.Body = enc_obj
+				db_note.LastModified = ts
 
-				note_uuid := note.Id
-				logger = logger.With("note uuid", note_uuid)
+				err = opts.NotesDatabase.UpdateNote(ctx, db_note)
 
-				db_note, err := opts.NotesDatabase.GetNoteWithUUIDAndAuthorAddress(ctx, note_uuid, requestor_address)
-
-				switch {
-				case err == activitypub.ErrNotFound:
-					// pass
-				case err != nil:
-					logger.Error("Failed to retrive note", "error", err)
+				if err != nil {
+					logger.Error("Failed to update note", "error", err)
 					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 					return
-				default:
-					// pass
 				}
 
-				now := time.Now()
-				ts := now.Unix()
+			} else {
 
-				if db_note != nil {
+				new_note, err := activitypub.AddNote(ctx, opts.NotesDatabase, note_uuid, requestor_address, enc_obj)
 
-					logger = logger.With("note id", db_note.Id)
-
-					if bytes.Equal(enc_obj, db_note.Body) {
-						logger.Error("Note already registered")
-						http.Error(rsp, "Bad request", http.StatusBadRequest)
-						return
-					}
-
-					db_note.Body = enc_obj
-					db_note.LastModified = ts
-
-					err = opts.NotesDatabase.UpdateNote(ctx, db_note)
-
-					if err != nil {
-						logger.Error("Failed to update note", "error", err)
-						http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-						return
-					}
-
-				} else {
-
-					new_note, err := activitypub.AddNote(ctx, opts.NotesDatabase, note_uuid, requestor_address, enc_obj)
-
-					if err != nil {
-						logger.Error("Failed to create new note", "error", err)
-						http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-						return
-					}
-
-					db_note = new_note
-					logger = logger.With("note id", db_note.Id)
-				}
-
-				// Now store a "message" which is a pointer to the note associated with the account the
-				// note is being delivered to
-
-				db_message, err := activitypub.GetMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id)
-
-				switch {
-				case err == activitypub.ErrNotFound:
-					// pass
-				case err != nil:
-					logger.Error("Failed to retrive message", "error", err)
+				if err != nil {
+					logger.Error("Failed to create new note", "error", err)
 					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 					return
-				default:
-					// pass
 				}
 
-				if db_message != nil {
-
-					logger = logger.With("message id", db_message.Id)
-
-					db_message, err = activitypub.UpdateMessage(ctx, opts.MessagesDatabase, db_message)
-
-					if err != nil {
-						logger.Error("Failed to update message", "error", err)
-						http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-						return
-					}
-
-				} else {
-
-					new_message, err := activitypub.AddMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id, requestor_address)
-
-					if err != nil {
-						logger.Error("Failed to add message", "error", err)
-						http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-						return
-					}
-
-					db_message = new_message
-					logger = logger.With("message id", db_message.Id)
-				}
-
-				logger.Info("Note has been added to messages")
-
+				db_note = new_note
+				logger = logger.With("note id", db_note.Id)
 			}
+
+			// Now store a "message" which is a pointer to the note associated with the account the
+			// note is being delivered to
+
+			db_message, err := activitypub.GetMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id)
+
+			switch {
+			case err == activitypub.ErrNotFound:
+				// pass
+			case err != nil:
+				logger.Error("Failed to retrive message", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			default:
+				// pass
+			}
+
+			if db_message != nil {
+
+				logger = logger.With("message id", db_message.Id)
+
+				db_message, err = activitypub.UpdateMessage(ctx, opts.MessagesDatabase, db_message)
+
+				if err != nil {
+					logger.Error("Failed to update message", "error", err)
+					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+
+			} else {
+
+				new_message, err := activitypub.AddMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id, requestor_address)
+
+				if err != nil {
+					logger.Error("Failed to add message", "error", err)
+					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+					return
+				}
+
+				db_message = new_message
+				logger = logger.With("message id", db_message.Id)
+			}
+
+			logger.Info("Note has been added to messages")
 
 		default:
 			// pass

@@ -41,6 +41,8 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 
 	followers_cb := func(ctx context.Context, follower_uri string) error {
 
+		slog.Info("DELIVER", "uri", follower_uri)
+
 		already_delivered := false
 
 		deliveries_cb := func(ctx context.Context, d *Delivery) error {
@@ -91,9 +93,11 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 
 	for _, t := range opts.PostTags {
 
-		slog.Info("TAG", "t", t)
+		err := followers_cb(ctx, t.Name) // name or href?
 
-		// err := followers_cb(ctx, tag.Name) // name or href?
+		if err != nil {
+			return fmt.Errorf("Failed to deliver message to %s (%d), %w", t.Name, t.Id, err)
+		}
 	}
 
 	return nil
