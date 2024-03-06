@@ -43,6 +43,36 @@ func NewDocstoreFollowingDatabase(ctx context.Context, uri string) (FollowingDat
 	return db, nil
 }
 
+func (db *DocstoreFollowingDatabase) GetFollowingIdsForDateRange(ctx context.Context, start int64, end int64, cb GetFollowingIdsCallbackFunc) error {
+
+	q := db.collection.Query()
+	q = q.Where("Created", ">=", start)
+	q = q.Where("Created", "<=", end)
+
+	iter := q.Get(ctx, "Id")
+	defer iter.Stop()
+
+	for {
+
+		var f Following
+		err := iter.Next(ctx, &f)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			err := cb(ctx, f.Id)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for following %d, %w", f.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreFollowingDatabase) GetFollowing(ctx context.Context, account_id int64, following_address string) (*Following, error) {
 
 	q := db.collection.Query()

@@ -40,6 +40,36 @@ func NewDocstoreBoostsDatabase(ctx context.Context, uri string) (BoostsDatabase,
 	return db, nil
 }
 
+func (db *DocstoreBoostsDatabase) GetBoostIdsForDateRange(ctx context.Context, start int64, end int64, cb GetBoostIdsCallbackFunc) error {
+
+	q := db.collection.Query()
+	q = q.Where("Created", ">=", start)
+	q = q.Where("Created", "<=", end)
+
+	iter := q.Get(ctx, "Id")
+	defer iter.Stop()
+
+	for {
+
+		var b Boost
+		err := iter.Next(ctx, &b)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			err := cb(ctx, b.Id)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for boost %d, %w", b.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreBoostsDatabase) GetBoostWithId(ctx context.Context, id int64) (*Boost, error) {
 
 	q := db.collection.Query()

@@ -39,6 +39,36 @@ func NewDocstorePostTagsDatabase(ctx context.Context, uri string) (PostTagsDatab
 	return db, nil
 }
 
+func (db *DocstorePostTagsDatabase) GetPostTagIdsForDateRange(ctx context.Context, start int64, end int64, cb GetPostTagIdsCallbackFunc) error {
+
+	q := db.collection.Query()
+	q = q.Where("Created", ">=", start)
+	q = q.Where("Created", "<=", end)
+
+	iter := q.Get(ctx, "Id")
+	defer iter.Stop()
+
+	for {
+
+		var t PostTag
+		err := iter.Next(ctx, &t)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			err := cb(ctx, t.Id)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for post tag %d, %w", t.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstorePostTagsDatabase) GetPostTagWithId(ctx context.Context, id int64) (*PostTag, error) {
 	q := db.collection.Query()
 	q = q.Where("Id", "=", id)

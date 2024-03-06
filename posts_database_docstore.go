@@ -40,6 +40,36 @@ func NewDocstorePostsDatabase(ctx context.Context, uri string) (PostsDatabase, e
 	return db, nil
 }
 
+func (db *DocstorePostsDatabase) GetPostIdsForDateRange(ctx context.Context, start int64, end int64, cb GetPostIdsCallbackFunc) error {
+
+	q := db.collection.Query()
+	q = q.Where("Created", ">=", start)
+	q = q.Where("Created", "<=", end)
+
+	iter := q.Get(ctx, "Id")
+	defer iter.Stop()
+
+	for {
+
+		var p Post
+		err := iter.Next(ctx, &p)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			err := cb(ctx, p.Id)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for post %d, %w", p.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstorePostsDatabase) AddPost(ctx context.Context, p *Post) error {
 
 	return db.collection.Put(ctx, p)

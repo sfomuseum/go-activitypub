@@ -41,13 +41,13 @@ func NewDocstoreFollowersDatabase(ctx context.Context, uri string) (FollowersDat
 	return db, nil
 }
 
-func (db *DocstoreFollowersDatabase) HasFollowers(ctx context.Context, account_id int64) (bool, error) {
+func (db *DocstoreFollowersDatabase) GetFollowerIdsForDateRange(ctx context.Context, start int64, end int64, cb GetFollowerIdsCallbackFunc) error {
 
 	q := db.collection.Query()
-	q = q.Where("AccountId", "=", account_id)
-	q = q.Limit(1)
+	q = q.Where("Created", ">=", start)
+	q = q.Where("Created", "<=", end)
 
-	iter := q.Get(ctx)
+	iter := q.Get(ctx, "Id")
 	defer iter.Stop()
 
 	for {
@@ -56,12 +56,39 @@ func (db *DocstoreFollowersDatabase) HasFollowers(ctx context.Context, account_i
 		err := iter.Next(ctx, &f)
 
 		if err == io.EOF {
-			return false, nil
+			break
 		} else if err != nil {
-			return false, fmt.Errorf("Failed to interate, %w", err)
+			return fmt.Errorf("Failed to interate, %w", err)
 		} else {
-			return true, nil
+			err := cb(ctx, f.Id)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for follower %d, %w", f.Id, err)
+			}
 		}
+	}
+
+	return nil
+}
+
+func (db *DocstoreFollowersDatabase) HasFollowers(ctx context.Context, account_id int64) (bool, error) {
+
+	q := db.collection.Query()
+	q = q.Where("AccountId", "=", account_id)
+	q = q.Limit(1)
+
+	iter := q.Get(ctx, "Id")
+	defer iter.Stop()
+
+	var f Follower
+	err := iter.Next(ctx, &f)
+
+	if err == io.EOF {
+		return false, nil
+	} else if err != nil {
+		return false, fmt.Errorf("Failed to interate, %w", err)
+	} else {
+		return true, nil
 	}
 
 }

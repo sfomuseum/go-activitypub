@@ -40,6 +40,36 @@ func NewDocstoreNotesDatabase(ctx context.Context, uri string) (NotesDatabase, e
 	return db, nil
 }
 
+func (db *DocstoreNotesDatabase) GetNoteIdsForDateRange(ctx context.Context, start int64, end int64, cb GetNoteIdsCallbackFunc) error {
+
+	q := db.collection.Query()
+	q = q.Where("Created", ">=", start)
+	q = q.Where("Created", "<=", end)
+
+	iter := q.Get(ctx, "Id")
+	defer iter.Stop()
+
+	for {
+
+		var n Note
+		err := iter.Next(ctx, &n)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			err := cb(ctx, n.Id)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for note %d, %w", n.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreNotesDatabase) GetNoteWithId(ctx context.Context, note_id int64) (*Note, error) {
 
 	q := db.collection.Query()

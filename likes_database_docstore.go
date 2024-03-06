@@ -40,6 +40,36 @@ func NewDocstoreLikesDatabase(ctx context.Context, uri string) (LikesDatabase, e
 	return db, nil
 }
 
+func (db *DocstoreLikesDatabase) GetLikeIdsForDateRange(ctx context.Context, start int64, end int64, cb GetLikeIdsCallbackFunc) error {
+
+	q := db.collection.Query()
+	q = q.Where("Created", ">=", start)
+	q = q.Where("Created", "<=", end)
+
+	iter := q.Get(ctx, "Id")
+	defer iter.Stop()
+
+	for {
+
+		var l Like
+		err := iter.Next(ctx, &l)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			err := cb(ctx, l.Id)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for like %d, %w", l.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreLikesDatabase) GetLikeWithId(ctx context.Context, id int64) (*Like, error) {
 
 	q := db.collection.Query()

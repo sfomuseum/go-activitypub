@@ -40,6 +40,36 @@ func NewDocstoreMessagesDatabase(ctx context.Context, uri string) (MessagesDatab
 	return db, nil
 }
 
+func (db *DocstoreMessagesDatabase) GetMessageIdsForDateRange(ctx context.Context, start int64, end int64, cb GetMessageIdsCallbackFunc) error {
+
+	q := db.collection.Query()
+	q = q.Where("Created", ">=", start)
+	q = q.Where("Created", "<=", end)
+
+	iter := q.Get(ctx, "Id")
+	defer iter.Stop()
+
+	for {
+
+		var m Message
+		err := iter.Next(ctx, &m)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			err := cb(ctx, m.Id)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for message %d, %w", m.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreMessagesDatabase) GetMessageWithId(ctx context.Context, message_id int64) (*Message, error) {
 
 	q := db.collection.Query()

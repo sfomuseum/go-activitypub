@@ -41,6 +41,36 @@ func NewDocstoreDeliveriesDatabase(ctx context.Context, uri string) (DeliveriesD
 	return db, nil
 }
 
+func (db *DocstoreDeliveriesDatabase) GetDeliveryIdsForDateRange(ctx context.Context, start int64, end int64, cb GetDeliveryIdsCallbackFunc) error {
+
+	q := db.collection.Query()
+	q = q.Where("Created", ">=", start)
+	q = q.Where("Created", "<=", end)
+
+	iter := q.Get(ctx, "Id")
+	defer iter.Stop()
+
+	for {
+
+		var d Delivery
+		err := iter.Next(ctx, &d)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			err := cb(ctx, d.Id)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for delivery %d, %w", d.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreDeliveriesDatabase) AddDelivery(ctx context.Context, f *Delivery) error {
 
 	return db.collection.Put(ctx, f)

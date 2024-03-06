@@ -46,7 +46,7 @@ func (db *DocstoreAccountsDatabase) GetAccountIdsForDateRange(ctx context.Contex
 	q = q.Where("Created", ">=", start)
 	q = q.Where("Created", "<=", end)
 
-	iter := q.Get(ctx)
+	iter := q.Get(ctx, "Id")
 	defer iter.Stop()
 
 	for {
@@ -59,6 +59,7 @@ func (db *DocstoreAccountsDatabase) GetAccountIdsForDateRange(ctx context.Contex
 		} else if err != nil {
 			return fmt.Errorf("Failed to interate, %w", err)
 		} else {
+
 			err := cb(ctx, a.Id)
 
 			if err != nil {

@@ -40,6 +40,36 @@ func NewDocstoreBlocksDatabase(ctx context.Context, uri string) (BlocksDatabase,
 	return db, nil
 }
 
+func (db *DocstoreBlocksDatabase) GetBlockIdsForDateRange(ctx context.Context, start int64, end int64, cb GetBlockIdsCallbackFunc) error {
+
+	q := db.collection.Query()
+	q = q.Where("Created", ">=", start)
+	q = q.Where("Created", "<=", end)
+
+	iter := q.Get(ctx, "Id")
+	defer iter.Stop()
+
+	for {
+
+		var b Block
+		err := iter.Next(ctx, &b)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			err := cb(ctx, b.Id)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for block %d, %w", b.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreBlocksDatabase) GetBlockWithId(ctx context.Context, id int64) (*Block, error) {
 
 	q := db.collection.Query()
