@@ -10,11 +10,11 @@ import (
 	"github.com/aaronland/go-roster"
 )
 
+type GetBoostIdsCallbackFunc func(context.Context, int64) error
 type GetBoostsCallbackFunc func(context.Context, *Boost) error
 
 type BoostsDatabase interface {
-	// GetBoostsForActor(context.Context, string, GetBoostsCallbackFunc) error
-	// GetBoostsForAccountId(context.Context, int64, GetBoostsCallbackFunc) error
+	GetBoostIdsForDateRange(context.Context, int64, int64, GetBoostIdsCallbackFunc) error
 	GetBoostsForPost(context.Context, int64, GetBoostsCallbackFunc) error
 	GetBoostWithPostIdAndActor(context.Context, int64, string) (*Boost, error)
 	GetBoostWithId(context.Context, int64) (*Boost, error)

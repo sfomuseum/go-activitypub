@@ -10,15 +10,14 @@ import (
 	"github.com/aaronland/go-roster"
 )
 
+type GetMessageIdsCallbackFunc func(context.Context, int64) error
 type GetMessagesCallbackFunc func(context.Context, *Message) error
 
 type MessagesDatabase interface {
+	GetMessageIdsForDateRange(context.Context, int64, int64, GetMessageIdsCallbackFunc) error
 	GetMessagesForAccount(context.Context, int64, GetMessagesCallbackFunc) error
 	GetMessagesForAccountAndAuthor(context.Context, int64, string, GetMessagesCallbackFunc) error
-	// GetMessagesForAuthor(context.Context, string, GetMessagesCallbackFunc) error
-
 	GetMessageWithId(context.Context, int64) (*Message, error)
-
 	GetMessageWithAccountAndNoteIds(context.Context, int64, int64) (*Message, error)
 	AddMessage(context.Context, *Message) error
 	UpdateMessage(context.Context, *Message) error

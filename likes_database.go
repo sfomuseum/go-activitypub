@@ -10,11 +10,11 @@ import (
 	"github.com/aaronland/go-roster"
 )
 
+type GetLikeIdsCallbackFunc func(context.Context, int64) error
 type GetLikesCallbackFunc func(context.Context, *Like) error
 
 type LikesDatabase interface {
-	// GetLikesForActor(context.Context, string, GetLikesCallbackFunc) error
-	// GetLikesForAccountId(context.Context, int64, GetLikesCallbackFunc) error
+	GetLikeIdsForDateRange(context.Context, int64, int64, GetLikeIdsCallbackFunc) error
 	GetLikesForPost(context.Context, int64, GetLikesCallbackFunc) error
 	GetLikeWithPostIdAndActor(context.Context, int64, string) (*Like, error)
 	GetLikeWithId(context.Context, int64) (*Like, error)

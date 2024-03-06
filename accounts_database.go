@@ -10,7 +10,10 @@ import (
 	"github.com/aaronland/go-roster"
 )
 
+type GetAccountIdsCallbackFunc func(context.Context, int64) error
+
 type AccountsDatabase interface {
+	GetAccountIdsForDateRange(context.Context, int64, int64, GetAccountIdsCallbackFunc) error
 	GetAccountWithId(context.Context, int64) (*Account, error)
 	GetAccountWithName(context.Context, string) (*Account, error)
 	AddAccount(context.Context, *Account) error

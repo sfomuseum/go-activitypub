@@ -10,10 +10,11 @@ import (
 	"github.com/aaronland/go-roster"
 )
 
+type GetBlockIdsCallbackFunc func(context.Context, int64) error
 type GetBlocksCallbackFunc func(context.Context, *Block) error
 
 type BlocksDatabase interface {
-	// GetBlocksForAccount(context.Context, int64, GetBlocksCallbackFunc) error
+	GetBlockIdsForDateRange(context.Context, int64, int64, GetBlockIdsCallbackFunc) error
 	GetBlockWithAccountIdAndAddress(context.Context, int64, string, string) (*Block, error)
 	GetBlockWithId(context.Context, int64) (*Block, error)
 	AddBlock(context.Context, *Block) error

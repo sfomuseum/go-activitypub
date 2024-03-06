@@ -10,10 +10,11 @@ import (
 	"github.com/aaronland/go-roster"
 )
 
+type GetNoteIdsCallbackFunc func(context.Context, int64) error
 type GetNotesCallbackFunc func(context.Context, *Note) error
 
 type NotesDatabase interface {
-	// GetNotesForAuthor(context.Context, string, GetNotesCallbackFunc) error
+	GetNoteIdsForDateRange(context.Context, int64, int64, GetNoteIdsCallbackFunc) error
 	GetNoteWithId(context.Context, int64) (*Note, error)
 	GetNoteWithUUIDAndAuthorAddress(context.Context, string, string) (*Note, error)
 	AddNote(context.Context, *Note) error

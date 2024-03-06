@@ -40,6 +40,36 @@ func NewDocstoreAccountsDatabase(ctx context.Context, uri string) (AccountsDatab
 	return db, nil
 }
 
+func (db *DocstoreAccountsDatabase) GetAccountIdsForDateRange(ctx context.Context, start int64, end int64, cb GetAccountIdsCallbackFunc) error {
+
+	q := db.collection.Query()
+	q = q.Where("Created", ">=", start)
+	q = q.Where("Created", "<=", end)
+
+	iter := q.Get(ctx)
+	defer iter.Stop()
+
+	for {
+
+		var a Account
+		err := iter.Next(ctx, &a)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			err := cb(ctx, a.Id)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for account %d, %w", a.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreAccountsDatabase) AddAccount(ctx context.Context, a *Account) error {
 
 	return db.collection.Put(ctx, a)
@@ -61,28 +91,25 @@ func (db *DocstoreAccountsDatabase) GetAccountWithName(ctx context.Context, name
 	return db.getAccount(ctx, q)
 }
 
+func (db *DocstoreAccountsDatabase) Close(ctx context.Context) error {
+	return db.collection.Close()
+}
+
 func (db *DocstoreAccountsDatabase) getAccount(ctx context.Context, q *gc_docstore.Query) (*Account, error) {
 
 	iter := q.Get(ctx)
 	defer iter.Stop()
 
-	for {
+	var a Account
+	err := iter.Next(ctx, &a)
 
-		var a Account
-		err := iter.Next(ctx, &a)
-
-		if err == io.EOF {
-			return nil, ErrNotFound
-		} else if err != nil {
-			return nil, fmt.Errorf("Failed to interate, %w", err)
-		} else {
-			return &a, nil
-		}
+	if err == io.EOF {
+		return nil, ErrNotFound
+	} else if err != nil {
+		return nil, fmt.Errorf("Failed to interate, %w", err)
+	} else {
+		return &a, nil
 	}
 
 	return nil, ErrNotFound
-}
-
-func (db *DocstoreAccountsDatabase) Close(ctx context.Context) error {
-	return db.collection.Close()
 }

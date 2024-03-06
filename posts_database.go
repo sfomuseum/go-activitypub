@@ -10,7 +10,10 @@ import (
 	"github.com/aaronland/go-roster"
 )
 
+type GetPostIdsCallbackFunc func(context.Context, int64) error
+
 type PostsDatabase interface {
+	GetPostIdsForDateRange(context.Context, int64, int64, GetPostIdsCallbackFunc) error
 	GetPostWithId(context.Context, int64) (*Post, error)
 	AddPost(context.Context, *Post) error
 	RemovePost(context.Context, *Post) error

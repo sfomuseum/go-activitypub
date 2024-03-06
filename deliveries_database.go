@@ -10,6 +10,7 @@ import (
 	"github.com/aaronland/go-roster"
 )
 
+type GetDeliveryIdsCallbackFunc func(context.Context, int64) error
 type GetDeliveriesCallbackFunc func(context.Context, *Delivery) error
 
 type GetDeliveriesQuery struct {
@@ -21,6 +22,7 @@ type GetDeliveriesQuery struct {
 }
 
 type DeliveriesDatabase interface {
+	GetDeliveryIdsForDateRange(context.Context, int64, int64, GetDeliveryIdsCallbackFunc) error
 	AddDelivery(context.Context, *Delivery) error
 	GetDeliveryWithId(context.Context, int64) (*Delivery, error)
 	GetDeliveriesWithPostIdAndRecipient(context.Context, int64, string, GetDeliveriesCallbackFunc) error
