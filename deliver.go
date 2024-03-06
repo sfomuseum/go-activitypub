@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"time"
 
+	"encoding/json"
+
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/id"
 	"github.com/sfomuseum/go-activitypub/uris"
@@ -143,6 +145,13 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		d.Error = err.Error()
 		return fmt.Errorf("Failed to derive note from post, %w", err)
 	}
+
+	//
+
+	enc, _ := json.Marshal(note)
+	fmt.Printf("\n\n%s\n\n", string(enc))
+
+	//
 
 	from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
 

@@ -978,7 +978,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 								continue
 							}
 
-							if t.Name == acct_name {
+							t_name := strings.TrimLeft(t.Name, "@")
+
+							if t_name == acct_name {
 								is_mentioned = true
 								break
 							}
@@ -1021,13 +1023,13 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				logger = logger.With("note id", db_note.Id)
 
-				if bytes.Equal(enc_obj, db_note.Body) {
+				if bytes.Equal(enc_obj, []byte(db_note.Body)) {
 					logger.Error("Note already registered")
 					http.Error(rsp, "Bad request", http.StatusBadRequest)
 					return
 				}
 
-				db_note.Body = enc_obj
+				db_note.Body = string(enc_obj)
 				db_note.LastModified = ts
 
 				err = opts.NotesDatabase.UpdateNote(ctx, db_note)
@@ -1040,7 +1042,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			} else {
 
-				new_note, err := activitypub.AddNote(ctx, opts.NotesDatabase, note_uuid, requestor_address, enc_obj)
+				new_note, err := activitypub.AddNote(ctx, opts.NotesDatabase, note_uuid, requestor_address, string(enc_obj))
 
 				if err != nil {
 					logger.Error("Failed to create new note", "error", err)

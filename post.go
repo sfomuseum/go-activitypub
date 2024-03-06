@@ -73,12 +73,14 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, pos
 		Type:         "Note",
 		Id:           post_url.String(),
 		AttributedTo: attr,
-		To:           "https://www.w3.org/ns/activitystreams#Public", // what?
-		Content:      post.Body,
-		Published:    t.Format(http.TimeFormat),
-		InReplyTo:    post.InReplyTo,
-		Tags:         tags,
-		URL:          post_url.String(),
+		To: []string{
+			"https://www.w3.org/ns/activitystreams#Public", // what?
+		},
+		Content:   post.Body,
+		Published: t.Format(http.TimeFormat),
+		InReplyTo: post.InReplyTo,
+		Tags:      tags,
+		URL:       post_url.String(),
 	}
 
 	return n, nil

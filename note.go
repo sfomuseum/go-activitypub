@@ -13,12 +13,12 @@ type Note struct {
 	Id            int64  `json:"id"`
 	UUID          string `json:"uuid"`
 	AuthorAddress string `json:"author_address"`
-	Body          []byte `json:"body"`
+	Body          string `json:"body"`
 	Created       int64  `json:"created"`
 	LastModified  int64  `json:"lastmodified"`
 }
 
-func AddNote(ctx context.Context, db NotesDatabase, uuid string, author string, body []byte) (*Note, error) {
+func AddNote(ctx context.Context, db NotesDatabase, uuid string, author string, body string) (*Note, error) {
 
 	slog.Debug("Add note", "uuid", uuid, "author", author)
 
@@ -38,7 +38,7 @@ func AddNote(ctx context.Context, db NotesDatabase, uuid string, author string, 
 	return n, nil
 }
 
-func NewNote(ctx context.Context, uuid string, author string, body []byte) (*Note, error) {
+func NewNote(ctx context.Context, uuid string, author string, body string) (*Note, error) {
 
 	slog.Debug("Create new note", "uuid", uuid, "author", author)
 
