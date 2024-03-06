@@ -18,6 +18,10 @@ func NewNullBoostsDatabase(ctx context.Context, uri string) (BoostsDatabase, err
 	return db, nil
 }
 
+func (db *NullBoostsDatabase) GetBoostIdsForDateRange(ctx context.Context, start int64, end int64, cb GetBoostIdsCallbackFunc) error {
+	return nil
+}
+
 func (db *NullBoostsDatabase) GetBoostWithId(ctx context.Context, id int64) (*Boost, error) {
 	return nil, ErrNotFound
 }

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/url"
 
+	pg_sql "github.com/aaronland/go-pagination-sql"
+	"github.com/aaronland/go-pagination/countable"
 	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
@@ -54,6 +56,57 @@ func NewSQLBlocksDatabase(ctx context.Context, uri string) (BlocksDatabase, erro
 	}
 
 	return db, nil
+}
+
+func (db *SQLBlocksDatabase) GetBlockIdsForDateRange(ctx context.Context, start int64, end int64, cb GetBlockIdsCallbackFunc) error {
+
+	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
+
+		rows := pg_rsp.Rows()
+
+		for rows.Next() {
+
+			var id int64
+
+			err := rows.Scan(&id)
+
+			if err != nil {
+				return fmt.Errorf("Failed to query database, %w", err)
+			}
+
+			err = cb(ctx, id)
+
+			if err != nil {
+				return fmt.Errorf("Failed to execute following callback for block %d, %w", id, err)
+			}
+
+			return nil
+		}
+
+		err := rows.Close()
+
+		if err != nil {
+			return fmt.Errorf("Failed to iterate through database rows, %w", err)
+		}
+
+		return nil
+	}
+
+	pg_opts, err := countable.NewCountableOptions()
+
+	if err != nil {
+		return fmt.Errorf("Failed to create pagination options, %w", err)
+	}
+
+	q := fmt.Sprintf("SELECT id FROM %s WHERE created >= ? AND created <= ?", SQL_BLOCKS_TABLE_NAME)
+
+	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q, start, end)
+
+	if err != nil {
+		return fmt.Errorf("Failed to execute paginated query, %w", err)
+	}
+
+	return nil
 }
 
 func (db *SQLBlocksDatabase) GetBlockWithId(ctx context.Context, block_id int64) (*Block, error) {

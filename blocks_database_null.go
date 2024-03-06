@@ -18,6 +18,10 @@ func NewNullBlocksDatabase(ctx context.Context, uri string) (BlocksDatabase, err
 	return db, nil
 }
 
+func (db *NullBlocksDatabase) GetBlockIdsForDateRange(ctx context.Context, start int64, end int64, cb GetBlockIdsCallbackFunc) error {
+	return nil
+}
+
 func (db *NullBlocksDatabase) IsBlockedByAccount(ctx context.Context, account_id int64, host string, name string) (bool, error) {
 	return false, nil
 }

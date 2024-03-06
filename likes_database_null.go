@@ -18,6 +18,10 @@ func NewNullLikesDatabase(ctx context.Context, uri string) (LikesDatabase, error
 	return db, nil
 }
 
+func (db *NullLikesDatabase) GetLikeIdsForDateRange(ctx context.Context, start int64, end int64, cb GetLikeIdsCallbackFunc) error {
+	return nil
+}
+
 func (db *NullLikesDatabase) GetLikeWithId(ctx context.Context, id int64) (*Like, error) {
 	return nil, ErrNotFound
 }
