@@ -18,6 +18,10 @@ var DynamoDBFollowersTable = &dynamodb.CreateTableInput{
 			AttributeType: aws.String("N"),
 		},
 		{
+			AttributeName: aws.String("Created"),
+			AttributeType: aws.String("N"),
+		},
+		{
 			AttributeName: aws.String("AccountId"),
 			AttributeType: aws.String("N"),
 		},
@@ -43,20 +47,19 @@ var DynamoDBFollowersTable = &dynamodb.CreateTableInput{
 				ProjectionType: aws.String("ALL"),
 			},
 		},
-		/*
-			{
-				IndexName: aws.String("created"),
-				KeySchema: []*dynamodb.KeySchemaElement{
-					{
-						AttributeName: aws.String("Created"),
-						KeyType:       aws.String("HASH"),
-					},
-				},
-				Projection: &dynamodb.Projection{
-					ProjectionType: aws.String("ALL"),
+
+		{
+			IndexName: aws.String("created"),
+			KeySchema: []*dynamodb.KeySchemaElement{
+				{
+					AttributeName: aws.String("Created"),
+					KeyType:       aws.String("HASH"),
 				},
 			},
-		*/
+			Projection: &dynamodb.Projection{
+				ProjectionType: aws.String("KEYS_ONLY"),
+			},
+		},
 	},
 	BillingMode: BILLING_MODE,
 	TableName:   &FOLLOWERS_TABLE_NAME,

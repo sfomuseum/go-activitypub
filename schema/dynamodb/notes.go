@@ -56,7 +56,7 @@ var DynamoDBNotesTable = &dynamodb.CreateTableInput{
 				},
 			},
 			Projection: &dynamodb.Projection{
-				ProjectionType: aws.String("ALL"),
+				ProjectionType: aws.String("KEYS_ONLY"),
 			},
 		},
 	},

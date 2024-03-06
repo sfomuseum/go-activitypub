@@ -83,6 +83,18 @@ var DynamoDBPostTagsTable = &dynamodb.CreateTableInput{
 				ProjectionType: aws.String("ALL"),
 			},
 		},
+		{
+			IndexName: aws.String("by_created"),
+			KeySchema: []*dynamodb.KeySchemaElement{
+				{
+					AttributeName: aws.String("Created"),
+					KeyType:       aws.String("HASH"),
+				},
+			},
+			Projection: &dynamodb.Projection{
+				ProjectionType: aws.String("KEYS_ONLY"),
+			},
+		},
 	},
 	BillingMode: BILLING_MODE,
 	TableName:   &POST_TAGS_TABLE_NAME,

@@ -42,12 +42,6 @@ var DynamoDBBlocksTable = &dynamodb.CreateTableInput{
 					AttributeName: aws.String("Host"),
 					KeyType:       aws.String("RANGE"),
 				},
-				/*
-					{
-						AttributeName: aws.String("Name"),
-						KeyType:       aws.String("HASH"),
-					},
-				*/
 			},
 			Projection: &dynamodb.Projection{
 				ProjectionType: aws.String("ALL"),
@@ -67,6 +61,18 @@ var DynamoDBBlocksTable = &dynamodb.CreateTableInput{
 			},
 			Projection: &dynamodb.Projection{
 				ProjectionType: aws.String("ALL"),
+			},
+		},
+		{
+			IndexName: aws.String("by_created"),
+			KeySchema: []*dynamodb.KeySchemaElement{
+				{
+					AttributeName: aws.String("Created"),
+					KeyType:       aws.String("HASH"),
+				},
+			},
+			Projection: &dynamodb.Projection{
+				ProjectionType: aws.String("KEYS_ONLY"),
 			},
 		},
 	},

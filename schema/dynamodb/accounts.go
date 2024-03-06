@@ -40,7 +40,7 @@ var DynamoDBAccountsTable = &dynamodb.CreateTableInput{
 			},
 		},
 		{
-			IndexName: aws.String("created"),
+			IndexName: aws.String("by_created"),
 			KeySchema: []*dynamodb.KeySchemaElement{
 				{
 					AttributeName: aws.String("Created"),
@@ -48,7 +48,7 @@ var DynamoDBAccountsTable = &dynamodb.CreateTableInput{
 				},
 			},
 			Projection: &dynamodb.Projection{
-				ProjectionType: aws.String("ALL"),
+				ProjectionType: aws.String("KEYS_ONLY"),
 			},
 		},
 	},

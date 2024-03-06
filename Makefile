@@ -53,18 +53,17 @@ LIKES_DB_URI=sql://sqlite3?dsn=$(LIKES_DB)
 
 
 ACCOUNTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true
+ALIASES_DB_URI=awsdynamodb://$(TABLE_PREFIX)aliases?partition_key=Name&allow_scans=true&local=true
+BLOCKS_DB_URI=awsdynamodb://$(TABLE_PREFIX)blocks?partition_key=Id&allow_scans=true&local=true
+BOOSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)boosts?partition_key=Id&allow_scans=true&local=true
+DELIVERIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)deliveries?partition_key=Id&allow_scans=true&local=true
 FOLLOWING_DB_URI=awsdynamodb://$(TABLE_PREFIX)following?partition_key=Id&allow_scans=true&local=true
 FOLLOWERS_DB_URI=awsdynamodb://$(TABLE_PREFIX)followers?partition_key=Id&allow_scans=true&local=true
-BLOCKS_DB_URI=awsdynamodb://$(TABLE_PREFIX)blocks?partition_key=Id&allow_scans=true&local=true
+LIKES_DB_URI=awsdynamodb://$(TABLE_PREFIX)likes?partition_key=Id&allow_scans=true&local=true
 NOTES_DB_URI=awsdynamodb://$(TABLE_PREFIX)notes?partition_key=Id&allow_scans=true&local=true
-POSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)posts?partition_key=Id&allow_scans=true&local=true
-POST_TAGS_DB_URI=awsdynamodb://$(TABLE_PREFIX)post_tags?partition_key=Id&allow_scans=true&local=true
 MESSAGES_DB_URI=awsdynamodb://$(TABLE_PREFIX)messages?partition_key=Id&allow_scans=true&local=true
-DELIVERIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)deliveries?partition_key=Id&allow_scans=true&local=true
-ALIASES_DB_URI=awsdynamodb://$(TABLE_PREFIX)aliases?partition_key=Name&allow_scans=true&local=true
-BOOSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)boosts?partition_key=Name&allow_scans=true&local=true
-LIKES_DB_URI=awsdynamodb://$(TABLE_PREFIX)likes?partition_key=Name&allow_scans=true&local=true
-REPLIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)replies?partition_key=Name&allow_scans=true&local=true
+POST_TAGS_DB_URI=awsdynamodb://$(TABLE_PREFIX)post_tags?partition_key=Id&allow_scans=true&local=true
+POSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)posts?partition_key=Id&allow_scans=true&local=true
 
 db-sqlite:
 	rm -f *.db
