@@ -116,6 +116,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	counts_opts := &stats.CountsForDateOptions{
 		Date:               opts.Date,
+		Location:           opts.Location,
 		AccountsDatabase:   accounts_db,
 		BlocksDatabase:     blocks_db,
 		BoostsDatabase:     boosts_db,

@@ -3,14 +3,17 @@ package stats
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/sfomuseum/go-activitypub"
 )
 
 type Counts struct {
 	Date       string `json:"date"`
+	Location   string `json:"location"`
 	Accounts   int64  `json:"accounts"`
 	Blocks     int64  `json:"blocks"`
 	Boosts     int64  `json:"boosts"`
@@ -25,6 +28,7 @@ type Counts struct {
 
 type CountsForDateOptions struct {
 	Date               string
+	Location           string
 	AccountsDatabase   activitypub.AccountsDatabase
 	BlocksDatabase     activitypub.BlocksDatabase
 	BoostsDatabase     activitypub.BoostsDatabase
@@ -43,6 +47,28 @@ func CountsForDate(ctx context.Context, opts *CountsForDateOptions) (*Counts, er
 		Date: opts.Date,
 	}
 
+	t, err := time.Parse("2006-01-02", opts.Date)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse day, %w", err)
+	}
+
+	if opts.Location != "" {
+
+		loc, err := time.LoadLocation(opts.Location)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to load location, %w", err)
+		}
+
+		t = t.In(loc)
+	}
+
+	start := t.Unix()
+	end := start + ONEDAY
+
+	slog.Debug("Get counts for date", "date", opts.Date, "location", opts.Location, "start", start, "end", end)
+
 	done_ch := make(chan bool)
 	err_ch := make(chan error)
 
@@ -57,7 +83,7 @@ func CountsForDate(ctx context.Context, opts *CountsForDateOptions) (*Counts, er
 
 		atomic.AddInt32(&remaining, 1)
 
-		i, err := CountAccountsForDay(ctx, opts.AccountsDatabase, opts.Date)
+		i, err := CountAccountsForDateRange(ctx, opts.AccountsDatabase, start, end)
 
 		if err != nil {
 			err_ch <- fmt.Errorf("Failed to derive counts for accounts, %w", err)
@@ -78,7 +104,7 @@ func CountsForDate(ctx context.Context, opts *CountsForDateOptions) (*Counts, er
 			done_ch <- true
 		}()
 
-		i, err := CountBlocksForDay(ctx, opts.BlocksDatabase, opts.Date)
+		i, err := CountBlocksForDateRange(ctx, opts.BlocksDatabase, start, end)
 
 		if err != nil {
 			err_ch <- fmt.Errorf("Failed to derive counts for blocks, %w", err)
@@ -99,7 +125,7 @@ func CountsForDate(ctx context.Context, opts *CountsForDateOptions) (*Counts, er
 			done_ch <- true
 		}()
 
-		i, err := CountBoostsForDay(ctx, opts.BoostsDatabase, opts.Date)
+		i, err := CountBoostsForDateRange(ctx, opts.BoostsDatabase, start, end)
 
 		if err != nil {
 			err_ch <- fmt.Errorf("Failed to derive counts for boosts, %w", err)
@@ -120,7 +146,28 @@ func CountsForDate(ctx context.Context, opts *CountsForDateOptions) (*Counts, er
 			done_ch <- true
 		}()
 
-		i, err := CountFollowersForDay(ctx, opts.FollowersDatabase, opts.Date)
+		i, err := CountDeliveriesForDateRange(ctx, opts.DeliveriesDatabase, start, end)
+
+		if err != nil {
+			err_ch <- fmt.Errorf("Failed to derive counts for deliveries, %w", err)
+			return
+		}
+
+		mu.Lock()
+		defer mu.Unlock()
+
+		counts.Deliveries = i
+	}()
+
+	go func() {
+
+		atomic.AddInt32(&remaining, 1)
+
+		defer func() {
+			done_ch <- true
+		}()
+
+		i, err := CountFollowersForDateRange(ctx, opts.FollowersDatabase, start, end)
 
 		if err != nil {
 			err_ch <- fmt.Errorf("Failed to derive counts for followers, %w", err)
@@ -141,7 +188,7 @@ func CountsForDate(ctx context.Context, opts *CountsForDateOptions) (*Counts, er
 			done_ch <- true
 		}()
 
-		i, err := CountFollowingForDay(ctx, opts.FollowingDatabase, opts.Date)
+		i, err := CountFollowingForDateRange(ctx, opts.FollowingDatabase, start, end)
 
 		if err != nil {
 			err_ch <- fmt.Errorf("Failed to derive counts for following, %w", err)
@@ -162,7 +209,7 @@ func CountsForDate(ctx context.Context, opts *CountsForDateOptions) (*Counts, er
 			done_ch <- true
 		}()
 
-		i, err := CountLikesForDay(ctx, opts.LikesDatabase, opts.Date)
+		i, err := CountLikesForDateRange(ctx, opts.LikesDatabase, start, end)
 
 		if err != nil {
 			err_ch <- fmt.Errorf("Failed to derive counts for likes, %w", err)
@@ -183,7 +230,7 @@ func CountsForDate(ctx context.Context, opts *CountsForDateOptions) (*Counts, er
 			done_ch <- true
 		}()
 
-		i, err := CountMessagesForDay(ctx, opts.MessagesDatabase, opts.Date)
+		i, err := CountMessagesForDateRange(ctx, opts.MessagesDatabase, start, end)
 
 		if err != nil {
 			err_ch <- fmt.Errorf("Failed to derive counts for messages, %w", err)
@@ -204,7 +251,7 @@ func CountsForDate(ctx context.Context, opts *CountsForDateOptions) (*Counts, er
 			done_ch <- true
 		}()
 
-		i, err := CountNotesForDay(ctx, opts.NotesDatabase, opts.Date)
+		i, err := CountNotesForDateRange(ctx, opts.NotesDatabase, start, end)
 
 		if err != nil {
 			err_ch <- fmt.Errorf("Failed to derive counts for notes, %w", err)
@@ -225,7 +272,7 @@ func CountsForDate(ctx context.Context, opts *CountsForDateOptions) (*Counts, er
 			done_ch <- true
 		}()
 
-		i, err := CountPostsForDay(ctx, opts.PostsDatabase, opts.Date)
+		i, err := CountPostsForDateRange(ctx, opts.PostsDatabase, start, end)
 
 		if err != nil {
 			err_ch <- fmt.Errorf("Failed to derive counts for posts, %w", err)

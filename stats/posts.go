@@ -3,24 +3,9 @@ package stats
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/sfomuseum/go-activitypub"
 )
-
-func CountPostsForDay(ctx context.Context, posts_db activitypub.PostsDatabase, day string) (int64, error) {
-
-	t, err := time.Parse("2006-01-02", day)
-
-	if err != nil {
-		return 0, fmt.Errorf("Failed to parse day, %w", err)
-	}
-
-	start := t.Unix()
-	end := start + ONEDAY
-
-	return CountPostsForDateRange(ctx, posts_db, start, end)
-}
 
 func CountPostsForDateRange(ctx context.Context, posts_db activitypub.PostsDatabase, start int64, end int64) (int64, error) {
 

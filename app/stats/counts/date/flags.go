@@ -18,6 +18,8 @@ var posts_database_uri string
 var deliveries_database_uri string
 
 var date string
+var location string
+
 var verbose bool
 
 func DefaultFlagSet() *flag.FlagSet {
@@ -36,6 +38,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&deliveries_database_uri, "deliveries-database-uri", "", "...")
 
 	fs.StringVar(&date, "date", "", "...")
+	fs.StringVar(&location, "location", "America/Los_Angeles", "...")
 	fs.BoolVar(&verbose, "verbose", false, "Enable verbose logging")
 	return fs
 }

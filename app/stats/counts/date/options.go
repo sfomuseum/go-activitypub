@@ -20,6 +20,7 @@ type RunOptions struct {
 	LikesDatabaseURI      string
 	BoostsDatabaseURI     string
 	Date                  string
+	Location              string
 	Verbose               bool
 }
 
@@ -45,6 +46,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		LikesDatabaseURI:      likes_database_uri,
 		BoostsDatabaseURI:     boosts_database_uri,
 		Date:                  date,
+		Location:              location,
 		Verbose:               verbose,
 	}
 
