@@ -10,29 +10,31 @@ import (
 )
 
 type Counts struct {
-	Date      string `json:"date"`
-	Accounts  int64  `json:"accounts"`
-	Blocks    int64  `json:"blocks"`
-	Boosts    int64  `json:"boosts"`
-	Followers int64  `json:"followers"`
-	Following int64  `json:"following"`
-	Likes     int64  `json:"likes"`
-	Messages  int64  `json:"messages"`
-	Notes     int64  `json:"notes"`
-	Posts     int64  `json:"posts"`
+	Date       string `json:"date"`
+	Accounts   int64  `json:"accounts"`
+	Blocks     int64  `json:"blocks"`
+	Boosts     int64  `json:"boosts"`
+	Deliveries int64  `json:"deliveries"`
+	Followers  int64  `json:"followers"`
+	Following  int64  `json:"following"`
+	Likes      int64  `json:"likes"`
+	Messages   int64  `json:"messages"`
+	Notes      int64  `json:"notes"`
+	Posts      int64  `json:"posts"`
 }
 
 type CountsForDateOptions struct {
-	Date              string
-	AccountsDatabase  activitypub.AccountsDatabase
-	BlocksDatabase    activitypub.BlocksDatabase
-	BoostsDatabase    activitypub.BoostsDatabase
-	FollowersDatabase activitypub.FollowersDatabase
-	FollowingDatabase activitypub.FollowingDatabase
-	LikesDatabase     activitypub.LikesDatabase
-	MessagesDatabase  activitypub.MessagesDatabase
-	NotesDatabase     activitypub.NotesDatabase
-	PostsDatabase     activitypub.PostsDatabase
+	Date               string
+	AccountsDatabase   activitypub.AccountsDatabase
+	BlocksDatabase     activitypub.BlocksDatabase
+	BoostsDatabase     activitypub.BoostsDatabase
+	DeliveriesDatabase activitypub.DeliveriesDatabase
+	FollowersDatabase  activitypub.FollowersDatabase
+	FollowingDatabase  activitypub.FollowingDatabase
+	LikesDatabase      activitypub.LikesDatabase
+	MessagesDatabase   activitypub.MessagesDatabase
+	NotesDatabase      activitypub.NotesDatabase
+	PostsDatabase      activitypub.PostsDatabase
 }
 
 func CountsForDate(ctx context.Context, opts *CountsForDateOptions) (*Counts, error) {
