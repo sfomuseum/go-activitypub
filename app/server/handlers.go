@@ -262,3 +262,29 @@ func followersHandlerFunc(ctx context.Context) (http.Handler, error) {
 
 	return www.FollowersHandler(opts)
 }
+
+func postHandlerFunc(ctx context.Context) (http.Handler, error) {
+
+	setupAccountsDatabaseOnce.Do(setupAccountsDatabase)
+
+	if setupAccountsDatabaseError != nil {
+		slog.Error("Failed to set up account database configuration", "error", setupAccountsDatabaseError)
+		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAccountsDatabaseError)
+	}
+
+	setupPostsDatabaseOnce.Do(setupPostsDatabase)
+
+	if setupPostsDatabaseError != nil {
+		slog.Error("Failed to set up follower database configuration", "error", setupPostsDatabaseError)
+		return nil, fmt.Errorf("Failed to set up follower database configuration, %w", setupPostsDatabaseError)
+	}
+
+	opts := &www.PostHandlerOptions{
+		AccountsDatabase: accounts_db,
+		PostsDatabase:    posts_db,
+		URIs:             run_opts.URIs,
+		Templates:        run_opts.Templates,
+	}
+
+	return www.PostHandler(opts)
+}

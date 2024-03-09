@@ -21,15 +21,17 @@ type PostHandlerOptions struct {
 }
 
 type PostHandlerVars struct {
-	Post    *activitypub.Post
-	Account *activitypub.Account
+	Post       *activitypub.Post
+	Account    *activitypub.Account
+	AccountURL string
+	IconURL    string
 }
 
 func PostHandler(opts *PostHandlerOptions) (http.Handler, error) {
 
 	post_t := opts.Templates.Lookup("post")
 
-	if post_t != nil {
+	if post_t == nil {
 		return nil, fmt.Errorf("Failed to lookup 'post' template")
 	}
 
@@ -133,11 +135,18 @@ func PostHandler(opts *PostHandlerOptions) (http.Handler, error) {
 
 		acct.PrivateKeyURI = "constant://?val="
 
+		account_url := acct.AccountURL(ctx, opts.URIs)
+
+		icon_path := uris.AssignResource(opts.URIs.Icon, acct.Name)
+		icon_url := uris.NewURL(opts.URIs, icon_path)
+
 		// Render template
 
 		vars := PostHandlerVars{
-			Account: acct,
-			Post:    post,
+			Account:    acct,
+			Post:       post,
+			IconURL:    icon_url.String(),
+			AccountURL: account_url.String(),
 		}
 
 		rsp.Header().Set("Content-Type", "text/html")
