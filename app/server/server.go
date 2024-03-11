@@ -66,17 +66,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		outbox_get:              outboxGetHandlerFunc,
 	}
 
-	for path, h := range run_opts.CustomRouteHandlerFuncs {
-
-		_, exists := handlers[path]
-
-		if exists {
-			return fmt.Errorf("Handler at path '%s' already registered", path)
-		}
-
-		handlers[path] = h
-	}
-
 	log_logger := slog.NewLogLogger(logger.Handler(), slog.LevelInfo)
 
 	route_handler_opts := &handler.RouteHandlerOptions{
@@ -92,6 +81,15 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	mux := http.NewServeMux()
 	mux.Handle("/", route_handler)
+
+	if run_opts.CustomHandlers != nil {
+
+		err = run_opts.CustomHandlers(mux)
+
+		if err != nil {
+			return fmt.Errorf("Custom handlers function failed, %w", err)
+		}
+	}
 
 	s, err := server.NewServer(ctx, opts.ServerURI)
 
