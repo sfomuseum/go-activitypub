@@ -22,6 +22,7 @@ type PostHandlerOptions struct {
 
 type PostHandlerVars struct {
 	Post       *activitypub.Post
+	PostBody   template.HTML
 	Account    *activitypub.Account
 	AccountURL string
 	IconURL    string
@@ -145,6 +146,7 @@ func PostHandler(opts *PostHandlerOptions) (http.Handler, error) {
 		vars := PostHandlerVars{
 			Account:    acct,
 			Post:       post,
+			PostBody:   template.HTML(post.Body),
 			IconURL:    icon_url.String(),
 			AccountURL: account_url.String(),
 		}
