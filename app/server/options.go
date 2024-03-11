@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"net/http"
 	"net/url"
 
 	"github.com/mitchellh/copystructure"
@@ -12,6 +13,8 @@ import (
 	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/sfomuseum/go-flags/flagset"
 )
+
+type MiddlewareFunc func(http.Handler) http.Handler
 
 type RunOptions struct {
 	ServerURI            string
@@ -33,6 +36,9 @@ type RunOptions struct {
 	AllowRemoteIconURI   bool
 	Verbose              bool
 	Templates            *template.Template
+
+	AccountHandlerMiddleware MiddlewareFunc
+	PostHandlerMiddleware    MiddlewareFunc
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {

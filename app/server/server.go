@@ -51,17 +51,19 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	post_get := fmt.Sprintf("GET %s", run_opts.URIs.Post)
 
 	handlers := map[string]handler.RouteHandlerFunc{
-		webfinger_get: webfingerHandlerFunc,
-		account_get:   accountHandlerFunc,
-		inbox_post:    inboxPostHandlerFunc,
-		outbox_get:    outboxGetHandlerFunc,
-		post_get:      postHandlerFunc,
+
+		// HTML (human-facing) pages that may need or want custom chrome
+		account_get: accountHandlerFunc,
+		post_get:    postHandlerFunc,
 
 		// This needs to be fixed in aaronland/go-http-server/handler
 		// outbox_post:              outboxPostHandlerFunc,
 		run_opts.URIs.Icon:      iconHandlerFunc,
 		run_opts.URIs.Following: followingHandlerFunc,
 		run_opts.URIs.Followers: followersHandlerFunc,
+		webfinger_get:           webfingerHandlerFunc,
+		inbox_post:              inboxPostHandlerFunc,
+		outbox_get:              outboxGetHandlerFunc,
 	}
 
 	log_logger := slog.NewLogLogger(logger.Handler(), slog.LevelInfo)
