@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/aaronland/go-http-server/handler"
 	"github.com/mitchellh/copystructure"
 	"github.com/sfomuseum/go-activitypub/templates/html"
 	"github.com/sfomuseum/go-activitypub/uris"
@@ -39,6 +40,7 @@ type RunOptions struct {
 
 	AccountHandlerMiddleware MiddlewareFunc
 	PostHandlerMiddleware    MiddlewareFunc
+	CustomRouteHandlerFuncs  map[string]handler.RouteHandlerFunc
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {

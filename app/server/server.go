@@ -66,6 +66,17 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		outbox_get:              outboxGetHandlerFunc,
 	}
 
+	for path, h := range run_opts.CustomRouteHandlerFuncs {
+
+		_, exists := handlers[path]
+
+		if exists {
+			return fmt.Errorf("Handler at path '%s' already registered", path)
+		}
+
+		handlers[path] = h
+	}
+
 	log_logger := slog.NewLogLogger(logger.Handler(), slog.LevelInfo)
 
 	route_handler_opts := &handler.RouteHandlerOptions{
