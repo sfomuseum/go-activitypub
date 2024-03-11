@@ -25,6 +25,7 @@ type PostHandlerVars struct {
 	PostBody   template.HTML
 	Account    *activitypub.Account
 	AccountURL string
+	PostURL    string
 	IconURL    string
 }
 
@@ -138,6 +139,8 @@ func PostHandler(opts *PostHandlerOptions) (http.Handler, error) {
 
 		account_url := acct.AccountURL(ctx, opts.URIs)
 
+		post_url := acct.PostURL(ctx, opts.URIs, post)
+
 		icon_path := uris.AssignResource(opts.URIs.Icon, acct.Name)
 		icon_url := uris.NewURL(opts.URIs, icon_path)
 
@@ -149,6 +152,7 @@ func PostHandler(opts *PostHandlerOptions) (http.Handler, error) {
 			PostBody:   template.HTML(post.Body),
 			IconURL:    icon_url.String(),
 			AccountURL: account_url.String(),
+			PostURL:    post_url.String(),
 		}
 
 		rsp.Header().Set("Content-Type", "text/html")

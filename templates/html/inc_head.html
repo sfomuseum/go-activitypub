@@ -1,0 +1,30 @@
+{{ define "inc_head" -}}
+<!DOCTYPE html>
+<html>
+    <head>
+	<meta charset="utf-8" />
+	<meta http-equiv="x-ua-compatible" content="ie=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>{{ if (IsAvailable "Account" .) }}{{ .Account.DisplayName }}{{ end }}</title>
+	{{ if (IsAvailable "AccountURL" .) }}<link href="{{ .AccountURL }}" rel="alternate" type="application/activity+json">{{ end }}
+	<style type="text/css">
+	 h1 a { text-decoration: none !important; }
+	 h1 img { max-width:48px; max-height: 48px;margin-right:.5rem; }
+	 .post {
+		 margin:2rem !important;
+		 padding: 1rem;
+	 }
+	 .post-body {
+		 font-size:2rem;
+		 font-family: serif;
+	 }
+	 .post-date {
+		 font-size: small;
+	 }
+	</style>
+    </head>
+    <body>
+	<header>
+	    <h1><img src="{{ .IconURL }}" height="48" width="48"/>{{ if (IsAvailable "AccountURL" .) }}<a href="{{ .AccountURL }}">{{ .Account.Name }}</a>{{ else }} {{ .Account.Name }}{{ end }}</h1>
+	</header>
+{{ end }}
