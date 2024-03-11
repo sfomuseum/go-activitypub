@@ -14,30 +14,34 @@ import (
 	"github.com/sfomuseum/go-flags/flagset"
 )
 
+// MiddlewareFunc is an optional function for applying custom middleware
+// to human-facing web pages.
 type MiddlewareFunc func(http.Handler) http.Handler
+
+// CustomHandlersFunc is an optional function for assigning custom handlers
+// to a [http.ServeMux] instance.
 type CustomHandlersFunc func(*http.ServeMux) error
 
 type RunOptions struct {
-	ServerURI            string
-	URIs                 *uris.URIs
-	AccountsDatabaseURI  string
-	AliasesDatabaseURI   string
-	FollowersDatabaseURI string
-	FollowingDatabaseURI string
-	NotesDatabaseURI     string
-	MessagesDatabaseURI  string
-	BlocksDatabaseURI    string
-	PostsDatabaseURI     string
-	LikesDatabaseURI     string
-	BoostsDatabaseURI    string
-	AllowFollow          bool
-	AllowCreate          bool
-	AllowLikes           bool
-	AllowBoosts          bool
-	AllowRemoteIconURI   bool
-	Verbose              bool
-	Templates            *template.Template
-
+	ServerURI                string
+	URIs                     *uris.URIs
+	AccountsDatabaseURI      string
+	AliasesDatabaseURI       string
+	FollowersDatabaseURI     string
+	FollowingDatabaseURI     string
+	NotesDatabaseURI         string
+	MessagesDatabaseURI      string
+	BlocksDatabaseURI        string
+	PostsDatabaseURI         string
+	LikesDatabaseURI         string
+	BoostsDatabaseURI        string
+	AllowFollow              bool
+	AllowCreate              bool
+	AllowLikes               bool
+	AllowBoosts              bool
+	AllowRemoteIconURI       bool
+	Verbose                  bool
+	Templates                *template.Template
 	AccountHandlerMiddleware MiddlewareFunc
 	PostHandlerMiddleware    MiddlewareFunc
 	CustomHandlers           CustomHandlersFunc
