@@ -2,6 +2,18 @@
 
 An opionated (and incomplete) ActivityPub service implementation in Go.
 
+## Background
+
+The ["Holding Hands with the "Fediverse" – ActivityPub at SFO Museum"](https://millsfield.sfomuseum.org/blog/2024/03/12/activitypub/) blog post is a good place to start. It is a long, but thorough, discussion of why, what and how SFO Museum is thinking about ActivityPub in relation to its collection and digital initiatives.
+
+## Documentation
+
+The documentation for this package is incomplete reflecting the nature of our work to first understand the mechanics, and second explore the tolerances, of the ActivityPub protocols. The closest thing to "quick start" documentation can be found in the [Example](https://github.com/sfomuseum/go-activitypub?tab=readme-ov-file#example) section of this README.
+
+In advance of more comprehensive documentation we have set a GitHub “Discussions” group where people can ask questions or offer suggestions:
+
+* https://github.com/orgs/sfomuseum/discussions/1
+
 ## Motivation
 
 I find the documentation for ActivityPub very confusing. I don't think I have any problem(s) with the underlying specification but I have not found any implementation guides that haven't left me feeling more confused than when I started. This includes the actual ActivityPub specifications published by the W3C which are no doubt thorough but, as someone with a finite of amount of competing time to devote to reading those specs, often feel counter-productive. Likewise, working implementations of the ActivityPub standards are often a confusing maze of abstractions that become necessary to do everything defined in the specs. There are some third-party guides, listed below, which are better than others but so far each one has felt incomplete in one way or another.
