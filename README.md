@@ -239,7 +239,7 @@ For example, imagine that:
 * The blue box is an AWS SQS queue
 * The green boxes are AWS Lambda functions. The `cmd/server` function will need to be configured so that it is reachable from the internet whether that means it is configured as a Lambda Function URL or "fronted" by an API Gateway instance; those details are left as an exercise to the reader.
 
-However, this same setup could be configured and deployed as:
+However, this same setup could be configured and deployed where:
 
 * The purple box is a MySQL database (with 12 separate tables)
 * The blue box is a plain-vanilla "pub-sub" style queue
