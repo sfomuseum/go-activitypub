@@ -222,8 +222,6 @@ Here is a high-level boxes-and-arrows diagram of the core components of this pac
 
 ![](docs/images/ap-arch.png)
 
-There are few important things to note:
-
 There are four main components:
 
 1. A database layer (which is anything implemeting the interfaces for the "databases" or "tables" discussed below)
