@@ -216,6 +216,39 @@ _To be written. In the meantime consult [inbox.go](inbox.go), [actor.go](actor.g
 
 ## The Code
 
+### Architecture
+
+Here is a high-level boxes-and-arrows diagram of the core components of this package:
+
+![](docs/images/ap-arch.png)
+
+There are few important things to note:
+
+There are four main components:
+
+1. A database layer (which is anything implemeting the interfaces for the "databases" or "tables" discussed below)
+2. A queueing layer which is anything that implements the "delivery queue" interface discussed below)
+3. A [cmd/deliver-post](cmd/deliver-post/main.go) application for delivering messages which can be run from the command line or as an AWS Lambda function
+4. A [cmd/server](cmd/server/main.go) application which implements a subset of the ActvityPub related resources. These are: A `/.well-known/webfinger` resource for retrieving account information; Individual account resource pages; Individual account "inbox" resources; Minimalistic "permalink" pages for individual posts.
+
+Importantly, this package does _not_ implement ActivityPub "outboxes" yet. It is assumed that individual posts are written directly to your "posts" database/table and then registered with the delivery queue explicitly in your custom code. That doesn't mean it will always be this way. It just means it's that way right now.
+
+For example, imagine that:
+
+* The purple box is an AWS DynamoDB database (with 12 separate tables)
+* The blue box is an AWS SQS queue
+* The green boxes are AWS Lambda functions. The `cmd/server` function will need to be configured so that it is reachable from the internet whether that means it is configured as a Lambda Function URL or "fronted" by an API Gateway instance; those details are left as an exercise to the reader.
+
+However, this same setup could be configured and deployed as:
+
+* The purple box is a MySQL database (with 12 separate tables)
+* The blue box is a plain-vanilla "pub-sub" style queue
+* The green boxes are long-running daemons on a plain-vanilla Linux server
+
+The point is that the code tries to be agnostic about these details. As such the code tries to define abstract "interfaces" for these high-level concepts in order to allow for a multiplicity of concrete implementations. Currently those implementations are centered on local and synchronous processes and AWS services but the hope is that it will be easy (or at least straightforward) to write custom implementations as needed.
+
+These interfaces are discussed further below.
+
 ### Databases
 
 The package liberally mixes up the terms "database" and "table". Generally each aspect of the ActivityPub service has been separated in to distinct "tables" each with its own Go language interface. For example the interface for adding and removing followers looks like this:
