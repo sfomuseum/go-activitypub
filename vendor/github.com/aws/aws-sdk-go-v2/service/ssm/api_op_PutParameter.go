@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	awsmiddleware "github.com/aws/aws-sdk-go-v2/aws/middleware"
-	"github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/service/ssm/types"
 	"github.com/aws/smithy-go/middleware"
 	smithyhttp "github.com/aws/smithy-go/transport/http"
@@ -31,10 +30,11 @@ func (c *Client) PutParameter(ctx context.Context, params *PutParameterInput, op
 type PutParameterInput struct {
 
 	// The fully qualified name of the parameter that you want to add to the system.
-	// The fully qualified name includes the complete hierarchy of the parameter path
-	// and name. For parameters in a hierarchy, you must include a leading forward
-	// slash character (/) when you create or reference a parameter. For example:
-	// /Dev/DBServer/MySQL/db-string13 Naming Constraints:
+	// You can't enter the Amazon Resource Name (ARN) for a parameter, only the
+	// parameter name itself. The fully qualified name includes the complete hierarchy
+	// of the parameter path and name. For parameters in a hierarchy, you must include
+	// a leading forward slash character (/) when you create or reference a parameter.
+	// For example: /Dev/DBServer/MySQL/db-string13 Naming Constraints:
 	//   - Parameter names are case sensitive.
 	//   - A parameter name must be unique within an Amazon Web Services Region
 	//   - A parameter name can't be prefixed with " aws " or " ssm "
@@ -242,25 +242,25 @@ func (c *Client) addOperationPutParameterMiddlewares(stack *middleware.Stack, op
 	if err = addSetLoggerMiddleware(stack, options); err != nil {
 		return err
 	}
-	if err = awsmiddleware.AddClientRequestIDMiddleware(stack); err != nil {
+	if err = addClientRequestID(stack); err != nil {
 		return err
 	}
-	if err = smithyhttp.AddComputeContentLengthMiddleware(stack); err != nil {
+	if err = addComputeContentLength(stack); err != nil {
 		return err
 	}
 	if err = addResolveEndpointMiddleware(stack, options); err != nil {
 		return err
 	}
-	if err = v4.AddComputePayloadSHA256Middleware(stack); err != nil {
+	if err = addComputePayloadSHA256(stack); err != nil {
 		return err
 	}
-	if err = addRetryMiddlewares(stack, options); err != nil {
+	if err = addRetry(stack, options); err != nil {
 		return err
 	}
-	if err = awsmiddleware.AddRawResponseToMetadata(stack); err != nil {
+	if err = addRawResponseToMetadata(stack); err != nil {
 		return err
 	}
-	if err = awsmiddleware.AddRecordResponseTiming(stack); err != nil {
+	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
 	if err = addClientUserAgent(stack, options); err != nil {
@@ -281,7 +281,7 @@ func (c *Client) addOperationPutParameterMiddlewares(stack *middleware.Stack, op
 	if err = stack.Initialize.Add(newServiceMetadataMiddleware_opPutParameter(options.Region), middleware.Before); err != nil {
 		return err
 	}
-	if err = awsmiddleware.AddRecursionDetection(stack); err != nil {
+	if err = addRecursionDetection(stack); err != nil {
 		return err
 	}
 	if err = addRequestIDRetrieverMiddleware(stack); err != nil {

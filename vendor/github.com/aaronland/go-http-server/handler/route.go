@@ -20,6 +20,8 @@ var re_braces = regexp.MustCompile(`\{([^\}]+)\}`)
 // not as robust as it could be.
 var re_route = regexp.MustCompile(`^(?:(?:(GET|POST|PUT|HEAD|OPTION|DELETE)\s)?([^\/]+)?)?(.*)$`)
 
+var re_mutex = new(sync.RWMutex)
+
 // Regular expression to replace "{label}" style strings with "([^\/]+)".
 func not_a_slash(s string) string {
 	return fmt.Sprintf(`([^\/]+)`)
@@ -210,6 +212,8 @@ func deriveHandler(req *http.Request, handlers map[string]RouteHandlerFunc, matc
 		// If there are replace them with a match-up-to-next-forward-slash capture
 		// and then use the result to build a new regular expression
 
+		re_mutex.Lock()
+		
 		re_wildcard, exists := wildcard_matches[route_path]
 
 		if !exists {
@@ -218,6 +222,7 @@ func deriveHandler(req *http.Request, handlers map[string]RouteHandlerFunc, matc
 			re, err := regexp.Compile(str_wildcard)
 
 			if err != nil {
+				re_mutex.Unlock()				
 				return nil, fmt.Errorf("Failed to compile wildcard regexp, %w", err)
 			}
 
@@ -225,6 +230,8 @@ func deriveHandler(req *http.Request, handlers map[string]RouteHandlerFunc, matc
 			wildcard_matches[route_path] = re_wildcard
 		}
 
+		re_mutex.Unlock()
+		
 		// Does the current path (like the actual request being processed) match the wildcard?
 
 		path_m := re_wildcard.FindStringSubmatch(path)

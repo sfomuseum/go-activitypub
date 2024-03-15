@@ -6,8 +6,6 @@ import (
 	"log/slog"
 	"time"
 
-	"encoding/json"
-
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/id"
 	"github.com/sfomuseum/go-activitypub/uris"
@@ -107,7 +105,12 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 
 func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
-	slog.Debug("Deliver post", "post", opts.Post.Id, "from", opts.From.Id, "to", opts.To)
+	logger := slog.Default()
+	logger = logger.With("post", opts.Post.Id)
+	logger = logger.With("from", opts.From.Id)
+	logger = logger.With("to", opts.To)
+
+	logger.Debug("Deliver post")
 
 	// Sort out dealing with Snowflake errors sooner...
 	delivery_id, _ := id.NewId()
@@ -131,11 +134,12 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 		d.Completed = ts
 
-		slog.Debug("Add delivery for post", "delivery id", d.Id, "post id", d.PostId, "recipient", d.Recipient, "success", d.Success)
+		logger.Info("Add delivery for post", "delivery id", d.PostId, "recipient", d.Recipient, "success", d.Success)
+		
 		err := opts.DeliveriesDatabase.AddDelivery(ctx, d)
 
 		if err != nil {
-			slog.Error("Failed to add delivery", "post_id", opts.Post.Id, "recipienct", d.Recipient, "error", err)
+			logger.Error("Failed to add delivery", "post_id", opts.Post.Id, "recipienct", d.Recipient, "error", err)
 		}
 	}()
 
@@ -146,12 +150,6 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		return fmt.Errorf("Failed to derive note from post, %w", err)
 	}
 
-	//
-
-	enc, _ := json.Marshal(note)
-	fmt.Printf("\n\n%s\n\n", string(enc))
-
-	//
 
 	from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
 
@@ -193,7 +191,7 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 	if err != nil {
 		d.Error = err.Error()
-		return fmt.Errorf("Failed to post to inbox, %w", err)
+		return fmt.Errorf("Failed to post to inbox '%s', %w", opts.To, err)
 	}
 
 	d.Success = true
