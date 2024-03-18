@@ -1,4 +1,4 @@
-package followers
+package list
 
 import (
 	"context"
