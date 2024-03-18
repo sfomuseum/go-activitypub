@@ -15,6 +15,7 @@ type GetFollowersCallbackFunc func(context.Context, string) error
 
 type FollowersDatabase interface {
 	GetFollowerIdsForDateRange(context.Context, int64, int64, GetFollowerIdsCallbackFunc) error
+	GetAllFollowers(context.Context, GetFollowersCallbackFunc) error
 	GetFollowersForAccount(context.Context, int64, GetFollowersCallbackFunc) error
 	HasFollowers(context.Context, int64) (bool, error)
 	GetFollower(context.Context, int64, string) (*Follower, error)

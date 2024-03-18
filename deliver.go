@@ -135,7 +135,7 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		d.Completed = ts
 
 		logger.Info("Add delivery for post", "delivery id", d.PostId, "recipient", d.Recipient, "success", d.Success)
-		
+
 		err := opts.DeliveriesDatabase.AddDelivery(ctx, d)
 
 		if err != nil {
@@ -149,7 +149,6 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		d.Error = err.Error()
 		return fmt.Errorf("Failed to derive note from post, %w", err)
 	}
-
 
 	from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
 

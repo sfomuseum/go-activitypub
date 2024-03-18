@@ -47,28 +47,13 @@ func (db *DocstoreFollowersDatabase) GetFollowerIdsForDateRange(ctx context.Cont
 	q = q.Where("Created", ">=", start)
 	q = q.Where("Created", "<=", end)
 
-	iter := q.Get(ctx, "Id")
-	defer iter.Stop()
+	return db.getFollowerIdsWithCallback(ctx, q, cb)
+}
 
-	for {
+func (db *DocstoreFollowersDatabase) GetAllFollowers(ctx context.Context, cb GetFollowersCallbackFunc) error {
 
-		var f Follower
-		err := iter.Next(ctx, &f)
-
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			return fmt.Errorf("Failed to interate, %w", err)
-		} else {
-			err := cb(ctx, f.Id)
-
-			if err != nil {
-				return fmt.Errorf("Failed to invoke callback for follower %d, %w", f.Id, err)
-			}
-		}
-	}
-
-	return nil
+	q := db.collection.Query()
+	return db.getFollowerAddressesWithCallback(ctx, q, cb)
 }
 
 func (db *DocstoreFollowersDatabase) HasFollowers(ctx context.Context, account_id int64) (bool, error) {
@@ -129,12 +114,47 @@ func (db *DocstoreFollowersDatabase) RemoveFollower(ctx context.Context, f *Foll
 	return db.collection.Delete(ctx, f)
 }
 
-func (db *DocstoreFollowersDatabase) GetFollowersForAccount(ctx context.Context, account_id int64, followers_callback GetFollowersCallbackFunc) error {
+func (db *DocstoreFollowersDatabase) GetFollowersForAccount(ctx context.Context, account_id int64, cb GetFollowersCallbackFunc) error {
 
 	q := db.collection.Query()
 	q = q.Where("AccountId", "=", account_id)
 
-	iter := q.Get(ctx)
+	return db.getFollowerAddressesWithCallback(ctx, q, cb)
+}
+
+func (db *DocstoreFollowersDatabase) Close(ctx context.Context) error {
+	return db.collection.Close()
+}
+
+func (db *DocstoreFollowersDatabase) getFollowerIdsWithCallback(ctx context.Context, q *gc_docstore.Query, cb GetFollowerIdsCallbackFunc) error {
+
+	iter := q.Get(ctx, "Id")
+	defer iter.Stop()
+
+	for {
+
+		var f Follower
+		err := iter.Next(ctx, &f)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			err := cb(ctx, f.Id)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for follower %d, %w", f.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+func (db *DocstoreFollowersDatabase) getFollowerAddressesWithCallback(ctx context.Context, q *gc_docstore.Query, cb GetFollowersCallbackFunc) error {
+
+	iter := q.Get(ctx, "FollowerAddress")
 	defer iter.Stop()
 
 	for {
@@ -148,7 +168,7 @@ func (db *DocstoreFollowersDatabase) GetFollowersForAccount(ctx context.Context,
 			return fmt.Errorf("Failed to interate, %w", err)
 		} else {
 
-			err := followers_callback(ctx, f.FollowerAddress)
+			err := cb(ctx, f.FollowerAddress)
 
 			if err != nil {
 				return fmt.Errorf("Failed to execute followers callback for '%s', %w", f.FollowerAddress, err)
@@ -157,8 +177,4 @@ func (db *DocstoreFollowersDatabase) GetFollowersForAccount(ctx context.Context,
 	}
 
 	return nil
-}
-
-func (db *DocstoreFollowersDatabase) Close(ctx context.Context) error {
-	return db.collection.Close()
 }
