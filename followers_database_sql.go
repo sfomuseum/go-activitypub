@@ -193,6 +193,25 @@ func (db *SQLFollowersDatabase) RemoveFollower(ctx context.Context, f *Follower)
 
 func (db *SQLFollowersDatabase) GetFollowersForAccount(ctx context.Context, account_id int64, followers_callback GetFollowersCallbackFunc) error {
 
+	q := fmt.Sprintf("SELECT follower_address FROM %s WHERE account_id=?", SQL_FOLLOWERS_TABLE_NAME)
+
+	args := []interface{}{
+		account_id,
+	}
+
+	return db.getFollowerAddressesWithCallback(ctx, q, args, followers_callback)
+}
+
+func (db *SQLFollowersDatabase) GetAllFollowers(ctx context.Context, followers_callback GetFollowersCallbackFunc) error {
+
+	q := fmt.Sprintf("SELECT follower_address FROM %s", SQL_FOLLOWERS_TABLE_NAME)
+	args := make([]interface{}, 0)
+
+	return db.getFollowerAddressesWithCallback(ctx, q, args, followers_callback)
+}
+
+func (db *SQLFollowersDatabase) getFollowerAddressesWithCallback(ctx context.Context, q string, args []interface{}, followers_callback GetFollowersCallbackFunc) error {
+
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
 
 		rows := pg_rsp.Rows()
@@ -231,9 +250,7 @@ func (db *SQLFollowersDatabase) GetFollowersForAccount(ctx context.Context, acco
 		return fmt.Errorf("Failed to create pagination options, %w", err)
 	}
 
-	q := fmt.Sprintf("SELECT follower_address FROM %s WHERE account_id=?", SQL_FOLLOWERS_TABLE_NAME)
-
-	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q, account_id)
+	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q, args...)
 
 	if err != nil {
 		return fmt.Errorf("Failed to execute paginated query, %w", err)
