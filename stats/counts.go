@@ -62,6 +62,8 @@ func CountsForDate(ctx context.Context, opts *CountsForDateOptions) (*Counts, er
 		}
 
 		t = t.In(loc)
+
+		counts.Location = loc.String()
 	}
 
 	start := t.Unix()
