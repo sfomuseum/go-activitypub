@@ -60,6 +60,8 @@ func (db *DocstoreAccountsDatabase) GetAccountIdsForDateRange(ctx context.Contex
 	// q = q.Where("Created", ">=", start)
 	// q = q.Where("Created", "<=", end)
 
+	// See also: https://github.com/google/go-cloud/issues/3405
+	
 	iter := q.Get(ctx)
 	defer iter.Stop()
 
