@@ -112,6 +112,26 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 	logger.Debug("Deliver post")
 
+	max_attempts := 5
+	count_deliveries := 0
+	
+	deliveries_cb := func(ctx context.Context, d *Delivery) error {
+		count_deliveries += 1
+		return nil
+	}
+
+	err := opts.DeliveriesDatabase.GetDeliveriesWithPostIdAndRecipient(ctx, opts.Post.Id, opts.To, deliveries_cb)
+
+	if err != nil {
+		logger.Error("Failed to count deliveries for post ID and recipient", "error", err)
+		return fmt.Errorf("Failed to count deliveries for post ID and recipient, %w", err)
+	}
+
+	if count_deliveries >= max_attempts {
+		logger.Warn("Post has met or exceed max delivery attempts threshold", "max", max_attempts, "count", count_deliveries)
+		return nil
+	}
+	
 	// Sort out dealing with Snowflake errors sooner...
 	delivery_id, _ := id.NewId()
 

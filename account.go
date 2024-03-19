@@ -15,14 +15,18 @@ import (
 	"github.com/sfomuseum/runtimevar"
 )
 
+// AccountType denotes the ActivityPub account type
 type AccountType uint32
 
 const (
 	_ AccountType = iota
+	// PersonType is considered to be an actual human being
 	PersonType
+	// ServiceType is considered to be a "bot" or other automated account
 	ServiceType
 )
 
+// String returns an English-language label for the AccountType
 func (t AccountType) String() string {
 
 	switch t {
@@ -35,6 +39,7 @@ func (t AccountType) String() string {
 	}
 }
 
+// AccountTypeFromString returns a known AccountType derived from 'str_type' (an English-language label)
 func AccountTypeFromString(str_type string) (AccountType, error) {
 
 	switch str_type {
@@ -49,20 +54,34 @@ func AccountTypeFromString(str_type string) (AccountType, error) {
 
 // https://www.w3.org/TR/activitypub/#actor-objects
 
+// Account represents an individual ActivityPub account
 type Account struct {
-	Id                       int64       `json:"id"`
-	AccountType              AccountType `json:"account_type"`
-	Name                     string      `json:"name"`
-	DisplayName              string      `json:"display_name"`
-	Blurb                    string      `json:"blurb"`
-	URL                      string      `json:"url"`
-	PublicKeyURI             string      `json:"public_key_uri"`
-	PrivateKeyURI            string      `json:"private_key_uri"`
-	ManuallyApproveFollowers bool        `json:"manually_approve_followers"`
-	Discoverable             bool        `json:"discoverable"`
-	IconURI                  string      `json:"icon_uri"`
-	Created                  int64       `json:"created"`
-	LastModified             int64       `json:"lastmodified"`
+	// Id is a unique numeric identifier for the account
+	Id int64 `json:"id"`
+	// AccountType denotes the ActivityPub account type
+	AccountType AccountType `json:"account_type"`
+	// Name is the unique account name for the account
+	Name string `json:"name"`
+	// DisplayName is the long-form name for the account (which is not guaranteed to be unique across all accounts)
+	DisplayName string `json:"display_name"`
+	// Blurb is the descriptive text for the account
+	Blurb string `json:"blurb"`
+	// URL is the primary website associated with the account
+	URL string `json:"url"`
+	// PublicKeyURI is a valid `gocloud.dev/runtimevar` referencing the PEM-encoded public key for the account.
+	PublicKeyURI string `json:"public_key_uri"`
+	// PublicKeyURI is a valid `gocloud.dev/runtimevar` referencing the PEM-encoded private key for the account.
+	PrivateKeyURI string `json:"private_key_uri"`
+	// ManuallyApproveFollowers is a boolean flag signaling that follower requests need to be manually approved. Note: There are currently no tools or interfaces for handling those approvals.
+	ManuallyApproveFollowers bool `json:"manually_approve_followers"`
+	// Discoverable is a boolean flag signaling that the account is discoverable.
+	Discoverable bool `json:"discoverable"`
+	// IconURI is a valid `gocloud.dev/blob` URI (as in the bucket URI + filename) referencing the icon URI for the account.
+	IconURI string `json:"icon_uri"`
+	// Created is a Unix timestamp of when the account was created.
+	Created int64 `json:"created"`
+	// LastModified is a Unix timestamp of when the account was last modified.
+	LastModified int64 `json:"lastmodified"`
 }
 
 func (a *Account) String() string {
