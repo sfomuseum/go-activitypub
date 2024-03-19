@@ -19,6 +19,7 @@ type RunOptions struct {
 	URIs                  *uris.URIs
 	Mode                  string
 	PostId                int64
+	MaxAttempts           int
 	Verbose               bool
 }
 
@@ -43,6 +44,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		PostTagsDatabaseURI:   post_tags_database_uri,
 		DeliveriesDatabaseURI: deliveries_database_uri,
 		DeliveryQueueURI:      delivery_queue_uri,
+		MaxAttempts:           max_attempts,
 		Mode:                  mode,
 		PostId:                post_id,
 		URIs:                  uris_table,

@@ -13,6 +13,7 @@ var post_tags_database_uri string
 var deliveries_database_uri string
 
 var delivery_queue_uri string
+var max_attempts int
 
 var post_id int64
 var mode string
@@ -33,6 +34,7 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.StringVar(&delivery_queue_uri, "delivery-queue-uri", "synchronous://", "...")
 
+	fs.IntVar(&max_attempts, "max-attempts", 0, "...")
 	fs.Int64Var(&post_id, "post-id", 0, "...")
 
 	fs.StringVar(&mode, "mode", "cli", "...")

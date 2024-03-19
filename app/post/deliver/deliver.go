@@ -96,6 +96,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 			DeliveryQueue:      delivery_q,
 			Post:               post,
 			URIs:               opts.URIs,
+			MaxAttempts:        opts.MaxAttempts,
 		}
 
 		err = activitypub.DeliverPostToFollowers(ctx, deliver_opts)

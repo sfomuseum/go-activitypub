@@ -18,6 +18,7 @@ type DeliverPostOptions struct {
 	PostTags           []*PostTag         `json:"post_tags"`
 	URIs               *uris.URIs         `json:"uris"`
 	DeliveriesDatabase DeliveriesDatabase `json:"deliveries_database,omitempty"`
+	MaxAttempts        int                `json:"max_attempts"`
 }
 
 type DeliverPostToFollowersOptions struct {
@@ -28,6 +29,7 @@ type DeliverPostToFollowersOptions struct {
 	DeliveryQueue      DeliveryQueue
 	Post               *Post
 	PostTags           []*PostTag `json:"post_tags"`
+	MaxAttempts        int        `json:"max_attempts"`
 	URIs               *uris.URIs
 }
 
@@ -72,6 +74,7 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 			PostTags:           opts.PostTags,
 			URIs:               opts.URIs,
 			DeliveriesDatabase: opts.DeliveriesDatabase,
+			MaxAttempts:        opts.MaxAttempts,
 		}
 
 		err = opts.DeliveryQueue.DeliverPost(ctx, post_opts)
@@ -112,26 +115,28 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 	logger.Debug("Deliver post")
 
-	max_attempts := 5
-	count_deliveries := 0
-	
-	deliveries_cb := func(ctx context.Context, d *Delivery) error {
-		count_deliveries += 1
-		return nil
+	if opts.MaxAttempts > 0 {
+
+		count_attempts := 0
+
+		deliveries_cb := func(ctx context.Context, d *Delivery) error {
+			count_attempts += 1
+			return nil
+		}
+
+		err := opts.DeliveriesDatabase.GetDeliveriesWithPostIdAndRecipient(ctx, opts.Post.Id, opts.To, deliveries_cb)
+
+		if err != nil {
+			logger.Error("Failed to count deliveries for post ID and recipient", "error", err)
+			return fmt.Errorf("Failed to count deliveries for post ID and recipient, %w", err)
+		}
+
+		if count_attempts >= opts.MaxAttempts {
+			logger.Warn("Post has met or exceed max delivery attempts threshold", "max", opts.MaxAttempts, "count", count_attempts)
+			return nil
+		}
 	}
 
-	err := opts.DeliveriesDatabase.GetDeliveriesWithPostIdAndRecipient(ctx, opts.Post.Id, opts.To, deliveries_cb)
-
-	if err != nil {
-		logger.Error("Failed to count deliveries for post ID and recipient", "error", err)
-		return fmt.Errorf("Failed to count deliveries for post ID and recipient, %w", err)
-	}
-
-	if count_deliveries >= max_attempts {
-		logger.Warn("Post has met or exceed max delivery attempts threshold", "max", max_attempts, "count", count_deliveries)
-		return nil
-	}
-	
 	// Sort out dealing with Snowflake errors sooner...
 	delivery_id, _ := id.NewId()
 
