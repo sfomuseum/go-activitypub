@@ -43,8 +43,6 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 
 	followers_cb := func(ctx context.Context, follower_uri string) error {
 
-		slog.Info("DELIVER", "uri", follower_uri)
-
 		already_delivered := false
 
 		deliveries_cb := func(ctx context.Context, d *Delivery) error {
@@ -113,7 +111,7 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 	logger = logger.With("from", opts.From.Id)
 	logger = logger.With("to", opts.To)
 
-	logger.Debug("Deliver post")
+	logger.Debug("Deliver post", "max attempts", opts.MaxAttempts)
 
 	if opts.MaxAttempts > 0 {
 
@@ -130,6 +128,8 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 			logger.Error("Failed to count deliveries for post ID and recipient", "error", err)
 			return fmt.Errorf("Failed to count deliveries for post ID and recipient, %w", err)
 		}
+
+		logger.Debug("Deliveries attempted", "count", count_attempts)
 
 		if count_attempts >= opts.MaxAttempts {
 			logger.Warn("Post has met or exceed max delivery attempts threshold", "max", opts.MaxAttempts, "count", count_attempts)

@@ -158,6 +158,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		Post:               p,
 		PostTags:           post_tags,
 		URIs:               opts.URIs,
+		MaxAttempts:        opts.MaxAttempts,
 	}
 
 	err = activitypub.DeliverPostToFollowers(ctx, deliver_opts)

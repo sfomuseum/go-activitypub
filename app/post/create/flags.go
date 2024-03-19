@@ -19,6 +19,8 @@ var account_name string
 var message string
 var in_reply_to string
 
+var max_attempts int
+
 var mentions multi.MultiString
 
 var hostname string
@@ -41,6 +43,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&hostname, "hostname", "localhost:8080", "...")
 	fs.BoolVar(&insecure, "insecure", false, "...")
 
+	fs.IntVar(&max_attempts, "max-attempts", 5, "...")
 	fs.StringVar(&message, "message", "", "...")
 	fs.StringVar(&in_reply_to, "in-reply-to", "", "...")
 	fs.Var(&mentions, "mention", "...")

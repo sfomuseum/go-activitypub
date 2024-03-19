@@ -19,6 +19,7 @@ type RunOptions struct {
 	AccountName           string
 	Message               string
 	InReplyTo             string
+	MaxAttempts           int
 	Mentions              []string
 	URIs                  *uris.URIs
 	Verbose               bool
@@ -51,6 +52,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		Mentions:              mentions,
 		URIs:                  uris_table,
 		Verbose:               verbose,
+		MaxAttempts:           max_attempts,
 	}
 
 	return opts, nil
