@@ -44,23 +44,8 @@ func (db *DocstoreAccountsDatabase) GetAccountIdsForDateRange(ctx context.Contex
 
 	q := db.collection.Query()
 
-	// For reasons I don't understand this frequently panics along the lines of:
-
-	/*
-		panic: runtime error: index out of range [0] with length 0
-
-		goroutine 98 [running]:
-		gocloud.dev/docstore/awsdynamodb.(*documentIterator).Next(0x14000056050, {0x101ba36b0?, 0x10258bb40?}, {{0x101b386e0, 0x1400019bea0}, 0x0, {0x101b454e0, 0x1400019bea0, 0x199}, {0x140004fc808, ...}})
-			/usr/local/sfomuseum/go-activitypub/vendor/gocloud.dev/docstore/awsdynamodb/query.go:492 +0x260
-	*/
-
-	// What I find most confusing is that this doesn't happen in any of the other _docstore
-	// packages, for example deliveries_database_docstore.go
-
-	// q = q.Where("Created", ">=", start)
-	// q = q.Where("Created", "<=", end)
-
-	// See also: https://github.com/google/go-cloud/issues/3405
+	q = q.Where("Created", ">=", start)
+	q = q.Where("Created", "<=", end)
 
 	iter := q.Get(ctx)
 	defer iter.Stop()
@@ -76,13 +61,11 @@ func (db *DocstoreAccountsDatabase) GetAccountIdsForDateRange(ctx context.Contex
 			return fmt.Errorf("Failed to interate, %w", err)
 		} else {
 
-			if a.Created >= start && a.Created <= end { // START OF see notes wrt/panics above
-				err := cb(ctx, a.Id)
+			err := cb(ctx, a.Id)
 
-				if err != nil {
-					return fmt.Errorf("Failed to invoke callback for account %d, %w", a.Id, err)
-				}
-			} // END OF see notes wrt/panics above
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for account %d, %w", a.Id, err)
+			}
 		}
 	}
 
