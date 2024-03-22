@@ -2,7 +2,9 @@ module github.com/sfomuseum/go-activitypub
 
 go 1.22.0
 
-replace gocloud.dev v0.37.0 => gocloud.dev v0.0.0-20240321164739-be1b4aee3895
+//  replace gocloud.dev v0.37.0 => gocloud.dev v0.0.0-20240321164739-be1b4aee3895
+
+replace gocloud.dev v0.37.0 => github.com/bartventer/go-cloud v0.0.0-20240322082227-9d139c92796d
 
 require (
 	github.com/aaronland/go-aws-dynamodb v0.0.7

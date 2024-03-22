@@ -388,7 +388,7 @@ go.opencensus.io/trace
 go.opencensus.io/trace/internal
 go.opencensus.io/trace/propagation
 go.opencensus.io/trace/tracestate
-# gocloud.dev v0.37.0 => gocloud.dev v0.0.0-20240321164739-be1b4aee3895
+# gocloud.dev v0.37.0 => github.com/bartventer/go-cloud v0.0.0-20240322082227-9d139c92796d
 ## explicit; go 1.20
 gocloud.dev/aws
 gocloud.dev/blob
