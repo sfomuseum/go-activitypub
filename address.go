@@ -32,3 +32,9 @@ func ParseAddressFromRequest(req *http.Request) (string, string, error) {
 	slog.Debug("Parse address from request", "path", req.URL.Path, "resource", resource)
 	return ParseAddress(resource)
 }
+
+func ParseAddressesFromString(body string) ([]string, error) {
+
+	addresses := make([]string, 0)
+	return addresses, nil
+}
