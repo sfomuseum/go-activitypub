@@ -925,23 +925,45 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			logger = logger.With("is following", is_following)
 
-			// Just a plain old Note; make sure acct is following the author
+			// If we are following this account then it's all good
 
-			if note.InReplyTo == "" {
+			is_allowed := is_following
 
-				if !is_following {
-					logger.Error("Not following")
-					http.Error(rsp, "Forbidden", http.StatusForbidden)
-					return
+			// If not following then check to see whether account (being posted to)
+			// is mentioned in post (being received)
+
+			if !is_allowed && len(note.Tags) > 0 {
+
+				account_url := acct.AccountURL(ctx, opts.URIs).String()
+
+				for _, t := range note.Tags {
+
+					if t.Href == account_url {
+						logger.Info("Post author is not followed but account is mentioned")
+						is_allowed = true
+						break
+					}
 				}
+			}
 
-			} else {
+			// If still not allowed (not following, not mentioned) then check to see if the post
+			// (being received) is in reply to something that the account (being posted to) wrote
 
-				logger = logger.With("in reply to", note.InReplyTo)
+			if !is_allowed {
 
-				// If we are not already following the author then
+				if note.InReplyTo == "" {
 
-				if !is_following {
+					if !is_following {
+						logger.Error("Not following")
+						http.Error(rsp, "Forbidden", http.StatusForbidden)
+						return
+					}
+
+				} else {
+
+					logger = logger.With("in reply to", note.InReplyTo)
+
+					// If we are not already following the author then
 
 					// Fetch the (in-reply-to) post in question and check to see if it
 					// was authored by acct
@@ -965,32 +987,10 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 						}
 					}
 
-					// If it was not then check to see whether acct is mentioned in the tags
-
 					if !is_own_post {
-
-						acct_name := acct.Address(opts.URIs.Hostname)
-						is_mentioned := false
-
-						for _, t := range note.Tags {
-
-							if t.Type != "Mention" {
-								continue
-							}
-
-							t_name := strings.TrimLeft(t.Name, "@")
-
-							if t_name == acct_name {
-								is_mentioned = true
-								break
-							}
-						}
-
-						if !is_mentioned {
-							logger.Error("Target account not mentioned in reply")
-							http.Error(rsp, "Forbidden", http.StatusForbidden)
-							return
-						}
+						logger.Error("Reply-to is not own post")
+						http.Error(rsp, "Forbidden", http.StatusForbidden)
+						return
 					}
 				}
 			}
