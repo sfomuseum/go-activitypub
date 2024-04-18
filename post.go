@@ -33,7 +33,9 @@ type AddPostOptions struct {
 	PostTagsDatabase PostTagsDatabase
 }
 
-// AddPost...
+// AddPost creates a new post record for 'body' and adds it to the post database. Then it parses 'body' looking
+// for other ActivityPub addresses and records each as a "mention" in the post tags database. It returns the post
+// and the list of post tags (mentions) for further processing as needed.
 func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body string) (*Post, []*PostTag, error) {
 
 	// Create the new post record

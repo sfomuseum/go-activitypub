@@ -93,6 +93,12 @@ accounts:
 	go run cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
+		-account-name doug \
+		-alias doug \
+		-account-type Service
+	go run cmd/add-account/main.go \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-aliases-database-uri '$(ALIASES_DB_URI)' \
 		-account-name alice \
 		-account-type Person \
 		-account-icon-uri 's3blob://sfomuseum-media/ap/icons/sfo.jpg?region=us-west-2&credentials=session'
@@ -156,6 +162,8 @@ post:
 		-insecure \
 		-verbose
 
+# -mention $(MENTION) \
+
 reply:
 	go run cmd/create-post/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
@@ -166,7 +174,6 @@ reply:
 		-account-name bob \
 		-message "$(MESSAGE)" \
 		-in-reply-to $(INREPLYTO) \
-		-mention $(MENTION) \
 		-hostname localhost:8080 \
 		-insecure \
 		-verbose
