@@ -39,7 +39,7 @@ type AddPostOptions struct {
 func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body string) (*Post, []*PostTag, error) {
 
 	// Create the new post record
-	
+
 	p, err := NewPost(ctx, acct, body)
 
 	if err != nil {
@@ -47,7 +47,7 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body stri
 	}
 
 	// Add the post to the database
-	
+
 	err = opts.PostsDatabase.AddPost(ctx, p)
 
 	if err != nil {
@@ -55,7 +55,7 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body stri
 	}
 
 	// Determine other accounts mentioned in post
-	
+
 	addrs_mentioned, err := ParseAddressesFromString(body)
 
 	if err != nil {
@@ -64,10 +64,12 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body stri
 
 	// Create "mention" tags for any other accounts mentioned in post
 	// Add each mention to the "post tags" database
-	
+
 	post_tags := make([]*PostTag, 0)
 
 	for _, name := range addrs_mentioned {
+
+		slog.Info("RETRIEVE", "name", name)
 
 		actor, err := RetrieveActor(ctx, name, opts.URIs.Insecure)
 
@@ -94,7 +96,7 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body stri
 	}
 
 	// Return all the things
-	
+
 	return p, post_tags, nil
 }
 

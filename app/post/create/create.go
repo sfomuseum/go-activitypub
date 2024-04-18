@@ -116,7 +116,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	}
 
 	logger.Info("YO", "post", post.Id, "tags", post_tags)
-	
+
 	if opts.InReplyTo != "" {
 		post.InReplyTo = opts.InReplyTo
 	}

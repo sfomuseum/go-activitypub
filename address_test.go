@@ -8,12 +8,14 @@ import (
 func TestParseAddressFromRequest(t *testing.T) {
 
 	tests := map[string][2]string{
-		"bob":                [2]string{"bob", ""},
-		"@bob":               [2]string{"bob", ""},
-		"@bob@localhost":     [2]string{"bob", "localhost"},
-		"@bob@bob.com":       [2]string{"bob", "bob.com"},
-		"acct:@bob@bob.com":  [2]string{"bob", "bob.com"},
-		"acct:alice@bob.com": [2]string{"alice", "bob.com"},
+		"bob":                  [2]string{"bob", ""},
+		"@bob":                 [2]string{"bob", ""},
+		"@bob@localhost":       [2]string{"bob", "localhost"},
+		"@bob@bob.com":         [2]string{"bob", "bob.com"},
+		"acct:@bob@bob.com":    [2]string{"bob", "bob.com"},
+		"acct:alice@bob.com":   [2]string{"alice", "bob.com"},
+		"@bob@localhost:8080":  [2]string{"bob", "localhost:8080"},
+		"@doug@localhost:8080": [2]string{"doug", "localhost:8080"},
 	}
 
 	for addr, expected := range tests {
@@ -85,9 +87,9 @@ func TestParseAddressesFromString(t *testing.T) {
 		"hello @bob@example.com pass the mustard to @alice@mustard.com and doug@localhost":                                                   2,
 		"hello @bob@example.com pass the mustard to @alice@mustard.com and doug@localhost before sending it @doug@bob.com":                   3,
 		"hello @bob@example.com pass the mustard to @alice@mustard.com and doug@localhost before sending it @doug@bob.com and max@gmail.com": 3,
-		"test mentioning @doug@localhost yo": 1,
-		"test mentioning @doug@localhost:8080 and @bob@localhost:8080 yo": 2,
-		"test mentioning @doug@localhost:8080 and @bob@localhost:8080 yo @alice@alice.com": 3,				
+		"test mentioning @doug@localhost yo":                                               1,
+		"test mentioning @doug@localhost:8080 and @bob@localhost:8080 yo":                  2,
+		"test mentioning @doug@localhost:8080 and @bob@localhost:8080 yo @alice@alice.com": 3,
 	}
 
 	for str, expected_count := range tests {
