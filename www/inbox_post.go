@@ -33,6 +33,8 @@ type InboxPostHandlerOptions struct {
 	AllowCreate       bool
 	AllowLikes        bool
 	AllowBoosts       bool
+	// Allows posts to accounts not followed by author but where account is mentioned in post
+	AllowMentions bool
 
 	// TBD but the idea is that after the signature verification
 	// and block checks are dealt with the best thing would be to
@@ -932,7 +934,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			// If not following then check to see whether account (being posted to)
 			// is mentioned in post (being received)
 
-			if !is_allowed && len(note.Tags) > 0 {
+			if !is_allowed && opts.AllowMentions && len(note.Tags) > 0 {
 
 				account_url := acct.AccountURL(ctx, opts.URIs).String()
 
@@ -1016,29 +1018,35 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				// pass
 			}
 
-			now := time.Now()
-			ts := now.Unix()
-
 			if db_note != nil {
 
 				logger = logger.With("note id", db_note.Id)
 
-				if bytes.Equal(enc_obj, []byte(db_note.Body)) {
-					logger.Error("Note already registered")
-					http.Error(rsp, "Bad request", http.StatusBadRequest)
-					return
-				}
+				// I no longer remember why I added this logic and it no longer
+				// seems relevant. To be removed soon. (20240418/thisisaaronland)
 
-				db_note.Body = string(enc_obj)
-				db_note.LastModified = ts
+				/*
 
-				err = opts.NotesDatabase.UpdateNote(ctx, db_note)
+					now := time.Now()
+					ts := now.Unix()
 
-				if err != nil {
-					logger.Error("Failed to update note", "error", err)
-					http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-					return
-				}
+						if bytes.Equal(enc_obj, []byte(db_note.Body)) {
+							logger.Error("Note already registered")
+							http.Error(rsp, "Bad request", http.StatusBadRequest)
+							return
+						}
+
+						db_note.Body = string(enc_obj)
+						db_note.LastModified = ts
+
+						err = opts.NotesDatabase.UpdateNote(ctx, db_note)
+
+						if err != nil {
+							logger.Error("Failed to update note", "error", err)
+							http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+							return
+						}
+				*/
 
 			} else {
 

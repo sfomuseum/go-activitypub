@@ -122,6 +122,7 @@ func inboxPostHandlerFunc(ctx context.Context) (http.Handler, error) {
 		AllowCreate:       run_opts.AllowCreate,
 		AllowLikes:        run_opts.AllowLikes,
 		AllowBoosts:       run_opts.AllowBoosts,
+		AllowMentions:     run_opts.AllowMentions,
 	}
 
 	return www.InboxPostHandler(opts)

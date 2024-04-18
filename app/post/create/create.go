@@ -115,68 +115,9 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to add post, %w", err)
 	}
 
-	logger.Info("YO", "post", post.Id, "tags", post_tags)
-
 	if opts.InReplyTo != "" {
 		post.InReplyTo = opts.InReplyTo
 	}
-
-	/*
-		p, err := activitypub.NewPost(ctx, acct, opts.Message)
-
-		if err != nil {
-			return fmt.Errorf("Failed to create new post, %w", err)
-		}
-
-		if opts.InReplyTo != "" {
-			p.InReplyTo = opts.InReplyTo
-		}
-
-		err = posts_db.AddPost(ctx, p)
-
-		if err != nil {
-			return fmt.Errorf("Failed to add post, %w", err)
-		}
-
-		addrs_mentioned, err := activitypub.ParseAddressesFromString(opts.Message)
-
-		if err != nil {
-			return fmt.Errorf("Failed to derive addresses mentioned in message body, %w", err)
-		}
-
-		post_tags := make([]*activitypub.PostTag, 0)
-
-		// for _, name := range opts.Mentions {
-
-		for _, name := range addrs_mentioned {
-
-			actor, err := activitypub.RetrieveActor(ctx, name, opts.URIs.Insecure)
-
-			if err != nil {
-				slog.Error("Failed to retrieve actor data for name, skipping", "name", name, "error", err)
-				continue
-			}
-
-			href := actor.Id
-
-			t, err := activitypub.NewMention(ctx, p, name, href)
-
-			if err != nil {
-				return fmt.Errorf("Failed to create mention for '%s', %w", name, err)
-			}
-
-			err = post_tags_db.AddPostTag(ctx, t)
-
-			if err != nil {
-				return fmt.Errorf("Failed to record post tag (mention) for '%s', %w", name, err)
-			}
-
-			post_tags = append(post_tags, t)
-		}
-
-		// END OF put me in a function
-
-	*/
 
 	deliver_opts := &activitypub.DeliverPostToFollowersOptions{
 		AccountsDatabase:   accounts_db,
