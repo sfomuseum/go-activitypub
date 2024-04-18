@@ -61,7 +61,7 @@ func (db *DocstoreAliasesDatabase) GetAliasesForAccount(ctx context.Context, acc
 			err := cb(ctx, &a)
 
 			if err != nil {
-				return fmt.Errorf("Failed to execute callback for alias %s, %w", a, err)
+				return fmt.Errorf("Failed to execute callback for alias %v, %w", a, err)
 			}
 		}
 	}

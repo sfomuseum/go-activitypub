@@ -76,3 +76,27 @@ func TestParseAddress(t *testing.T) {
 
 	}
 }
+
+func TestParseAddressesFromString(t *testing.T) {
+
+	tests := map[string]int{
+		"hello @bob@example.com":                  1,
+		"hello @bob@example.com pass the mustard": 1,
+		"hello @bob@example.com pass the mustard to @alice@mustard.com and doug@localhost":                                                   2,
+		"hello @bob@example.com pass the mustard to @alice@mustard.com and doug@localhost before sending it @doug@bob.com":                   3,
+		"hello @bob@example.com pass the mustard to @alice@mustard.com and doug@localhost before sending it @doug@bob.com and max@gmail.com": 3,
+	}
+
+	for str, expected_count := range tests {
+
+		addrs, err := ParseAddressesFromString(str)
+
+		if err != nil {
+			t.Fatalf("Failed to parse addresses from string (%s), %v", str, err)
+		}
+
+		if len(addrs) != expected_count {
+			t.Fatalf("Expected %d address for string (%s) but got %d", expected_count, str, len(addrs))
+		}
+	}
+}
