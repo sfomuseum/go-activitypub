@@ -21,9 +21,9 @@ type RunOptions struct {
 	InReplyTo             string
 	MaxAttempts           int
 	// Deprecated
-	Mentions              []string
-	URIs                  *uris.URIs
-	Verbose               bool
+	Mentions []string
+	URIs     *uris.URIs
+	Verbose  bool
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -51,10 +51,10 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		Message:               message,
 		InReplyTo:             in_reply_to,
 		// Deprecated
-		Mentions:              mentions,
-		URIs:                  uris_table,
-		Verbose:               verbose,
-		MaxAttempts:           max_attempts,
+		Mentions:    mentions,
+		URIs:        uris_table,
+		Verbose:     verbose,
+		MaxAttempts: max_attempts,
 	}
 
 	return opts, nil
