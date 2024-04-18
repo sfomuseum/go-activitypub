@@ -21,6 +21,7 @@ var in_reply_to string
 
 var max_attempts int
 
+// Deprecated
 var mentions multi.MultiString
 
 var hostname string
@@ -46,6 +47,8 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.IntVar(&max_attempts, "max-attempts", 5, "...")
 	fs.StringVar(&message, "message", "", "...")
 	fs.StringVar(&in_reply_to, "in-reply-to", "", "...")
+
+	// Deprecated
 	fs.Var(&mentions, "mention", "...")
 
 	fs.BoolVar(&verbose, "verbose", false, "Enable verbose logging")

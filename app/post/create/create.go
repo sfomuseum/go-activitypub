@@ -113,6 +113,10 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		p.InReplyTo = opts.InReplyTo
 	}
 
+	// START OF put me in a function
+	// Something like: post_tags, err := activitypub.AddPost(ctx, posts_db, posts_tags_db, p)
+	// which is not a great interface... 
+	
 	err = posts_db.AddPost(ctx, p)
 
 	if err != nil {
@@ -121,10 +125,18 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	// Something something something extract mentions from opts.Message too...
 
+	addrs_mentioned, err := activitypub.ParseAddressesFromString(opts.Message)
+
+	if err != nil {
+		return fmt.Errorf("Failed to derive addresses mentioned in message body, %w", err)
+	}
+	
 	post_tags := make([]*activitypub.PostTag, 0)
 
-	for _, name := range opts.Mentions {
-
+	// for _, name := range opts.Mentions {
+	
+	for _, name := range addrs_mentioned {
+		
 		actor, err := activitypub.RetrieveActor(ctx, name, opts.URIs.Insecure)
 
 		if err != nil {
