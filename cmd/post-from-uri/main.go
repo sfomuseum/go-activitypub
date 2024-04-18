@@ -22,7 +22,7 @@ func main() {
 	posts_db, err := activitypub.NewPostsDatabase(ctx, posts_database_uri)
 
 	if err != nil {
-		log.Fatalf("Failed to create posts database, %w", err)
+		log.Fatalf("Failed to create posts database, %v", err)
 	}
 
 	defer posts_db.Close(ctx)
