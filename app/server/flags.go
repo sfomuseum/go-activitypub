@@ -26,6 +26,9 @@ var allow_create bool
 var allow_likes bool
 var allow_boosts bool
 
+// Allows posts to accounts not followed by author but where account is mentioned in post
+var allow_mentions bool
+
 var allow_remote_icon_uri bool
 
 var verbose bool
@@ -50,6 +53,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.BoolVar(&allow_create, "allow-create", false, "...")
 	fs.BoolVar(&allow_likes, "allow-likes", true, "...")
 	fs.BoolVar(&allow_boosts, "allow-boosts", true, "...")
+	fs.BoolVar(&allow_mentions, "allow-mentions", true, "...")
 
 	fs.StringVar(&server_uri, "server-uri", "http://localhost:8080", "...")
 	fs.StringVar(&hostname, "hostname", "", "...")

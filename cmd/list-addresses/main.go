@@ -10,13 +10,13 @@ $> echo "hello @bob@example.com pass the mustard to @alice@mustard.com and doug@
 */
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log"
-	"strings"
-	"bufio"
 	"os"
-	
+	"strings"
+
 	"github.com/sfomuseum/go-activitypub"
 )
 
@@ -30,7 +30,7 @@ func main() {
 
 		body = ""
 		scanner := bufio.NewScanner(os.Stdin)
-		
+
 		for scanner.Scan() {
 			line := scanner.Text()
 			body = fmt.Sprintf("%s %s", body, line)
@@ -42,7 +42,7 @@ func main() {
 			log.Fatalf("Failed to read data, %v", err)
 		}
 	}
-	
+
 	addrs, err := activitypub.ParseAddressesFromString(body)
 
 	if err != nil {

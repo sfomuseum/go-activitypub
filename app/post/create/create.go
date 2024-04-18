@@ -103,50 +103,20 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to retrieve account %s, %w", opts.AccountName, err)
 	}
 
-	p, err := activitypub.NewPost(ctx, acct, opts.Message)
-
-	if err != nil {
-		return fmt.Errorf("Failed to create new post, %w", err)
+	post_opts := &activitypub.AddPostOptions{
+		URIs:             opts.URIs,
+		PostsDatabase:    posts_db,
+		PostTagsDatabase: post_tags_db,
 	}
 
-	if opts.InReplyTo != "" {
-		p.InReplyTo = opts.InReplyTo
-	}
-
-	err = posts_db.AddPost(ctx, p)
+	post, post_tags, err := activitypub.AddPost(ctx, post_opts, acct, opts.Message)
 
 	if err != nil {
 		return fmt.Errorf("Failed to add post, %w", err)
 	}
 
-	// Something something something extract mentions from opts.Message too...
-
-	post_tags := make([]*activitypub.PostTag, 0)
-
-	for _, name := range opts.Mentions {
-
-		actor, err := activitypub.RetrieveActor(ctx, name, opts.URIs.Insecure)
-
-		if err != nil {
-			slog.Error("Failed to retrieve actor data for name, skipping", "name", name, "error", err)
-			continue
-		}
-
-		href := actor.Id
-
-		t, err := activitypub.NewMention(ctx, p, name, href)
-
-		if err != nil {
-			return fmt.Errorf("Failed to create mention for '%s', %w", name, err)
-		}
-
-		err = post_tags_db.AddPostTag(ctx, t)
-
-		if err != nil {
-			return fmt.Errorf("Failed to record post tag (mention) for '%s', %w", name, err)
-		}
-
-		post_tags = append(post_tags, t)
+	if opts.InReplyTo != "" {
+		post.InReplyTo = opts.InReplyTo
 	}
 
 	deliver_opts := &activitypub.DeliverPostToFollowersOptions{
@@ -155,7 +125,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		PostTagsDatabase:   post_tags_db,
 		DeliveriesDatabase: deliveries_db,
 		DeliveryQueue:      delivery_q,
-		Post:               p,
+		Post:               post,
 		PostTags:           post_tags,
 		URIs:               opts.URIs,
 		MaxAttempts:        opts.MaxAttempts,
@@ -167,6 +137,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to deliver post, %w", err)
 	}
 
-	logger.Info("Delivered post", "ID", acct.PostURL(ctx, opts.URIs, p).String())
+	logger.Info("Delivered post", "ID", acct.PostURL(ctx, opts.URIs, post).String())
 	return nil
 }
