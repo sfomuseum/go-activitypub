@@ -177,15 +177,11 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 					return fmt.Errorf("Failed to retrieve post tags for post, %w", err)
 				}
 
-				logger.Info("DEBUG", "is_allowed", is_allowed, "post tags", len(post_tags))
+				if !is_allowed && opts.AllowMentions && len(post_tags) > 0 {
 
-				if !is_allowed && len(post_tags) > 0 {
-
-					// @SFOairport@collection.sfomuseum.org
+					logger.Debug("Check to see whether recipient is listed in post tags", "count tags", len(post_tags))
 
 					r_actor, err := activitypub.RetrieveActor(ctx, ps_opts.Recipient, opts.URIs.Insecure)
-
-					logger.Info("DEBUG", "url", r_actor.URL)
 
 					if err != nil {
 						logger.Warn("Failed to retrieve actor record for recipient", "recipient", ps_opts.Recipient, "error", err)
@@ -193,9 +189,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 						for _, t := range post_tags {
 
-							logger.Info("DEBUG", "tag", t.Href, "url", r_actor.URL)
-
-							if t.Href == r_actor.URL {
+							if t.Href == r_actor.Id {
+								logger.Info("Recipient is included in post tags, allow delivery")
 								is_allowed = true
 								break
 							}

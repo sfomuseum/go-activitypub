@@ -20,7 +20,9 @@ type RunOptions struct {
 	Mode                  string
 	PostId                int64
 	MaxAttempts           int
-	Verbose               bool
+	// Allows posts to accounts not followed by author but where account is mentioned in post
+	AllowMentions bool
+	Verbose       bool
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -49,6 +51,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		PostId:                post_id,
 		URIs:                  uris_table,
 		Verbose:               verbose,
+		AllowMentions:         allow_mentions,
 	}
 
 	return opts, nil

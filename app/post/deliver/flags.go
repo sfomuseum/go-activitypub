@@ -18,6 +18,9 @@ var max_attempts int
 var post_id int64
 var mode string
 
+// Allows posts to accounts not followed by author but where account is mentioned in post
+var allow_mentions bool
+
 var hostname string
 var insecure bool
 var verbose bool
@@ -32,6 +35,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&post_tags_database_uri, "post-tags-database-uri", "null://", "...")
 	fs.StringVar(&deliveries_database_uri, "deliveries-database-uri", "", "...")
 
+	fs.BoolVar(&allow_mentions, "allow-mentions", true, "...")
 	fs.StringVar(&delivery_queue_uri, "delivery-queue-uri", "synchronous://", "...")
 
 	fs.IntVar(&max_attempts, "max-attempts", 5, "...")
