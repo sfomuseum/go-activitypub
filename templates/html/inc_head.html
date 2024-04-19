@@ -15,6 +15,7 @@
 		 font-family: serif;
 		 line-height: 2rem;
 		 padding-bottom: 1.5rem;
+		 margin-top:2rem;
 	 }	 
 	 .post {
 		 margin:2rem !important;
@@ -37,6 +38,6 @@
     </head>
     <body>
 	<header>
-	    <h1><img src="{{ .IconURL }}" height="48" width="48"/>{{ if (IsAvailable "AccountURL" .) }}<a href="{{ .AccountURL }}">{{ .Account.Name }}</a>{{ else }} {{ .Account.Name }}{{ end }}</h1>
+	    <h1><img src="{{ .IconURL }}" height="48" width="48"/>{{ if (IsAvailable "AccountURL" .) }}<a href="{{ .AccountURL }}">@{{ .Account.Name }}</a>{{ else }}@{{ .Account.Name }}{{ end }}</h1>
 	</header>
 {{ end }}

@@ -94,15 +94,15 @@ func (db *DocstorePostTagsDatabase) GetPostTagsForPost(ctx context.Context, post
 }
 
 func (db *DocstorePostTagsDatabase) AddPostTag(ctx context.Context, tag *PostTag) error {
-	return db.collection.Delete(ctx, tag)
+	return db.collection.Put(ctx, tag)
 }
 
-func (db *DocstorePostTagsDatabase) RemovePostTag(ctx context.Context, boost *PostTag) error {
-	return db.collection.Close()
+func (db *DocstorePostTagsDatabase) RemovePostTag(ctx context.Context, tag *PostTag) error {
+	return db.collection.Delete(ctx, tag)	
 }
 
 func (db *DocstorePostTagsDatabase) Close(ctx context.Context) error {
-	return nil
+	return db.collection.Close()
 }
 
 func (db *DocstorePostTagsDatabase) getPostTag(ctx context.Context, q *gc_docstore.Query) (*PostTag, error) {
