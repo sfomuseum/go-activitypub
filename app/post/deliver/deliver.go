@@ -135,6 +135,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 				}
 
 				logger = logger.With("account id", acct.Id)
+				logger = logger.With("recipient", ps_opts.Recipient)
 
 				is_follower, _, err := activitypub.IsFollower(ctx, followers_db, acct.Id, ps_opts.Recipient)
 
@@ -143,12 +144,10 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 					return fmt.Errorf("Unable to determine if recipient is following account")
 				}
 
-				if !is_follower {
-					slog.Error("Recipient is not following account", "recipient", ps_opts.Recipient)
-					return fmt.Errorf("Recipient is not following account")
-				}
+				logger.Info("Follower check", "is_follower", is_follower)
+				is_allowed := is_follower
 
-				logger = logger.With("recipient", ps_opts.Recipient)
+				// We check this below after we've ensured recipient isn't mentioned in post (tags)
 
 				post, err := posts_db.GetPostWithId(ctx, ps_opts.PostId)
 
@@ -176,6 +175,38 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 				if err != nil {
 					slog.Error("Failed to retrieve post tags for post", "error", err)
 					return fmt.Errorf("Failed to retrieve post tags for post, %w", err)
+				}
+
+				logger.Info("DEBUG", "is_allowed", is_allowed, "post tags", len(post_tags))
+
+				if !is_allowed && len(post_tags) > 0 {
+
+					// @SFOairport@collection.sfomuseum.org
+
+					r_actor, err := activitypub.RetrieveActor(ctx, ps_opts.Recipient, opts.URIs.Insecure)
+
+					logger.Info("DEBUG", "url", r_actor.URL)
+
+					if err != nil {
+						logger.Warn("Failed to retrieve actor record for recipient", "recipient", ps_opts.Recipient, "error", err)
+					} else {
+
+						for _, t := range post_tags {
+
+							logger.Info("DEBUG", "tag", t.Href, "url", r_actor.URL)
+
+							if t.Href == r_actor.URL {
+								is_allowed = true
+								break
+							}
+						}
+					}
+
+				}
+
+				if !is_allowed {
+					logger.Error("Recipient is flagged as 'not allowed' to have message delivered")
+					return nil
 				}
 
 				opts := &activitypub.DeliverPostOptions{

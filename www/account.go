@@ -13,7 +13,7 @@ import (
 
 type AccountHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
-	AliasesDatabase activitypub.AliasesDatabase	
+	AliasesDatabase  activitypub.AliasesDatabase
 	URIs             *uris.URIs
 	Templates        *template.Template
 }
@@ -126,7 +126,7 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 			http.Redirect(rsp, req, acct_u.String(), http.StatusSeeOther)
 			return
 		}
-		
+
 		logger = logger.With("account id", acct.Id)
 
 		// Check content-type here and HTML or JSON it up...

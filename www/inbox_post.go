@@ -1105,7 +1105,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			}
 
 			// Dispatch to handle message queue here... maybe?
-			
+
 			logger.Info("Note has been added to messages")
 
 		default:

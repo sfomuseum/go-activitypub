@@ -98,7 +98,7 @@ func (db *DocstorePostTagsDatabase) AddPostTag(ctx context.Context, tag *PostTag
 }
 
 func (db *DocstorePostTagsDatabase) RemovePostTag(ctx context.Context, tag *PostTag) error {
-	return db.collection.Delete(ctx, tag)	
+	return db.collection.Delete(ctx, tag)
 }
 
 func (db *DocstorePostTagsDatabase) Close(ctx context.Context) error {

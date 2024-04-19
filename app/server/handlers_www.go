@@ -24,10 +24,10 @@ func accountHandlerFunc(ctx context.Context) (http.Handler, error) {
 		slog.Error("Failed to set up account database configuration", "error", setupAliasesDatabaseError)
 		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAliasesDatabaseError)
 	}
-	
+
 	opts := &www.AccountHandlerOptions{
 		AccountsDatabase: accounts_db,
-		AliasesDatabase: aliases_db,		
+		AliasesDatabase:  aliases_db,
 		URIs:             run_opts.URIs,
 		Templates:        run_opts.Templates,
 	}
