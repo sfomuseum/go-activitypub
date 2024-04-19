@@ -7,6 +7,8 @@ cli:
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/create-post cmd/create-post/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-followers cmd/list-followers/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-addresses cmd/list-addresses/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/counts-for-date cmd/counts-for-date/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/inbox cmd/inbox/main.go
 
 lambda:
 	@make lambda-server

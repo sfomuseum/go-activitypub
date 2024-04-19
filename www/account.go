@@ -13,6 +13,7 @@ import (
 
 type AccountHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
+	AliasesDatabase activitypub.AliasesDatabase	
 	URIs             *uris.URIs
 	Templates        *template.Template
 }
@@ -70,7 +71,7 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 
 		acct, err := opts.AccountsDatabase.GetAccountWithName(ctx, account_name)
 
-		if err != nil {
+		if err != nil && err != activitypub.ErrNotFound {
 
 			logger.Error("Failed to retrieve account", "error", err)
 
@@ -83,6 +84,49 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 			return
 		}
 
+		// START OF lookup account by alias
+
+		if err != nil {
+
+			logger.Debug("Lookup resource by alias")
+
+			alias, err := opts.AliasesDatabase.GetAliasWithName(ctx, account_name)
+
+			if err != nil {
+
+				logger.Error("Failed to retrieve account for resource alias", "alias", account_name, "error", err)
+
+				if err == activitypub.ErrNotFound {
+					http.Error(rsp, "Not found", http.StatusNotFound)
+					return
+				}
+
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			acct, err = opts.AccountsDatabase.GetAccountWithId(ctx, alias.AccountId)
+
+			if err != nil {
+
+				logger.Error("Failed to retrieve account with ID for resource alias", "alias", account_name, "account id", alias.AccountId, "error", err)
+
+				if err == activitypub.ErrNotFound {
+					http.Error(rsp, "Not found", http.StatusNotFound)
+					return
+				}
+
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
+			acct_u := acct.AccountURL(ctx, opts.URIs)
+			logger.Debug("Redirect to account page", "page", acct_u.String())
+
+			http.Redirect(rsp, req, acct_u.String(), http.StatusSeeOther)
+			return
+		}
+		
 		logger = logger.With("account id", acct.Id)
 
 		// Check content-type here and HTML or JSON it up...
