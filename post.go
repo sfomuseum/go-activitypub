@@ -69,8 +69,6 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body stri
 
 	for _, name := range addrs_mentioned {
 
-		slog.Info("RETRIEVE", "name", name)
-
 		actor, err := RetrieveActor(ctx, name, opts.URIs.Insecure)
 
 		if err != nil {

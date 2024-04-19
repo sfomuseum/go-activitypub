@@ -53,8 +53,6 @@ func ParseAddressesFromString(body string) ([]string, error) {
 	lookup := make(map[string]bool)
 
 	for _, m := range matches {
-
-		slog.Info("WTF", "match", m)
 		lookup[m[0]] = true
 	}
 
