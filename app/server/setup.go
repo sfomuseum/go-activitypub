@@ -146,3 +146,17 @@ func setupBoostsDatabase() {
 		return
 	}
 }
+
+func setupProcessMessageQueue() {
+
+	ctx := context.Background()
+	var err error
+
+	process_message_queue, err = activitypub.NewProcessMessageQueue(ctx, run_opts.ProcessMessageQueueURI)
+
+	if err != nil {
+		setupProcessMessageQueueError = fmt.Errorf("Failed to create process message queue, %w", err)
+		return
+	}
+
+}

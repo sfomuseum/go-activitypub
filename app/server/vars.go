@@ -47,3 +47,7 @@ var setupLikesDatabaseError error
 var boosts_db activitypub.BoostsDatabase
 var setupBoostsDatabaseOnce sync.Once
 var setupBoostsDatabaseError error
+
+var process_message_queue activitypub.ProcessMessageQueue
+var setupProcessMessageQueueOnce sync.Once
+var setupProcessMessageQueueError error

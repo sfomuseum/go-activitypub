@@ -47,6 +47,7 @@ type RunOptions struct {
 	AccountHandlerMiddleware MiddlewareFunc
 	PostHandlerMiddleware    MiddlewareFunc
 	CustomHandlers           CustomHandlersFunc
+	ProcessMessageQueueURI   string
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -81,26 +82,27 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	}
 
 	opts := &RunOptions{
-		AccountsDatabaseURI:  accounts_database_uri,
-		AliasesDatabaseURI:   aliases_database_uri,
-		FollowersDatabaseURI: followers_database_uri,
-		FollowingDatabaseURI: following_database_uri,
-		NotesDatabaseURI:     notes_database_uri,
-		MessagesDatabaseURI:  messages_database_uri,
-		PostsDatabaseURI:     posts_database_uri,
-		BlocksDatabaseURI:    blocks_database_uri,
-		LikesDatabaseURI:     likes_database_uri,
-		BoostsDatabaseURI:    boosts_database_uri,
-		ServerURI:            server_uri,
-		URIs:                 uris_table,
-		AllowFollow:          allow_follow,
-		AllowCreate:          allow_create,
-		AllowBoosts:          allow_boosts,
-		AllowMentions:        allow_mentions,
-		AllowLikes:           allow_likes,
-		AllowRemoteIconURI:   allow_remote_icon_uri,
-		Verbose:              verbose,
-		Templates:            t,
+		AccountsDatabaseURI:    accounts_database_uri,
+		AliasesDatabaseURI:     aliases_database_uri,
+		FollowersDatabaseURI:   followers_database_uri,
+		FollowingDatabaseURI:   following_database_uri,
+		NotesDatabaseURI:       notes_database_uri,
+		MessagesDatabaseURI:    messages_database_uri,
+		PostsDatabaseURI:       posts_database_uri,
+		BlocksDatabaseURI:      blocks_database_uri,
+		LikesDatabaseURI:       likes_database_uri,
+		BoostsDatabaseURI:      boosts_database_uri,
+		ServerURI:              server_uri,
+		URIs:                   uris_table,
+		AllowFollow:            allow_follow,
+		AllowCreate:            allow_create,
+		AllowBoosts:            allow_boosts,
+		AllowMentions:          allow_mentions,
+		AllowLikes:             allow_likes,
+		AllowRemoteIconURI:     allow_remote_icon_uri,
+		Verbose:                verbose,
+		Templates:              t,
+		ProcessMessageQueueURI: process_message_queue_uri,
 	}
 
 	return opts, nil

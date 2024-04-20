@@ -44,6 +44,9 @@ func webfingerHandlerFunc(ctx context.Context) (http.Handler, error) {
 
 func inboxPostHandlerFunc(ctx context.Context) (http.Handler, error) {
 
+	// START OF do this concurrently?
+	// Probably only marginally faster at the expense of hard-to-follow code...
+
 	setupAccountsDatabaseOnce.Do(setupAccountsDatabase)
 
 	if setupAccountsDatabaseError != nil {
@@ -107,22 +110,32 @@ func inboxPostHandlerFunc(ctx context.Context) (http.Handler, error) {
 		return nil, fmt.Errorf("Failed to set up follower database configuration, %w", setupPostsDatabaseError)
 	}
 
+	setupProcessMessageQueueOnce.Do(setupProcessMessageQueue)
+
+	if setupProcessMessageQueueError != nil {
+		slog.Error("Failed to set up process message queue", "error", setupProcessMessageQueueError)
+		return nil, fmt.Errorf("Failed to set up process message queue, %w", setupProcessMessageQueueError)
+	}
+
+	// END OF do this concurrently?
+
 	opts := &www.InboxPostHandlerOptions{
-		AccountsDatabase:  accounts_db,
-		FollowersDatabase: followers_db,
-		FollowingDatabase: following_db,
-		NotesDatabase:     notes_db,
-		MessagesDatabase:  messages_db,
-		BlocksDatabase:    blocks_db,
-		PostsDatabase:     posts_db,
-		LikesDatabase:     likes_db,
-		BoostsDatabase:    boosts_db,
-		URIs:              run_opts.URIs,
-		AllowFollow:       run_opts.AllowFollow,
-		AllowCreate:       run_opts.AllowCreate,
-		AllowLikes:        run_opts.AllowLikes,
-		AllowBoosts:       run_opts.AllowBoosts,
-		AllowMentions:     run_opts.AllowMentions,
+		AccountsDatabase:    accounts_db,
+		FollowersDatabase:   followers_db,
+		FollowingDatabase:   following_db,
+		NotesDatabase:       notes_db,
+		MessagesDatabase:    messages_db,
+		BlocksDatabase:      blocks_db,
+		PostsDatabase:       posts_db,
+		LikesDatabase:       likes_db,
+		BoostsDatabase:      boosts_db,
+		URIs:                run_opts.URIs,
+		AllowFollow:         run_opts.AllowFollow,
+		AllowCreate:         run_opts.AllowCreate,
+		AllowLikes:          run_opts.AllowLikes,
+		AllowBoosts:         run_opts.AllowBoosts,
+		AllowMentions:       run_opts.AllowMentions,
+		ProcessMessageQueue: process_message_queue,
 	}
 
 	return www.InboxPostHandler(opts)

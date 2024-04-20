@@ -17,6 +17,8 @@ var blocks_database_uri string
 var likes_database_uri string
 var boosts_database_uri string
 
+var process_message_queue_uri string
+
 var server_uri string
 var hostname string
 var insecure bool
@@ -58,6 +60,8 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&server_uri, "server-uri", "http://localhost:8080", "...")
 	fs.StringVar(&hostname, "hostname", "", "...")
 	fs.BoolVar(&insecure, "insecure", false, "...")
+
+	fs.StringVar(&process_message_queue_uri, "process-message-queue-uri", "null://", "...")
 
 	fs.BoolVar(&allow_remote_icon_uri, "allow-remote-icon-uri", false, "...")
 	fs.BoolVar(&verbose, "verbose", false, "Enable verbose logging")

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-fed/httpsig"
@@ -19,20 +20,21 @@ import (
 )
 
 type InboxPostHandlerOptions struct {
-	AccountsDatabase  activitypub.AccountsDatabase
-	FollowersDatabase activitypub.FollowersDatabase
-	FollowingDatabase activitypub.FollowingDatabase
-	MessagesDatabase  activitypub.MessagesDatabase
-	NotesDatabase     activitypub.NotesDatabase
-	PostsDatabase     activitypub.PostsDatabase
-	BlocksDatabase    activitypub.BlocksDatabase
-	LikesDatabase     activitypub.LikesDatabase
-	BoostsDatabase    activitypub.BoostsDatabase
-	URIs              *uris.URIs
-	AllowFollow       bool
-	AllowCreate       bool
-	AllowLikes        bool
-	AllowBoosts       bool
+	AccountsDatabase    activitypub.AccountsDatabase
+	FollowersDatabase   activitypub.FollowersDatabase
+	FollowingDatabase   activitypub.FollowingDatabase
+	MessagesDatabase    activitypub.MessagesDatabase
+	NotesDatabase       activitypub.NotesDatabase
+	PostsDatabase       activitypub.PostsDatabase
+	BlocksDatabase      activitypub.BlocksDatabase
+	LikesDatabase       activitypub.LikesDatabase
+	BoostsDatabase      activitypub.BoostsDatabase
+	ProcessMessageQueue activitypub.ProcessMessageQueue
+	URIs                *uris.URIs
+	AllowFollow         bool
+	AllowCreate         bool
+	AllowLikes          bool
+	AllowBoosts         bool
 	// Allows posts to accounts not followed by author but where account is mentioned in post
 	AllowMentions bool
 
@@ -52,6 +54,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 	fn := func(rsp http.ResponseWriter, req *http.Request) {
 
 		ctx := req.Context()
+		wg := new(sync.WaitGroup)
 
 		logger := LoggerWithRequest(req, nil)
 
@@ -1108,12 +1111,27 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			logger.Info("Note has been added to messages")
 
+			wg.Add(1)
+
+			go func() {
+
+				defer wg.Done()
+
+				err = opts.ProcessMessageQueue.DeliverMessage(ctx, db_message.Id)
+
+				if err != nil {
+					logger.Error("Failed to register message with process queue", "error", err)
+				}
+			}()
+
 		default:
 			// pass
 		}
 
 		logger.Debug("Inbox post complete", "status", http.StatusAccepted)
 		rsp.WriteHeader(http.StatusAccepted)
+
+		wg.Wait()
 		return
 	}
 
