@@ -939,10 +939,16 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			if !is_allowed && opts.AllowMentions && len(note.Tags) > 0 {
 
+				// It is not clear to me whether this is supposed to be {ACTOR}.URL
+				// or {ACTOR}.Id (see below)
+				
 				account_url := acct.AccountURL(ctx, opts.URIs).String()
 
 				for _, t := range note.Tags {
 
+					// Is it {ACTOR}.Id or {ACTOR}.URL ?
+					// if t.Href == r_actor.URL {
+					
 					if t.Href == account_url {
 						logger.Info("Post author is not followed but account is mentioned")
 						is_allowed = true

@@ -189,6 +189,9 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 						for _, t := range post_tags {
 
+							// Is it {ACTOR}.Id or {ACTOR}.URL ?
+							// if t.Href == r_actor.URL {
+							
 							if t.Href == r_actor.Id {
 								logger.Info("Recipient is included in post tags, allow delivery")
 								is_allowed = true
