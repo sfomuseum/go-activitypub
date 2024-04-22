@@ -19,7 +19,7 @@ func NewSlogProcessMessageQueue(ctx context.Context, uri string) (ProcessMessage
 	return q, nil
 }
 
-func (q *SlogProcessMessageQueue) DeliverPost(ctx context.Context, message_id int64) error {
+func (q *SlogProcessMessageQueue) ProcessMessage(ctx context.Context, message_id int64) error {
 	slog.Info("Process message", "message_id", message_id)
 	return nil
 }

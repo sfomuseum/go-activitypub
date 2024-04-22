@@ -45,7 +45,7 @@ func NewPubSubProcessMessageQueue(ctx context.Context, uri string) (ProcessMessa
 	return q, nil
 }
 
-func (q *PubSubProcessMessageQueue) DeliverPost(ctx context.Context, message_id int64) error {
+func (q *PubSubProcessMessageQueue) ProcessMessage(ctx context.Context, message_id int64) error {
 
 	enc_id, err := json.Marshal(message_id)
 

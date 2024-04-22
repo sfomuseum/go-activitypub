@@ -18,6 +18,6 @@ func NewNullProcessMessageQueue(ctx context.Context, uri string) (ProcessMessage
 	return q, nil
 }
 
-func (q *NullProcessMessageQueue) DeliverPost(ctx context.Context, message_id int64) error {
+func (q *NullProcessMessageQueue) ProcessMessage(ctx context.Context, message_id int64) error {
 	return nil
 }

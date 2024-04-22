@@ -11,7 +11,7 @@ import (
 )
 
 type ProcessMessageQueue interface {
-	DeliverMessage(context.Context, int64) error
+	ProcessMessage(context.Context, int64) error
 }
 
 var process_message_queue_roster roster.Roster

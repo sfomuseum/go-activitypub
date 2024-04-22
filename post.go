@@ -76,11 +76,11 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body stri
 			continue
 		}
 
-		mention_name := name		// not actor.Name which is the display name (unless I've got it all wrong...)
+		mention_name := name // not actor.Name which is the display name (unless I've got it all wrong...)
 
-		// Is it {ACTOR}.Id or {ACTOR}.URL ?		
+		// Is it {ACTOR}.Id or {ACTOR}.URL ?
 		// mention_href := actor.URL
-		mention_href := actor.Id		
+		mention_href := actor.Id
 
 		t, err := NewMention(ctx, p, mention_name, mention_href)
 
