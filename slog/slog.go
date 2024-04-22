@@ -36,7 +36,8 @@ func DefaultWithWriter(wr io.Writer) *go_slog.Logger {
 		Level: logLevel,
 	}
 
-	handler := go_slog.NewJSONHandler(wr, opts)
+	// handler := go_slog.NewJSONHandler(wr, opts)
+	handler := go_slog.NewTextHandler(wr, opts)	
 
 	return go_slog.New(handler)
 }

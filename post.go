@@ -76,9 +76,10 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body stri
 			continue
 		}
 
-		href := actor.Id
+		mention_name := name		// not actor.Name which is the display name (unless I've got it all wrong...)		
+		mention_href := actor.Id
 
-		t, err := NewMention(ctx, p, name, href)
+		t, err := NewMention(ctx, p, mention_name, mention_href)
 
 		if err != nil {
 			return nil, nil, fmt.Errorf("Failed to create mention for '%s', %w", name, err)

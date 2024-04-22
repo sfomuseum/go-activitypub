@@ -1025,32 +1025,6 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				logger = logger.With("note id", db_note.Id)
 
-				// I no longer remember why I added this logic and it no longer
-				// seems relevant. To be removed soon. (20240418/thisisaaronland)
-
-				/*
-
-					now := time.Now()
-					ts := now.Unix()
-
-						if bytes.Equal(enc_obj, []byte(db_note.Body)) {
-							logger.Error("Note already registered")
-							http.Error(rsp, "Bad request", http.StatusBadRequest)
-							return
-						}
-
-						db_note.Body = string(enc_obj)
-						db_note.LastModified = ts
-
-						err = opts.NotesDatabase.UpdateNote(ctx, db_note)
-
-						if err != nil {
-							logger.Error("Failed to update note", "error", err)
-							http.Error(rsp, "Internal server error", http.StatusInternalServerError)
-							return
-						}
-				*/
-
 			} else {
 
 				new_note, err := activitypub.AddNote(ctx, opts.NotesDatabase, note_uuid, requestor_address, string(enc_obj))
