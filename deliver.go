@@ -191,7 +191,7 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 	if len(note.Cc) > 0 {
 		create_activity.Cc = note.Cc
 	}
-	
+
 	// START OF is this really necessary?
 	// Also, what if this isn't a post?
 

@@ -76,14 +76,15 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body stri
 			continue
 		}
 
-		mention_name := name // not actor.Name which is the display name (unless I've got it all wrong...)
+		mention_name := name
 
-		// The old way
-		// mention_href := actor.Id
-
-		// The maybe? way
 		// https://github.com/sfomuseum/go-activitypub/issues/3
-		mention_href := actor.URL
+		// mention_href := actor.URL
+
+		// And yet it appears to actually be {ACTOR}.id however this
+		// does not work (where "work" means open profile tab) in Ivory
+		// yet because... I have no idea
+		mention_href := actor.Id
 
 		t, err := NewMention(ctx, p, mention_name, mention_href)
 
@@ -136,7 +137,7 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, pos
 
 	tags := make([]*ap.Tag, len(post_tags))
 	cc := make([]string, 0)
-	
+
 	for idx, pt := range post_tags {
 
 		t := &ap.Tag{
@@ -169,7 +170,7 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, pos
 	if len(cc) > 0 {
 		n.Cc = cc
 	}
-	
+
 	return n, nil
 }
 

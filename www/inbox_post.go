@@ -939,13 +939,14 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			if !is_allowed && opts.AllowMentions && len(note.Tags) > 0 {
 
-				// The old way
-				// account_url := acct.AccountURL(ctx, opts.URIs).String()
-
-				// The maybe? way
 				// https://github.com/sfomuseum/go-activitypub/issues/3
-				account_url := acct.URL
-				
+				// account_url := acct.URL
+
+				// And yet it appears to actually be {ACTOR}.id however this
+				// does not work (where "work" means open profile tab) in Ivory
+				// yet because... I have no idea
+				account_url := acct.AccountURL(ctx, opts.URIs).String()
+
 				for _, t := range note.Tags {
 
 					if t.Href == account_url {
@@ -953,6 +954,10 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 						is_allowed = true
 						break
 					}
+				}
+
+				if !is_allowed {
+					logger.Warn("Post author is not followed and not found in mentions", "account_url", account_url)
 				}
 			}
 

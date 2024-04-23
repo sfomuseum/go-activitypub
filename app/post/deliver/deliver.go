@@ -189,13 +189,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 						for _, t := range post_tags {
 
-							// The old way
-							// if t.Href == r_actor.Id {
-								
-							// The maybe? way
 							// https://github.com/sfomuseum/go-activitypub/issues/3
-							
-							if t.Href == r_actor.URL {
+							// if t.Href == r_actor.URL {
+
+							// And yet it appears to actually be {ACTOR}.id however this
+							// does not work (where "work" means open profile tab) in Ivory
+							// yet because... I have no idea
+							if t.Href == r_actor.Id {
 								logger.Info("Recipient is included in post tags, allow delivery")
 								is_allowed = true
 								break
