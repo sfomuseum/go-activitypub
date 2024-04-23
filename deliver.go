@@ -188,6 +188,10 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		return fmt.Errorf("Failed to create activity from post, %w", err)
 	}
 
+	if len(note.Cc) > 0 {
+		create_activity.Cc = note.Cc
+	}
+	
 	// START OF is this really necessary?
 	// Also, what if this isn't a post?
 

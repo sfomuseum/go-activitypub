@@ -78,9 +78,12 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body stri
 
 		mention_name := name // not actor.Name which is the display name (unless I've got it all wrong...)
 
-		// Is it {ACTOR}.Id or {ACTOR}.URL ?
-		// mention_href := actor.URL
-		mention_href := actor.Id
+		// The old way
+		// mention_href := actor.Id
+
+		// The maybe? way
+		// https://github.com/sfomuseum/go-activitypub/issues/3
+		mention_href := actor.URL
 
 		t, err := NewMention(ctx, p, mention_name, mention_href)
 
@@ -132,7 +135,8 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, pos
 	t := time.Unix(post.Created, 0)
 
 	tags := make([]*ap.Tag, len(post_tags))
-
+	cc := make([]string, 0)
+	
 	for idx, pt := range post_tags {
 
 		t := &ap.Tag{
@@ -142,6 +146,10 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, pos
 		}
 
 		tags[idx] = t
+
+		if pt.Type == "Mention" {
+			cc = append(cc, pt.Href)
+		}
 	}
 
 	n := &ap.Note{
@@ -158,6 +166,10 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, pos
 		URL:       post_url.String(),
 	}
 
+	if len(cc) > 0 {
+		n.Cc = cc
+	}
+	
 	return n, nil
 }
 

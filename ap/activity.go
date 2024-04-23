@@ -11,5 +11,6 @@ type Activity struct {
 	Type    string      `json:"type"`
 	Actor   string      `json:"actor"`
 	To      []string    `json:"to,omitempty"`
+	Cc	[]string    `json:"cc,omitempty"`
 	Object  interface{} `json:"object,omitempty"`
 }

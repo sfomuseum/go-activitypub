@@ -53,6 +53,7 @@ func PostToAccount(ctx context.Context, opts *PostToAccountOptions) (string, err
 		Inbox:    actor.Inbox,
 		Activity: opts.Activity,
 		URIs:     opts.URIs,
+		LogRequest: true,
 	}
 
 	return actor.Inbox, PostToInbox(ctx, inbox_opts)
