@@ -58,6 +58,10 @@ func NewSQLAccountsDatabase(ctx context.Context, uri string) (AccountsDatabase, 
 	return db, nil
 }
 
+func (db *SQLAccountsDatabase) GetAccounts(ctx context.Context, acct GetAccountsCallbackFunc) error {
+	return ErrNotImplemented
+}
+
 func (db *SQLAccountsDatabase) GetAccountIdsForDateRange(ctx context.Context, start int64, end int64, cb GetAccountIdsCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
@@ -174,6 +178,14 @@ func (db *SQLAccountsDatabase) getAccount(ctx context.Context, where string, arg
 	}
 
 	return a, nil
+}
+
+func (db *SQLAccountsDatabase) UpdateAccount(ctx context.Context, acct *Account) error {
+	return ErrNotImplemented
+}
+
+func (db *SQLAccountsDatabase) RemoveAccount(ctx context.Context, acct *Account) error {
+	return ErrNotImplemented
 }
 
 func (db *SQLAccountsDatabase) Close(ctx context.Context) error {

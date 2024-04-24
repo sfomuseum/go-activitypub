@@ -40,6 +40,35 @@ func NewDocstoreAccountsDatabase(ctx context.Context, uri string) (AccountsDatab
 	return db, nil
 }
 
+func (db *DocstoreAccountsDatabase) GetAccounts(ctx context.Context, cb GetAccountsCallbackFunc) error {
+
+	q := db.collection.Query()
+
+	iter := q.Get(ctx)
+	defer iter.Stop()
+
+	for {
+
+		var a Account
+		err := iter.Next(ctx, &a)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+
+			err := cb(ctx, &a)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for account %d, %w", a.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreAccountsDatabase) GetAccountIdsForDateRange(ctx context.Context, start int64, end int64, cb GetAccountIdsCallbackFunc) error {
 
 	q := db.collection.Query()
@@ -108,6 +137,14 @@ func (db *DocstoreAccountsDatabase) GetAccountWithName(ctx context.Context, name
 	q = q.Where("Name", "=", name)
 
 	return db.getAccount(ctx, q)
+}
+
+func (db *DocstoreAccountsDatabase) UpdateAccount(ctx context.Context, acct *Account) error {
+	return db.collection.Replace(ctx, acct)
+}
+
+func (db *DocstoreAccountsDatabase) RemoveAccount(ctx context.Context, acct *Account) error {
+	return db.collection.Delete(ctx, acct)
 }
 
 func (db *DocstoreAccountsDatabase) Close(ctx context.Context) error {
