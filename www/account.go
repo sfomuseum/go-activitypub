@@ -16,6 +16,7 @@ type AccountHandlerOptions struct {
 	AliasesDatabase  activitypub.AliasesDatabase
 	URIs             *uris.URIs
 	Templates        *template.Template
+	RedirectOnAlias  bool
 }
 
 type AccountTemplateVars struct {
@@ -120,11 +121,17 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			acct_u := acct.AccountURL(ctx, opts.URIs)
-			logger.Debug("Redirect to account page", "page", acct_u.String())
+			// False by default - currently lacking hooks in the rest of the code
+			// for setting this manually (cli flag, etc)
 
-			http.Redirect(rsp, req, acct_u.String(), http.StatusSeeOther)
-			return
+			if opts.RedirectOnAlias {
+
+				acct_u := acct.AccountURL(ctx, opts.URIs)
+				logger.Debug("Redirect to account page", "page", acct_u.String())
+
+				http.Redirect(rsp, req, acct_u.String(), http.StatusSeeOther)
+				return
+			}
 		}
 
 		logger = logger.With("account id", acct.Id)
