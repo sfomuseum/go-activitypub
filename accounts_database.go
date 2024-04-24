@@ -11,11 +11,13 @@ import (
 )
 
 type GetAccountIdsCallbackFunc func(context.Context, int64) error
+type GetAccountsCallbackFunc func(context.Context, *Account) error
 
 type AccountsDatabase interface {
 	GetAccountIdsForDateRange(context.Context, int64, int64, GetAccountIdsCallbackFunc) error
 	GetAccountWithId(context.Context, int64) (*Account, error)
 	GetAccountWithName(context.Context, string) (*Account, error)
+	GetAccounts(context.Context, GetAccountsCallbackFunc) error
 	AddAccount(context.Context, *Account) error
 	RemoveAccount(context.Context, *Account) error
 	UpdateAccount(context.Context, *Account) error
