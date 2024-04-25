@@ -41,3 +41,28 @@ func NewProperty(ctx context.Context, acct *Account, k string, v string) (*Prope
 
 	return pr, nil
 }
+
+func PropertiesMapForAccount(ctx context.Context, acct *Account, properties_db PropertiesDatabase) (map[string]*Property, error) {
+
+	props_map := make(map[string]*Property)
+
+	cb := func(ctx context.Context, pr *Property) error {
+
+		_, exists := props_map[pr.Key]
+
+		if exists {
+			return fmt.Errorf("Duplicate key for %s", pr.Key)
+		}
+
+		props_map[pr.Key] = pr
+		return nil
+	}
+
+	err := properties_db.GetPropertiesForAccount(ctx, acct.Id, cb)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to derive properties for account, %w", err)
+	}
+
+	return props_map, nil
+}
