@@ -1,0 +1,11 @@
+CREATE TABLE properties (
+       id INTEGER PRIMARY KEY,
+       account_id INTEGER,
+       key TEXT,
+       value TEXT,
+       type TEXT,
+       created INTEGER
+);
+
+CREATE INDEX `properties_by_account` ON properties (`account_id`, `created`);
+CREATE INDEX `properties_by_created` ON properties (`created`);

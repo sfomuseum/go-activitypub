@@ -15,7 +15,28 @@ CREATE TABLE accounts (
        UNIQUE KEY `accounts_by_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE INDEX `accounts_by_created` ON ACCOUNTS (`created`);
+CREATE INDEX `accounts_by_created` ON accounts (`created`);
+
+CREATE TABLE aliases (
+       name VARCHAR(255) UNSIGNED NOT NULL PRIMARY KEY,
+       account_id BIGINT(20) UNSIGNED NOT NULL,
+       created BIGINT(20) UNSIGNED NOT NULL
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE INDEX `aliases_by_account` ON aliases (`account_id`, `created`);
+CREATE INDEX `aliases_by_created` ON aliases (`created`);
+
+CREATE TABLE properties (
+       id BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
+       account_id BIGINT(20) UNSIGNED NOT NULL,
+       key VARCHAR(255) NOT NULL,
+       value VARCHAR(255) NOT NULL,
+       type VARCHAR(255) NOT NULL,
+       created BIGINT(20) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE INDEX `properties_by_account` ON properties (`account_id`, `created`);
+CREATE INDEX `properties_by_created` ON properties (`created`);
 
 CREATE TABLE blocks (
        id BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,

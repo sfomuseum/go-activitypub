@@ -12,6 +12,7 @@ import (
 
 var ACCOUNTS_TABLE_NAME = "accounts"
 var ALIASES_TABLE_NAME = "aliases"
+var PROPERTIES_TABLE_NAME = "properties"
 var FOLLOWERS_TABLE_NAME = "followers"
 var FOLLOWING_TABLE_NAME = "following"
 var POSTS_TABLE_NAME = "posts"
@@ -38,4 +39,5 @@ var DynamoDBTables = map[string]*dynamodb.CreateTableInput{
 	DELIVERIES_TABLE_NAME: DynamoDBDeliveriesTable,
 	LIKES_TABLE_NAME:      DynamoDBLikesTable,
 	BOOSTS_TABLE_NAME:     DynamoDBBoostsTable,
+	PROPERTIES_TABLE_NAME:     DynamoDBPropertiesTable,	
 }

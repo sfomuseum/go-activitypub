@@ -1,0 +1,8 @@
+CREATE TABLE aliases (
+       name TEXT PRIMARY KEY,
+       account_id INTEGER,
+       created INTEGER
+);
+
+CREATE INDEX `aliases_by_account` ON aliases (`account_id`, `created`);
+CREATE INDEX `aliases_by_created` ON aliases (`created`);
