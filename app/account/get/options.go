@@ -9,8 +9,9 @@ import (
 )
 
 type RunOptions struct {
-	AccountsDatabaseURI string
-	AccountName         string
+	AccountsDatabaseURI   string
+	PropertiesDatabaseURI string
+	AccountName           string
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -24,8 +25,9 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	}
 
 	opts := &RunOptions{
-		AccountsDatabaseURI: accounts_database_uri,
-		AccountName:         account_name,
+		AccountsDatabaseURI:   accounts_database_uri,
+		PropertiesDatabaseURI: properties_database_uri,
+		AccountName:           account_name,
 	}
 
 	return opts, nil

@@ -11,6 +11,11 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 )
 
+type results struct {
+	Account    *activitypub.Account    `json:"account"`
+	Properties []*activitypub.Property `json:"properties"`
+}
+
 func Run(ctx context.Context, logger *slog.Logger) error {
 	fs := DefaultFlagSet()
 	return RunWithFlagSet(ctx, fs, logger)
@@ -34,8 +39,20 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create new database, %w", err)
+		return fmt.Errorf("Failed to create accounts database, %w", err)
 	}
+
+	defer accounts_db.Close(ctx)
+
+	properties_db, err := activitypub.NewPropertiesDatabase(ctx, opts.PropertiesDatabaseURI)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create properties database, %w", err)
+	}
+
+	defer properties_db.Close(ctx)
+
+	r := new(results)
 
 	acct, err := accounts_db.GetAccountWithName(ctx, opts.AccountName)
 
@@ -43,11 +60,27 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to retrieve account %s, %w", opts.AccountName, err)
 	}
 
-	enc := json.NewEncoder(os.Stdout)
-	err = enc.Encode(acct)
+	r.Account = acct
+
+	props_map, err := activitypub.PropertiesMapForAccount(ctx, properties_db, acct)
 
 	if err != nil {
-		return fmt.Errorf("Failed to encode account, %w", err)
+		return fmt.Errorf("Failed to derive properties for account %s, %w", opts.AccountName, err)
+	}
+
+	props := make([]*activitypub.Property, 0)
+
+	for _, pr := range props_map {
+		props = append(props, pr)
+	}
+
+	r.Properties = props
+
+	enc := json.NewEncoder(os.Stdout)
+	err = enc.Encode(r)
+
+	if err != nil {
+		return fmt.Errorf("Failed to encode results, %w", err)
 	}
 
 	return nil
