@@ -39,5 +39,5 @@ var DynamoDBTables = map[string]*dynamodb.CreateTableInput{
 	DELIVERIES_TABLE_NAME: DynamoDBDeliveriesTable,
 	LIKES_TABLE_NAME:      DynamoDBLikesTable,
 	BOOSTS_TABLE_NAME:     DynamoDBBoostsTable,
-	PROPERTIES_TABLE_NAME:     DynamoDBPropertiesTable,	
+	PROPERTIES_TABLE_NAME: DynamoDBPropertiesTable,
 }
