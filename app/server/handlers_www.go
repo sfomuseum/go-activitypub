@@ -25,11 +25,19 @@ func accountHandlerFunc(ctx context.Context) (http.Handler, error) {
 		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupAliasesDatabaseError)
 	}
 
+	setupPropertiesDatabaseOnce.Do(setupPropertiesDatabase)
+
+	if setupPropertiesDatabaseError != nil {
+		slog.Error("Failed to set up account database configuration", "error", setupPropertiesDatabaseError)
+		return nil, fmt.Errorf("Failed to set up account database configuration, %w", setupPropertiesDatabaseError)
+	}
+
 	opts := &www.AccountHandlerOptions{
-		AccountsDatabase: accounts_db,
-		AliasesDatabase:  aliases_db,
-		URIs:             run_opts.URIs,
-		Templates:        run_opts.Templates,
+		AccountsDatabase:   accounts_db,
+		AliasesDatabase:    aliases_db,
+		PropertiesDatabase: properties_db,
+		URIs:               run_opts.URIs,
+		Templates:          run_opts.Templates,
 	}
 
 	h, err := www.AccountHandler(opts)

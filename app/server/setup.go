@@ -147,6 +147,20 @@ func setupBoostsDatabase() {
 	}
 }
 
+func setupPropertiesDatabase() {
+
+	ctx := context.Background()
+	var err error
+
+	// defined in vars.go
+	properties_db, err = activitypub.NewPropertiesDatabase(ctx, run_opts.PropertiesDatabaseURI)
+
+	if err != nil {
+		setupPropertiesDatabaseError = fmt.Errorf("Failed to set up properties database, %w", err)
+		return
+	}
+}
+
 func setupProcessMessageQueue() {
 
 	ctx := context.Background()

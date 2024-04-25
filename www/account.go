@@ -12,17 +12,19 @@ import (
 )
 
 type AccountHandlerOptions struct {
-	AccountsDatabase activitypub.AccountsDatabase
-	AliasesDatabase  activitypub.AliasesDatabase
-	URIs             *uris.URIs
-	Templates        *template.Template
-	RedirectOnAlias  bool
+	AccountsDatabase   activitypub.AccountsDatabase
+	AliasesDatabase    activitypub.AliasesDatabase
+	PropertiesDatabase activitypub.PropertiesDatabase
+	URIs               *uris.URIs
+	Templates          *template.Template
+	RedirectOnAlias    bool
 }
 
 type AccountTemplateVars struct {
 	Account    *activitypub.Account
 	AccountURL string
-	IconURL    string
+	// To do: URLs (properties)
+	IconURL string
 }
 
 func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
@@ -136,6 +138,9 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("account id", acct.Id)
 
+		// To do...
+		// activitypub.PropertiesMapForAccount(ctx, acct, opts.PropertiesMap)
+
 		// Check content-type here and HTML or JSON it up...
 
 		if IsActivityStreamRequest(req, "Accept") {
@@ -147,6 +152,8 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 				http.Error(rsp, "Not acceptable", http.StatusNotAcceptable)
 				return
 			}
+
+			// To do: append properties map (above)
 
 			rsp.Header().Set("Content-type", "application/activity+json")
 
@@ -168,6 +175,8 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 
 		icon_path := uris.AssignResource(opts.URIs.Icon, acct.Name)
 		icon_url := uris.NewURL(opts.URIs, icon_path)
+
+		// To do: URLs (properties map (above))
 
 		vars := AccountTemplateVars{
 			Account:    acct,

@@ -23,22 +23,23 @@ type MiddlewareFunc func(http.Handler) http.Handler
 type CustomHandlersFunc func(*http.ServeMux) error
 
 type RunOptions struct {
-	ServerURI            string
-	URIs                 *uris.URIs
-	AccountsDatabaseURI  string
-	AliasesDatabaseURI   string
-	FollowersDatabaseURI string
-	FollowingDatabaseURI string
-	NotesDatabaseURI     string
-	MessagesDatabaseURI  string
-	BlocksDatabaseURI    string
-	PostsDatabaseURI     string
-	LikesDatabaseURI     string
-	BoostsDatabaseURI    string
-	AllowFollow          bool
-	AllowCreate          bool
-	AllowLikes           bool
-	AllowBoosts          bool
+	ServerURI             string
+	URIs                  *uris.URIs
+	AccountsDatabaseURI   string
+	AliasesDatabaseURI    string
+	FollowersDatabaseURI  string
+	FollowingDatabaseURI  string
+	NotesDatabaseURI      string
+	MessagesDatabaseURI   string
+	BlocksDatabaseURI     string
+	PostsDatabaseURI      string
+	PropertiesDatabaseURI string
+	LikesDatabaseURI      string
+	BoostsDatabaseURI     string
+	AllowFollow           bool
+	AllowCreate           bool
+	AllowLikes            bool
+	AllowBoosts           bool
 	// Allows posts to accounts not followed by author but where account is mentioned in post
 	AllowMentions            bool
 	AllowRemoteIconURI       bool
@@ -92,6 +93,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		BlocksDatabaseURI:      blocks_database_uri,
 		LikesDatabaseURI:       likes_database_uri,
 		BoostsDatabaseURI:      boosts_database_uri,
+		PropertiesDatabaseURI:  properties_database_uri,
 		ServerURI:              server_uri,
 		URIs:                   uris_table,
 		AllowFollow:            allow_follow,

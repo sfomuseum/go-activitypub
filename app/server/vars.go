@@ -48,6 +48,10 @@ var boosts_db activitypub.BoostsDatabase
 var setupBoostsDatabaseOnce sync.Once
 var setupBoostsDatabaseError error
 
+var properties_db activitypub.PropertiesDatabase
+var setupPropertiesDatabaseOnce sync.Once
+var setupPropertiesDatabaseError error
+
 var process_message_queue activitypub.ProcessMessageQueue
 var setupProcessMessageQueueOnce sync.Once
 var setupProcessMessageQueueError error
