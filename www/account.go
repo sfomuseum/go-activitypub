@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
@@ -138,8 +140,13 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("account id", acct.Id)
 
-		// To do...
-		// activitypub.PropertiesMapForAccount(ctx, acct, opts.PropertiesMap)
+		props_lookup, err := activitypub.PropertiesMapForAccount(ctx, opts.PropertiesDatabase, acct)
+
+		if err != nil {
+			logger.Error("Failed to derive properties map for account", "error", err)
+			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 
 		// Check content-type here and HTML or JSON it up...
 
@@ -151,6 +158,37 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 				logger.Error("Failed to derive profile response for resource", "error", err)
 				http.Error(rsp, "Not acceptable", http.StatusNotAcceptable)
 				return
+			}
+
+			var attachments []*ap.Attachment
+
+			if profile.Attachments != nil {
+				attachments = profile.Attachments
+			}
+
+			for k, prop := range props_lookup {
+
+				if !strings.HasPrefix(k, "url:") {
+					continue
+				}
+
+				parts := strings.Split(k, ":")
+				label := parts[1]
+
+				url := prop.Value
+				link := fmt.Sprintf(`<a href="%s" target=\"_blank\" rel=\"nofollow noopener noreferrer me\" translate=\"no\">%s</a>`, url, url)
+
+				a := &ap.Attachment{
+					Type:  "PropertyValue",
+					Name:  label,
+					Value: link,
+				}
+
+				attachments = append(attachments, a)
+			}
+
+			if len(attachments) > 0 {
+				profile.Attachments = attachments
 			}
 
 			// To do: append properties map (above)
