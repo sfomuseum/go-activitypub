@@ -25,6 +25,12 @@ var DynamoDBPropertiesTable = &dynamodb.CreateTableInput{
 			AttributeName: aws.String("Created"),
 			AttributeType: aws.String("N"),
 		},
+		/*
+			{
+				AttributeName: aws.String("Key"),
+				AttributeType: aws.String("S"),
+			},
+		*/
 	},
 	GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
 		{

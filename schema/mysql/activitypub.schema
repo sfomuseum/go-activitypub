@@ -31,8 +31,8 @@ CREATE TABLE properties (
        account_id BIGINT(20) UNSIGNED NOT NULL,
        key VARCHAR(255) NOT NULL,
        value VARCHAR(255) NOT NULL,
-       type VARCHAR(255) NOT NULL,
-       created BIGINT(20) UNSIGNED NOT NULL
+       created BIGINT(20) UNSIGNED NOT NULL,
+       UNIQUE KEY `properties_by_key` (`account_id`, `key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE INDEX `properties_by_account` ON properties (`account_id`, `created`);
