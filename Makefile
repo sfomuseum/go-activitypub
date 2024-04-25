@@ -45,6 +45,7 @@ BLOCKS_DB=blocks.db
 DELIVERIES_DB=deliveries.db
 BOOSTS_DB=boosts.db
 LIKES_DB=likes.db
+PROPERTIES_DB=properties.db
 
 ACCOUNTS_DB_URI=sql://sqlite3?dsn=$(ACCOUNTS_DB)
 FOLLOWERS_DB_URI=sql://sqlite3?dsn=$(FOLLOWERS_DB)
@@ -57,6 +58,7 @@ MESSAGES_DB_URI=sql://sqlite3?dsn=$(MESSAGES_DB)
 DELIVERIES_DB_URI=sql://sqlite3?dsn=$(DELIVERIES_DB)
 BOOSTS_DB_URI=sql://sqlite3?dsn=$(BOOSTS_DB)
 LIKES_DB_URI=sql://sqlite3?dsn=$(LIKES_DB)
+PROPERTIES_DB_URI=sql://sqlite3?dsn=$(PROPERTIES_DB)
 
 
 ACCOUNTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true
@@ -71,6 +73,7 @@ NOTES_DB_URI=awsdynamodb://$(TABLE_PREFIX)notes?partition_key=Id&allow_scans=tru
 MESSAGES_DB_URI=awsdynamodb://$(TABLE_PREFIX)messages?partition_key=Id&allow_scans=true&local=true
 POST_TAGS_DB_URI=awsdynamodb://$(TABLE_PREFIX)post_tags?partition_key=Id&allow_scans=true&local=true
 POSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)posts?partition_key=Id&allow_scans=true&local=true
+PROPERTIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)properties?partition_key=Id&allow_scans=true&local=true
 
 db-sqlite:
 	rm -f *.db
@@ -85,27 +88,34 @@ db-sqlite:
 	$(SQLITE3) $(DELIVERIES_DB) < schema/sqlite/deliveries.schema
 	$(SQLITE3) $(BOOSTS_DB) < schema/sqlite/boosts.schema
 	$(SQLITE3) $(LIKES_DB) < schema/sqlite/likes.schema
+	$(SQLITE3) $(PROPERTIES_DB) < schema/sqlite/properties.schema
 
 accounts:
 	go run cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
+		-properties-database-uri '$(PROPERTIES_DB_URI)' \
 		-account-name bob \
 		-alias robert \
 		-account-type Service \
 		-account-icon-uri fixtures/icons/bob.jpg \
+		-property 'url:www=https://bob.com' \
 		-embed-icon-uri
 	go run cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
+		-properties-database-uri '$(PROPERTIES_DB_URI)' \
 		-account-name doug \
 		-alias doug \
+		-property 'url:www=https://bob.com/doug' \
 		-account-type Service
 	go run cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
+		-properties-database-uri '$(PROPERTIES_DB_URI)' \
 		-account-name alice \
 		-account-type Person \
+		-property 'url:www=https://www.alice.info' \
 		-account-icon-uri 's3blob://sfomuseum-media/ap/icons/sfo.jpg?region=us-west-2&credentials=session'
 		# -allow-remote-icon-uri \
 		# -account-icon-uri https://static.sfomuseum.org/media/172/956/659/5/1729566595_kjcAQKRw176gxIieIWZySjhlNzgKNxoA_s.jpg
@@ -208,6 +218,7 @@ server:
 		-posts-database-uri '$(POSTS_DB_URI)' \
 		-boosts-database-uri '$(BOOSTS_DB_URI)' \
 		-likes-database-uri '$(LIKES_DB_URI)' \
+		-properties-database-uri '$(PROPERTIES_DB_URI)' \
 		-allow-remote-icon-uri \
 		-allow-create \
 		-verbose \

@@ -26,7 +26,8 @@ type AccountTemplateVars struct {
 	Account    *activitypub.Account
 	AccountURL string
 	// To do: URLs (properties)
-	IconURL string
+	IconURL       string
+	PropertiesMap map[string]*activitypub.Property
 }
 
 func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
@@ -140,7 +141,7 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("account id", acct.Id)
 
-		props_lookup, err := activitypub.PropertiesMapForAccount(ctx, opts.PropertiesDatabase, acct)
+		props_map, err := activitypub.PropertiesMapForAccount(ctx, opts.PropertiesDatabase, acct)
 
 		if err != nil {
 			logger.Error("Failed to derive properties map for account", "error", err)
@@ -166,7 +167,7 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 				attachments = profile.Attachments
 			}
 
-			for k, prop := range props_lookup {
+			for k, prop := range props_map {
 
 				if !strings.HasPrefix(k, "url:") {
 					continue
@@ -175,8 +176,14 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 				parts := strings.Split(k, ":")
 				label := parts[1]
 
-				url := prop.Value
-				link := fmt.Sprintf(`<a href="%s" target=\"_blank\" rel=\"nofollow noopener noreferrer me\" translate=\"no\">%s</a>`, url, url)
+				href := prop.Value
+				url := href
+
+				// This is what Mastodon does so for the time being we'll do it too
+				url = strings.Replace(url, "https://", `<span class="invisible">https://</span>`, 1)
+				url = strings.Replace(url, "www.", `<span class="invisible">www.</span>`, 1)
+
+				link := fmt.Sprintf(`<a href="%s" target="_blank" rel="nofollow noopener noreferrer me" translate="no">%s</a>`, href, url)
 
 				a := &ap.Attachment{
 					Type:  "PropertyValue",
@@ -217,9 +224,10 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 		// To do: URLs (properties map (above))
 
 		vars := AccountTemplateVars{
-			Account:    acct,
-			IconURL:    icon_url.String(),
-			AccountURL: account_url.String(),
+			Account:       acct,
+			IconURL:       icon_url.String(),
+			AccountURL:    account_url.String(),
+			PropertiesMap: props_map,
 		}
 
 		rsp.Header().Set("Content-type", "text/html")

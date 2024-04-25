@@ -9,6 +9,7 @@ import (
 
 var accounts_database_uri string
 var aliases_database_uri string
+var properties_database_uri string
 
 var account_name string
 var display_name string
@@ -28,6 +29,7 @@ var embed_icon_uri bool
 var discoverable bool
 
 var aliases multi.MultiString
+var properties_kv multi.KeyValueString
 
 func DefaultFlagSet() *flag.FlagSet {
 
@@ -35,6 +37,7 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "...")
 	fs.StringVar(&aliases_database_uri, "aliases-database-uri", "", "...")
+	fs.StringVar(&properties_database_uri, "properties-database-uri", "", "...")
 
 	fs.Int64Var(&account_id, "account-id", 0, "...")
 
@@ -54,5 +57,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&account_icon_uri, "account-icon-uri", "", "...")
 	fs.BoolVar(&allow_remote_icon_uri, "allow-remote-icon-uri", false, "...")
 	fs.BoolVar(&embed_icon_uri, "embed-icon-uri", false, "...")
+
+	fs.Var(&properties_kv, "property", "...")
 	return fs
 }

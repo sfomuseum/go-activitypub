@@ -45,11 +45,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	slog.SetDefault(logger)
 
-	db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
+	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to instantiate accounts database, %w", err)
 	}
+
+	defer accounts_db.Close(ctx)
 
 	aliases_db, err := activitypub.NewAliasesDatabase(ctx, opts.AliasesDatabaseURI)
 
@@ -57,9 +59,19 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to instantiate aliases database, %w", err)
 	}
 
+	defer aliases_db.Close(ctx)
+
+	properties_db, err := activitypub.NewPropertiesDatabase(ctx, opts.PropertiesDatabaseURI)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create properties database, %w", err)
+	}
+
+	defer properties_db.Close(ctx)
+
 	// START OF check for existing account name and aliases
 
-	acct_taken, err := activitypub.IsAccountNameTaken(ctx, db, opts.AccountName)
+	acct_taken, err := activitypub.IsAccountNameTaken(ctx, accounts_db, opts.AccountName)
 
 	if err != nil {
 		return fmt.Errorf("Failed to determine if account name is taken, %w", err)
@@ -193,10 +205,18 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		IconURI:       icon_uri,
 	}
 
-	a, err = activitypub.AddAccount(ctx, db, a)
+	a, err = activitypub.AddAccount(ctx, accounts_db, a)
 
 	if err != nil {
 		return fmt.Errorf("Failed to add new account, %w", err)
+	}
+
+	// Properties
+
+	_, _, err = activitypub.ApplyPropertiesUpdates(ctx, properties_db, a, opts.Properties)
+
+	if err != nil {
+		return fmt.Errorf("Account created (%d) but failed to apply properties, %w", a.Id, err)
 	}
 
 	// Aliases

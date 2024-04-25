@@ -2,6 +2,12 @@
 {{ template "inc_head" . -}}
 <div class="container account">
     <p>{{ .Account.Blurb }}</p>
+
+    <dl class="account-properties">
+	{{ range $k, $prop := .PropertiesMap -}}
+	<dt>{{ $k }}</dt><dd>{{ $prop.Value }}</dd>
+	{{ end -}}
+    </dl>
 </div>
 {{ template "inc_foot" . -}}
 {{ end -}}

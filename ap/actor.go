@@ -28,7 +28,7 @@ type Actor struct {
 	Discoverable bool          `json:"discoverable,omitempty"`
 	Published    string        `json:"published,omitempty"`
 	Icon         Icon          `json:"icon,omitempty"`
-	Attachments  []*Attachment `json:"attachments,omitempty"`
+	Attachments  []*Attachment `json:"attachment,omitempty"` // Is this just a Mastodon-ism?
 }
 
 func (a *Actor) PublicKeyRSA(ctx context.Context) (*rsa.PublicKey, error) {
