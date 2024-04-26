@@ -225,18 +225,18 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 		url_props := make(map[string]string)
 
 		for k, prop := range props_map {
-			
+
 			if !strings.HasPrefix(k, "url:") {
 				continue
 			}
-			
+
 			parts := strings.Split(k, ":")
 			label := parts[1]
-			
+
 			href := prop.Value
 			url_props[label] = href
 		}
-		
+
 		vars := AccountTemplateVars{
 			Account:       acct,
 			IconURL:       icon_url.String(),

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/sfomuseum/go-pubsub/publisher"
 )
@@ -26,6 +27,7 @@ func init() {
 	}
 
 	for _, scheme := range publisher.PublisherSchemes() {
+		scheme = strings.Replace(scheme, "://", "", 1)
 		RegisterProcessMessageQueue(ctx, scheme, NewPubSubProcessMessageQueue)
 	}
 }

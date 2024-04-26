@@ -13,7 +13,7 @@ import (
 type GetPropertiesCallbackFunc func(context.Context, *Property) error
 
 type PropertiesDatabase interface {
-	GetProperties(context.Context, GetPropertiesCallbackFunc) error	
+	GetProperties(context.Context, GetPropertiesCallbackFunc) error
 	GetPropertiesForAccount(context.Context, int64, GetPropertiesCallbackFunc) error
 	AddProperty(context.Context, *Property) error
 	UpdateProperty(context.Context, *Property) error

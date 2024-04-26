@@ -220,6 +220,7 @@ server:
 		-boosts-database-uri '$(BOOSTS_DB_URI)' \
 		-likes-database-uri '$(LIKES_DB_URI)' \
 		-properties-database-uri '$(PROPERTIES_DB_URI)' \
+		-process-message-queue-uri 'stdout://' \
 		-allow-remote-icon-uri \
 		-allow-create \
 		-verbose \
