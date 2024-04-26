@@ -39,6 +39,35 @@ func NewDocstorePropertiesDatabase(ctx context.Context, uri string) (PropertiesD
 	return db, nil
 }
 
+func (db *DocstorePropertiesDatabase) GetProperties(ctx context.Context, cb GetPropertiesCallbackFunc) error {
+
+	q := db.collection.Query()
+
+	iter := q.Get(ctx)
+	defer iter.Stop()
+
+	for {
+
+		var p Property
+		err := iter.Next(ctx, &p)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+
+			err := cb(ctx, &p)
+
+			if err != nil {
+				return fmt.Errorf("Failed to execute callback for property %v, %w", p, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstorePropertiesDatabase) GetPropertiesForAccount(ctx context.Context, account_id int64, cb GetPropertiesCallbackFunc) error {
 
 	q := db.collection.Query()

@@ -108,5 +108,6 @@ func TemplatesFuncMap() template.FuncMap {
 		"FormatStringTime": funcs.FormatStringTime,
 		"FormatUnixTime":   funcs.FormatUnixTime,
 		"GjsonGet":         funcs.GjsonGet,
+		"StringHasPrefix":  funcs.StringHasPrefix,
 	}
 }

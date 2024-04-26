@@ -200,8 +200,8 @@ github.com/sfomuseum/go-flags v0.10.0 h1:1OC1ACxpWMsl3XQ9OeNVMQj7Zi2CzufP3Rym3mP
 github.com/sfomuseum/go-flags v0.10.0/go.mod h1:VXOnnX1/yxQpX2yiwHaBV6aCmhtszQOL5bL1/nNo3co=
 github.com/sfomuseum/go-pubsub v0.0.15 h1:02Ce24kTBo5IjtPoCqNSi05I9s5dPbhkWBMUDF0ZCCY=
 github.com/sfomuseum/go-pubsub v0.0.15/go.mod h1:iZWtlGBtB2LAm9OHiGqdDOqM1d/GkK/9UFAKGnbubYY=
-github.com/sfomuseum/go-template v1.9.0 h1:0RDnOK0n9/JS/zc7claaBsIB7FBo/iGqe0RBrg5H2Yw=
-github.com/sfomuseum/go-template v1.9.0/go.mod h1:8inbmZmMYiBiZPJK/h0Fbkn7p54MrGstlaiVS9IIWvM=
+github.com/sfomuseum/go-template v1.10.0 h1:hMprALSEzckBrJR6Cv3FYSN9qA9EH1uiStVqXuG/vHk=
+github.com/sfomuseum/go-template v1.10.0/go.mod h1:8z9k8QHNrUSoDdjZHfIw0Gnmuq4Cy2ZQ4XgLoqQab/0=
 github.com/sfomuseum/iso8601duration v1.1.0 h1:kMYzbamrZp9dRxi5iFuhjl5CzHXK6s6Bzz/c75wsq8Q=
 github.com/sfomuseum/iso8601duration v1.1.0/go.mod h1:6EenGWM7y8uVquMPEZwoR+ihpIMJluw7iYiHhDTuOAk=
 github.com/sfomuseum/runtimevar v1.2.0 h1:8q06GcN4gEbRcktbe63U6boSymaZJ7rUqCcggwGkFhw=

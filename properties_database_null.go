@@ -18,6 +18,10 @@ func NewNullPropertiesDatabase(ctx context.Context, uri string) (PropertiesDatab
 	return db, nil
 }
 
+func (db *NullPropertiesDatabase) GetProperties(ctx context.Context, cb GetPropertiesCallbackFunc) error {
+	return nil
+}
+
 func (db *NullPropertiesDatabase) GetPropertiesForAccount(ctx context.Context, account_id int64, cb GetPropertiesCallbackFunc) error {
 	return nil
 }

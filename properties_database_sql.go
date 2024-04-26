@@ -56,6 +56,10 @@ func NewSQLPropertiesDatabase(ctx context.Context, uri string) (PropertiesDataba
 	return db, nil
 }
 
+func (db *SQLPropertiesDatabase) GetProperties(ctx context.Context, cb GetPropertiesCallbackFunc) error {
+	return ErrNotImplemented
+}
+
 func (db *SQLPropertiesDatabase) GetPropertiesForAccount(ctx context.Context, account_id int64, cb GetPropertiesCallbackFunc) error {
 	return ErrNotImplemented
 }

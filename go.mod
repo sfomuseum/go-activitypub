@@ -24,7 +24,7 @@ require (
 	github.com/rs/cors v1.10.1
 	github.com/sfomuseum/go-flags v0.10.0
 	github.com/sfomuseum/go-pubsub v0.0.15
-	github.com/sfomuseum/go-template v1.9.0
+	github.com/sfomuseum/go-template v1.10.0
 	github.com/sfomuseum/iso8601duration v1.1.0
 	github.com/sfomuseum/runtimevar v1.2.0
 	github.com/tidwall/gjson v1.17.1

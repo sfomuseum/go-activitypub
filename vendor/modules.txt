@@ -341,7 +341,7 @@ github.com/sfomuseum/go-flags/multi
 ## explicit; go 1.21
 github.com/sfomuseum/go-pubsub
 github.com/sfomuseum/go-pubsub/publisher
-# github.com/sfomuseum/go-template v1.9.0
+# github.com/sfomuseum/go-template v1.10.0
 ## explicit; go 1.18
 github.com/sfomuseum/go-template/funcs
 github.com/sfomuseum/go-template/html
