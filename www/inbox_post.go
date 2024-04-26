@@ -1105,6 +1105,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				if err != nil {
 					logger.Error("Failed to process message with process queue", "error", err)
+					return
 				}
 
 				logger.Info("Delivered message to processing queue")
