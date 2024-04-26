@@ -3,11 +3,12 @@
 <div class="container account">
     <p>{{ .Account.Blurb }}</p>
 
-    <dl class="account-properties">
-	{{ range $k, $prop := .PropertiesMap -}}
-	<dt>{{ $k }}</dt><dd>{{ $prop.Value }}</dd>
+    <dl class="account-urls">
+	{{ range $label, $href := .URLProperties -}}
+	<dt>{{ $label }}</dt><dd><a href="{{ $href }}">{{ $href }}</a></dd>
 	{{ end -}}
     </dl>
+    
 </div>
 {{ template "inc_foot" . -}}
 {{ end -}}

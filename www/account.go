@@ -28,6 +28,7 @@ type AccountTemplateVars struct {
 	// To do: URLs (properties)
 	IconURL       string
 	PropertiesMap map[string]*activitypub.Property
+	URLProperties map[string]string
 }
 
 func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
@@ -221,13 +222,27 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 		icon_path := uris.AssignResource(opts.URIs.Icon, acct.Name)
 		icon_url := uris.NewURL(opts.URIs, icon_path)
 
-		// To do: URLs (properties map (above))
+		url_props := make(map[string]string)
 
+		for k, prop := range props_map {
+			
+			if !strings.HasPrefix(k, "url:") {
+				continue
+			}
+			
+			parts := strings.Split(k, ":")
+			label := parts[1]
+			
+			href := prop.Value
+			url_props[label] = href
+		}
+		
 		vars := AccountTemplateVars{
 			Account:       acct,
 			IconURL:       icon_url.String(),
 			AccountURL:    account_url.String(),
 			PropertiesMap: props_map,
+			URLProperties: url_props,
 		}
 
 		rsp.Header().Set("Content-type", "text/html")
