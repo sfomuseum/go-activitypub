@@ -42,7 +42,7 @@ import (
 //     then there is a path for deconstructing or updating the Post struct (and PostsDatabase schema) at a later
 //     date whether that involves creating a new Actions/Activities database or updating the Likes/Boosts databases.
 //  3. All of the special-case logic is confined to deliver.go and strictly-enforced conventions for doing boosts
-//     or likes, for example boost:{ACCOUNT_BEING_BOOSTED}:{URI_BEING_BOOSTED} and so on.
+//     or likes, for example boost:{ACCOUNT_BEING_BOOSTED}:{URI_BEING_BOOSTED} or boost://?{PARAMS} and so on
 type Post struct {
 	// The unique ID for the post.
 	Id int64 `json:"id"`

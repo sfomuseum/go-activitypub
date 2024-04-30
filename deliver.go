@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/sfomuseum/go-activitypub/ap"
@@ -168,47 +170,101 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		}
 	}()
 
-	// START OF check what "kind" of post this is...
+	// START OF check what "kind" of post this is
+
+	// See notes in post.go for why we are doing this. It's not great but it's not awful
+	// either. It is a reasonable way to kick the can down the road a little further while
+	// we continue to figure things out.
 
 	var activity *ap.Activity
 
-	note, err := NoteFromPost(ctx, opts.URIs, opts.From, opts.Post, opts.PostTags)
+	if strings.HasPrefix(opts.Post.Body, "boost://") {
 
-	if err != nil {
-		d.Error = err.Error()
-		return fmt.Errorf("Failed to derive note from post, %w", err)
+		// Boost (announce) activities
+
+		u, err := url.Parse(opts.Post.Body)
+
+		if err != nil {
+			logger.Error("boost:// post body did not parse", "error", err)
+			return fmt.Errorf("Invalid boost:// post body")
+		}
+
+		q := u.Query()
+
+		boost_to := q.Get("to")
+		boost_url := q.Get("url")
+
+		_, _, err = ParseAddress(boost_to)
+
+		if err != nil {
+			logger.Error("Failed to parse boost:// to address", "error", err)
+			return fmt.Errorf("Invalid boost:// to address")
+		}
+
+		_, err = url.Parse(boost_url)
+
+		if err != nil {
+			logger.Error("Failed to parse boost:// URL", "error", err)
+			return fmt.Errorf("Invalid boost:// url address")
+		}
+
+		// compare to address and url here?
+
+		from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
+
+		to_uri := "derive from boost_to"
+
+		boost_activity, err := ap.NewBoostActivity(ctx, from_uri, to_uri, boost_url)
+
+		if err != nil {
+			logger.Error("Failed to create boost activity", "error", err)
+			return fmt.Errorf("Failed to create boost activity")
+		}
+
+		activity = boost_activity
+
+	} else {
+
+		// Note (create) activities
+
+		note, err := NoteFromPost(ctx, opts.URIs, opts.From, opts.Post, opts.PostTags)
+
+		if err != nil {
+			d.Error = err.Error()
+			return fmt.Errorf("Failed to derive note from post, %w", err)
+		}
+
+		from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
+
+		to_list := []string{
+			opts.To,
+		}
+
+		create_activity, err := ap.NewCreateActivity(ctx, opts.URIs, from_uri, to_list, note)
+
+		if err != nil {
+			d.Error = err.Error()
+			return fmt.Errorf("Failed to create activity from post, %w", err)
+		}
+
+		if len(note.Cc) > 0 {
+			create_activity.Cc = note.Cc
+		}
+
+		// START OF is this really necessary?
+		// Also, what if this isn't a post?
+
+		uuid := id.NewUUID()
+
+		post_url := opts.From.PostURL(ctx, opts.URIs, opts.Post)
+		post_id := fmt.Sprintf("%s#%s", post_url.String(), uuid)
+
+		create_activity.Id = post_id
+
+		// END OF is this really necessary?
+
+		activity = create_activity
 	}
-
-	from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
-
-	to_list := []string{
-		opts.To,
-	}
-
-	create_activity, err := ap.NewCreateActivity(ctx, opts.URIs, from_uri, to_list, note)
-
-	if err != nil {
-		d.Error = err.Error()
-		return fmt.Errorf("Failed to create activity from post, %w", err)
-	}
-
-	if len(note.Cc) > 0 {
-		create_activity.Cc = note.Cc
-	}
-
-	// START OF is this really necessary?
-	// Also, what if this isn't a post?
-
-	uuid := id.NewUUID()
-
-	post_url := opts.From.PostURL(ctx, opts.URIs, opts.Post)
-	post_id := fmt.Sprintf("%s#%s", post_url.String(), uuid)
-
-	create_activity.Id = post_id
-
-	// END OF is this really necessary?
-
-	activity = create_activity
 
 	// END OF check what "kind" of post this is...
 

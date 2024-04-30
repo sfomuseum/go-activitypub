@@ -1,6 +1,7 @@
 package ap
 
 import (
+	"context"
 	"fmt"
 )
 
@@ -23,11 +24,11 @@ import (
 
 */
 
-func NewBoostActivity(from string, to string, object interface{}) (*Activity, error) {
-	return NewAnnounceActivity(from, to, object)
+func NewBoostActivity(ctx context.Context, from string, to string, object interface{}) (*Activity, error) {
+	return NewAnnounceActivity(ctx, from, to, object)
 }
 
-func NewAnnounceActivity(from string, to string, object interface{}) (*Activity, error) {
+func NewAnnounceActivity(ctx context.Context, from string, to string, object interface{}) (*Activity, error) {
 
 	activity := &Activity{
 		Context: ACTIVITYSTREAMS_CONTEXT,
