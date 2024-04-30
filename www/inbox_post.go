@@ -150,9 +150,6 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			enc_body, _ := json.Marshal(activity)
-			logger.Info("BOOST", "body", string(enc_body))
-
 		case "Follow":
 
 			if !opts.AllowFollow {
