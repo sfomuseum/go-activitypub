@@ -23,10 +23,14 @@ import (
 
 */
 
-func NewBoost(from string, to string, object interface{}) (*Activity, error) {
+func NewBoostActivity(from string, to string, object interface{}) (*Activity, error) {
+	return NewAnnounceActivity(from, to, object)
+}
 
-	boost := &Activity{
-		Context: "fixme",
+func NewAnnounceActivity(from string, to string, object interface{}) (*Activity, error) {
+
+	activity := &Activity{
+		Context: ACTIVITYSTREAMS_CONTEXT,
 		Type:    "Announce",
 		Actor:   from,
 		To: []string{
@@ -39,5 +43,5 @@ func NewBoost(from string, to string, object interface{}) (*Activity, error) {
 		Object: object,
 	}
 
-	return boost, nil
+	return activity, nil
 }

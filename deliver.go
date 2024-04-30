@@ -168,6 +168,10 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		}
 	}()
 
+	// START OF check what "kind" of post this is...
+
+	var activity *ap.Activity
+
 	note, err := NoteFromPost(ctx, opts.URIs, opts.From, opts.Post, opts.PostTags)
 
 	if err != nil {
@@ -204,12 +208,16 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 	// END OF is this really necessary?
 
-	d.ActivityId = create_activity.Id
+	activity = create_activity
+
+	// END OF check what "kind" of post this is...
+
+	d.ActivityId = activity.Id
 
 	post_opts := &PostToAccountOptions{
 		From:     opts.From,
 		To:       opts.To,
-		Activity: create_activity,
+		Activity: activity,
 		URIs:     opts.URIs,
 	}
 
