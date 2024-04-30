@@ -103,6 +103,37 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 		}
 	}
 
+	// START OF this is no good to have to replicate this twice... see notes below
+	// Maybe just replace with opts.Cc... ?
+
+	if strings.HasPrefix(opts.Post.Body, BOOST_URI_SCHEME) {
+
+		u, err := url.Parse(opts.Post.Body)
+
+		if err != nil {
+			return fmt.Errorf("Invalid boost:// post body")
+		}
+
+		q := u.Query()
+
+		boost_to := q.Get("to")
+
+		_, _, err = ParseAddress(boost_to)
+
+		if err != nil {
+			return fmt.Errorf("Failed to parse boost to address, %w", err)
+		}
+
+		err = followers_cb(ctx, boost_to)
+
+		if err != nil {
+			return fmt.Errorf("Failed to deliver message to %s , %w", boost_to, err)
+		}
+
+	}
+
+	// END OF this is no good to have to replicate this twice...
+
 	return nil
 }
 
@@ -176,9 +207,11 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 	// either. It is a reasonable way to kick the can down the road a little further while
 	// we continue to figure things out.
 
+	slog.Info("DELIVER", "body", opts.Post.Body)
+
 	var activity *ap.Activity
 
-	if strings.HasPrefix(opts.Post.Body, "boost://") {
+	if strings.HasPrefix(opts.Post.Body, BOOST_URI_SCHEME) {
 
 		// Boost (announce) activities
 
@@ -211,8 +244,7 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		// compare to address and url here?
 
 		from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
-
-		to_uri := "derive from boost_to"
+		to_uri := boost_to
 
 		boost_activity, err := ap.NewBoostActivity(ctx, from_uri, to_uri, boost_url)
 
@@ -221,6 +253,7 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 			return fmt.Errorf("Failed to create boost activity")
 		}
 
+		slog.Info("BOOST", "activity", boost_activity)
 		activity = boost_activity
 
 	} else {
