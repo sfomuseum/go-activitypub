@@ -2,6 +2,7 @@ package activitypub
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/url"
@@ -27,6 +28,7 @@ type DeliverPostToFollowersOptions struct {
 	AccountsDatabase   AccountsDatabase
 	FollowersDatabase  FollowersDatabase
 	PostTagsDatabase   PostTagsDatabase
+	NotesDatabase      NotesDatabase
 	DeliveriesDatabase DeliveriesDatabase
 	DeliveryQueue      DeliveryQueue
 	Post               *Post
@@ -108,26 +110,37 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 
 	if strings.HasPrefix(opts.Post.Body, BOOST_URI_SCHEME) {
 
-		u, err := url.Parse(opts.Post.Body)
+		parts := strings.SplitN(opts.Post.Body, " ", 2)
+
+		if len(parts) != 2 {
+			slog.Error("Invalid boost string")
+			return fmt.Errorf("Invalid boost string")
+		}
+
+		boost_uri := parts[0]
+
+		u, err := url.Parse(boost_uri)
 
 		if err != nil {
+			slog.Error("boost:// post body did not parse", "boost uri", boost_uri, "error", err)
 			return fmt.Errorf("Invalid boost:// post body")
 		}
 
 		q := u.Query()
 
-		boost_to := q.Get("to")
+		to_uri := q.Get("to")
 
-		_, _, err = ParseAddress(boost_to)
+		_, _, err = ParseAddress(to_uri)
 
 		if err != nil {
-			return fmt.Errorf("Failed to parse boost to address, %w", err)
+			slog.Error("Invalid to address", "to_uri", to_uri, "error", err)
+			return fmt.Errorf("Invalid to address")
 		}
 
-		err = followers_cb(ctx, boost_to)
+		err = followers_cb(ctx, to_uri)
 
 		if err != nil {
-			return fmt.Errorf("Failed to deliver message to %s , %w", boost_to, err)
+			return fmt.Errorf("Failed to deliver message to %s , %w", to_uri, err)
 		}
 
 	}
@@ -213,9 +226,23 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 	if strings.HasPrefix(opts.Post.Body, BOOST_URI_SCHEME) {
 
+		slog.Info("BOOST")
+
 		// Boost (announce) activities
 
-		u, err := url.Parse(opts.Post.Body)
+		parts := strings.SplitN(opts.Post.Body, " ", 2)
+
+		if len(parts) != 2 {
+			logger.Error("Invalid boost string")
+			return fmt.Errorf("Invalid boost string")
+		}
+
+		boost_uri := parts[0]
+		boost_body := parts[1]
+
+		logger = logger.With("uri", boost_uri)
+
+		u, err := url.Parse(boost_uri)
 
 		if err != nil {
 			logger.Error("boost:// post body did not parse", "error", err)
@@ -224,29 +251,27 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 		q := u.Query()
 
-		boost_to := q.Get("to")
-		boost_url := q.Get("url")
+		to_uri := q.Get("to")
 
-		_, _, err = ParseAddress(boost_to)
-
-		if err != nil {
-			logger.Error("Failed to parse boost:// to address", "error", err)
-			return fmt.Errorf("Invalid boost:// to address")
-		}
-
-		_, err = url.Parse(boost_url)
+		_, _, err = ParseAddress(to_uri)
 
 		if err != nil {
-			logger.Error("Failed to parse boost:// URL", "error", err)
-			return fmt.Errorf("Invalid boost:// url address")
+			logger.Error("Invalid to address", "error", err)
+			return fmt.Errorf("Invalid to address")
 		}
 
-		// compare to address and url here?
+		var object interface{}
+
+		err = json.Unmarshal([]byte(boost_body), &object)
+
+		if err != nil {
+			logger.Error("Failed to unmarshal note body", "error", err)
+			return fmt.Errorf("Failed to unmarshal note body")
+		}
 
 		from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
-		to_uri := boost_to
 
-		boost_activity, err := ap.NewBoostActivity(ctx, from_uri, to_uri, boost_url)
+		boost_activity, err := ap.NewBoostActivity(ctx, from_uri, to_uri, object)
 
 		if err != nil {
 			logger.Error("Failed to create boost activity", "error", err)
