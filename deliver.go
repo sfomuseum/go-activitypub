@@ -260,18 +260,21 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 			return fmt.Errorf("Invalid to address")
 		}
 
-		var object interface{}
+		slog.Info("BOOST", "note", note_body)
+		
+		var note *ap.Note	// interface{}
 
-		err = json.Unmarshal([]byte(note_body), &object)
+		err = json.Unmarshal([]byte(note_body), &note)
 
 		if err != nil {
 			logger.Error("Failed to unmarshal note", "body", note_body, "error", err)
 			return fmt.Errorf("Failed to unmarshal note body")
 		}
 
+		slog.Info("BOOST", "note", note)
 		from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
 
-		boost_activity, err := ap.NewBoostActivity(ctx, from_uri, to_uri, object)
+		boost_activity, err := ap.NewBoostActivity(ctx, from_uri, to_uri, note)
 
 		if err != nil {
 			logger.Error("Failed to create boost activity", "error", err)
