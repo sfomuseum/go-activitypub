@@ -238,7 +238,7 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		}
 
 		boost_uri := parts[0]
-		boost_body := parts[1]
+		note_body := parts[1]
 
 		logger = logger.With("uri", boost_uri)
 
@@ -262,10 +262,10 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 		var object interface{}
 
-		err = json.Unmarshal([]byte(boost_body), &object)
+		err = json.Unmarshal([]byte(note_body), &object)
 
 		if err != nil {
-			logger.Error("Failed to unmarshal note body", "error", err)
+			logger.Error("Failed to unmarshal note", "body", note_body, "error", err)
 			return fmt.Errorf("Failed to unmarshal note body")
 		}
 
