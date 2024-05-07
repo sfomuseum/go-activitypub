@@ -7,6 +7,14 @@ import (
 
 /*
 
+https://boyter.org/posts/activitypub-announce-post/
+
+In the case of follower instances, they receive the announce, then fetch the content of the announce using the object field.
+
+*/
+
+/*
+
 {
   "@context": "https://www.w3.org/ns/activitystreams",
   "id": "https://mastodon.social/users/aaronofsfo/statuses/112361739040787763/activity",

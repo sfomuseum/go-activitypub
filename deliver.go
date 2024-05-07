@@ -2,7 +2,6 @@ package activitypub
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/url"
@@ -229,6 +228,7 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		slog.Info("BOOST")
 
 		// Boost (announce) activities
+		// https://boyter.org/posts/activitypub-announce-post/
 
 		parts := strings.SplitN(opts.Post.Body, " ", 2)
 
@@ -238,7 +238,7 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		}
 
 		boost_uri := parts[0]
-		note_body := parts[1]
+		boost_obj := parts[1]
 
 		logger = logger.With("uri", boost_uri)
 
@@ -260,21 +260,9 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 			return fmt.Errorf("Invalid to address")
 		}
 
-		slog.Info("BOOST", "note", note_body)
-		
-		var note *ap.Note	// interface{}
-
-		err = json.Unmarshal([]byte(note_body), &note)
-
-		if err != nil {
-			logger.Error("Failed to unmarshal note", "body", note_body, "error", err)
-			return fmt.Errorf("Failed to unmarshal note body")
-		}
-
-		slog.Info("BOOST", "note", note)
 		from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
 
-		boost_activity, err := ap.NewBoostActivity(ctx, from_uri, to_uri, note)
+		boost_activity, err := ap.NewBoostActivity(ctx, from_uri, to_uri, boost_obj)
 
 		if err != nil {
 			logger.Error("Failed to create boost activity", "error", err)
