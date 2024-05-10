@@ -13,7 +13,7 @@ require (
 	github.com/aaronland/gocloud-blob-s3 v0.2.4
 	github.com/aaronland/gocloud-docstore v0.0.5
 	github.com/aws/aws-lambda-go v1.47.0
-	github.com/aws/aws-sdk-go v1.51.30
+	github.com/aws/aws-sdk-go v1.53.0
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/fogleman/gg v1.3.0
 	github.com/go-fed/httpsig v1.1.0
@@ -29,7 +29,7 @@ require (
 	github.com/sfomuseum/runtimevar v1.2.0
 	github.com/tidwall/gjson v1.17.1
 	gocloud.dev v0.37.0
-	golang.org/x/image v0.15.0
+	golang.org/x/image v0.16.0
 )
 
 require (
@@ -80,10 +80,10 @@ require (
 	github.com/whosonfirst/go-sanitize v0.1.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/net v0.23.0 // indirect
+	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	google.golang.org/api v0.169.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240311173647-c811ad7063a7 // indirect
