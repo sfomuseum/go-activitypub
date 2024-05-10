@@ -33,6 +33,7 @@ type RunOptions struct {
 	MessagesDatabaseURI   string
 	BlocksDatabaseURI     string
 	PostsDatabaseURI      string
+	PostTagsDatabaseURI   string
 	PropertiesDatabaseURI string
 	LikesDatabaseURI      string
 	BoostsDatabaseURI     string
@@ -90,6 +91,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		NotesDatabaseURI:       notes_database_uri,
 		MessagesDatabaseURI:    messages_database_uri,
 		PostsDatabaseURI:       posts_database_uri,
+		PostTagsDatabaseURI:    post_tags_database_uri,
 		BlocksDatabaseURI:      blocks_database_uri,
 		LikesDatabaseURI:       likes_database_uri,
 		BoostsDatabaseURI:      boosts_database_uri,

@@ -1,6 +1,8 @@
 package www
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -10,12 +12,14 @@ import (
 	"time"
 
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type PostHandlerOptions struct {
 	AccountsDatabase activitypub.AccountsDatabase
 	PostsDatabase    activitypub.PostsDatabase
+	PostTagsDatabase activitypub.PostTagsDatabase
 	URIs             *uris.URIs
 	Templates        *template.Template
 }
@@ -132,6 +136,67 @@ func PostHandler(opts *PostHandlerOptions) (http.Handler, error) {
 		if post.AccountId != acct.Id {
 			logger.Error("Post is owned by different account", "post account id", post.AccountId)
 			http.Error(rsp, "Not found", http.StatusNotFound)
+			return
+		}
+
+		// AM I JSON?
+
+		if IsActivityStreamRequest(req, "Accept") {
+
+			attr := acct.ProfileURL(ctx, opts.URIs).String()
+			post_url := acct.PostURL(ctx, opts.URIs, post)
+			t := time.Unix(post.Created, 0)
+
+			note := &ap.Note{
+				Type:         "Note",
+				Id:           post_url.String(),
+				AttributedTo: attr,
+				To: []string{
+					"https://www.w3.org/ns/activitystreams#Public", // what?
+				},
+				Content:   post.Body,
+				Published: t.Format(http.TimeFormat),
+				InReplyTo: post.InReplyTo,
+				URL:       post_url.String(),
+			}
+
+			tags := make([]*ap.Tag, 0)
+
+			tags_cb := func(ctx context.Context, pt *activitypub.PostTag) error {
+
+				t := &ap.Tag{
+					Name: pt.Name,
+					Href: pt.Href,
+					Type: pt.Type,
+				}
+
+				tags = append(tags, t)
+				return nil
+			}
+
+			err := opts.PostTagsDatabase.GetPostTagsForPost(ctx, post.Id, tags_cb)
+
+			if err != nil {
+				logger.Error("Failed to retrieve tags for post", "error", err)
+			} else {
+				note.Tags = tags
+			}
+
+			// to do: mentions (tags)
+
+			// what to do about cc...
+
+			rsp.Header().Set("Content-type", "application/json")
+
+			enc := json.NewEncoder(rsp)
+			err = enc.Encode(note)
+
+			if err != nil {
+				logger.Error("Failed to encode post response for resource", "error", err)
+				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
+				return
+			}
+
 			return
 		}
 

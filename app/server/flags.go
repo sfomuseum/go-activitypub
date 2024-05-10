@@ -13,6 +13,7 @@ var following_database_uri string
 var notes_database_uri string
 var messages_database_uri string
 var posts_database_uri string
+var post_tags_database_uri string
 var properties_database_uri string
 var blocks_database_uri string
 var likes_database_uri string
@@ -48,6 +49,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&messages_database_uri, "messages-database-uri", "", "...")
 	fs.StringVar(&blocks_database_uri, "blocks-database-uri", "", "...")
 	fs.StringVar(&posts_database_uri, "posts-database-uri", "", "...")
+	fs.StringVar(&post_tags_database_uri, "post-tags-database-uri", "", "...")
 	fs.StringVar(&properties_database_uri, "properties-database-uri", "", "...")
 
 	fs.StringVar(&likes_database_uri, "likes-database-uri", "", "...")
