@@ -217,6 +217,7 @@ server:
 		-messages-database-uri '$(MESSAGES_DB_URI)' \
 		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-posts-database-uri '$(POSTS_DB_URI)' \
+		-post-tags-database-uri '$(POST_TAGS_DB_URI)' \
 		-boosts-database-uri '$(BOOSTS_DB_URI)' \
 		-likes-database-uri '$(LIKES_DB_URI)' \
 		-properties-database-uri '$(PROPERTIES_DB_URI)' \

@@ -40,6 +40,10 @@ var posts_db activitypub.PostsDatabase
 var setupPostsDatabaseOnce sync.Once
 var setupPostsDatabaseError error
 
+var post_tags_db activitypub.PostTagsDatabase
+var setupPostTagsDatabaseOnce sync.Once
+var setupPostTagsDatabaseError error
+
 var likes_db activitypub.LikesDatabase
 var setupLikesDatabaseOnce sync.Once
 var setupLikesDatabaseError error

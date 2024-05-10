@@ -119,6 +119,20 @@ func setupPostsDatabase() {
 	}
 }
 
+func setupPostTagsDatabase() {
+
+	ctx := context.Background()
+	var err error
+
+	// defined in vars.go
+	post_tags_db, err = activitypub.NewPostTagsDatabase(ctx, run_opts.PostTagsDatabaseURI)
+
+	if err != nil {
+		setupPostTagsDatabaseError = fmt.Errorf("Failed to set up post tags database, %w", err)
+		return
+	}
+}
+
 func setupLikesDatabase() {
 
 	ctx := context.Background()

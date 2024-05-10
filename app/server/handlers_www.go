@@ -65,13 +65,21 @@ func postHandlerFunc(ctx context.Context) (http.Handler, error) {
 	setupPostsDatabaseOnce.Do(setupPostsDatabase)
 
 	if setupPostsDatabaseError != nil {
-		slog.Error("Failed to set up follower database configuration", "error", setupPostsDatabaseError)
-		return nil, fmt.Errorf("Failed to set up follower database configuration, %w", setupPostsDatabaseError)
+		slog.Error("Failed to set up posts database configuration", "error", setupPostsDatabaseError)
+		return nil, fmt.Errorf("Failed to set up posts database configuration, %w", setupPostsDatabaseError)
+	}
+
+	setupPostTagsDatabaseOnce.Do(setupPostTagsDatabase)
+
+	if setupPostTagsDatabaseError != nil {
+		slog.Error("Failed to set up post tags database configuration", "error", setupPostTagsDatabaseError)
+		return nil, fmt.Errorf("Failed to set up post tags database configuration, %w", setupPostTagsDatabaseError)
 	}
 
 	opts := &www.PostHandlerOptions{
 		AccountsDatabase: accounts_db,
 		PostsDatabase:    posts_db,
+		PostTagsDatabase: post_tags_db,
 		URIs:             run_opts.URIs,
 		Templates:        run_opts.Templates,
 	}
