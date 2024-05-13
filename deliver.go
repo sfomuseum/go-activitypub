@@ -241,6 +241,7 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		boost_obj := parts[1]
 
 		logger = logger.With("uri", boost_uri)
+		logger = logger.With("object", boost_obj)		
 
 		u, err := url.Parse(boost_uri)
 
