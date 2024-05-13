@@ -114,7 +114,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 			for _, message := range sqsEvent.Records {
 
 				logger := slog.Default()
-				logger = logger.With("message id", message.MessageId)
+				logger = logger.With("message (sqs) id", message.MessageId)
 
 				// logger.Debug("SQS", "message", message.Body)
 

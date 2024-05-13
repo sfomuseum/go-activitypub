@@ -38,9 +38,15 @@ type DeliverPostToFollowersOptions struct {
 
 func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOptions) error {
 
+	logger := slog.Default()
+	logger = logger.With("method", "DeliverPostToFollowers")
+	logger = logger.With("post id", opts.Post.Id)
+	logger = logger.With("account id", opts.Post.AccountId)
+
 	acct, err := opts.AccountsDatabase.GetAccountWithId(ctx, opts.Post.AccountId)
 
 	if err != nil {
+		logger.Error("Failed to retrieve account ID for post", "error", err)
 		return fmt.Errorf("Failed to retrieve account ID for post, %w", err)
 	}
 
@@ -90,6 +96,7 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 	err = opts.FollowersDatabase.GetFollowersForAccount(ctx, acct.Id, followers_cb)
 
 	if err != nil {
+		logger.Error("Failed to get followers for post author", "error", err)
 		return fmt.Errorf("Failed to get followers for post author, %w", err)
 	}
 
@@ -100,6 +107,7 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 		err := followers_cb(ctx, t.Name) // name or href?
 
 		if err != nil {
+			logger.Error("Failed to deliver message", "to", t.Name, "to id", t.Id, "error", err)
 			return fmt.Errorf("Failed to deliver message to %s (%d), %w", t.Name, t.Id, err)
 		}
 	}
@@ -109,10 +117,12 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 
 	if strings.HasPrefix(opts.Post.Body, BOOST_URI_SCHEME) {
 
+		logger.Info("Post is boost")
+
 		parts := strings.SplitN(opts.Post.Body, " ", 2)
 
 		if len(parts) != 2 {
-			slog.Error("Invalid boost string")
+			logger.Error("Invalid boost string")
 			return fmt.Errorf("Invalid boost string")
 		}
 
@@ -121,7 +131,7 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 		u, err := url.Parse(boost_uri)
 
 		if err != nil {
-			slog.Error("boost:// post body did not parse", "boost uri", boost_uri, "error", err)
+			logger.Error("boost:// post body did not parse", "boost uri", boost_uri, "error", err)
 			return fmt.Errorf("Invalid boost:// post body")
 		}
 
@@ -132,13 +142,14 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 		_, _, err = ParseAddress(to_uri)
 
 		if err != nil {
-			slog.Error("Invalid to address", "to_uri", to_uri, "error", err)
+			logger.Error("Invalid to address", "to_uri", to_uri, "error", err)
 			return fmt.Errorf("Invalid to address")
 		}
 
 		err = followers_cb(ctx, to_uri)
 
 		if err != nil {
+			logger.Error("Failed to deliver message", "to", to_uri, "error", err)
 			return fmt.Errorf("Failed to deliver message to %s , %w", to_uri, err)
 		}
 
@@ -152,6 +163,7 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 	logger := slog.Default()
+	logger = logger.With("method", "DeliverPost")
 	logger = logger.With("post", opts.Post.Id)
 	logger = logger.With("from", opts.From.Id)
 	logger = logger.With("to", opts.To)
@@ -219,13 +231,13 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 	// either. It is a reasonable way to kick the can down the road a little further while
 	// we continue to figure things out.
 
-	slog.Info("DELIVER", "body", opts.Post.Body)
+	logger.Info("DELIVER", "body", opts.Post.Body)
 
 	var activity *ap.Activity
 
 	if strings.HasPrefix(opts.Post.Body, BOOST_URI_SCHEME) {
 
-		slog.Info("BOOST")
+		logger.Info("BOOST")
 
 		// Boost (announce) activities
 		// https://boyter.org/posts/activitypub-announce-post/
@@ -241,7 +253,7 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		boost_obj := parts[1]
 
 		logger = logger.With("uri", boost_uri)
-		logger = logger.With("object", boost_obj)		
+		logger = logger.With("object", boost_obj)
 
 		u, err := url.Parse(boost_uri)
 
@@ -252,9 +264,9 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 		q := u.Query()
 
-		to_uri := q.Get("to")
+		author_uri := q.Get("author")
 
-		_, _, err = ParseAddress(to_uri)
+		_, _, err = ParseAddress(author_uri)
 
 		if err != nil {
 			logger.Error("Invalid to address", "error", err)
@@ -263,14 +275,14 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 		from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
 
-		boost_activity, err := ap.NewBoostActivity(ctx, from_uri, to_uri, boost_obj)
+		boost_activity, err := ap.NewBoostActivity(ctx, from_uri, author_uri, boost_obj)
 
 		if err != nil {
 			logger.Error("Failed to create boost activity", "error", err)
 			return fmt.Errorf("Failed to create boost activity")
 		}
 
-		slog.Info("BOOST", "activity", boost_activity)
+		logger.Info("BOOST", "activity", boost_activity)
 		activity = boost_activity
 
 	} else {
