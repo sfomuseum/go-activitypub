@@ -277,13 +277,23 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		q := u.Query()
 
 		author_addr := q.Get("author_address")
-		author_uri := q.Get("uri")
+		author_uri := q.Get("author_uri")
+
+		if author_addr == "" {
+			logger.Error("Missing ?author_address= parameter")
+			return fmt.Errorf("Missing ?author_address= parameter")
+		}
 
 		_, _, err = ParseAddress(author_addr)
 
 		if err != nil {
 			logger.Error("Invalid author address", "address", author_addr, "error", err)
 			return fmt.Errorf("Invalid author address, %w", err)
+		}
+
+		if author_uri == "" {
+			logger.Error("Missing ?author_uri= parameter")
+			return fmt.Errorf("Missing ?author_uri= parameter")
 		}
 
 		_, err = url.Parse(author_uri)
