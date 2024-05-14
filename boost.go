@@ -8,7 +8,7 @@ import (
 	"github.com/sfomuseum/go-activitypub/id"
 )
 
-const BOOST_URI_SCHEME string = "boost://"
+const BOOST_URI_SCHEME string = "boost"
 
 // Type Boost is possibly (probably) a misnomer in the same way that type `Post` is (see notes in
 // post.go). Specifically this data and the correspinding `BoostsDatabase` was created to record

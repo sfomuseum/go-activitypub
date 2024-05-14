@@ -115,7 +115,7 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 	// START OF this is no good to have to replicate this twice... see notes below
 	// Maybe just replace with opts.Cc... ?
 
-	if strings.HasPrefix(opts.Post.Body, BOOST_URI_SCHEME) {
+	if strings.HasPrefix(opts.Post.Body, fmt.Sprintf("%s://", BOOST_URI_SCHEME)) {
 
 		logger.Info("Post is boost")
 
@@ -235,7 +235,7 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 	var activity *ap.Activity
 
-	if strings.HasPrefix(opts.Post.Body, BOOST_URI_SCHEME) {
+	if strings.HasPrefix(opts.Post.Body, fmt.Sprintf("%s://", BOOST_URI_SCHEME)) {
 
 		logger.Info("BOOST")
 
