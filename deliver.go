@@ -44,12 +44,17 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 	logger = logger.With("post id", opts.Post.Id)
 	logger = logger.With("account id", opts.Post.AccountId)
 
+	logger.Info("Deliver post to followers")
+
 	acct, err := opts.AccountsDatabase.GetAccountWithId(ctx, opts.Post.AccountId)
 
 	if err != nil {
 		logger.Error("Failed to retrieve account ID for post", "error", err)
 		return fmt.Errorf("Failed to retrieve account ID for post, %w", err)
 	}
+
+	acct_address := acct.Address(opts.URIs.Hostname)
+	logger = logger.With("account address", acct_address)
 
 	followers_cb := func(ctx context.Context, follower_uri string) error {
 
@@ -284,12 +289,15 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 		logger = logger.With("from", from_uri)
 
+		// FIX ME: author_uri needs (?) to be an actual URI and not an (AP) address... I think?
 		boost_activity, err := ap.NewBoostActivity(ctx, opts.URIs, from_uri, author_uri, boost_obj)
 
 		if err != nil {
 			logger.Error("Failed to create boost activity", "error", err)
 			return fmt.Errorf("Failed to create boost activity")
 		}
+
+		// FIX ME: make from an address not a URI
 
 		activity_id := fmt.Sprintf("%s#boost-from-%s", boost_obj, from_uri)
 		boost_activity.Id = activity_id

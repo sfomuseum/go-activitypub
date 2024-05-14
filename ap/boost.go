@@ -54,7 +54,7 @@ func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string
 			fmt.Sprintf("%s#Public", ACTIVITYSTREAMS_CONTEXT),
 		},
 		Cc: []string{
-			to,
+			to, // FIX ME: THIS SHOULD BE A URI NOT AN ADDRESS
 		},
 		Object:    object,
 		Published: now.Format(time.RFC3339),
