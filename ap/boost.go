@@ -35,11 +35,11 @@ In the case of follower instances, they receive the announce, then fetch the con
 
 */
 
-func NewBoostActivity(ctx context.Context, uris_table *uris.URIs, from string, to string, object interface{}) (*Activity, error) {
-	return NewAnnounceActivity(ctx, uris_table, from, to, object)
+func NewBoostActivity(ctx context.Context, uris_table *uris.URIs, from string, author_uri string, object interface{}) (*Activity, error) {
+	return NewAnnounceActivity(ctx, uris_table, from, author_uri, object)
 }
 
-func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string, to string, object interface{}) (*Activity, error) {
+func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string, author_uri string, object interface{}) (*Activity, error) {
 
 	ap_id := NewId(uris_table)
 
@@ -54,7 +54,7 @@ func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string
 			fmt.Sprintf("%s#Public", ACTIVITYSTREAMS_CONTEXT),
 		},
 		Cc: []string{
-			to, // FIX ME: THIS SHOULD BE A URI NOT AN ADDRESS
+			author_uri,
 		},
 		Object:    object,
 		Published: now.Format(time.RFC3339),

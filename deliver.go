@@ -276,20 +276,28 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 		q := u.Query()
 
-		author_uri := q.Get("author")
+		author_addr := q.Get("author_address")
+		author_uri := q.Get("uri")
 
-		_, _, err = ParseAddress(author_uri)
+		_, _, err = ParseAddress(author_addr)
 
 		if err != nil {
-			logger.Error("Invalid author address", "address", author_uri, "error", err)
-			return fmt.Errorf("Invalid author address")
+			logger.Error("Invalid author address", "address", author_addr, "error", err)
+			return fmt.Errorf("Invalid author address, %w", err)
+		}
+
+		_, err = url.Parse(author_uri)
+
+		if err != nil {
+			logger.Error("Invalid author uri", "uri", author_uri, "error", err)
+			return fmt.Errorf("Invalid author URI, %w", err)
 		}
 
 		from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
+		from_address := opts.From.Address(opts.URIs.Hostname)
 
 		logger = logger.With("from", from_uri)
 
-		// FIX ME: author_uri needs (?) to be an actual URI and not an (AP) address... I think?
 		boost_activity, err := ap.NewBoostActivity(ctx, opts.URIs, from_uri, author_uri, boost_obj)
 
 		if err != nil {
@@ -297,9 +305,7 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 			return fmt.Errorf("Failed to create boost activity")
 		}
 
-		// FIX ME: make from an address not a URI
-
-		activity_id := fmt.Sprintf("%s#boost-from-%s", boost_obj, from_uri)
+		activity_id := fmt.Sprintf("%s#boost-from-%s", boost_obj, from_address)
 		boost_activity.Id = activity_id
 
 		enc_boost, _ := json.Marshal(boost_activity)
