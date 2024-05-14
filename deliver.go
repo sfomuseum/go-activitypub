@@ -147,22 +147,22 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 
 		q := u.Query()
 
-		to_author := q.Get("author")
+		author_addr := q.Get("author_address")
 
-		_, _, err = ParseAddress(to_author)
+		_, _, err = ParseAddress(author_addr)
 
 		if err != nil {
-			logger.Error("Invalid to address", "to_author", to_author, "error", err)
-			return fmt.Errorf("Invalid to address")
+			logger.Error("Invalid author address", "author_address", author_addr, "error", err)
+			return fmt.Errorf("Invalid author address")
 		}
 
 		// Invoke the followers_cb (which was set up for GetFollowersForAccount above)
 
-		err = followers_cb(ctx, to_author)
+		err = followers_cb(ctx, author_addr)
 
 		if err != nil {
 			logger.Error("Failed to deliver message", "error", err)
-			return fmt.Errorf("Failed to deliver message to %s , %w", to_author, err)
+			return fmt.Errorf("Failed to deliver message to %s , %w", author_addr, err)
 		}
 
 	}
@@ -392,6 +392,6 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 	d.Success = true
 
-	logger.Info("Posted activity to account", "from", opts.From, "to", opts.To, "error", err)
+	logger.Info("Posted activity to account", "from", opts.From, "to", opts.To)
 	return nil
 }
