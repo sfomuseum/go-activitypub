@@ -3,6 +3,9 @@ package ap
 import (
 	"context"
 	"fmt"
+	"time"
+
+	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 /*
@@ -32,24 +35,29 @@ In the case of follower instances, they receive the announce, then fetch the con
 
 */
 
-func NewBoostActivity(ctx context.Context, from string, to string, object interface{}) (*Activity, error) {
-	return NewAnnounceActivity(ctx, from, to, object)
+func NewBoostActivity(ctx context.Context, uris_table *uris.URIs, from string, to string, object interface{}) (*Activity, error) {
+	return NewAnnounceActivity(ctx, uris_table, from, to, object)
 }
 
-func NewAnnounceActivity(ctx context.Context, from string, to string, object interface{}) (*Activity, error) {
+func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string, to string, object interface{}) (*Activity, error) {
+
+	ap_id := NewId(uris_table)
+
+	now := time.Now()
 
 	activity := &Activity{
 		Context: ACTIVITYSTREAMS_CONTEXT,
+		Id:      ap_id,
 		Type:    "Announce",
 		Actor:   from,
 		To: []string{
 			fmt.Sprintf("%s#Public", ACTIVITYSTREAMS_CONTEXT),
 		},
 		Cc: []string{
-			//followers...
 			to,
 		},
-		Object: object,
+		Object:    object,
+		Published: now.Format(time.RFC3339),
 	}
 
 	return activity, nil
