@@ -277,7 +277,6 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		q := u.Query()
 
 		author_addr := q.Get("author_address")
-		author_uri := q.Get("author_uri")
 
 		if author_addr == "" {
 			logger.Error("Missing ?author_address= parameter")
@@ -291,24 +290,32 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 			return fmt.Errorf("Invalid author address, %w", err)
 		}
 
-		if author_uri == "" {
-			logger.Error("Missing ?author_uri= parameter")
-			return fmt.Errorf("Missing ?author_uri= parameter")
-		}
+		// Apparently this is not necessary? As in the Announce 'cc' property takes
+		// an address rather than a URL? Anyway, that's how I can get boosts to show
+		// up in the Mastodon web application.
 
-		_, err = url.Parse(author_uri)
+		/*
+			author_uri := q.Get("author_uri")
 
-		if err != nil {
-			logger.Error("Invalid author uri", "uri", author_uri, "error", err)
-			return fmt.Errorf("Invalid author URI, %w", err)
-		}
+			if author_uri == "" {
+				logger.Error("Missing ?author_uri= parameter")
+				return fmt.Errorf("Missing ?author_uri= parameter")
+			}
+
+			_, err = url.Parse(author_uri)
+
+			if err != nil {
+				logger.Error("Invalid author uri", "uri", author_uri, "error", err)
+				return fmt.Errorf("Invalid author URI, %w", err)
+			}
+		*/
 
 		from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
 		from_address := opts.From.Address(opts.URIs.Hostname)
 
 		logger = logger.With("from", from_uri)
 
-		boost_activity, err := ap.NewBoostActivity(ctx, opts.URIs, from_uri, author_uri, boost_obj)
+		boost_activity, err := ap.NewBoostActivity(ctx, opts.URIs, from_uri, author_addr, boost_obj)
 
 		if err != nil {
 			logger.Error("Failed to create boost activity", "error", err)

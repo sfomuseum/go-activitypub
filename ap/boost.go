@@ -8,37 +8,12 @@ import (
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
-/*
-
-https://boyter.org/posts/activitypub-announce-post/
-
-In the case of follower instances, they receive the announce, then fetch the content of the announce using the object field.
-
-*/
-
-/*
-
-{
-  "@context": "https://www.w3.org/ns/activitystreams",
-  "id": "https://mastodon.social/users/aaronofsfo/statuses/112361739040787763/activity",
-  "type": "Announce",
-  "actor": "https://mastodon.social/users/aaronofsfo",
-  "to": [
-    "https://www.w3.org/ns/activitystreams#Public"
-  ],
-  "cc": [
-    "https://collection.sfomuseum.org/ap/onview",
-    "https://mastodon.social/users/aaronofsfo/followers"
-  ],
-  "object": "https://collection.sfomuseum.org/ap/@onview/posts/1785022876366147584"
-}
-
-*/
-
+// NewBoostActivity will return an ActivityPub "Announce" activity from 'from' about 'object' (created by 'author_uri').
 func NewBoostActivity(ctx context.Context, uris_table *uris.URIs, from string, author_uri string, object interface{}) (*Activity, error) {
 	return NewAnnounceActivity(ctx, uris_table, from, author_uri, object)
 }
 
+// NewAnnounceActivity will return an ActivityPub "Announce" activity from 'from' about 'object' (created by 'author_uri').
 func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string, author_uri string, object interface{}) (*Activity, error) {
 
 	ap_id := NewId(uris_table)
@@ -54,6 +29,10 @@ func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string
 			fmt.Sprintf("%s#Public", ACTIVITYSTREAMS_CONTEXT),
 		},
 		Cc: []string{
+			// Despite the example here which includes a URL it appears
+			// that an address is necessary? See also: the DeliverPost
+			// method in (sfomuseum/go-activitypub/deliver.go)
+			// https://boyter.org/posts/activitypub-announce-post/
 			author_uri,
 		},
 		Object:    object,
