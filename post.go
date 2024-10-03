@@ -19,8 +19,7 @@ import (
 type Post struct {
 	Id        int64 `json:"id"`
 	AccountId int64 `json:"account_id"`
-	// This is a string mostly because []byte thingies get encoded incorrectly
-	// in DynamoDB
+	// This is a string mostly because []byte thingies get encoded incorrectly in DynamoDB
 	Body         string `json:"body"`
 	InReplyTo    string `json:"in_reply_to"`
 	Created      int64  `json:"created"`
