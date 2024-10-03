@@ -3,62 +3,62 @@ package dynamodb
 import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"	
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 var DynamoDBFollowingTable = &dynamodb.CreateTableInput{
-	KeySchema: []*dynamodb.KeySchemaElement{
+	KeySchema: []types.KeySchemaElement{
 		{
 			AttributeName: aws.String("Id"), // partition key
-			KeyType:       aws.String("HASH"),
+			KeyType:       "HASH",
 		},
 	},
-	AttributeDefinitions: []*dynamodb.AttributeDefinition{
+	AttributeDefinitions: []types.AttributeDefinition{
 		{
 			AttributeName: aws.String("Id"),
-			AttributeType: aws.String("N"),
+			AttributeType: "N",
 		},
 		{
 			AttributeName: aws.String("Created"),
-			AttributeType: aws.String("N"),
+			AttributeType: "N",
 		},
 		{
 			AttributeName: aws.String("AccountId"),
-			AttributeType: aws.String("N"),
+			AttributeType: "N",
 		},
 		{
 			AttributeName: aws.String("FollowingAddress"),
-			AttributeType: aws.String("S"),
+			AttributeType: "S",
 		},
 	},
-	GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
+	GlobalSecondaryIndexes: []types.GlobalSecondaryIndex{
 		{
 			IndexName: aws.String("account_following"),
-			KeySchema: []*dynamodb.KeySchemaElement{
+			KeySchema: []types.KeySchemaElement{
 				{
 					AttributeName: aws.String("AccountId"),
-					KeyType:       aws.String("HASH"),
+					KeyType:       "HASH",
 				},
 				{
 					AttributeName: aws.String("FollowingAddress"),
-					KeyType:       aws.String("RANGE"),
+					KeyType:       "RANGE",
 				},
 			},
-			Projection: &dynamodb.Projection{
-				ProjectionType: aws.String("ALL"),
+			Projection: &types.Projection{
+				ProjectionType: "ALL",
 			},
 		},
 
 		{
 			IndexName: aws.String("created"),
-			KeySchema: []*dynamodb.KeySchemaElement{
+			KeySchema: []types.KeySchemaElement{
 				{
 					AttributeName: aws.String("Created"),
-					KeyType:       aws.String("HASH"),
+					KeyType:       "HASH",
 				},
 			},
-			Projection: &dynamodb.Projection{
-				ProjectionType: aws.String("KEYS_ONLY"),
+			Projection: &types.Projection{
+				ProjectionType: "KEYS_ONLY",
 			},
 		},
 	},

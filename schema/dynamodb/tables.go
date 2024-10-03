@@ -8,6 +8,7 @@ package dynamodb
 import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 var ACCOUNTS_TABLE_NAME = "accounts"
@@ -24,7 +25,7 @@ var DELIVERIES_TABLE_NAME = "deliveries"
 var LIKES_TABLE_NAME = "likes"
 var BOOSTS_TABLE_NAME = "boosts"
 
-var BILLING_MODE = aws.String("PAY_PER_REQUEST")
+var BILLING_MODE = types.BillingModePayPerRequest
 
 var DynamoDBTables = map[string]*dynamodb.CreateTableInput{
 	ACCOUNTS_TABLE_NAME:   DynamoDBAccountsTable,
