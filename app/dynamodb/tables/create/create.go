@@ -78,7 +78,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		Refresh: opts.Refresh,
 	}
 
-	err = aa_dynamodb.CreateTables(cl, create_opts)
+	err = aa_dynamodb.CreateTables(ctx, cl, create_opts)
 
 	if err != nil {
 		logger.Error("Failed to create tables", "error", err)

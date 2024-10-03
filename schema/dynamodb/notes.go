@@ -7,57 +7,57 @@ import (
 )
 
 var DynamoDBNotesTable = &dynamodb.CreateTableInput{
-	KeySchema: []*dynamodb.KeySchemaElement{
+	KeySchema: []types.KeySchemaElement{
 		{
 			AttributeName: aws.String("Id"), // partition key
-			KeyType:       aws.String("HASH"),
+			KeyType:       "HASH",
 		},
 	},
-	AttributeDefinitions: []*dynamodb.AttributeDefinition{
+	AttributeDefinitions: []types.AttributeDefinition{
 		{
 			AttributeName: aws.String("Id"),
-			AttributeType: aws.String("N"),
+			AttributeType: "N",
 		},
 		{
 			AttributeName: aws.String("UUID"),
-			AttributeType: aws.String("S"),
+			AttributeType: "S",
 		},
 		{
 			AttributeName: aws.String("AuthorAddress"),
-			AttributeType: aws.String("S"),
+			AttributeType: "S",
 		},
 		{
 			AttributeName: aws.String("Created"),
-			AttributeType: aws.String("N"),
+			AttributeType: "N",
 		},
 	},
-	GlobalSecondaryIndexes: []*dynamodb.GlobalSecondaryIndex{
+	GlobalSecondaryIndexes: []types.GlobalSecondaryIndex{
 		{
 			IndexName: aws.String("note_address"),
-			KeySchema: []*dynamodb.KeySchemaElement{
+			KeySchema: []types.KeySchemaElement{
 				{
 					AttributeName: aws.String("AuthorAddress"),
-					KeyType:       aws.String("HASH"),
+					KeyType:       "HASH",
 				},
 				{
 					AttributeName: aws.String("UUID"),
-					KeyType:       aws.String("RANGE"),
+					KeyType:       "RANGE",
 				},
 			},
-			Projection: &dynamodb.Projection{
-				ProjectionType: aws.String("ALL"),
+			Projection: &types.Projection{
+				ProjectionType: "ALL",
 			},
 		},
 		{
 			IndexName: aws.String("created"),
-			KeySchema: []*dynamodb.KeySchemaElement{
+			KeySchema: []types.KeySchemaElement{
 				{
 					AttributeName: aws.String("Created"),
-					KeyType:       aws.String("HASH"),
+					KeyType:       "HASH",
 				},
 			},
-			Projection: &dynamodb.Projection{
-				ProjectionType: aws.String("KEYS_ONLY"),
+			Projection: &types.Projection{
+				ProjectionType: "KEYS_ONLY",
 			},
 		},
 	},
