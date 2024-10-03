@@ -1,20 +1,22 @@
 package dynamodb
 
-// Move this in to aaronland/go-aws-dynamodb
-
 import (
 	"context"
 	"fmt"
-	aa_session "github.com/aaronland/go-aws-session"
-	"github.com/aws/aws-sdk-go/aws"
-	aws_session "github.com/aws/aws-sdk-go/aws/session"
-	aws_dynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	"net/url"
-	"os"
 	"strconv"
+
+	"github.com/aaronland/go-aws-auth"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	aws_dynamodb "github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
-func NewSessionWithURI(ctx context.Context, uri string) (*aws_session.Session, error) {
+func NewClientWithURI(ctx context.Context, uri string) (*aws_dynamodb.Client, error) {
+	return NewClient(ctx, uri)
+}
+
+func NewClient(ctx context.Context, uri string) (*aws_dynamodb.Client, error) {
 
 	u, err := url.Parse(uri)
 
@@ -23,54 +25,45 @@ func NewSessionWithURI(ctx context.Context, uri string) (*aws_session.Session, e
 	}
 
 	q := u.Query()
-	region := q.Get("region")
-	credentials := q.Get("credentials")
-	local := q.Get("local")
+
+	cfg, err := auth.NewConfig(ctx, uri)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create config, %w", err)
+	}
+
+	client_opts := make([]func(*aws_dynamodb.Options), 0)
 
 	is_local := false
 
-	if local != "" {
+	if q.Has("local") {
 
-		l, err := strconv.ParseBool(local)
+		v, err := strconv.ParseBool(q.Get("local"))
 
 		if err != nil {
-			return nil, fmt.Errorf("Failed to parse ?local parameter, %w", err)
+			return nil, fmt.Errorf("Invalid ?local= parameter, %w", err)
 		}
 
-		is_local = l
+		is_local = v
 	}
 
+	// https://dave.dev/blog/2021/07/14-07-2021-awsddb/
 	if is_local {
-		os.Setenv("AWS_ACCESS_KEY_ID", "DUMMYIDEXAMPLE")
-		os.Setenv("AWS_SECRET_ACCESS_KEY", "DUMMYEXAMPLEKEY")
-		credentials = "env:"
-		region = "us-east-1"
+
+		cfg.Region = "localhost"
+
+		cfg.EndpointResolver = aws.EndpointResolverFunc(
+			func(service, region string) (aws.Endpoint, error) {
+				return aws.Endpoint{URL: "http://localhost:8000", SigningRegion: "localhost"}, nil
+			})
+
+		creds_opts := func(o *aws_dynamodb.Options) {
+			o.Credentials = credentials.NewStaticCredentialsProvider("local", "host", "")
+		}
+
+		client_opts = append(client_opts, creds_opts)
 	}
 
-	dsn := fmt.Sprintf("credentials=%s region=%s", credentials, region)
-
-	sess, err := aa_session.NewSessionWithDSN(dsn)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create new session, %w", err)
-	}
-
-	if is_local {
-		endpoint := "http://localhost:8000"
-		sess.Config.Endpoint = aws.String(endpoint)
-	}
-
-	return sess, nil
-}
-
-func NewClientWithURI(ctx context.Context, uri string) (*aws_dynamodb.DynamoDB, error) {
-
-	sess, err := NewSessionWithURI(ctx, uri)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to create session, %w", err)
-	}
-
-	client := aws_dynamodb.New(sess)
+	client := aws_dynamodb.NewFromConfig(cfg, client_opts...)
 	return client, nil
 }

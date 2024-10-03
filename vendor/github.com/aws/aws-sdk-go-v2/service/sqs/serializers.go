@@ -1340,7 +1340,7 @@ func awsAwsjson10_serializeDocumentChangeMessageVisibilityBatchRequestEntry(v *t
 		ok.String(*v.ReceiptHandle)
 	}
 
-	if v.VisibilityTimeout != 0 {
+	{
 		ok := object.Key("VisibilityTimeout")
 		ok.Integer(v.VisibilityTimeout)
 	}
@@ -1462,6 +1462,17 @@ func awsAwsjson10_serializeDocumentMessageBodySystemAttributeMap(v map[string]ty
 		if err := awsAwsjson10_serializeDocumentMessageSystemAttributeValue(&mapVar, om); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func awsAwsjson10_serializeDocumentMessageSystemAttributeList(v []types.MessageSystemAttributeName, value smithyjson.Value) error {
+	array := value.Array()
+	defer array.Close()
+
+	for i := range v {
+		av := array.Value()
+		av.String(string(v[i]))
 	}
 	return nil
 }
@@ -1903,6 +1914,13 @@ func awsAwsjson10_serializeOpDocumentReceiveMessageInput(v *ReceiveMessageInput,
 	if v.MessageAttributeNames != nil {
 		ok := object.Key("MessageAttributeNames")
 		if err := awsAwsjson10_serializeDocumentMessageAttributeNameList(v.MessageAttributeNames, ok); err != nil {
+			return err
+		}
+	}
+
+	if v.MessageSystemAttributeNames != nil {
+		ok := object.Key("MessageSystemAttributeNames")
+		if err := awsAwsjson10_serializeDocumentMessageSystemAttributeList(v.MessageSystemAttributeNames, ok); err != nil {
 			return err
 		}
 	}

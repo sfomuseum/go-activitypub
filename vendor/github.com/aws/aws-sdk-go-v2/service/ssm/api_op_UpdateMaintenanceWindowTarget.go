@@ -13,13 +13,19 @@ import (
 
 // Modifies the target of an existing maintenance window. You can change the
 // following:
+//
 //   - Name
+//
 //   - Description
+//
 //   - Owner
+//
 //   - IDs for an ID target
+//
 //   - Tags for a Tag target
+//
 //   - From any supported tag type to another. The three supported tag types are
-//     ID target, Tag target, and resource group. For more information, see Target .
+//     ID target, Tag target, and resource group. For more information, see Target.
 //
 // If a parameter is null, then the corresponding field isn't modified.
 func (c *Client) UpdateMaintenanceWindowTarget(ctx context.Context, params *UpdateMaintenanceWindowTargetInput, optFns ...func(*Options)) (*UpdateMaintenanceWindowTargetOutput, error) {
@@ -59,9 +65,8 @@ type UpdateMaintenanceWindowTargetInput struct {
 	// events raised while running tasks for these targets in this maintenance window.
 	OwnerInformation *string
 
-	// If True , then all fields that are required by the
-	// RegisterTargetWithMaintenanceWindow operation are also required for this API
-	// request. Optional fields that aren't specified are set to null.
+	// If True , then all fields that are required by the RegisterTargetWithMaintenanceWindow operation are also required
+	// for this API request. Optional fields that aren't specified are set to null.
 	Replace *bool
 
 	// The targets to add or replace.
@@ -149,6 +154,12 @@ func (c *Client) addOperationUpdateMaintenanceWindowTargetMiddlewares(stack *mid
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpUpdateMaintenanceWindowTargetValidationMiddleware(stack); err != nil {

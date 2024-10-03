@@ -36,9 +36,10 @@ type ListCommandsInput struct {
 	// results.
 	Filters []types.CommandFilter
 
-	// (Optional) Lists commands issued against this managed node ID. You can't
-	// specify a managed node ID in the same command that you specify Status = Pending
-	// . This is because the command hasn't reached the managed node yet.
+	// (Optional) Lists commands issued against this managed node ID.
+	//
+	// You can't specify a managed node ID in the same command that you specify Status
+	// = Pending . This is because the command hasn't reached the managed node yet.
 	InstanceId *string
 
 	// (Optional) The maximum number of items to return for this call. The call also
@@ -123,6 +124,12 @@ func (c *Client) addOperationListCommandsMiddlewares(stack *middleware.Stack, op
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
 		return err
 	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
+		return err
+	}
 	if err = addOpListCommandsValidationMiddleware(stack); err != nil {
 		return err
 	}
@@ -146,13 +153,6 @@ func (c *Client) addOperationListCommandsMiddlewares(stack *middleware.Stack, op
 	}
 	return nil
 }
-
-// ListCommandsAPIClient is a client that implements the ListCommands operation.
-type ListCommandsAPIClient interface {
-	ListCommands(context.Context, *ListCommandsInput, ...func(*Options)) (*ListCommandsOutput, error)
-}
-
-var _ ListCommandsAPIClient = (*Client)(nil)
 
 // ListCommandsPaginatorOptions is the paginator options for ListCommands
 type ListCommandsPaginatorOptions struct {
@@ -219,6 +219,9 @@ func (p *ListCommandsPaginator) NextPage(ctx context.Context, optFns ...func(*Op
 	}
 	params.MaxResults = limit
 
+	optFns = append([]func(*Options){
+		addIsPaginatorUserAgent,
+	}, optFns...)
 	result, err := p.client.ListCommands(ctx, &params, optFns...)
 	if err != nil {
 		return nil, err
@@ -237,6 +240,13 @@ func (p *ListCommandsPaginator) NextPage(ctx context.Context, optFns ...func(*Op
 
 	return result, nil
 }
+
+// ListCommandsAPIClient is a client that implements the ListCommands operation.
+type ListCommandsAPIClient interface {
+	ListCommands(context.Context, *ListCommandsInput, ...func(*Options)) (*ListCommandsOutput, error)
+}
+
+var _ ListCommandsAPIClient = (*Client)(nil)
 
 func newServiceMetadataMiddleware_opListCommands(region string) *awsmiddleware.RegisterServiceMetadata {
 	return &awsmiddleware.RegisterServiceMetadata{

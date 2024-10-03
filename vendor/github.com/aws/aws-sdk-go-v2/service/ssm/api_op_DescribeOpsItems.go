@@ -12,14 +12,16 @@ import (
 )
 
 // Query a set of OpsItems. You must have permission in Identity and Access
-// Management (IAM) to query a list of OpsItems. For more information, see Set up
-// OpsCenter (https://docs.aws.amazon.com/systems-manager/latest/userguide/OpsCenter-setup.html)
-// in the Amazon Web Services Systems Manager User Guide. Operations engineers and
-// IT professionals use Amazon Web Services Systems Manager OpsCenter to view,
-// investigate, and remediate operational issues impacting the performance and
-// health of their Amazon Web Services resources. For more information, see
-// OpsCenter (https://docs.aws.amazon.com/systems-manager/latest/userguide/OpsCenter.html)
-// in the Amazon Web Services Systems Manager User Guide.
+// Management (IAM) to query a list of OpsItems. For more information, see [Set up OpsCenter]in the
+// Amazon Web Services Systems Manager User Guide.
+//
+// Operations engineers and IT professionals use Amazon Web Services Systems
+// Manager OpsCenter to view, investigate, and remediate operational issues
+// impacting the performance and health of their Amazon Web Services resources. For
+// more information, see [Amazon Web Services Systems Manager OpsCenter]in the Amazon Web Services Systems Manager User Guide.
+//
+// [Amazon Web Services Systems Manager OpsCenter]: https://docs.aws.amazon.com/systems-manager/latest/userguide/OpsCenter.html
+// [Set up OpsCenter]: https://docs.aws.amazon.com/systems-manager/latest/userguide/OpsCenter-setup.html
 func (c *Client) DescribeOpsItems(ctx context.Context, params *DescribeOpsItemsInput, optFns ...func(*Options)) (*DescribeOpsItemsOutput, error) {
 	if params == nil {
 		params = &DescribeOpsItemsInput{}
@@ -45,25 +47,70 @@ type DescribeOpsItemsInput struct {
 	NextToken *string
 
 	// One or more filters to limit the response.
-	//   - Key: CreatedTime Operations: GreaterThan, LessThan
-	//   - Key: LastModifiedBy Operations: Contains, Equals
-	//   - Key: LastModifiedTime Operations: GreaterThan, LessThan
-	//   - Key: Priority Operations: Equals
-	//   - Key: Source Operations: Contains, Equals
-	//   - Key: Status Operations: Equals
-	//   - Key: Title* Operations: Equals,Contains
-	//   - Key: OperationalData** Operations: Equals
-	//   - Key: OperationalDataKey Operations: Equals
-	//   - Key: OperationalDataValue Operations: Equals, Contains
-	//   - Key: OpsItemId Operations: Equals
-	//   - Key: ResourceId Operations: Contains
-	//   - Key: AutomationId Operations: Equals
-	//   - Key: AccountId Operations: Equals
+	//
+	//   - Key: CreatedTime
+	//
+	// Operations: GreaterThan, LessThan
+	//
+	//   - Key: LastModifiedBy
+	//
+	// Operations: Contains, Equals
+	//
+	//   - Key: LastModifiedTime
+	//
+	// Operations: GreaterThan, LessThan
+	//
+	//   - Key: Priority
+	//
+	// Operations: Equals
+	//
+	//   - Key: Source
+	//
+	// Operations: Contains, Equals
+	//
+	//   - Key: Status
+	//
+	// Operations: Equals
+	//
+	//   - Key: Title*
+	//
+	// Operations: Equals,Contains
+	//
+	//   - Key: OperationalData**
+	//
+	// Operations: Equals
+	//
+	//   - Key: OperationalDataKey
+	//
+	// Operations: Equals
+	//
+	//   - Key: OperationalDataValue
+	//
+	// Operations: Equals, Contains
+	//
+	//   - Key: OpsItemId
+	//
+	// Operations: Equals
+	//
+	//   - Key: ResourceId
+	//
+	// Operations: Contains
+	//
+	//   - Key: AutomationId
+	//
+	// Operations: Equals
+	//
+	//   - Key: AccountId
+	//
+	// Operations: Equals
+	//
 	// *The Equals operator for Title matches the first 100 characters. If you specify
 	// more than 100 characters, they system returns an error that the filter value
-	// exceeds the length limit. **If you filter the response by using the
-	// OperationalData operator, specify a key-value pair by using the following JSON
-	// format: {"key":"key_name","value":"a_value"}
+	// exceeds the length limit.
+	//
+	// **If you filter the response by using the OperationalData operator, specify a
+	// key-value pair by using the following JSON format:
+	// {"key":"key_name","value":"a_value"}
 	OpsItemFilters []types.OpsItemFilter
 
 	noSmithyDocumentSerde
@@ -139,6 +186,12 @@ func (c *Client) addOperationDescribeOpsItemsMiddlewares(stack *middleware.Stack
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
 		return err
 	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
+		return err
+	}
 	if err = addOpDescribeOpsItemsValidationMiddleware(stack); err != nil {
 		return err
 	}
@@ -162,14 +215,6 @@ func (c *Client) addOperationDescribeOpsItemsMiddlewares(stack *middleware.Stack
 	}
 	return nil
 }
-
-// DescribeOpsItemsAPIClient is a client that implements the DescribeOpsItems
-// operation.
-type DescribeOpsItemsAPIClient interface {
-	DescribeOpsItems(context.Context, *DescribeOpsItemsInput, ...func(*Options)) (*DescribeOpsItemsOutput, error)
-}
-
-var _ DescribeOpsItemsAPIClient = (*Client)(nil)
 
 // DescribeOpsItemsPaginatorOptions is the paginator options for DescribeOpsItems
 type DescribeOpsItemsPaginatorOptions struct {
@@ -235,6 +280,9 @@ func (p *DescribeOpsItemsPaginator) NextPage(ctx context.Context, optFns ...func
 	}
 	params.MaxResults = limit
 
+	optFns = append([]func(*Options){
+		addIsPaginatorUserAgent,
+	}, optFns...)
 	result, err := p.client.DescribeOpsItems(ctx, &params, optFns...)
 	if err != nil {
 		return nil, err
@@ -253,6 +301,14 @@ func (p *DescribeOpsItemsPaginator) NextPage(ctx context.Context, optFns ...func
 
 	return result, nil
 }
+
+// DescribeOpsItemsAPIClient is a client that implements the DescribeOpsItems
+// operation.
+type DescribeOpsItemsAPIClient interface {
+	DescribeOpsItems(context.Context, *DescribeOpsItemsInput, ...func(*Options)) (*DescribeOpsItemsOutput, error)
+}
+
+var _ DescribeOpsItemsAPIClient = (*Client)(nil)
 
 func newServiceMetadataMiddleware_opDescribeOpsItems(region string) *awsmiddleware.RegisterServiceMetadata {
 	return &awsmiddleware.RegisterServiceMetadata{

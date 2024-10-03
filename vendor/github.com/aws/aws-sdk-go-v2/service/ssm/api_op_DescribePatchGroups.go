@@ -29,10 +29,17 @@ func (c *Client) DescribePatchGroups(ctx context.Context, params *DescribePatchG
 
 type DescribePatchGroupsInput struct {
 
-	// Each element in the array is a structure containing a key-value pair. Supported
-	// keys for DescribePatchGroups include the following:
-	//   - NAME_PREFIX Sample values: AWS- | My- .
-	//   - OPERATING_SYSTEM Sample values: AMAZON_LINUX | SUSE | WINDOWS
+	// Each element in the array is a structure containing a key-value pair.
+	//
+	// Supported keys for DescribePatchGroups include the following:
+	//
+	//   - NAME_PREFIX
+	//
+	// Sample values: AWS- | My- .
+	//
+	//   - OPERATING_SYSTEM
+	//
+	// Sample values: AMAZON_LINUX | SUSE | WINDOWS
 	Filters []types.PatchOrchestratorFilter
 
 	// The maximum number of patch groups to return (per page).
@@ -48,8 +55,10 @@ type DescribePatchGroupsInput struct {
 type DescribePatchGroupsOutput struct {
 
 	// Each entry in the array contains:
+	//
 	//   - PatchGroup : string (between 1 and 256 characters. Regex:
 	//   ^([\p{L}\p{Z}\p{N}_.:/=+\-@]*)$)
+	//
 	//   - PatchBaselineIdentity : A PatchBaselineIdentity element.
 	Mappings []types.PatchGroupPatchBaselineMapping
 
@@ -118,6 +127,12 @@ func (c *Client) addOperationDescribePatchGroupsMiddlewares(stack *middleware.St
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
 		return err
 	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
+		return err
+	}
 	if err = stack.Initialize.Add(newServiceMetadataMiddleware_opDescribePatchGroups(options.Region), middleware.Before); err != nil {
 		return err
 	}
@@ -138,14 +153,6 @@ func (c *Client) addOperationDescribePatchGroupsMiddlewares(stack *middleware.St
 	}
 	return nil
 }
-
-// DescribePatchGroupsAPIClient is a client that implements the
-// DescribePatchGroups operation.
-type DescribePatchGroupsAPIClient interface {
-	DescribePatchGroups(context.Context, *DescribePatchGroupsInput, ...func(*Options)) (*DescribePatchGroupsOutput, error)
-}
-
-var _ DescribePatchGroupsAPIClient = (*Client)(nil)
 
 // DescribePatchGroupsPaginatorOptions is the paginator options for
 // DescribePatchGroups
@@ -211,6 +218,9 @@ func (p *DescribePatchGroupsPaginator) NextPage(ctx context.Context, optFns ...f
 	}
 	params.MaxResults = limit
 
+	optFns = append([]func(*Options){
+		addIsPaginatorUserAgent,
+	}, optFns...)
 	result, err := p.client.DescribePatchGroups(ctx, &params, optFns...)
 	if err != nil {
 		return nil, err
@@ -229,6 +239,14 @@ func (p *DescribePatchGroupsPaginator) NextPage(ctx context.Context, optFns ...f
 
 	return result, nil
 }
+
+// DescribePatchGroupsAPIClient is a client that implements the
+// DescribePatchGroups operation.
+type DescribePatchGroupsAPIClient interface {
+	DescribePatchGroups(context.Context, *DescribePatchGroupsInput, ...func(*Options)) (*DescribePatchGroupsOutput, error)
+}
+
+var _ DescribePatchGroupsAPIClient = (*Client)(nil)
 
 func newServiceMetadataMiddleware_opDescribePatchGroups(region string) *awsmiddleware.RegisterServiceMetadata {
 	return &awsmiddleware.RegisterServiceMetadata{

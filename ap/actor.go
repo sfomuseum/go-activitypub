@@ -8,6 +8,8 @@ import (
 	"github.com/sfomuseum/go-activitypub/crypto"
 )
 
+// https://www.w3.org/TR/activitystreams-vocabulary/#actor-types
+
 type Actor struct {
 	// It has to be an interface because JSON-LD... thanks, JSON-LD...
 	Context           []interface{} `json:"@context"`
@@ -31,6 +33,7 @@ type Actor struct {
 	Attachments  []*Attachment `json:"attachment,omitempty"` // Is this just a Mastodon-ism?
 }
 
+// Returns the `rsa.PublicKey` instance for 'a'.
 func (a *Actor) PublicKeyRSA(ctx context.Context) (*rsa.PublicKey, error) {
 
 	public_key_str := a.PublicKey.PEM

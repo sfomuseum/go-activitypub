@@ -11,12 +11,14 @@ import (
 	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
 
-// Retrieves the details of a maintenance window task. For maintenance window
-// tasks without a specified target, you can't supply values for --max-errors and
-// --max-concurrency . Instead, the system inserts a placeholder value of 1 , which
-// may be reported in the response to this command. These values don't affect the
-// running of your task and can be ignored. To retrieve a list of tasks in a
-// maintenance window, instead use the DescribeMaintenanceWindowTasks command.
+// Retrieves the details of a maintenance window task.
+//
+// For maintenance window tasks without a specified target, you can't supply
+// values for --max-errors and --max-concurrency . Instead, the system inserts a
+// placeholder value of 1 , which may be reported in the response to this command.
+// These values don't affect the running of your task and can be ignored.
+//
+// To retrieve a list of tasks in a maintenance window, instead use the DescribeMaintenanceWindowTasks command.
 func (c *Client) GetMaintenanceWindowTask(ctx context.Context, params *GetMaintenanceWindowTaskInput, optFns ...func(*Options)) (*GetMaintenanceWindowTaskOutput, error) {
 	if params == nil {
 		params = &GetMaintenanceWindowTaskInput{}
@@ -65,26 +67,29 @@ type GetMaintenanceWindowTaskOutput struct {
 	Description *string
 
 	// The location in Amazon Simple Storage Service (Amazon S3) where the task
-	// results are logged. LoggingInfo has been deprecated. To specify an Amazon
-	// Simple Storage Service (Amazon S3) bucket to contain logs, instead use the
-	// OutputS3BucketName and OutputS3KeyPrefix options in the TaskInvocationParameters
-	// structure. For information about how Amazon Web Services Systems Manager handles
-	// these options for the supported maintenance window task types, see
-	// MaintenanceWindowTaskInvocationParameters .
+	// results are logged.
+	//
+	// LoggingInfo has been deprecated. To specify an Amazon Simple Storage Service
+	// (Amazon S3) bucket to contain logs, instead use the OutputS3BucketName and
+	// OutputS3KeyPrefix options in the TaskInvocationParameters structure. For
+	// information about how Amazon Web Services Systems Manager handles these options
+	// for the supported maintenance window task types, see MaintenanceWindowTaskInvocationParameters.
 	LoggingInfo *types.LoggingInfo
 
-	// The maximum number of targets allowed to run this task in parallel. For
-	// maintenance window tasks without a target specified, you can't supply a value
-	// for this option. Instead, the system inserts a placeholder value of 1 , which
-	// may be reported in the response to this command. This value doesn't affect the
-	// running of your task and can be ignored.
+	// The maximum number of targets allowed to run this task in parallel.
+	//
+	// For maintenance window tasks without a target specified, you can't supply a
+	// value for this option. Instead, the system inserts a placeholder value of 1 ,
+	// which may be reported in the response to this command. This value doesn't affect
+	// the running of your task and can be ignored.
 	MaxConcurrency *string
 
-	// The maximum number of errors allowed before the task stops being scheduled. For
-	// maintenance window tasks without a target specified, you can't supply a value
-	// for this option. Instead, the system inserts a placeholder value of 1 , which
-	// may be reported in the response to this command. This value doesn't affect the
-	// running of your task and can be ignored.
+	// The maximum number of errors allowed before the task stops being scheduled.
+	//
+	// For maintenance window tasks without a target specified, you can't supply a
+	// value for this option. Instead, the system inserts a placeholder value of 1 ,
+	// which may be reported in the response to this command. This value doesn't affect
+	// the running of your task and can be ignored.
 	MaxErrors *string
 
 	// The retrieved task name.
@@ -94,9 +99,19 @@ type GetMaintenanceWindowTaskOutput struct {
 	// priority. Tasks that have the same priority are scheduled in parallel.
 	Priority int32
 
-	// The Amazon Resource Name (ARN) of the Identity and Access Management (IAM)
-	// service role to use to publish Amazon Simple Notification Service (Amazon SNS)
-	// notifications for maintenance window Run Command tasks.
+	// The Amazon Resource Name (ARN) of the IAM service role for Amazon Web Services
+	// Systems Manager to assume when running a maintenance window task. If you do not
+	// specify a service role ARN, Systems Manager uses a service-linked role in your
+	// account. If no appropriate service-linked role for Systems Manager exists in
+	// your account, it is created when you run RegisterTaskWithMaintenanceWindow .
+	//
+	// However, for an improved security posture, we strongly recommend creating a
+	// custom policy and custom service role for running your maintenance window tasks.
+	// The policy can be crafted to provide only the permissions needed for your
+	// particular maintenance window tasks. For more information, see [Setting up maintenance windows]in the in the
+	// Amazon Web Services Systems Manager User Guide.
+	//
+	// [Setting up maintenance windows]: https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-maintenance-permissions.html
 	ServiceRoleArn *string
 
 	// The targets where the task should run.
@@ -111,11 +126,12 @@ type GetMaintenanceWindowTaskOutput struct {
 	// The parameters to pass to the task when it runs.
 	TaskInvocationParameters *types.MaintenanceWindowTaskInvocationParameters
 
-	// The parameters to pass to the task when it runs. TaskParameters has been
-	// deprecated. To specify parameters to pass to a task when it runs, instead use
-	// the Parameters option in the TaskInvocationParameters structure. For
-	// information about how Systems Manager handles these options for the supported
-	// maintenance window task types, see MaintenanceWindowTaskInvocationParameters .
+	// The parameters to pass to the task when it runs.
+	//
+	// TaskParameters has been deprecated. To specify parameters to pass to a task
+	// when it runs, instead use the Parameters option in the TaskInvocationParameters
+	// structure. For information about how Systems Manager handles these options for
+	// the supported maintenance window task types, see MaintenanceWindowTaskInvocationParameters.
 	TaskParameters map[string]types.MaintenanceWindowTaskParameterValueExpression
 
 	// The type of task to run.
@@ -186,6 +202,12 @@ func (c *Client) addOperationGetMaintenanceWindowTaskMiddlewares(stack *middlewa
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpGetMaintenanceWindowTaskValidationMiddleware(stack); err != nil {

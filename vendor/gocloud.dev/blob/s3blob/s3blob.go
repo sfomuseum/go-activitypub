@@ -151,11 +151,11 @@ const (
 
 func toServerSideEncryptionType(value string) (typesv2.ServerSideEncryption, error) {
 	for _, sseType := range typesv2.ServerSideEncryptionAes256.Values() {
-		if strings.ToLower(string(sseType)) == strings.ToLower(value) {
+		if strings.EqualFold(string(sseType), value) {
 			return sseType, nil
 		}
 	}
-	return "", fmt.Errorf("'%s' is not a valid value for '%s'", value, sseTypeParamKey)
+	return "", fmt.Errorf("%q is not a valid value for %q", value, sseTypeParamKey)
 }
 
 // OpenBucketURL opens a blob.Bucket based on u.
@@ -251,6 +251,8 @@ func openBucket(ctx context.Context, useV2 bool, sess client.ConfigProvider, cli
 // AWS buckets are bound to a region; sess must have been created using an
 // aws.Config with Region set to the right region for bucketName.
 // See the package documentation for an example.
+//
+// Deprecated: AWS no longer supports their V1 API. Please migrate to OpenBucketV2.
 func OpenBucket(ctx context.Context, sess client.ConfigProvider, bucketName string, opts *Options) (*blob.Bucket, error) {
 	drv, err := openBucket(ctx, false, sess, nil, bucketName, opts)
 	if err != nil {
@@ -969,6 +971,9 @@ func escapeKey(key string) string {
 		// For "../", escape the trailing slash.
 		case i > 1 && c == '/' && r[i-1] == '.' && r[i-2] == '.':
 			return true
+		// Escape \.
+		case c == '\\':
+			return true
 		}
 		return false
 	})
@@ -980,7 +985,7 @@ func unescapeKey(key string) string {
 }
 
 // NewTypedWriter implements driver.NewTypedWriter.
-func (b *bucket) NewTypedWriter(ctx context.Context, key string, contentType string, opts *driver.WriterOptions) (driver.Writer, error) {
+func (b *bucket) NewTypedWriter(ctx context.Context, key, contentType string, opts *driver.WriterOptions) (driver.Writer, error) {
 	key = escapeKey(key)
 	if b.useV2 {
 		uploaderV2 := s3managerv2.NewUploader(b.clientV2, func(u *s3managerv2.Uploader) {
@@ -1138,10 +1143,11 @@ func (b *bucket) NewTypedWriter(ctx context.Context, key string, contentType str
 func (b *bucket) Copy(ctx context.Context, dstKey, srcKey string, opts *driver.CopyOptions) error {
 	dstKey = escapeKey(dstKey)
 	srcKey = escapeKey(srcKey)
+	srcKeyWithBucketEscaped := url.QueryEscape(b.name + "/" + srcKey)
 	if b.useV2 {
 		input := &s3v2.CopyObjectInput{
 			Bucket:     aws.String(b.name),
-			CopySource: aws.String(b.name + "/" + srcKey),
+			CopySource: aws.String(srcKeyWithBucketEscaped),
 			Key:        aws.String(dstKey),
 		}
 		if b.encryptionType != "" {
@@ -1168,7 +1174,7 @@ func (b *bucket) Copy(ctx context.Context, dstKey, srcKey string, opts *driver.C
 	} else {
 		input := &s3.CopyObjectInput{
 			Bucket:     aws.String(b.name),
-			CopySource: aws.String(b.name + "/" + srcKey),
+			CopySource: aws.String(srcKeyWithBucketEscaped),
 			Key:        aws.String(dstKey),
 		}
 		if b.encryptionType != "" {

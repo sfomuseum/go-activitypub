@@ -6,8 +6,8 @@ package dynamodb
 // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
 var ACCOUNTS_TABLE_NAME = "accounts"

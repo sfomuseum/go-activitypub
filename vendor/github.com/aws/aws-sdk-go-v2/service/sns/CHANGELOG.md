@@ -1,3 +1,69 @@
+# v1.31.3 (2024-07-10.2)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.31.2 (2024-07-10)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.31.1 (2024-06-28)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.31.0 (2024-06-26)
+
+* **Feature**: Support list-of-string endpoint parameter.
+
+# v1.30.1 (2024-06-19)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.30.0 (2024-06-18)
+
+* **Feature**: Track usage of various AWS SDK features in user-agent string.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.29.12 (2024-06-17)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.29.11 (2024-06-07)
+
+* **Bug Fix**: Add clock skew correction on all service clients
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.29.10 (2024-06-06)
+
+* **Documentation**: Doc-only update for SNS. These changes include customer-reported issues and TXC3 updates.
+
+# v1.29.9 (2024-06-03)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.29.8 (2024-05-23)
+
+* No change notes available for this release.
+
+# v1.29.7 (2024-05-16)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.29.6 (2024-05-15)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.29.5 (2024-05-08)
+
+* **Bug Fix**: GoDoc improvement
+
+# v1.29.4 (2024-03-29)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.29.3 (2024-03-18)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
 # v1.29.2 (2024-03-07)
 
 * **Bug Fix**: Remove dependency on go-cmp.
