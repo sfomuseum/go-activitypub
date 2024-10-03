@@ -29,8 +29,10 @@ func (c *Client) DeleteParameter(ctx context.Context, params *DeleteParameterInp
 
 type DeleteParameterInput struct {
 
-	// The name of the parameter to delete. You can't enter the Amazon Resource Name
-	// (ARN) for a parameter, only the parameter name itself.
+	// The name of the parameter to delete.
+	//
+	// You can't enter the Amazon Resource Name (ARN) for a parameter, only the
+	// parameter name itself.
 	//
 	// This member is required.
 	Name *string
@@ -98,6 +100,12 @@ func (c *Client) addOperationDeleteParameterMiddlewares(stack *middleware.Stack,
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpDeleteParameterValidationMiddleware(stack); err != nil {

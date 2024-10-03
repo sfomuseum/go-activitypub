@@ -11,10 +11,12 @@ import (
 	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
 
-// Retrieves the history of all changes to a parameter. If you change the KMS key
-// alias for the KMS key used to encrypt a parameter, then you must also update the
-// key alias the parameter uses to reference KMS. Otherwise, GetParameterHistory
-// retrieves whatever the original key alias was referencing.
+// Retrieves the history of all changes to a parameter.
+//
+// If you change the KMS key alias for the KMS key used to encrypt a parameter,
+// then you must also update the key alias the parameter uses to reference KMS.
+// Otherwise, GetParameterHistory retrieves whatever the original key alias was
+// referencing.
 func (c *Client) GetParameterHistory(ctx context.Context, params *GetParameterHistoryInput, optFns ...func(*Options)) (*GetParameterHistoryOutput, error) {
 	if params == nil {
 		params = &GetParameterHistoryInput{}
@@ -124,6 +126,12 @@ func (c *Client) addOperationGetParameterHistoryMiddlewares(stack *middleware.St
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
 		return err
 	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
+		return err
+	}
 	if err = addOpGetParameterHistoryValidationMiddleware(stack); err != nil {
 		return err
 	}
@@ -147,14 +155,6 @@ func (c *Client) addOperationGetParameterHistoryMiddlewares(stack *middleware.St
 	}
 	return nil
 }
-
-// GetParameterHistoryAPIClient is a client that implements the
-// GetParameterHistory operation.
-type GetParameterHistoryAPIClient interface {
-	GetParameterHistory(context.Context, *GetParameterHistoryInput, ...func(*Options)) (*GetParameterHistoryOutput, error)
-}
-
-var _ GetParameterHistoryAPIClient = (*Client)(nil)
 
 // GetParameterHistoryPaginatorOptions is the paginator options for
 // GetParameterHistory
@@ -221,6 +221,9 @@ func (p *GetParameterHistoryPaginator) NextPage(ctx context.Context, optFns ...f
 	}
 	params.MaxResults = limit
 
+	optFns = append([]func(*Options){
+		addIsPaginatorUserAgent,
+	}, optFns...)
 	result, err := p.client.GetParameterHistory(ctx, &params, optFns...)
 	if err != nil {
 		return nil, err
@@ -239,6 +242,14 @@ func (p *GetParameterHistoryPaginator) NextPage(ctx context.Context, optFns ...f
 
 	return result, nil
 }
+
+// GetParameterHistoryAPIClient is a client that implements the
+// GetParameterHistory operation.
+type GetParameterHistoryAPIClient interface {
+	GetParameterHistory(context.Context, *GetParameterHistoryInput, ...func(*Options)) (*GetParameterHistoryOutput, error)
+}
+
+var _ GetParameterHistoryAPIClient = (*Client)(nil)
 
 func newServiceMetadataMiddleware_opGetParameterHistory(region string) *awsmiddleware.RegisterServiceMetadata {
 	return &awsmiddleware.RegisterServiceMetadata{

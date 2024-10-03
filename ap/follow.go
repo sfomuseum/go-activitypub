@@ -7,13 +7,14 @@ import (
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
+// NewCreateActivity returns a new `Activity` instance of type "Follow".
 func NewFollowActivity(ctx context.Context, uris_table *uris.URIs, from string, to string) (*Activity, error) {
 
 	ap_id := NewId(uris_table)
 
 	req := &Activity{
 		Id:     ap_id,
-		Type:   "Follow",
+		Type:   FOLLOW_ACTIVITY,
 		Actor:  from,
 		Object: to,
 	}

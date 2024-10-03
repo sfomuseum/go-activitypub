@@ -14,13 +14,16 @@ import (
 // Provides information about one or more of your managed nodes, including the
 // operating system platform, SSM Agent version, association status, and IP
 // address. This operation does not return information for nodes that are either
-// Stopped or Terminated. If you specify one or more node IDs, the operation
-// returns information for those managed nodes. If you don't specify node IDs, it
-// returns information for all your managed nodes. If you specify a node ID that
-// isn't valid or a node that you don't own, you receive an error. The IamRole
-// field returned for this API operation is the Identity and Access Management
-// (IAM) role assigned to on-premises managed nodes. This operation does not return
-// the IAM role for EC2 instances.
+// Stopped or Terminated.
+//
+// If you specify one or more node IDs, the operation returns information for
+// those managed nodes. If you don't specify node IDs, it returns information for
+// all your managed nodes. If you specify a node ID that isn't valid or a node that
+// you don't own, you receive an error.
+//
+// The IamRole field returned for this API operation is the role assigned to an
+// Amazon EC2 instance configured with a Systems Manager Quick Setup host
+// management configuration or the role assigned to an on-premises managed node.
 func (c *Client) DescribeInstanceInformation(ctx context.Context, params *DescribeInstanceInformationInput, optFns ...func(*Options)) (*DescribeInstanceInformationOutput, error) {
 	if params == nil {
 		params = &DescribeInstanceInformationInput{}
@@ -46,8 +49,10 @@ type DescribeInstanceInformationInput struct {
 
 	// This is a legacy method. We recommend that you don't use this method. Instead,
 	// use the Filters data type. Filters enables you to return node information by
-	// filtering based on tags applied to managed nodes. Attempting to use
-	// InstanceInformationFilterList and Filters leads to an exception error.
+	// filtering based on tags applied to managed nodes.
+	//
+	// Attempting to use InstanceInformationFilterList and Filters leads to an
+	// exception error.
 	InstanceInformationFilterList []types.InstanceInformationFilter
 
 	// The maximum number of items to return for this call. The call also returns a
@@ -132,6 +137,12 @@ func (c *Client) addOperationDescribeInstanceInformationMiddlewares(stack *middl
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
 		return err
 	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
+		return err
+	}
 	if err = addOpDescribeInstanceInformationValidationMiddleware(stack); err != nil {
 		return err
 	}
@@ -155,14 +166,6 @@ func (c *Client) addOperationDescribeInstanceInformationMiddlewares(stack *middl
 	}
 	return nil
 }
-
-// DescribeInstanceInformationAPIClient is a client that implements the
-// DescribeInstanceInformation operation.
-type DescribeInstanceInformationAPIClient interface {
-	DescribeInstanceInformation(context.Context, *DescribeInstanceInformationInput, ...func(*Options)) (*DescribeInstanceInformationOutput, error)
-}
-
-var _ DescribeInstanceInformationAPIClient = (*Client)(nil)
 
 // DescribeInstanceInformationPaginatorOptions is the paginator options for
 // DescribeInstanceInformation
@@ -232,6 +235,9 @@ func (p *DescribeInstanceInformationPaginator) NextPage(ctx context.Context, opt
 	}
 	params.MaxResults = limit
 
+	optFns = append([]func(*Options){
+		addIsPaginatorUserAgent,
+	}, optFns...)
 	result, err := p.client.DescribeInstanceInformation(ctx, &params, optFns...)
 	if err != nil {
 		return nil, err
@@ -250,6 +256,14 @@ func (p *DescribeInstanceInformationPaginator) NextPage(ctx context.Context, opt
 
 	return result, nil
 }
+
+// DescribeInstanceInformationAPIClient is a client that implements the
+// DescribeInstanceInformation operation.
+type DescribeInstanceInformationAPIClient interface {
+	DescribeInstanceInformation(context.Context, *DescribeInstanceInformationInput, ...func(*Options)) (*DescribeInstanceInformationOutput, error)
+}
+
+var _ DescribeInstanceInformationAPIClient = (*Client)(nil)
 
 func newServiceMetadataMiddleware_opDescribeInstanceInformation(region string) *awsmiddleware.RegisterServiceMetadata {
 	return &awsmiddleware.RegisterServiceMetadata{

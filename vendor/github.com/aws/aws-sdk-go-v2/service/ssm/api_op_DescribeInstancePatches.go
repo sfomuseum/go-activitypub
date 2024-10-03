@@ -35,14 +35,30 @@ type DescribeInstancePatchesInput struct {
 	// This member is required.
 	InstanceId *string
 
-	// Each element in the array is a structure containing a key-value pair. Supported
-	// keys for DescribeInstancePatches include the following:
-	//   - Classification Sample values: Security | SecurityUpdates
-	//   - KBId Sample values: KB4480056 | java-1.7.0-openjdk.x86_64
-	//   - Severity Sample values: Important | Medium | Low
-	//   - State Sample values: Installed | InstalledOther | InstalledPendingReboot For
-	//   lists of all State values, see Understanding patch compliance state values (https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager-compliance-states.html)
-	//   in the Amazon Web Services Systems Manager User Guide.
+	// Each element in the array is a structure containing a key-value pair.
+	//
+	// Supported keys for DescribeInstancePatches include the following:
+	//
+	//   - Classification
+	//
+	// Sample values: Security | SecurityUpdates
+	//
+	//   - KBId
+	//
+	// Sample values: KB4480056 | java-1.7.0-openjdk.x86_64
+	//
+	//   - Severity
+	//
+	// Sample values: Important | Medium | Low
+	//
+	//   - State
+	//
+	// Sample values: Installed | InstalledOther | InstalledPendingReboot
+	//
+	// For lists of all State values, see [Understanding patch compliance state values]in the Amazon Web Services Systems Manager
+	//   User Guide.
+	//
+	// [Understanding patch compliance state values]: https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager-compliance-states.html
 	Filters []types.PatchOrchestratorFilter
 
 	// The maximum number of patches to return (per page).
@@ -62,12 +78,19 @@ type DescribeInstancePatchesOutput struct {
 	NextToken *string
 
 	// Each entry in the array is a structure containing:
+	//
 	//   - Title (string)
+	//
 	//   - KBId (string)
+	//
 	//   - Classification (string)
+	//
 	//   - Severity (string)
+	//
 	//   - State (string, such as "INSTALLED" or "FAILED")
+	//
 	//   - InstalledTime (DateTime)
+	//
 	//   - InstalledBy (string)
 	Patches []types.PatchComplianceData
 
@@ -132,6 +155,12 @@ func (c *Client) addOperationDescribeInstancePatchesMiddlewares(stack *middlewar
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
 		return err
 	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
+		return err
+	}
 	if err = addOpDescribeInstancePatchesValidationMiddleware(stack); err != nil {
 		return err
 	}
@@ -155,14 +184,6 @@ func (c *Client) addOperationDescribeInstancePatchesMiddlewares(stack *middlewar
 	}
 	return nil
 }
-
-// DescribeInstancePatchesAPIClient is a client that implements the
-// DescribeInstancePatches operation.
-type DescribeInstancePatchesAPIClient interface {
-	DescribeInstancePatches(context.Context, *DescribeInstancePatchesInput, ...func(*Options)) (*DescribeInstancePatchesOutput, error)
-}
-
-var _ DescribeInstancePatchesAPIClient = (*Client)(nil)
 
 // DescribeInstancePatchesPaginatorOptions is the paginator options for
 // DescribeInstancePatches
@@ -229,6 +250,9 @@ func (p *DescribeInstancePatchesPaginator) NextPage(ctx context.Context, optFns 
 	}
 	params.MaxResults = limit
 
+	optFns = append([]func(*Options){
+		addIsPaginatorUserAgent,
+	}, optFns...)
 	result, err := p.client.DescribeInstancePatches(ctx, &params, optFns...)
 	if err != nil {
 		return nil, err
@@ -247,6 +271,14 @@ func (p *DescribeInstancePatchesPaginator) NextPage(ctx context.Context, optFns 
 
 	return result, nil
 }
+
+// DescribeInstancePatchesAPIClient is a client that implements the
+// DescribeInstancePatches operation.
+type DescribeInstancePatchesAPIClient interface {
+	DescribeInstancePatches(context.Context, *DescribeInstancePatchesInput, ...func(*Options)) (*DescribeInstancePatchesOutput, error)
+}
+
+var _ DescribeInstancePatchesAPIClient = (*Client)(nil)
 
 func newServiceMetadataMiddleware_opDescribeInstancePatches(region string) *awsmiddleware.RegisterServiceMetadata {
 	return &awsmiddleware.RegisterServiceMetadata{

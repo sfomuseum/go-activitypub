@@ -373,12 +373,16 @@ type TopicOptions struct {
 }
 
 // OpenTopic is a shortcut for OpenSNSTopic, provided for backwards compatibility.
+//
+// Deprecated: AWS no longer supports their V1 API. Please migrate to OpenSNSTopicV2.
 func OpenTopic(ctx context.Context, sess client.ConfigProvider, topicARN string, opts *TopicOptions) *pubsub.Topic {
 	return OpenSNSTopic(ctx, sess, topicARN, opts)
 }
 
 // OpenSNSTopic opens a topic that sends to the SNS topic with the given Amazon
 // Resource Name (ARN).
+//
+// Deprecated: AWS no longer supports their V1 API. Please migrate to OpenSNSTopicV2.
 func OpenSNSTopic(ctx context.Context, sess client.ConfigProvider, topicARN string, opts *TopicOptions) *pubsub.Topic {
 	if opts == nil {
 		opts = &TopicOptions{}
@@ -454,6 +458,50 @@ func maybeEncodeBody(body []byte, opt BodyBase64Encoding) (string, bool) {
 	return string(body), false
 }
 
+// Defines values for Metadata keys used by the driver for setting message
+// attributes on SNS ([sns.PublishBatchRequestEntry]/[snstypesv2.PublishBatchRequestEntry])
+// and SQS ([sqs.SendMessageBatchRequestEntry]/[sqstypesv2.SendMessageBatchRequestEntry])
+// messages.
+//
+// For example, to set a deduplication ID and message group ID on a message:
+//
+//	import (
+//		"gocloud.dev/pubsub"
+//		"gocloud.dev/pubsub/awssnssqs"
+//	)
+//
+//	message := pubsub.Message{
+//		Body: []byte("Hello, World!"),
+//		Metadata: map[string]string{
+//			awssnssqs.MetadataKeyDeduplicationID: "my-dedup-id",
+//			awssnssqs.MetadataKeyMessageGroupID:  "my-group-id",
+//		},
+//	}
+const (
+	MetadataKeyDeduplicationID = "DeduplicationId"
+	MetadataKeyMessageGroupID  = "MessageGroupId"
+)
+
+// reviseSnsEntryAttributes sets attributes on a [sns.PublishBatchRequestEntry] based on [driver.Message.Metadata].
+func reviseSnsEntryAttributes(dm *driver.Message, entry *sns.PublishBatchRequestEntry) {
+	if dedupID, ok := dm.Metadata[MetadataKeyDeduplicationID]; ok {
+		entry.MessageDeduplicationId = aws.String(dedupID)
+	}
+	if groupID, ok := dm.Metadata[MetadataKeyMessageGroupID]; ok {
+		entry.MessageGroupId = aws.String(groupID)
+	}
+}
+
+// reviseSnsV2EntryAttributes sets attributes on a [snstypesv2.PublishBatchRequestEntry] based on [driver.Message.Metadata].
+func reviseSnsV2EntryAttributes(dm *driver.Message, entry *snstypesv2.PublishBatchRequestEntry) {
+	if dedupID, ok := dm.Metadata[MetadataKeyDeduplicationID]; ok {
+		entry.MessageDeduplicationId = aws.String(dedupID)
+	}
+	if groupID, ok := dm.Metadata[MetadataKeyMessageGroupID]; ok {
+		entry.MessageGroupId = aws.String(groupID)
+	}
+}
+
 // SendBatch implements driver.Topic.SendBatch.
 func (t *snsTopic) SendBatch(ctx context.Context, dms []*driver.Message) error {
 	if t.useV2 {
@@ -483,6 +531,7 @@ func (t *snsTopic) SendBatch(ctx context.Context, dms []*driver.Message) error {
 				MessageAttributes: attrs,
 				Message:           aws.String(body),
 			}
+			reviseSnsV2EntryAttributes(dm, entry)
 			if dm.BeforeSend != nil {
 				// A previous revision used the non-batch API PublishInput, which takes
 				// a *snsv2.PublishInput. For backwards compatibility for As, continue
@@ -581,6 +630,7 @@ func (t *snsTopic) SendBatch(ctx context.Context, dms []*driver.Message) error {
 			MessageAttributes: attrs,
 			Message:           aws.String(body),
 		}
+		reviseSnsEntryAttributes(dm, entry)
 		if dm.BeforeSend != nil {
 			// A previous revision used the non-batch API PublishInput, which takes
 			// a *snsv2.PublishInput. For backwards compatibility for As, continue
@@ -701,6 +751,8 @@ type sqsTopic struct {
 
 // OpenSQSTopic opens a topic that sends to the SQS topic with the given SQS
 // queue URL.
+//
+// Deprecated: AWS no longer supports their V1 API. Please migrate to OpenSQSTopicV2.
 func OpenSQSTopic(ctx context.Context, sess client.ConfigProvider, qURL string, opts *TopicOptions) *pubsub.Topic {
 	if opts == nil {
 		opts = &TopicOptions{}
@@ -741,6 +793,26 @@ func openSQSTopicV2(ctx context.Context, client *sqsv2.Client, qURL string, opts
 	}
 }
 
+// reviseSqsEntryAttributes sets attributes on a [sqs.SendMessageBatchRequestEntry] based on [driver.Message.Metadata].
+func reviseSqsEntryAttributes(dm *driver.Message, entry *sqs.SendMessageBatchRequestEntry) {
+	if dedupID, ok := dm.Metadata[MetadataKeyDeduplicationID]; ok {
+		entry.MessageDeduplicationId = aws.String(dedupID)
+	}
+	if groupID, ok := dm.Metadata[MetadataKeyMessageGroupID]; ok {
+		entry.MessageGroupId = aws.String(groupID)
+	}
+}
+
+// reviseSqsV2EntryAttributes sets attributes on a [sqstypesv2.SendMessageBatchRequestEntry] based on [driver.Message.Metadata].
+func reviseSqsV2EntryAttributes(dm *driver.Message, entry *sqstypesv2.SendMessageBatchRequestEntry) {
+	if dedupID, ok := dm.Metadata[MetadataKeyDeduplicationID]; ok {
+		entry.MessageDeduplicationId = aws.String(dedupID)
+	}
+	if groupID, ok := dm.Metadata[MetadataKeyMessageGroupID]; ok {
+		entry.MessageGroupId = aws.String(groupID)
+	}
+}
+
 // SendBatch implements driver.Topic.SendBatch.
 func (t *sqsTopic) SendBatch(ctx context.Context, dms []*driver.Message) error {
 	if t.useV2 {
@@ -770,6 +842,7 @@ func (t *sqsTopic) SendBatch(ctx context.Context, dms []*driver.Message) error {
 				MessageAttributes: attrs,
 				MessageBody:       aws.String(body),
 			}
+			reviseSqsV2EntryAttributes(dm, entry)
 			if dm.BeforeSend != nil {
 				asFunc := func(i interface{}) bool {
 					if p, ok := i.(**sqstypesv2.SendMessageBatchRequestEntry); ok {
@@ -836,6 +909,7 @@ func (t *sqsTopic) SendBatch(ctx context.Context, dms []*driver.Message) error {
 			MessageAttributes: attrs,
 			MessageBody:       aws.String(body),
 		}
+		reviseSqsEntryAttributes(dm, entry)
 		req.Entries = append(req.Entries, entry)
 		if dm.BeforeSend != nil {
 			// A previous revision used the non-batch API SendMessage, which takes
@@ -942,8 +1016,8 @@ func errorCode(err error) gcerrors.ErrorCode {
 	var ae smithy.APIError
 	if errors.As(err, &ae) {
 		code = ae.ErrorCode()
-	} else if ae, ok := err.(awserr.Error); ok {
-		code = ae.Code()
+	} else if awsErr, ok := err.(awserr.Error); ok {
+		code = awsErr.Code()
 	} else {
 		return gcerrors.Unknown
 	}
@@ -1042,6 +1116,8 @@ type SubscriptionOptions struct {
 // OpenSubscription opens a subscription based on AWS SQS for the given SQS
 // queue URL. The queue is assumed to be subscribed to some SNS topic, though
 // there is no check for this.
+//
+// Deprecated: AWS no longer supports their V1 API. Please migrate to OpenSubscriptionV2.
 func OpenSubscription(ctx context.Context, sess client.ConfigProvider, qURL string, opts *SubscriptionOptions) *pubsub.Subscription {
 	if opts == nil {
 		opts = &SubscriptionOptions{}
@@ -1366,7 +1442,7 @@ func (s *subscription) SendNacks(ctx context.Context, ids []driver.AckID) error 
 		}
 		numFailed++
 	}
-	if numFailed > 0 {
+	if numFailed > 0 && firstFail != nil {
 		return awserr.New(aws.StringValue(firstFail.Code), fmt.Sprintf("sqs.ChangeMessageVisibilityBatch failed for %d message(s): %s", numFailed, aws.StringValue(firstFail.Message)), nil)
 	}
 	return nil

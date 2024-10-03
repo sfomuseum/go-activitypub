@@ -11,7 +11,7 @@ import (
 	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
 
-// The status of the associations for the managed node(s).
+// The status of the associations for the managed nodes.
 func (c *Client) DescribeInstanceAssociationsStatus(ctx context.Context, params *DescribeInstanceAssociationsStatusInput, optFns ...func(*Options)) (*DescribeInstanceAssociationsStatusOutput, error) {
 	if params == nil {
 		params = &DescribeInstanceAssociationsStatusInput{}
@@ -115,6 +115,12 @@ func (c *Client) addOperationDescribeInstanceAssociationsStatusMiddlewares(stack
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
 		return err
 	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
+		return err
+	}
 	if err = addOpDescribeInstanceAssociationsStatusValidationMiddleware(stack); err != nil {
 		return err
 	}
@@ -138,14 +144,6 @@ func (c *Client) addOperationDescribeInstanceAssociationsStatusMiddlewares(stack
 	}
 	return nil
 }
-
-// DescribeInstanceAssociationsStatusAPIClient is a client that implements the
-// DescribeInstanceAssociationsStatus operation.
-type DescribeInstanceAssociationsStatusAPIClient interface {
-	DescribeInstanceAssociationsStatus(context.Context, *DescribeInstanceAssociationsStatusInput, ...func(*Options)) (*DescribeInstanceAssociationsStatusOutput, error)
-}
-
-var _ DescribeInstanceAssociationsStatusAPIClient = (*Client)(nil)
 
 // DescribeInstanceAssociationsStatusPaginatorOptions is the paginator options for
 // DescribeInstanceAssociationsStatus
@@ -214,6 +212,9 @@ func (p *DescribeInstanceAssociationsStatusPaginator) NextPage(ctx context.Conte
 	}
 	params.MaxResults = limit
 
+	optFns = append([]func(*Options){
+		addIsPaginatorUserAgent,
+	}, optFns...)
 	result, err := p.client.DescribeInstanceAssociationsStatus(ctx, &params, optFns...)
 	if err != nil {
 		return nil, err
@@ -232,6 +233,14 @@ func (p *DescribeInstanceAssociationsStatusPaginator) NextPage(ctx context.Conte
 
 	return result, nil
 }
+
+// DescribeInstanceAssociationsStatusAPIClient is a client that implements the
+// DescribeInstanceAssociationsStatus operation.
+type DescribeInstanceAssociationsStatusAPIClient interface {
+	DescribeInstanceAssociationsStatus(context.Context, *DescribeInstanceAssociationsStatusInput, ...func(*Options)) (*DescribeInstanceAssociationsStatusOutput, error)
+}
+
+var _ DescribeInstanceAssociationsStatusAPIClient = (*Client)(nil)
 
 func newServiceMetadataMiddleware_opDescribeInstanceAssociationsStatus(region string) *awsmiddleware.RegisterServiceMetadata {
 	return &awsmiddleware.RegisterServiceMetadata{

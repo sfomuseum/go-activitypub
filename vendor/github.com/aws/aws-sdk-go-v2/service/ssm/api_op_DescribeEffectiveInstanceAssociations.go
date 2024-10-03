@@ -11,7 +11,7 @@ import (
 	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
 
-// All associations for the managed node(s).
+// All associations for the managed nodes.
 func (c *Client) DescribeEffectiveInstanceAssociations(ctx context.Context, params *DescribeEffectiveInstanceAssociationsInput, optFns ...func(*Options)) (*DescribeEffectiveInstanceAssociationsOutput, error) {
 	if params == nil {
 		params = &DescribeEffectiveInstanceAssociationsInput{}
@@ -115,6 +115,12 @@ func (c *Client) addOperationDescribeEffectiveInstanceAssociationsMiddlewares(st
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
 		return err
 	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
+		return err
+	}
 	if err = addOpDescribeEffectiveInstanceAssociationsValidationMiddleware(stack); err != nil {
 		return err
 	}
@@ -138,14 +144,6 @@ func (c *Client) addOperationDescribeEffectiveInstanceAssociationsMiddlewares(st
 	}
 	return nil
 }
-
-// DescribeEffectiveInstanceAssociationsAPIClient is a client that implements the
-// DescribeEffectiveInstanceAssociations operation.
-type DescribeEffectiveInstanceAssociationsAPIClient interface {
-	DescribeEffectiveInstanceAssociations(context.Context, *DescribeEffectiveInstanceAssociationsInput, ...func(*Options)) (*DescribeEffectiveInstanceAssociationsOutput, error)
-}
-
-var _ DescribeEffectiveInstanceAssociationsAPIClient = (*Client)(nil)
 
 // DescribeEffectiveInstanceAssociationsPaginatorOptions is the paginator options
 // for DescribeEffectiveInstanceAssociations
@@ -214,6 +212,9 @@ func (p *DescribeEffectiveInstanceAssociationsPaginator) NextPage(ctx context.Co
 	}
 	params.MaxResults = limit
 
+	optFns = append([]func(*Options){
+		addIsPaginatorUserAgent,
+	}, optFns...)
 	result, err := p.client.DescribeEffectiveInstanceAssociations(ctx, &params, optFns...)
 	if err != nil {
 		return nil, err
@@ -232,6 +233,14 @@ func (p *DescribeEffectiveInstanceAssociationsPaginator) NextPage(ctx context.Co
 
 	return result, nil
 }
+
+// DescribeEffectiveInstanceAssociationsAPIClient is a client that implements the
+// DescribeEffectiveInstanceAssociations operation.
+type DescribeEffectiveInstanceAssociationsAPIClient interface {
+	DescribeEffectiveInstanceAssociations(context.Context, *DescribeEffectiveInstanceAssociationsInput, ...func(*Options)) (*DescribeEffectiveInstanceAssociationsOutput, error)
+}
+
+var _ DescribeEffectiveInstanceAssociationsAPIClient = (*Client)(nil)
 
 func newServiceMetadataMiddleware_opDescribeEffectiveInstanceAssociations(region string) *awsmiddleware.RegisterServiceMetadata {
 	return &awsmiddleware.RegisterServiceMetadata{

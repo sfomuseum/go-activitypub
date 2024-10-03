@@ -114,6 +114,12 @@ func (c *Client) addOperationGetResourcePoliciesMiddlewares(stack *middleware.St
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
 		return err
 	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
+		return err
+	}
 	if err = addOpGetResourcePoliciesValidationMiddleware(stack); err != nil {
 		return err
 	}
@@ -137,14 +143,6 @@ func (c *Client) addOperationGetResourcePoliciesMiddlewares(stack *middleware.St
 	}
 	return nil
 }
-
-// GetResourcePoliciesAPIClient is a client that implements the
-// GetResourcePolicies operation.
-type GetResourcePoliciesAPIClient interface {
-	GetResourcePolicies(context.Context, *GetResourcePoliciesInput, ...func(*Options)) (*GetResourcePoliciesOutput, error)
-}
-
-var _ GetResourcePoliciesAPIClient = (*Client)(nil)
 
 // GetResourcePoliciesPaginatorOptions is the paginator options for
 // GetResourcePolicies
@@ -211,6 +209,9 @@ func (p *GetResourcePoliciesPaginator) NextPage(ctx context.Context, optFns ...f
 	}
 	params.MaxResults = limit
 
+	optFns = append([]func(*Options){
+		addIsPaginatorUserAgent,
+	}, optFns...)
 	result, err := p.client.GetResourcePolicies(ctx, &params, optFns...)
 	if err != nil {
 		return nil, err
@@ -229,6 +230,14 @@ func (p *GetResourcePoliciesPaginator) NextPage(ctx context.Context, optFns ...f
 
 	return result, nil
 }
+
+// GetResourcePoliciesAPIClient is a client that implements the
+// GetResourcePolicies operation.
+type GetResourcePoliciesAPIClient interface {
+	GetResourcePolicies(context.Context, *GetResourcePoliciesInput, ...func(*Options)) (*GetResourcePoliciesOutput, error)
+}
+
+var _ GetResourcePoliciesAPIClient = (*Client)(nil)
 
 func newServiceMetadataMiddleware_opGetResourcePolicies(region string) *awsmiddleware.RegisterServiceMetadata {
 	return &awsmiddleware.RegisterServiceMetadata{

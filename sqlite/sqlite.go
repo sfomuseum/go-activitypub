@@ -6,6 +6,7 @@ import (
 	"fmt"
 )
 
+// SetupConnection executes a series of performance-enhacing SQLite PRAGMA statements.
 func SetupConnection(ctx context.Context, conn *sql.DB) error {
 
 	// conn.SetMaxOpenConns(1)

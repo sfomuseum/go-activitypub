@@ -27,8 +27,11 @@ type PostToAccountOptions struct {
 }
 
 type PostToInboxOptions struct {
-	From     *Account
-	Inbox    string
+	// The `Account` instance of the actor sending the Activity.
+	From *Account
+	// The URL of the inbox where the Activity should be posted.
+	Inbox string
+	// The `Activity` instance being posted to the inbox.
 	Activity *ap.Activity
 	URIs     *uris.URIs
 	// Log POST requests before they are sent using the default [log/slog] Logger. Note that this will
@@ -58,6 +61,7 @@ func PostToAccount(ctx context.Context, opts *PostToAccountOptions) (string, err
 	return actor.Inbox, PostToInbox(ctx, inbox_opts)
 }
 
+// PostToInbox delivers an Activity message to a specific inbox.
 func PostToInbox(ctx context.Context, opts *PostToInboxOptions) error {
 
 	slog.Debug("Post to inbox", "inbox", opts.Inbox)
