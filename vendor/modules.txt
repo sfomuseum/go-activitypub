@@ -31,9 +31,6 @@ github.com/aaronland/go-string/dsn
 ## explicit; go 1.22.2
 github.com/aaronland/gocloud-blob/bucket
 github.com/aaronland/gocloud-blob/s3
-# github.com/aaronland/gocloud-blob-s3 v0.3.0
-## explicit; go 1.22.2
-github.com/aaronland/gocloud-blob-s3
 # github.com/aaronland/gocloud-docstore v0.0.8
 ## explicit; go 1.23
 github.com/aaronland/gocloud-docstore

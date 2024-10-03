@@ -12,7 +12,6 @@ require (
 	github.com/aaronland/go-pagination-sql v0.2.0
 	github.com/aaronland/go-roster v1.0.0
 	github.com/aaronland/gocloud-blob v0.3.1
-	github.com/aaronland/gocloud-blob-s3 v0.3.0
 	github.com/aaronland/gocloud-docstore v0.0.8
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/aws/aws-sdk-go-v2 v1.30.5

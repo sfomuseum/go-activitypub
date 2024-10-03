@@ -41,8 +41,6 @@ github.com/aaronland/go-string v1.0.0 h1:fPHmC1i9JhGzgi4qdCSXKc4xTCaLLe0uvlJMu9d
 github.com/aaronland/go-string v1.0.0/go.mod h1:URh3Au/fNbM0++WjBseurE3QTp875wiJ9ImrecD+7tI=
 github.com/aaronland/gocloud-blob v0.3.1 h1:nbdj+j2BXwBqnuGKFga5kZ2P/CXlAp48o7M9pjmwK5g=
 github.com/aaronland/gocloud-blob v0.3.1/go.mod h1:4avYiO9ea3sLWyF+o+0w3WV8FSAYfZ7+rnNzmRaWrig=
-github.com/aaronland/gocloud-blob-s3 v0.3.0 h1:SviUzNrrKdFRsU8OmBommOLS32ocLegN/l4N7c/s/mk=
-github.com/aaronland/gocloud-blob-s3 v0.3.0/go.mod h1:RAhOJZTGR0mYsM4nJuStBT+vQ9ilkUB50606tQxVKdw=
 github.com/aaronland/gocloud-docstore v0.0.8 h1:3blGgx5V4XPHDXS80HP6kYPog9LRvK8DuB2p6v0+AYY=
 github.com/aaronland/gocloud-docstore v0.0.8/go.mod h1:JXzNfps81ELs1VIDwwGEx5T5yMZY5fRfDbp+7Jnd+VM=
 github.com/akrylysov/algnhsa v1.1.0 h1:G0SoP16tMRyiism7VNc3JFA0wq/cVgEkp/ExMVnc6PQ=

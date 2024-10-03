@@ -4,11 +4,12 @@ import (
 	"context"
 	"os"
 
-	_ "github.com/aaronland/gocloud-blob-s3"
-	"github.com/sfomuseum/go-activitypub/app/server"
-	"github.com/sfomuseum/go-activitypub/slog"
+	_ "github.com/aaronland/gocloud-blob/s3"
 	_ "github.com/sfomuseum/go-pubsub/publisher"
 	_ "gocloud.dev/blob/fileblob"
+	
+	"github.com/sfomuseum/go-activitypub/app/server"
+	"github.com/sfomuseum/go-activitypub/slog"
 )
 
 func main() {

@@ -28,9 +28,9 @@ type PostToAccountOptions struct {
 
 type PostToInboxOptions struct {
 	// The `Account` instance of the actor sending the Activity.
-	From     *Account
+	From *Account
 	// The URL of the inbox where the Activity should be posted.
-	Inbox    string
+	Inbox string
 	// The `Activity` instance being posted to the inbox.
 	Activity *ap.Activity
 	URIs     *uris.URIs
