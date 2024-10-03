@@ -61,20 +61,19 @@ BOOSTS_DB_URI=sql://sqlite3?dsn=$(BOOSTS_DB)
 LIKES_DB_URI=sql://sqlite3?dsn=$(LIKES_DB)
 PROPERTIES_DB_URI=sql://sqlite3?dsn=$(PROPERTIES_DB)
 
-
-ACCOUNTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true
-ALIASES_DB_URI=awsdynamodb://$(TABLE_PREFIX)aliases?partition_key=Name&allow_scans=true&local=true
-BLOCKS_DB_URI=awsdynamodb://$(TABLE_PREFIX)blocks?partition_key=Id&allow_scans=true&local=true
-BOOSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)boosts?partition_key=Id&allow_scans=true&local=true
-DELIVERIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)deliveries?partition_key=Id&allow_scans=true&local=true
-FOLLOWING_DB_URI=awsdynamodb://$(TABLE_PREFIX)following?partition_key=Id&allow_scans=true&local=true
-FOLLOWERS_DB_URI=awsdynamodb://$(TABLE_PREFIX)followers?partition_key=Id&allow_scans=true&local=true
-LIKES_DB_URI=awsdynamodb://$(TABLE_PREFIX)likes?partition_key=Id&allow_scans=true&local=true
-NOTES_DB_URI=awsdynamodb://$(TABLE_PREFIX)notes?partition_key=Id&allow_scans=true&local=true
-MESSAGES_DB_URI=awsdynamodb://$(TABLE_PREFIX)messages?partition_key=Id&allow_scans=true&local=true
-POST_TAGS_DB_URI=awsdynamodb://$(TABLE_PREFIX)post_tags?partition_key=Id&allow_scans=true&local=true
-POSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)posts?partition_key=Id&allow_scans=true&local=true
-PROPERTIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)properties?partition_key=Id&allow_scans=true&local=true
+ACCOUNTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+ALIASES_DB_URI=awsdynamodb://$(TABLE_PREFIX)aliases?partition_key=Name&allow_scans=true&local=true&region=localhost&credentials=anon:
+BLOCKS_DB_URI=awsdynamodb://$(TABLE_PREFIX)blocks?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+BOOSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)boosts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+DELIVERIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)deliveries?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+FOLLOWING_DB_URI=awsdynamodb://$(TABLE_PREFIX)following?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+FOLLOWERS_DB_URI=awsdynamodb://$(TABLE_PREFIX)followers?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+LIKES_DB_URI=awsdynamodb://$(TABLE_PREFIX)likes?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+NOTES_DB_URI=awsdynamodb://$(TABLE_PREFIX)notes?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+MESSAGES_DB_URI=awsdynamodb://$(TABLE_PREFIX)messages?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+POST_TAGS_DB_URI=awsdynamodb://$(TABLE_PREFIX)post_tags?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+POSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)posts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+PROPERTIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)properties?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
 
 db-sqlite:
 	rm -f *.db
@@ -244,7 +243,7 @@ dynamo-tables-local:
 	go run -mod vendor cmd/create-dynamodb-tables/main.go \
 		-refresh \
 		-table-prefix '$(TABLE_PREFIX)' \
-		-dynamodb-client-uri 'awsdynamodb://?local=true'
+		-dynamodb-client-uri 'awsdynamodb://?region=localhost&credentials=anon:&local=true'
 
 # I haven't been able to get this to work yet...
 # https://dev.mysql.com/doc/mysql-installation-excerpt/8.3/en/docker-mysql-getting-started.html#docker-starting-mysql-server
