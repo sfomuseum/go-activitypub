@@ -1,4 +1,28 @@
+// Gather the list of aliases for a given account and emit as JSON-encoded string to STDOUT.
 package list
+
+/*
+
+$> go run cmd/list-aliases/main.go \
+	-accounts-database-uri 'awsdynamodb://accounts?partition_key=Id&allow_scans=true&region=us-west-2&credentials=session' \
+	-aliases-database-uri 'awsdynamodb://aliases?partition_key=Name&allow_scans=true&region=us-west-2&credentials=session' \
+	-account-name 102527513 \
+| jq
+
+[
+  {
+    "name": "SFOairport",
+    "account_id": 1765465178285019136,
+    "created": 1709754673
+  },
+  {
+    "name": "KSFOairport",
+    "account_id": 1765465178285019136,
+    "created": 1709754674
+  }
+]
+
+*/
 
 import (
 	"context"
@@ -10,11 +34,6 @@ import (
 
 	"github.com/sfomuseum/go-activitypub"
 )
-
-type results struct {
-	Account    *activitypub.Account    `json:"account"`
-	Properties []*activitypub.Property `json:"properties"`
-}
 
 func Run(ctx context.Context, logger *slog.Logger) error {
 	fs := DefaultFlagSet()
