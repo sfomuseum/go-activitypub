@@ -35,7 +35,7 @@ var DynamoDBMessagesTable = &dynamodb.CreateTableInput{
 			AttributeType: "N",
 		},
 	},
-	GlobalSecondaryIndexes: []types.GlobalSecondaryIndex{	
+	GlobalSecondaryIndexes: []types.GlobalSecondaryIndex{
 		{
 			IndexName: aws.String("author"),
 			KeySchema: []types.KeySchemaElement{

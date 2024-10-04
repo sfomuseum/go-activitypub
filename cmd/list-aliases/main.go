@@ -4,11 +4,8 @@ import (
 	"context"
 	"os"
 
-	_ "github.com/aaronland/gocloud-blob/s3"
-	_ "github.com/sfomuseum/go-pubsub/publisher"
-	_ "gocloud.dev/blob/fileblob"
-
-	"github.com/sfomuseum/go-activitypub/app/server"
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/sfomuseum/go-activitypub/app/aliases/list"
 	"github.com/sfomuseum/go-activitypub/slog"
 )
 
@@ -17,7 +14,7 @@ func main() {
 	ctx := context.Background()
 	logger := slog.Default()
 
-	err := server.Run(ctx, logger)
+	err := list.Run(ctx, logger)
 
 	if err != nil {
 		logger.Error("Failed to add actor, %v", err)
