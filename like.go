@@ -8,6 +8,10 @@ import (
 	"github.com/sfomuseum/go-activitypub/id"
 )
 
+// Type Like is possibly (probably) a misnomer in the same way that type `Post` is (see notes in
+// post.go and boost.go). Specifically this data and the correspinding `LikesDatabase` was created
+// to record likes from external actors about posts created by accounts on this server. It is not
+// currently suited to record or deliver likes of external posts made by accounts on this server.
 type Like struct {
 	Id        int64  `json:"id"`
 	AccountId int64  `json:"account_id"`

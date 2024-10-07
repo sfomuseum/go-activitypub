@@ -20,4 +20,5 @@ type Activity struct {
 	Cc []string `json:"cc,omitempty"`
 	// Object is body of the activity itself.
 	Object interface{} `json:"object,omitempty"`
+	Published string      `json:"published,omitempty"`
 }

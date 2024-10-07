@@ -387,6 +387,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			// Note: We have prevented Block Undo activities above
 
 			if requestor_name == acct.Name {
+				logger.Error("Account name mismatch for activity type", "type", activity.Type, "requester", requestor_name, "account", acct.Name)
 				http.Error(rsp, "Bad request", http.StatusBadRequest)
 				return
 			}
@@ -513,8 +514,37 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			switch activity.Object.(type) {
 			case string:
 				object_uri = activity.Object.(string)
+			case map[string]interface{}:
+
+				// This is here because the code in deliver.go expects to _dispatch_
+				// "Announce" messages including the note of the post being boosted
+				// as the body (object) of the activity. This may or may not be incorrect.
+				// I am not sure.
+
+				logger.Info("DEBUG", "map", activity.Object)
+
+				obj_map := activity.Object.(map[string]interface{})
+				v, exists := obj_map["url"]
+
+				if !exists {
+					logger.Error("Object map for announce missing 'url' key")
+					http.Error(rsp, "Bad request", http.StatusBadRequest)
+					return
+				}
+
+				switch v.(type) {
+				case string:
+					object_uri = v.(string)
+				default:
+					logger.Error("Invalid or unsupported type for announce url value", "value", v, "type", fmt.Sprintf("%T", v))
+					http.Error(rsp, "Bad request", http.StatusBadRequest)
+					return
+				}
+
+				logger.Info("DEBUG", "object_uri", object_uri)
+
 			default:
-				logger.Error("Invalid or unsupport activity object type", "type", fmt.Sprintf("%T", activity.Object))
+				logger.Error("Invalid or unsupport activity object type for announce activity", "type", fmt.Sprintf("%T", activity.Object))
 				http.Error(rsp, "Bad request", http.StatusBadRequest)
 				return
 			}

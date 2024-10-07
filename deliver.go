@@ -2,8 +2,11 @@ package activitypub
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/sfomuseum/go-activitypub/ap"
@@ -25,6 +28,7 @@ type DeliverPostToFollowersOptions struct {
 	AccountsDatabase   AccountsDatabase
 	FollowersDatabase  FollowersDatabase
 	PostTagsDatabase   PostTagsDatabase
+	NotesDatabase      NotesDatabase
 	DeliveriesDatabase DeliveriesDatabase
 	DeliveryQueue      DeliveryQueue
 	Post               *Post
@@ -35,11 +39,22 @@ type DeliverPostToFollowersOptions struct {
 
 func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOptions) error {
 
+	logger := slog.Default()
+	logger = logger.With("method", "DeliverPostToFollowers")
+	logger = logger.With("post id", opts.Post.Id)
+	logger = logger.With("account id", opts.Post.AccountId)
+
+	logger.Info("Deliver post to followers")
+
 	acct, err := opts.AccountsDatabase.GetAccountWithId(ctx, opts.Post.AccountId)
 
 	if err != nil {
+		logger.Error("Failed to retrieve account ID for post", "error", err)
 		return fmt.Errorf("Failed to retrieve account ID for post, %w", err)
 	}
+
+	acct_address := acct.Address(opts.URIs.Hostname)
+	logger = logger.With("account address", acct_address)
 
 	followers_cb := func(ctx context.Context, follower_uri string) error {
 
@@ -57,11 +72,12 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 		err := opts.DeliveriesDatabase.GetDeliveriesWithPostIdAndRecipient(ctx, opts.Post.Id, follower_uri, deliveries_cb)
 
 		if err != nil {
+			logger.Info("Failed to retrieve deliveries for post and recipient", "recipient", follower_uri, "error", err)
 			return fmt.Errorf("Failed to retrieve deliveries for post (%d) and recipient (%s), %w", opts.Post.Id, follower_uri, err)
 		}
 
 		if already_delivered {
-			slog.Debug("Post already delivered", "post id", opts.Post.Id, "recipient", follower_uri)
+			logger.Debug("Post already delivered", "post id", opts.Post.Id, "recipient", follower_uri)
 			return nil
 		}
 
@@ -78,15 +94,18 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 		err = opts.DeliveryQueue.DeliverPost(ctx, post_opts)
 
 		if err != nil {
+			logger.Error("Failed to schedule post delivery", "recipient", follower_uri, "error", err)
 			return fmt.Errorf("Failed to deliver post to %s, %w", follower_uri, err)
 		}
 
+		logger.Info("Schedule post delivery", "recipient", follower_uri)
 		return nil
 	}
 
 	err = opts.FollowersDatabase.GetFollowersForAccount(ctx, acct.Id, followers_cb)
 
 	if err != nil {
+		logger.Error("Failed to get followers for post author", "error", err)
 		return fmt.Errorf("Failed to get followers for post author, %w", err)
 	}
 
@@ -97,9 +116,58 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 		err := followers_cb(ctx, t.Name) // name or href?
 
 		if err != nil {
+			logger.Error("Failed to deliver message", "to", t.Name, "to id", t.Id, "error", err)
 			return fmt.Errorf("Failed to deliver message to %s (%d), %w", t.Name, t.Id, err)
 		}
 	}
+
+	// If this is a boost/announce post (hint) then extract the post author
+	// from the ?author= parameter in order that we can send them a notification
+	// of the boost. This is necessary in case they aren't already a follower (of acct)
+
+	if strings.HasPrefix(opts.Post.Body, BOOST_URI_SCHEME) {
+
+		logger.Info("Post is boost")
+
+		parts := strings.SplitN(opts.Post.Body, " ", 2)
+
+		if len(parts) != 2 {
+			logger.Error("Invalid boost string")
+			return fmt.Errorf("Invalid boost string")
+		}
+
+		boost_uri := parts[0]
+
+		u, err := url.Parse(boost_uri)
+
+		if err != nil {
+			logger.Error("boost:// post body did not parse", "boost uri", boost_uri, "error", err)
+			return fmt.Errorf("Invalid boost:// post body")
+		}
+
+		q := u.Query()
+
+		author_addr := q.Get("author_address")
+
+		_, _, err = ParseAddress(author_addr)
+
+		if err != nil {
+			logger.Error("Invalid author address", "author_address", author_addr, "error", err)
+			return fmt.Errorf("Invalid author address")
+		}
+
+		// Invoke the followers_cb (which was set up for GetFollowersForAccount above)
+
+		err = followers_cb(ctx, author_addr)
+
+		if err != nil {
+			logger.Error("Failed to deliver message", "error", err)
+			return fmt.Errorf("Failed to deliver message to %s , %w", author_addr, err)
+		}
+
+	}
+
+	// END OF this is no good to have to replicate this twice...
 
 	return nil
 }
@@ -107,6 +175,7 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 	logger := slog.Default()
+	logger = logger.With("method", "DeliverPost")
 	logger = logger.With("post", opts.Post.Id)
 	logger = logger.With("from", opts.From.Id)
 	logger = logger.With("to", opts.To)
@@ -168,48 +237,152 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 		}
 	}()
 
-	note, err := NoteFromPost(ctx, opts.URIs, opts.From, opts.Post, opts.PostTags)
+	// START OF check what "kind" of post this is
 
-	if err != nil {
-		d.Error = err.Error()
-		return fmt.Errorf("Failed to derive note from post, %w", err)
+	// See notes in post.go for why we are doing this. It's not great but it's not awful
+	// either. It is a reasonable way to kick the can down the road a little further while
+	// we continue to figure things out.
+
+	logger.Info("Deliver post", "body", opts.Post.Body)
+
+	var activity *ap.Activity
+
+	if strings.HasPrefix(opts.Post.Body, BOOST_URI_SCHEME) {
+
+		logger.Info("Post is boost")
+
+		// Boost (announce) activities
+		// https://boyter.org/posts/activitypub-announce-post/
+
+		parts := strings.SplitN(opts.Post.Body, " ", 2)
+
+		if len(parts) != 2 {
+			logger.Error("Invalid boost string")
+			return fmt.Errorf("Invalid boost string")
+		}
+
+		boost_uri := parts[0]
+		boost_obj := parts[1]
+
+		logger = logger.With("uri", boost_uri)
+		logger = logger.With("object", boost_obj)
+
+		u, err := url.Parse(boost_uri)
+
+		if err != nil {
+			logger.Error("boost:// post body did not parse", "error", err)
+			return fmt.Errorf("Invalid boost:// post body")
+		}
+
+		q := u.Query()
+
+		author_addr := q.Get("author_address")
+
+		if author_addr == "" {
+			logger.Error("Missing ?author_address= parameter")
+			return fmt.Errorf("Missing ?author_address= parameter")
+		}
+
+		_, _, err = ParseAddress(author_addr)
+
+		if err != nil {
+			logger.Error("Invalid author address", "address", author_addr, "error", err)
+			return fmt.Errorf("Invalid author address, %w", err)
+		}
+
+		// Apparently this is not necessary? As in the Announce 'cc' property takes
+		// an address rather than a URL? Anyway, that's how I can get boosts to show
+		// up in the Mastodon web application.
+
+		/*
+			author_uri := q.Get("author_uri")
+
+			if author_uri == "" {
+				logger.Error("Missing ?author_uri= parameter")
+				return fmt.Errorf("Missing ?author_uri= parameter")
+			}
+
+			_, err = url.Parse(author_uri)
+
+			if err != nil {
+				logger.Error("Invalid author uri", "uri", author_uri, "error", err)
+				return fmt.Errorf("Invalid author URI, %w", err)
+			}
+		*/
+
+		from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
+		from_address := opts.From.Address(opts.URIs.Hostname)
+
+		logger = logger.With("from", from_uri)
+
+		boost_activity, err := ap.NewBoostActivity(ctx, opts.URIs, from_uri, author_addr, boost_obj)
+
+		if err != nil {
+			logger.Error("Failed to create boost activity", "error", err)
+			return fmt.Errorf("Failed to create boost activity")
+		}
+
+		activity_id := fmt.Sprintf("%s#boost-from-%s", boost_obj, from_address)
+		boost_activity.Id = activity_id
+
+		enc_boost, _ := json.Marshal(boost_activity)
+		logger.Info("BOOST", "activity", string(enc_boost))
+
+		activity = boost_activity
+
+	} else {
+
+		// Note (create) activities
+
+		note, err := NoteFromPost(ctx, opts.URIs, opts.From, opts.Post, opts.PostTags)
+
+		if err != nil {
+			d.Error = err.Error()
+			return fmt.Errorf("Failed to derive note from post, %w", err)
+		}
+
+		from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
+
+		to_list := []string{
+			opts.To,
+		}
+
+		create_activity, err := ap.NewCreateActivity(ctx, opts.URIs, from_uri, to_list, note)
+
+		if err != nil {
+			d.Error = err.Error()
+			return fmt.Errorf("Failed to create activity from post, %w", err)
+		}
+
+		if len(note.Cc) > 0 {
+			create_activity.Cc = note.Cc
+		}
+
+		// START OF is this really necessary?
+		// Also, what if this isn't a post?
+
+		uuid := id.NewUUID()
+
+		post_url := opts.From.PostURL(ctx, opts.URIs, opts.Post)
+		post_id := fmt.Sprintf("%s#%s", post_url.String(), uuid)
+
+		create_activity.Id = post_id
+
+		// END OF is this really necessary?
+
+		activity = create_activity
 	}
 
-	from_uri := opts.From.AccountURL(ctx, opts.URIs).String()
+	// END OF check what "kind" of post this is...
 
-	to_list := []string{
-		opts.To,
-	}
+	logger = logger.With("activity id", activity.Id)
 
-	create_activity, err := ap.NewCreateActivity(ctx, opts.URIs, from_uri, to_list, note)
-
-	if err != nil {
-		d.Error = err.Error()
-		return fmt.Errorf("Failed to create activity from post, %w", err)
-	}
-
-	if len(note.Cc) > 0 {
-		create_activity.Cc = note.Cc
-	}
-
-	// START OF is this really necessary?
-	// Also, what if this isn't a post?
-
-	uuid := id.NewUUID()
-
-	post_url := opts.From.PostURL(ctx, opts.URIs, opts.Post)
-	post_id := fmt.Sprintf("%s#%s", post_url.String(), uuid)
-
-	create_activity.Id = post_id
-
-	// END OF is this really necessary?
-
-	d.ActivityId = create_activity.Id
+	d.ActivityId = activity.Id
 
 	post_opts := &PostToAccountOptions{
 		From:     opts.From,
 		To:       opts.To,
-		Activity: create_activity,
+		Activity: activity,
 		URIs:     opts.URIs,
 	}
 
@@ -218,10 +391,14 @@ func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 	d.Inbox = inbox
 
 	if err != nil {
+		logger.Error("Failed to post activity to account", "from", opts.From, "to", opts.To, "error", err)
+
 		d.Error = err.Error()
 		return fmt.Errorf("Failed to post to inbox '%s', %w", opts.To, err)
 	}
 
 	d.Success = true
+
+	logger.Info("Posted activity to account", "from", opts.From, "to", opts.To)
 	return nil
 }
