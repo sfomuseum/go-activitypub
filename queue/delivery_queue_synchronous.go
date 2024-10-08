@@ -3,7 +3,7 @@ package queue
 import (
 	"context"
 	"fmt"
-	
+
 	"github.com/sfomuseum/go-activitypub"
 )
 

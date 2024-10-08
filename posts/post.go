@@ -12,11 +12,10 @@ import (
 	"time"
 
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/id"
 	"github.com/sfomuseum/go-activitypub/uris"
-	"github.com/sfomuseum/go-activitypub/database"	
 )
-
 
 type AddPostOptions struct {
 	URIs             *uris.URIs

@@ -42,4 +42,3 @@ type Post struct {
 	// The Unix timestamp when the post was last modified
 	LastModified int64 `json:"lastmodified"`
 }
-
