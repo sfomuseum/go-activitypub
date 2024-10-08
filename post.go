@@ -138,6 +138,7 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body stri
 	return p, post_tags, nil
 }
 
+// NewPost returns a new `Post` instance from 'acct' and 'body'.
 func NewPost(ctx context.Context, acct *Account, body string) (*Post, error) {
 
 	post_id, err := id.NewId()
@@ -160,6 +161,7 @@ func NewPost(ctx context.Context, acct *Account, body string) (*Post, error) {
 	return p, nil
 }
 
+// NoteFromPost creates a new (ActivityPub) `Note` instance derived from 'acct', 'post' and 'post_tags'.
 func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, post *Post, post_tags []*PostTag) (*ap.Note, error) {
 
 	attr := acct.ProfileURL(ctx, uris_table).String()
@@ -206,6 +208,7 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, pos
 	return n, nil
 }
 
+// GetPostFromObjectURI attempt to derive a `Post` ID and its matching instance from an (ActivityPub) object URI.
 func GetPostFromObjectURI(ctx context.Context, uris_table *uris.URIs, posts_db PostsDatabase, object_uri string) (*Post, error) {
 
 	pat_post := uris_table.Post

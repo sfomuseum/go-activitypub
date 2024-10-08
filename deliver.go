@@ -37,6 +37,25 @@ type DeliverPostToFollowersOptions struct {
 	URIs               *uris.URIs
 }
 
+// DeliverPostToFollowers schedules (en-queues) a `Post` instance to be delivered to all the
+// accounts following the creator of the post.
+//
+// If the body of the post starts with the string "boost:" then the body is treated as a URI
+// containing a pointer to the (ActivityPub) object (mostly likely a post/note) being boosted
+// and an "?author_address=" query parameter referencing the author of that object and to whom
+// the post (being delivered) will also be delivered. The body of the post (the "boost://" string)
+// will be trapped and handled differently from "normal" posts in the `DeliverPost` method.
+// Specifically it will be delivered as an ActivityPub "Announce" type rather than a "Note".
+//
+// None of this is ideal. It is a reflection of the intersection of the abstract-factory-pie nature
+// of ActivityPub treating everything as a generic activity, the original goal of this package to get
+// to basic "social media" style post/follow actions working and the mechanics how databases and
+// queue need to be structured to do all that in practice. Eventually all the delivery mechanics
+// will be refactored to just working ActvityPub "Activity" blobs but that is not the case today.
+//
+// This code does know (or care) what creates "boost:" post. It is most likely assumed to be custom
+// code configured to read from a `ProcessMessageQueue` instance in the inbox handler but it could
+// be defined somewhere else.
 func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOptions) error {
 
 	logger := slog.Default()
@@ -172,6 +191,8 @@ func DeliverPostToFollowers(ctx context.Context, opts *DeliverPostToFollowersOpt
 	return nil
 }
 
+// DeliverPost... TBD
+// For posts with bodies starting with "boost:" see notes in `DeliverPostToFollowers` above.
 func DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
 
 	logger := slog.Default()

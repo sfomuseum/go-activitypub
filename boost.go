@@ -8,8 +8,8 @@ import (
 	"github.com/sfomuseum/go-activitypub/id"
 )
 
-// Note that we are not including the '//' part because that does not
-// get included in serialized url.URL instances if the Host element is empty
+// Note that we are not including the '//' part because that does not get
+// included in serialized net/url.URL instances if the Host element is empty
 const BOOST_URI_SCHEME string = "boost:"
 
 // Type Boost is possibly (probably) a misnomer in the same way that type `Post` is (see notes in
