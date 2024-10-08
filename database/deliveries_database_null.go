@@ -25,7 +25,7 @@ func (db *NullDeliveriesDatabase) AddDelivery(ctx context.Context, d *activitypu
 }
 
 func (db *NullDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id int64) (*activitypub.Delivery, error) {
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }
 
 func (db *NullDeliveriesDatabase) GetDeliveriesWithPostIdAndRecipient(ctx context.Context, post_id int64, recipient string, cb GetDeliveriesCallbackFunc) error {

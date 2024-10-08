@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
@@ -57,23 +58,23 @@ func NewSQLPropertiesDatabase(ctx context.Context, uri string) (PropertiesDataba
 }
 
 func (db *SQLPropertiesDatabase) GetProperties(ctx context.Context, cb GetPropertiesCallbackFunc) error {
-	return ErrNotImplemented
+	return activitypub.ErrNotImplemented
 }
 
 func (db *SQLPropertiesDatabase) GetPropertiesForAccount(ctx context.Context, account_id int64, cb GetPropertiesCallbackFunc) error {
-	return ErrNotImplemented
+	return activitypub.ErrNotImplemented
 }
 
-func (db *SQLPropertiesDatabase) AddProperty(ctx context.Context, property *Property) error {
-	return ErrNotImplemented
+func (db *SQLPropertiesDatabase) AddProperty(ctx context.Context, property *activitypub.Property) error {
+	return activitypub.ErrNotImplemented
 }
 
-func (db *SQLPropertiesDatabase) UpdateProperty(ctx context.Context, property *Property) error {
-	return ErrNotImplemented
+func (db *SQLPropertiesDatabase) UpdateProperty(ctx context.Context, property *activitypub.Property) error {
+	return activitypub.ErrNotImplemented
 }
 
-func (db *SQLPropertiesDatabase) RemoveProperty(ctx context.Context, property *Property) error {
-	return ErrNotImplemented
+func (db *SQLPropertiesDatabase) RemoveProperty(ctx context.Context, property *activitypub.Property) error {
+	return activitypub.ErrNotImplemented
 }
 
 func (db *SQLPropertiesDatabase) Close(ctx context.Context) error {

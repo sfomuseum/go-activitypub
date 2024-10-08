@@ -145,14 +145,14 @@ func (db *SQLPostsDatabase) getPost(ctx context.Context, where string, args ...i
 
 	switch {
 	case err == sql.ErrNoRows:
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	case err != nil:
 		return nil, err
 	default:
 		//
 	}
 
-	a := &Post{
+	a := &activitypub.Post{
 		Id:           id,
 		AccountId:    account_id,
 		Body:         body,

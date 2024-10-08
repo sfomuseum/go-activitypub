@@ -60,7 +60,7 @@ func NewSQLAccountsDatabase(ctx context.Context, uri string) (AccountsDatabase, 
 }
 
 func (db *SQLAccountsDatabase) GetAccounts(ctx context.Context, acct GetAccountsCallbackFunc) error {
-	return ErrNotImplemented
+	return activitypub.ErrNotImplemented
 }
 
 func (db *SQLAccountsDatabase) GetAccountIdsForDateRange(ctx context.Context, start int64, end int64, cb GetAccountIdsCallbackFunc) error {
@@ -158,16 +158,16 @@ func (db *SQLAccountsDatabase) getAccount(ctx context.Context, where string, arg
 
 	switch {
 	case err == sql.ErrNoRows:
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	case err != nil:
 		return nil, err
 	default:
 		//
 	}
 
-	a := &Account{
+	a := &activitypub.Account{
 		Id:            id,
-		AccountType:   AccountType(account_type),
+		AccountType:   activitypub.AccountType(account_type),
 		Name:          name,
 		DisplayName:   display_name,
 		Blurb:         blurb,
@@ -182,11 +182,11 @@ func (db *SQLAccountsDatabase) getAccount(ctx context.Context, where string, arg
 }
 
 func (db *SQLAccountsDatabase) UpdateAccount(ctx context.Context, acct *activitypub.Account) error {
-	return ErrNotImplemented
+	return activitypub.ErrNotImplemented
 }
 
 func (db *SQLAccountsDatabase) RemoveAccount(ctx context.Context, acct *activitypub.Account) error {
-	return ErrNotImplemented
+	return activitypub.ErrNotImplemented
 }
 
 func (db *SQLAccountsDatabase) Close(ctx context.Context) error {

@@ -138,12 +138,12 @@ func (db *SQLBlocksDatabase) getBlock(ctx context.Context, where string, args ..
 
 	switch {
 	case err == sql.ErrNoRows:
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	case err != nil:
 		return nil, fmt.Errorf("Failed to query database, %w", err)
 	default:
 
-		n := &Block{
+		n := &activitypub.Block{
 			Id:           id,
 			AccountId:    account_id,
 			Name:         name,

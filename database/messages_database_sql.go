@@ -138,12 +138,12 @@ func (db *SQLMessagesDatabase) getMessage(ctx context.Context, where string, arg
 
 	switch {
 	case err == sql.ErrNoRows:
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	case err != nil:
 		return nil, fmt.Errorf("Failed to query database, %w", err)
 	default:
 
-		n := &Message{
+		n := &activitypub.Message{
 			Id:            id,
 			NoteId:        note_id,
 			AuthorAddress: author_address,
@@ -238,7 +238,7 @@ func (db *SQLMessagesDatabase) getMessagesWithCallback(ctx context.Context, wher
 				return fmt.Errorf("Failed to query database, %w", err)
 			}
 
-			m := &Message{
+			m := &activitypub.Message{
 				Id:            id,
 				NoteId:        note_id,
 				AuthorAddress: author_address,

@@ -66,7 +66,7 @@ func (db *DocstoreFollowersDatabase) HasFollowers(ctx context.Context, account_i
 	iter := q.Get(ctx, "Id")
 	defer iter.Stop()
 
-	var f Follower
+	var f activitypub.Follower
 	err := iter.Next(ctx, &f)
 
 	if err == io.EOF {
@@ -90,7 +90,7 @@ func (db *DocstoreFollowersDatabase) GetFollower(ctx context.Context, account_id
 
 	for {
 
-		var f Follower
+		var f activitypub.Follower
 		err := iter.Next(ctx, &f)
 
 		if err == io.EOF {
@@ -102,7 +102,7 @@ func (db *DocstoreFollowersDatabase) GetFollower(ctx context.Context, account_id
 		}
 	}
 
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }
 
 func (db *DocstoreFollowersDatabase) AddFollower(ctx context.Context, f *activitypub.Follower) error {
@@ -134,7 +134,7 @@ func (db *DocstoreFollowersDatabase) getFollowerIdsWithCallback(ctx context.Cont
 
 	for {
 
-		var f Follower
+		var f activitypub.Follower
 		err := iter.Next(ctx, &f)
 
 		if err == io.EOF {
@@ -160,7 +160,7 @@ func (db *DocstoreFollowersDatabase) getFollowerAddressesWithCallback(ctx contex
 
 	for {
 
-		var f Follower
+		var f activitypub.Follower
 		err := iter.Next(ctx, &f)
 
 		if err == io.EOF {

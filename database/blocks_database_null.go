@@ -29,11 +29,11 @@ func (db *NullBlocksDatabase) IsBlockedByAccount(ctx context.Context, account_id
 }
 
 func (db *NullBlocksDatabase) GetBlockWithId(ctx context.Context, block_id int64) (*activitypub.Block, error) {
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }
 
 func (db *NullBlocksDatabase) GetBlockWithAccountIdAndAddress(ctx context.Context, account_id int64, host string, name string) (*activitypub.Block, error) {
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }
 
 func (db *NullBlocksDatabase) AddBlock(ctx context.Context, block *activitypub.Block) error {

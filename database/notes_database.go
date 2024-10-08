@@ -12,15 +12,15 @@ import (
 )
 
 type GetNoteIdsCallbackFunc func(context.Context, int64) error
-type GetNotesCallbackFunc func(context.Context, *message.Note) error
+type GetNotesCallbackFunc func(context.Context, *activitypub.Note) error
 
 type NotesDatabase interface {
 	GetNoteIdsForDateRange(context.Context, int64, int64, GetNoteIdsCallbackFunc) error
-	GetNoteWithId(context.Context, int64) (*message.Note, error)
-	GetNoteWithUUIDAndAuthorAddress(context.Context, string, string) (*message.Note, error)
-	AddNote(context.Context, *message.Note) error
-	UpdateNote(context.Context, *message.Note) error
-	RemoveNote(context.Context, *message.Note) error
+	GetNoteWithId(context.Context, int64) (*activitypub.Note, error)
+	GetNoteWithUUIDAndAuthorAddress(context.Context, string, string) (*activitypub.Note, error)
+	AddNote(context.Context, *activitypub.Note) error
+	UpdateNote(context.Context, *activitypub.Note) error
+	RemoveNote(context.Context, *activitypub.Note) error
 	Close(context.Context) error
 }
 

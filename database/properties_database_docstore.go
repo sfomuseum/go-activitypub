@@ -6,6 +6,7 @@ import (
 	"io"
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
+	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
 )
 
@@ -48,7 +49,7 @@ func (db *DocstorePropertiesDatabase) GetProperties(ctx context.Context, cb GetP
 
 	for {
 
-		var p Property
+		var p activitypub.Property
 		err := iter.Next(ctx, &p)
 
 		if err == io.EOF {
@@ -78,7 +79,7 @@ func (db *DocstorePropertiesDatabase) GetPropertiesForAccount(ctx context.Contex
 
 	for {
 
-		var p Property
+		var p activitypub.Property
 		err := iter.Next(ctx, &p)
 
 		if err == io.EOF {
@@ -98,15 +99,15 @@ func (db *DocstorePropertiesDatabase) GetPropertiesForAccount(ctx context.Contex
 	return nil
 }
 
-func (db *DocstorePropertiesDatabase) AddProperty(ctx context.Context, property *Property) error {
+func (db *DocstorePropertiesDatabase) AddProperty(ctx context.Context, property *activitypub.Property) error {
 	return db.collection.Put(ctx, property)
 }
 
-func (db *DocstorePropertiesDatabase) UpdateProperty(ctx context.Context, property *Property) error {
+func (db *DocstorePropertiesDatabase) UpdateProperty(ctx context.Context, property *activitypub.Property) error {
 	return db.collection.Replace(ctx, property)
 }
 
-func (db *DocstorePropertiesDatabase) RemoveProperty(ctx context.Context, property *Property) error {
+func (db *DocstorePropertiesDatabase) RemoveProperty(ctx context.Context, property *activitypub.Property) error {
 	return db.collection.Delete(ctx, property)
 }
 
@@ -114,16 +115,16 @@ func (db *DocstorePropertiesDatabase) Close(ctx context.Context) error {
 	return db.collection.Close()
 }
 
-func (db *DocstorePropertiesDatabase) getProperty(ctx context.Context, q *gc_docstore.Query) (*Property, error) {
+func (db *DocstorePropertiesDatabase) getProperty(ctx context.Context, q *gc_docstore.Query) (*activitypub.Property, error) {
 
 	iter := q.Get(ctx)
 	defer iter.Stop()
 
-	var a Property
+	var a activitypub.Property
 	err := iter.Next(ctx, &a)
 
 	if err == io.EOF {
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	} else if err != nil {
 		return nil, fmt.Errorf("Failed to interate, %w", err)
 	} else {

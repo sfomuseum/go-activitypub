@@ -12,7 +12,7 @@ import (
 )
 
 type GetAccountIdsCallbackFunc func(context.Context, int64) error
-type GetAccountsCallbackFunc func(context.Context, *accountAccount) error
+type GetAccountsCallbackFunc func(context.Context, *activitypub.Account) error
 
 type AccountsDatabase interface {
 	GetAccounts(context.Context, GetAccountsCallbackFunc) error

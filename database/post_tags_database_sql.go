@@ -127,12 +127,12 @@ func (db *SQLPostTagsDatabase) GetPostTagWithId(ctx context.Context, id int64) (
 
 	switch {
 	case err == sql.ErrNoRows:
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	case err != nil:
 		return nil, err
 	default:
 
-		t := &PostTag{
+		t := &activitypub.PostTag{
 			Id:        id,
 			AccountId: account_id,
 			PostId:    post_id,
@@ -231,7 +231,7 @@ func (db *SQLPostTagsDatabase) getPostTagsWithCallback(ctx context.Context, wher
 				return fmt.Errorf("Failed to query database, %w", err)
 			}
 
-			t := &PostTag{
+			t := &activitypub.PostTag{
 				Id:        id,
 				AccountId: account_id,
 				PostId:    post_id,

@@ -25,7 +25,7 @@ func (db *NullAliasesDatabase) GetAliasesForAccount(ctx context.Context, account
 }
 
 func (db *NullAliasesDatabase) GetAliasWithName(ctx context.Context, name string) (*activitypub.Alias, error) {
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }
 
 func (db *NullAliasesDatabase) AddAlias(ctx context.Context, alias *activitypub.Alias) error {

@@ -50,7 +50,7 @@ func (db *DocstoreAliasesDatabase) GetAliasesForAccount(ctx context.Context, acc
 
 	for {
 
-		var a Alias
+		var a activitypub.Alias
 		err := iter.Next(ctx, &a)
 
 		if err == io.EOF {
@@ -95,11 +95,11 @@ func (db *DocstoreAliasesDatabase) getAlias(ctx context.Context, q *gc_docstore.
 	iter := q.Get(ctx)
 	defer iter.Stop()
 
-	var a Alias
+	var a activitypub.Alias
 	err := iter.Next(ctx, &a)
 
 	if err == io.EOF {
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	} else if err != nil {
 		return nil, fmt.Errorf("Failed to interate, %w", err)
 	} else {

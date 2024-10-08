@@ -51,7 +51,7 @@ func (db *DocstorePostTagsDatabase) GetPostTagIdsForDateRange(ctx context.Contex
 
 	for {
 
-		var t PostTag
+		var t activitypub.PostTag
 		err := iter.Next(ctx, &t)
 
 		if err == io.EOF {
@@ -111,11 +111,11 @@ func (db *DocstorePostTagsDatabase) getPostTag(ctx context.Context, q *gc_docsto
 	iter := q.Get(ctx)
 	defer iter.Stop()
 
-	var t PostTag
+	var t activitypub.PostTag
 	err := iter.Next(ctx, &t)
 
 	if err == io.EOF {
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	} else if err != nil {
 		return nil, fmt.Errorf("Failed to interate, %w", err)
 	} else {
@@ -130,7 +130,7 @@ func (db *DocstorePostTagsDatabase) getPostTags(ctx context.Context, q *gc_docst
 
 	for {
 
-		var t PostTag
+		var t activitypub.PostTag
 		err := iter.Next(ctx, &t)
 
 		if err == io.EOF {

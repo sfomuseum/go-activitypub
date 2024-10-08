@@ -25,11 +25,11 @@ func (db *NullBoostsDatabase) GetBoostIdsForDateRange(ctx context.Context, start
 }
 
 func (db *NullBoostsDatabase) GetBoostWithId(ctx context.Context, id int64) (*activitypub.Boost, error) {
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }
 
 func (db *NullBoostsDatabase) GetBoostWithPostIdAndActor(ctx context.Context, id int64, actor string) (*activitypub.Boost, error) {
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }
 
 func (db *NullBoostsDatabase) GetBoostsForPost(ctx context.Context, post_id int64, cb GetBoostsCallbackFunc) error {

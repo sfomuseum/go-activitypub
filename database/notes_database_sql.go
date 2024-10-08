@@ -110,12 +110,12 @@ func (db *SQLNotesDatabase) GetNoteIdsForDateRange(ctx context.Context, start in
 	return nil
 }
 
-func (db *SQLNotesDatabase) GetNoteWithId(ctx context.Context, note_id int64) (*message.Note, error) {
+func (db *SQLNotesDatabase) GetNoteWithId(ctx context.Context, note_id int64) (*activitypub.Note, error) {
 	where := "id = ?"
 	return db.getNote(ctx, where, note_id)
 }
 
-func (db *SQLNotesDatabase) GetNoteWithUUIDAndAuthorAddress(ctx context.Context, uuid string, author_address string) (*message.Note, error) {
+func (db *SQLNotesDatabase) GetNoteWithUUIDAndAuthorAddress(ctx context.Context, uuid string, author_address string) (*activitypub.Note, error) {
 
 	// Note the order of arguments this is to account for the
 	// notes_by_author_address index.
@@ -124,7 +124,7 @@ func (db *SQLNotesDatabase) GetNoteWithUUIDAndAuthorAddress(ctx context.Context,
 	return db.getNote(ctx, where, author_address, uuid)
 }
 
-func (db *SQLNotesDatabase) getNote(ctx context.Context, where string, args ...interface{}) (*message.Note, error) {
+func (db *SQLNotesDatabase) getNote(ctx context.Context, where string, args ...interface{}) (*activitypub.Note, error) {
 
 	q := fmt.Sprintf("SELECT id, uuid, author_address, body, created, lastmodified FROM %s WHERE %s", SQL_NOTES_TABLE_NAME, where)
 	row := db.database.QueryRowContext(ctx, q, args...)
@@ -140,12 +140,12 @@ func (db *SQLNotesDatabase) getNote(ctx context.Context, where string, args ...i
 
 	switch {
 	case err == sql.ErrNoRows:
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	case err != nil:
 		return nil, fmt.Errorf("Failed to query database, %w", err)
 	default:
 
-		n := &Note{
+		n := &activitypub.Note{
 			Id:            id,
 			UUID:          uuid,
 			AuthorAddress: author_address,
@@ -159,7 +159,7 @@ func (db *SQLNotesDatabase) getNote(ctx context.Context, where string, args ...i
 
 }
 
-func (db *SQLNotesDatabase) AddNote(ctx context.Context, note *message.Note) error {
+func (db *SQLNotesDatabase) AddNote(ctx context.Context, note *activitypub.Note) error {
 
 	q := fmt.Sprintf("INSERT INTO %s (id, uuid, author_address, body, created, lastmodified) VALUES (?, ?, ?, ?, ?, ?)", SQL_NOTES_TABLE_NAME)
 
@@ -172,7 +172,7 @@ func (db *SQLNotesDatabase) AddNote(ctx context.Context, note *message.Note) err
 	return nil
 }
 
-func (db *SQLNotesDatabase) UpdateNote(ctx context.Context, note *message.Note) error {
+func (db *SQLNotesDatabase) UpdateNote(ctx context.Context, note *activitypub.Note) error {
 
 	q := fmt.Sprintf("UPDATE %s SET uuid=?, author_address=?, body=?, created=?, lastmodified=? WHERE id = ?", SQL_NOTES_TABLE_NAME)
 
@@ -185,7 +185,7 @@ func (db *SQLNotesDatabase) UpdateNote(ctx context.Context, note *message.Note) 
 	return nil
 }
 
-func (db *SQLNotesDatabase) RemoveNote(ctx context.Context, note *message.Note) error {
+func (db *SQLNotesDatabase) RemoveNote(ctx context.Context, note *activitypub.Note) error {
 
 	q := fmt.Sprintf("DELETE FROM %s WHERE id = ?", SQL_NOTES_TABLE_NAME)
 

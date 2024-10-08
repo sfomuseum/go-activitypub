@@ -55,7 +55,7 @@ func (db *DocstoreFollowingDatabase) GetFollowingIdsForDateRange(ctx context.Con
 
 	for {
 
-		var f Following
+		var f activitypub.Following
 		err := iter.Next(ctx, &f)
 
 		if err == io.EOF {
@@ -85,7 +85,7 @@ func (db *DocstoreFollowingDatabase) GetFollowing(ctx context.Context, account_i
 
 	for {
 
-		var f Following
+		var f activitypub.Following
 		err := iter.Next(ctx, &f)
 
 		if err == io.EOF {
@@ -97,7 +97,7 @@ func (db *DocstoreFollowingDatabase) GetFollowing(ctx context.Context, account_i
 		}
 	}
 
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }
 
 func (db *DocstoreFollowingDatabase) AddFollowing(ctx context.Context, f *activitypub.Following) error {
@@ -120,7 +120,7 @@ func (db *DocstoreFollowingDatabase) GetFollowingForAccount(ctx context.Context,
 
 	for {
 
-		var f Following
+		var f activitypub.Following
 		err := iter.Next(ctx, &f)
 
 		if err == io.EOF {

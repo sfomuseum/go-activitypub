@@ -2,6 +2,8 @@ package database
 
 import (
 	"context"
+
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type NullPropertiesDatabase struct {
@@ -26,15 +28,15 @@ func (db *NullPropertiesDatabase) GetPropertiesForAccount(ctx context.Context, a
 	return nil
 }
 
-func (db *NullPropertiesDatabase) AddProperty(ctx context.Context, property *Property) error {
+func (db *NullPropertiesDatabase) AddProperty(ctx context.Context, property *activitypub.Property) error {
 	return nil
 }
 
-func (db *NullPropertiesDatabase) UpdateProperty(ctx context.Context, property *Property) error {
+func (db *NullPropertiesDatabase) UpdateProperty(ctx context.Context, property *activitypub.Property) error {
 	return nil
 }
 
-func (db *NullPropertiesDatabase) RemoveProperty(ctx context.Context, property *Property) error {
+func (db *NullPropertiesDatabase) RemoveProperty(ctx context.Context, property *activitypub.Property) error {
 	return nil
 }
 

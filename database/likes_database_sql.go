@@ -146,7 +146,7 @@ func (db *SQLLikesDatabase) GetLikesForPostIdAndActor(ctx context.Context, post_
 				return err
 			default:
 
-				b := &Like{
+				b := &activitypub.Like{
 					Id:        id,
 					AccountId: account_id,
 					PostId:    post_id,
@@ -238,14 +238,14 @@ func (db *SQLLikesDatabase) getLike(ctx context.Context, where string, args ...i
 
 	switch {
 	case err == sql.ErrNoRows:
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	case err != nil:
 		return nil, err
 	default:
 		//
 	}
 
-	b := &Like{
+	b := &activitypub.Like{
 		Id:        id,
 		AccountId: account_id,
 		PostId:    post_id,

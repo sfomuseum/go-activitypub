@@ -52,7 +52,7 @@ func (db *DocstoreMessagesDatabase) GetMessageIdsForDateRange(ctx context.Contex
 
 	for {
 
-		var m Message
+		var m activitypub.Message
 		err := iter.Next(ctx, &m)
 
 		if err == io.EOF {
@@ -95,7 +95,7 @@ func (db *DocstoreMessagesDatabase) getMessage(ctx context.Context, q *gc_docsto
 
 	for {
 
-		var m Message
+		var m activitypub.Message
 		err := iter.Next(ctx, &m)
 
 		if err == io.EOF {
@@ -107,7 +107,7 @@ func (db *DocstoreMessagesDatabase) getMessage(ctx context.Context, q *gc_docsto
 		}
 	}
 
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }
 
 func (db *DocstoreMessagesDatabase) AddMessage(ctx context.Context, message *activitypub.Message) error {
@@ -149,7 +149,7 @@ func (db *DocstoreMessagesDatabase) getMessagesWithCallback(ctx context.Context,
 
 	for {
 
-		var m Message
+		var m activitypub.Message
 		err := iter.Next(ctx, &m)
 
 		if err == io.EOF {

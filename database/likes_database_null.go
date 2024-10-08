@@ -25,11 +25,11 @@ func (db *NullLikesDatabase) GetLikeIdsForDateRange(ctx context.Context, start i
 }
 
 func (db *NullLikesDatabase) GetLikeWithId(ctx context.Context, id int64) (*activitypub.Like, error) {
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }
 
 func (db *NullLikesDatabase) GetLikeWithPostIdAndActor(ctx context.Context, id int64, actor string) (*activitypub.Like, error) {
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }
 
 func (db *NullLikesDatabase) GetLikesForPost(ctx context.Context, post_id int64, cb GetLikesCallbackFunc) error {

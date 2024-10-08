@@ -53,7 +53,7 @@ func (db *DocstoreDeliveriesDatabase) GetDeliveryIdsForDateRange(ctx context.Con
 
 	for {
 
-		var d Delivery
+		var d activitypub.Delivery
 		err := iter.Next(ctx, &d)
 
 		if err == io.EOF {
@@ -96,7 +96,7 @@ func (db *DocstoreDeliveriesDatabase) GetDeliveriesWithPostIdAndRecipient(ctx co
 
 	for {
 
-		var d Delivery
+		var d activitypub.Delivery
 		err := iter.Next(ctx, &d)
 
 		if err == io.EOF {
@@ -127,11 +127,11 @@ func (db *DocstoreDeliveriesDatabase) getDelivery(ctx context.Context, q *gc_doc
 
 	for {
 
-		var d Delivery
+		var d activitypub.Delivery
 		err := iter.Next(ctx, &d)
 
 		if err == io.EOF {
-			return nil, ErrNotFound
+			return nil, activitypub.ErrNotFound
 		} else if err != nil {
 			return nil, fmt.Errorf("Failed to interate, %w", err)
 		} else {
@@ -139,6 +139,6 @@ func (db *DocstoreDeliveriesDatabase) getDelivery(ctx context.Context, q *gc_doc
 		}
 	}
 
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 
 }

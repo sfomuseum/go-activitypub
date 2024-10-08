@@ -52,7 +52,7 @@ func (db *DocstoreBoostsDatabase) GetBoostIdsForDateRange(ctx context.Context, s
 
 	for {
 
-		var b Boost
+		var b activitypub.Boost
 		err := iter.Next(ctx, &b)
 
 		if err == io.EOF {
@@ -98,7 +98,7 @@ func (db *DocstoreBoostsDatabase) GetBoostsForPost(ctx context.Context, post_id 
 
 	for {
 
-		var b Boost
+		var b activitypub.Boost
 		err := iter.Next(ctx, &b)
 
 		if err == io.EOF {
@@ -124,11 +124,11 @@ func (db *DocstoreBoostsDatabase) getBoost(ctx context.Context, q *gc_docstore.Q
 	iter := q.Get(ctx)
 	defer iter.Stop()
 
-	var b Boost
+	var b activitypub.Boost
 	err := iter.Next(ctx, &b)
 
 	if err == io.EOF {
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	} else if err != nil {
 		return nil, fmt.Errorf("Failed to interate, %w", err)
 	} else {

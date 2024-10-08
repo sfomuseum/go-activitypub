@@ -34,11 +34,11 @@ func (db *NullAccountsDatabase) AddAccount(ctx context.Context, a *activitypub.A
 }
 
 func (db *NullAccountsDatabase) GetAccountWithId(ctx context.Context, id int64) (*activitypub.Account, error) {
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }
 
 func (db *NullAccountsDatabase) GetAccountWithName(ctx context.Context, name string) (*activitypub.Account, error) {
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }
 
 func (db *NullAccountsDatabase) UpdateAccount(ctx context.Context, acct *activitypub.Account) error {

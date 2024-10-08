@@ -123,12 +123,12 @@ func (db *SQLFollowingDatabase) GetFollowing(ctx context.Context, account_id int
 
 	switch {
 	case err == sql.ErrNoRows:
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	case err != nil:
 		return nil, fmt.Errorf("Failed to query database, %w", err)
 	default:
 
-		f := &Following{
+		f := &activitypub.Following{
 			Id:               id,
 			AccountId:        account_id,
 			FollowingAddress: following_address,

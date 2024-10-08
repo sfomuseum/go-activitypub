@@ -52,7 +52,7 @@ func (db *DocstoreLikesDatabase) GetLikeIdsForDateRange(ctx context.Context, sta
 
 	for {
 
-		var l Like
+		var l activitypub.Like
 		err := iter.Next(ctx, &l)
 
 		if err == io.EOF {
@@ -98,7 +98,7 @@ func (db *DocstoreLikesDatabase) GetLikesForPost(ctx context.Context, post_id in
 
 	for {
 
-		var b Like
+		var b activitypub.Like
 		err := iter.Next(ctx, &b)
 
 		if err == io.EOF {
@@ -124,11 +124,11 @@ func (db *DocstoreLikesDatabase) getLike(ctx context.Context, q *gc_docstore.Que
 	iter := q.Get(ctx)
 	defer iter.Stop()
 
-	var b Like
+	var b activitypub.Like
 	err := iter.Next(ctx, &b)
 
 	if err == io.EOF {
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	} else if err != nil {
 		return nil, fmt.Errorf("Failed to interate, %w", err)
 	} else {

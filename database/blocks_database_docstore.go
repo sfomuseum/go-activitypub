@@ -52,7 +52,7 @@ func (db *DocstoreBlocksDatabase) GetBlockIdsForDateRange(ctx context.Context, s
 
 	for {
 
-		var b Block
+		var b activitypub.Block
 		err := iter.Next(ctx, &b)
 
 		if err == io.EOF {
@@ -97,11 +97,11 @@ func (db *DocstoreBlocksDatabase) getBlock(ctx context.Context, q *gc_docstore.Q
 
 	for {
 
-		var b Block
+		var b activitypub.Block
 		err := iter.Next(ctx, &b)
 
 		if err == io.EOF {
-			return nil, ErrNotFound
+			return nil, activitypub.ErrNotFound
 		} else if err != nil {
 			return nil, fmt.Errorf("Failed to interate, %w", err)
 		} else {
@@ -109,7 +109,7 @@ func (db *DocstoreBlocksDatabase) getBlock(ctx context.Context, q *gc_docstore.Q
 		}
 	}
 
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 
 }
 

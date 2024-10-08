@@ -25,7 +25,7 @@ func (db *NullPostTagsDatabase) GetLikeIdsForDateRange(ctx context.Context, star
 }
 
 func (db *NullPostTagsDatabase) GetPostTagWithId(ctx context.Context, id int64) (*activitypub.PostTag, error) {
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }
 
 func (db *NullPostTagsDatabase) GetPostTagsForName(ctx context.Context, name string, cb GetPostTagsCallbackFunc) error {

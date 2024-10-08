@@ -125,12 +125,12 @@ func (db *SQLAliasesDatabase) getAlias(ctx context.Context, where string, args [
 
 	switch {
 	case err == sql.ErrNoRows:
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	case err != nil:
 		return nil, err
 	default:
 
-		a := &Alias{
+		a := &activitypub.Alias{
 			Name:      name,
 			AccountId: account_id,
 			Created:   created,
@@ -158,7 +158,7 @@ func (db *SQLAliasesDatabase) getAliasesWithCallback(ctx context.Context, where 
 				return fmt.Errorf("Failed to query database, %w", err)
 			}
 
-			a := &Alias{
+			a := &activitypub.Alias{
 				Name:      name,
 				AccountId: account_id,
 				Created:   created,

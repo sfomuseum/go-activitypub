@@ -12,7 +12,7 @@ import (
 )
 
 type GetDeliveryIdsCallbackFunc func(context.Context, int64) error
-type GetDeliveriesCallbackFunc func(context.Context, *Delivery) error
+type GetDeliveriesCallbackFunc func(context.Context, *activitypub.Delivery) error
 
 type GetDeliveriesQuery struct {
 	AccountId int64

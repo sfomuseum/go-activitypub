@@ -50,7 +50,7 @@ func (db *DocstoreAccountsDatabase) GetAccounts(ctx context.Context, cb GetAccou
 
 	for {
 
-		var a Account
+		var a activitypub.Account
 		err := iter.Next(ctx, &a)
 
 		if err == io.EOF {
@@ -97,7 +97,7 @@ func (db *DocstoreAccountsDatabase) GetAccountIdsForDateRange(ctx context.Contex
 
 	for {
 
-		var a Account
+		var a activitypub.Account
 		err := iter.Next(ctx, &a)
 
 		if err == io.EOF {
@@ -157,16 +157,16 @@ func (db *DocstoreAccountsDatabase) getAccount(ctx context.Context, q *gc_docsto
 	iter := q.Get(ctx)
 	defer iter.Stop()
 
-	var a Account
+	var a activitypub.Account
 	err := iter.Next(ctx, &a)
 
 	if err == io.EOF {
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	} else if err != nil {
 		return nil, fmt.Errorf("Failed to interate, %w", err)
 	} else {
 		return &a, nil
 	}
 
-	return nil, ErrNotFound
+	return nil, activitypub.ErrNotFound
 }

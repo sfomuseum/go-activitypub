@@ -52,7 +52,7 @@ func (db *DocstorePostsDatabase) GetPostIdsForDateRange(ctx context.Context, sta
 
 	for {
 
-		var p Post
+		var p activitypub.Post
 		err := iter.Next(ctx, &p)
 
 		if err == io.EOF {
@@ -89,11 +89,11 @@ func (db *DocstorePostsDatabase) getPost(ctx context.Context, q *gc_docstore.Que
 	iter := q.Get(ctx)
 	defer iter.Stop()
 
-	var p Post
+	var p activitypub.Post
 	err := iter.Next(ctx, &p)
 
 	if err == io.EOF {
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	} else if err != nil {
 		return nil, fmt.Errorf("Failed to interate, %w", err)
 	} else {

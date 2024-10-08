@@ -95,7 +95,7 @@ func (db *SQLBoostsDatabase) GetBoostsForPostIdAndActor(ctx context.Context, pos
 				return err
 			default:
 
-				b := &Boost{
+				b := &activitypub.Boost{
 					Id:        id,
 					AccountId: account_id,
 					PostId:    post_id,
@@ -187,14 +187,14 @@ func (db *SQLBoostsDatabase) getBoost(ctx context.Context, where string, args ..
 
 	switch {
 	case err == sql.ErrNoRows:
-		return nil, ErrNotFound
+		return nil, activitypub.ErrNotFound
 	case err != nil:
 		return nil, err
 	default:
 		//
 	}
 
-	b := &Boost{
+	b := &activitypub.Boost{
 		Id:        id,
 		AccountId: account_id,
 		PostId:    post_id,
