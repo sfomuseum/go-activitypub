@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
-	"github.com/sfomuseum/go-activitypub/id"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
@@ -26,11 +26,11 @@ type AddPostOptions struct {
 // AddPost creates a new post record for 'body' and adds it to the post database. Then it parses 'body' looking
 // for other ActivityPub addresses and records each as a "mention" in the post tags database. It returns the post
 // and the list of post tags (mentions) for further processing as needed.
-func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body string) (*Post, []*PostTag, error) {
+func AddPost(ctx context.Context, opts *AddPostOptions, acct *activitypub.Account, body string) (*activitypub.Post, []*activitypub.PostTag, error) {
 
 	// Create the new post record
 
-	p, err := NewPost(ctx, acct, body)
+	p, err := activitypub.NewPost(ctx, acct, body)
 
 	if err != nil {
 		return nil, nil, fmt.Errorf("Failed to create new post, %w", err)
@@ -46,7 +46,7 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body stri
 
 	// Determine other accounts mentioned in post
 
-	addrs_mentioned, err := ParseAddressesFromString(body)
+	addrs_mentioned, err := activitypub.ParseAddressesFromString(body)
 
 	if err != nil {
 		return nil, nil, fmt.Errorf("Failed to derive addresses mentioned in message body, %w", err)
@@ -55,11 +55,11 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body stri
 	// Create "mention" tags for any other accounts mentioned in post
 	// Add each mention to the "post tags" database
 
-	post_tags := make([]*PostTag, 0)
+	post_tags := make([]*activitypub.PostTag, 0)
 
 	for _, name := range addrs_mentioned {
 
-		actor, err := RetrieveActor(ctx, name, opts.URIs.Insecure)
+		actor, err := activitypub.RetrieveActor(ctx, name, opts.URIs.Insecure)
 
 		if err != nil {
 			slog.Error("Failed to retrieve actor data for name, skipping", "name", name, "error", err)
@@ -76,7 +76,7 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body stri
 		// yet because... I have no idea
 		mention_href := actor.Id
 
-		t, err := NewMention(ctx, p, mention_name, mention_href)
+		t, err := activitypub.NewMention(ctx, p, mention_name, mention_href)
 
 		if err != nil {
 			return nil, nil, fmt.Errorf("Failed to create mention for '%s', %w", name, err)
@@ -96,31 +96,8 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *Account, body stri
 	return p, post_tags, nil
 }
 
-// NewPost returns a new `Post` instance from 'acct' and 'body'.
-func NewPost(ctx context.Context, acct *Account, body string) (*Post, error) {
-
-	post_id, err := id.NewId()
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to derive new post ID, %w", err)
-	}
-
-	now := time.Now()
-	ts := now.Unix()
-
-	p := &Post{
-		Id:           post_id,
-		AccountId:    acct.Id,
-		Body:         body,
-		Created:      ts,
-		LastModified: ts,
-	}
-
-	return p, nil
-}
-
 // NoteFromPost creates a new (ActivityPub) `Note` instance derived from 'acct', 'post' and 'post_tags'.
-func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, post *Post, post_tags []*PostTag) (*ap.Note, error) {
+func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.Account, post *activitypub.Post, post_tags []*activitypub.PostTag) (*ap.Note, error) {
 
 	attr := acct.ProfileURL(ctx, uris_table).String()
 	post_url := acct.PostURL(ctx, uris_table, post)
@@ -167,7 +144,7 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *Account, pos
 }
 
 // GetPostFromObjectURI attempt to derive a `Post` ID and its matching instance from an (ActivityPub) object URI.
-func GetPostFromObjectURI(ctx context.Context, uris_table *uris.URIs, posts_db PostsDatabase, object_uri string) (*Post, error) {
+func GetPostFromObjectURI(ctx context.Context, uris_table *uris.URIs, posts_db database.PostsDatabase, object_uri string) (*activitypub.Post, error) {
 
 	pat_post := uris_table.Post
 	pat_post = strings.Replace(pat_post, "{resource}", "(?:@[^\\/]+)", 1)

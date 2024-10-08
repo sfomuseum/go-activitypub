@@ -1,5 +1,13 @@
 package activitypub
 
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/sfomuseum/go-activitypub/id"
+)
+
 // Type Post is probably a misnomer. Specifically it began life as the internal representation
 // of a "post" or a generic "message" distinct from the ActvityPub "activity" type stored in a
 // "posts" database (see PostsDatabase). To date all the other code – notably the code to deliver
@@ -41,4 +49,27 @@ type Post struct {
 	Created int64 `json:"created"`
 	// The Unix timestamp when the post was last modified
 	LastModified int64 `json:"lastmodified"`
+}
+
+// NewPost returns a new `Post` instance from 'acct' and 'body'.
+func NewPost(ctx context.Context, acct *Account, body string) (*Post, error) {
+
+	post_id, err := id.NewId()
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to derive new post ID, %w", err)
+	}
+
+	now := time.Now()
+	ts := now.Unix()
+
+	p := &Post{
+		Id:           post_id,
+		AccountId:    acct.Id,
+		Body:         body,
+		Created:      ts,
+		LastModified: ts,
+	}
+
+	return p, nil
 }
