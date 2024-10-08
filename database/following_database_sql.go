@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
@@ -109,7 +110,7 @@ func (db *SQLFollowingDatabase) GetFollowingIdsForDateRange(ctx context.Context,
 	return nil
 }
 
-func (db *SQLFollowingDatabase) GetFollowing(ctx context.Context, account_id int64, following_address string) (*Following, error) {
+func (db *SQLFollowingDatabase) GetFollowing(ctx context.Context, account_id int64, following_address string) (*activitypub.Following, error) {
 
 	q := fmt.Sprintf("SELECT id, created FROM %s WHERE account_id = ? AND following_address = ?", SQL_FOLLOWING_TABLE_NAME)
 
@@ -139,7 +140,7 @@ func (db *SQLFollowingDatabase) GetFollowing(ctx context.Context, account_id int
 
 }
 
-func (db *SQLFollowingDatabase) AddFollowing(ctx context.Context, f *Following) error {
+func (db *SQLFollowingDatabase) AddFollowing(ctx context.Context, f *activitypub.Following) error {
 
 	q := fmt.Sprintf("INSERT INTO %s (id, account_id, following_address, created) VALUES (?, ?, ?, ?)", SQL_FOLLOWING_TABLE_NAME)
 
@@ -152,7 +153,7 @@ func (db *SQLFollowingDatabase) AddFollowing(ctx context.Context, f *Following) 
 	return nil
 }
 
-func (db *SQLFollowingDatabase) RemoveFollowing(ctx context.Context, f *Following) error {
+func (db *SQLFollowingDatabase) RemoveFollowing(ctx context.Context, f *activitypub.Following) error {
 
 	q := fmt.Sprintf("DELETE FROM %s WHERE id = ?", SQL_FOLLOWING_TABLE_NAME)
 

@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
@@ -113,7 +114,7 @@ func (db *SQLAccountsDatabase) GetAccountIdsForDateRange(ctx context.Context, st
 	return nil
 }
 
-func (db *SQLAccountsDatabase) AddAccount(ctx context.Context, a *Account) error {
+func (db *SQLAccountsDatabase) AddAccount(ctx context.Context, a *activitypub.Account) error {
 
 	q := fmt.Sprintf("INSERT INTO %s (id, account_type, name, display_name, blurb, url, public_key_uri, private_key_uri, created, lastmodified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", SQL_ACCOUNTS_TABLE_NAME)
 
@@ -126,17 +127,17 @@ func (db *SQLAccountsDatabase) AddAccount(ctx context.Context, a *Account) error
 	return nil
 }
 
-func (db *SQLAccountsDatabase) GetAccountWithId(ctx context.Context, id int64) (*Account, error) {
+func (db *SQLAccountsDatabase) GetAccountWithId(ctx context.Context, id int64) (*activitypub.Account, error) {
 	where := "id = ?"
 	return db.getAccount(ctx, where, id)
 }
 
-func (db *SQLAccountsDatabase) GetAccountWithName(ctx context.Context, name string) (*Account, error) {
+func (db *SQLAccountsDatabase) GetAccountWithName(ctx context.Context, name string) (*activitypub.Account, error) {
 	where := "name = ?"
 	return db.getAccount(ctx, where, name)
 }
 
-func (db *SQLAccountsDatabase) getAccount(ctx context.Context, where string, args ...interface{}) (*Account, error) {
+func (db *SQLAccountsDatabase) getAccount(ctx context.Context, where string, args ...interface{}) (*activitypub.Account, error) {
 
 	var id int64
 	var account_type uint32
@@ -180,11 +181,11 @@ func (db *SQLAccountsDatabase) getAccount(ctx context.Context, where string, arg
 	return a, nil
 }
 
-func (db *SQLAccountsDatabase) UpdateAccount(ctx context.Context, acct *Account) error {
+func (db *SQLAccountsDatabase) UpdateAccount(ctx context.Context, acct *activitypub.Account) error {
 	return ErrNotImplemented
 }
 
-func (db *SQLAccountsDatabase) RemoveAccount(ctx context.Context, acct *Account) error {
+func (db *SQLAccountsDatabase) RemoveAccount(ctx context.Context, acct *activitypub.Account) error {
 	return ErrNotImplemented
 }
 

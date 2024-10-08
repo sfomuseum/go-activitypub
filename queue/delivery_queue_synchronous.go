@@ -1,8 +1,10 @@
-package activitypub
+package queue
 
 import (
 	"context"
 	"fmt"
+	
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type SynchronousDeliveryQueue struct {
@@ -19,9 +21,9 @@ func NewSynchronousDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue
 	return q, nil
 }
 
-func (q *SynchronousDeliveryQueue) DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
+func (q *SynchronousDeliveryQueue) DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 
-	err := DeliverPost(ctx, opts)
+	err := DeliverActivity(ctx, opts)
 
 	if err != nil {
 		return fmt.Errorf("Failed to deliver post, %w", err)

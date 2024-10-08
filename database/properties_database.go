@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,16 +8,17 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	"github.com/sfomuseum/go-activitypub"
 )
 
-type GetPropertiesCallbackFunc func(context.Context, *Property) error
+type GetPropertiesCallbackFunc func(context.Context, *activitypub.Property) error
 
 type PropertiesDatabase interface {
 	GetProperties(context.Context, GetPropertiesCallbackFunc) error
 	GetPropertiesForAccount(context.Context, int64, GetPropertiesCallbackFunc) error
-	AddProperty(context.Context, *Property) error
-	UpdateProperty(context.Context, *Property) error
-	RemoveProperty(context.Context, *Property) error
+	AddProperty(context.Context, *activitypub.Property) error
+	UpdateProperty(context.Context, *activitypub.Property) error
+	RemoveProperty(context.Context, *activitypub.Property) error
 	Close(context.Context) error
 }
 

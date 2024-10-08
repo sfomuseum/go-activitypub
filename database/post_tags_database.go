@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,19 +8,20 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type GetPostTagIdsCallbackFunc func(context.Context, int64) error
-type GetPostTagsCallbackFunc func(context.Context, *PostTag) error
+type GetPostTagsCallbackFunc func(context.Context, *activitypub.PostTag) error
 
 type PostTagsDatabase interface {
 	GetPostTagIdsForDateRange(context.Context, int64, int64, GetPostTagIdsCallbackFunc) error
 	GetPostTagsForName(context.Context, string, GetPostTagsCallbackFunc) error
 	GetPostTagsForAccount(context.Context, int64, GetPostTagsCallbackFunc) error
 	GetPostTagsForPost(context.Context, int64, GetPostTagsCallbackFunc) error
-	GetPostTagWithId(context.Context, int64) (*PostTag, error)
-	AddPostTag(context.Context, *PostTag) error
-	RemovePostTag(context.Context, *PostTag) error
+	GetPostTagWithId(context.Context, int64) (*activitypub.PostTag, error)
+	AddPostTag(context.Context, *activitypub.PostTag) error
+	RemovePostTag(context.Context, *activitypub.PostTag) error
 	Close(context.Context) error
 }
 

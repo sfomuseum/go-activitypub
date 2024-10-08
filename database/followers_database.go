@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type GetFollowerIdsCallbackFunc func(context.Context, int64) error
@@ -18,9 +19,9 @@ type FollowersDatabase interface {
 	GetAllFollowers(context.Context, GetFollowersCallbackFunc) error
 	GetFollowersForAccount(context.Context, int64, GetFollowersCallbackFunc) error
 	HasFollowers(context.Context, int64) (bool, error)
-	GetFollower(context.Context, int64, string) (*Follower, error)
-	AddFollower(context.Context, *Follower) error
-	RemoveFollower(context.Context, *Follower) error
+	GetFollower(context.Context, int64, string) (*activitypub.Follower, error)
+	AddFollower(context.Context, *activitypub.Follower) error
+	RemoveFollower(context.Context, *activitypub.Follower) error
 	Close(context.Context) error
 }
 

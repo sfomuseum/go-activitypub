@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"io"
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
+	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
 )
 
@@ -69,7 +70,7 @@ func (db *DocstoreAliasesDatabase) GetAliasesForAccount(ctx context.Context, acc
 	return nil
 }
 
-func (db *DocstoreAliasesDatabase) GetAliasWithName(ctx context.Context, name string) (*Alias, error) {
+func (db *DocstoreAliasesDatabase) GetAliasWithName(ctx context.Context, name string) (*activitypub.Alias, error) {
 
 	q := db.collection.Query()
 	q = q.Where("Name", "=", name)
@@ -77,11 +78,11 @@ func (db *DocstoreAliasesDatabase) GetAliasWithName(ctx context.Context, name st
 	return db.getAlias(ctx, q)
 }
 
-func (db *DocstoreAliasesDatabase) AddAlias(ctx context.Context, alias *Alias) error {
+func (db *DocstoreAliasesDatabase) AddAlias(ctx context.Context, alias *activitypub.Alias) error {
 	return db.collection.Put(ctx, alias)
 }
 
-func (db *DocstoreAliasesDatabase) RemoveAlias(ctx context.Context, alias *Alias) error {
+func (db *DocstoreAliasesDatabase) RemoveAlias(ctx context.Context, alias *activitypub.Alias) error {
 	return db.collection.Delete(ctx, alias)
 }
 
@@ -89,7 +90,7 @@ func (db *DocstoreAliasesDatabase) Close(ctx context.Context) error {
 	return db.collection.Close()
 }
 
-func (db *DocstoreAliasesDatabase) getAlias(ctx context.Context, q *gc_docstore.Query) (*Alias, error) {
+func (db *DocstoreAliasesDatabase) getAlias(ctx context.Context, q *gc_docstore.Query) (*activitypub.Alias, error) {
 
 	iter := q.Get(ctx)
 	defer iter.Stop()

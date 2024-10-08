@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,16 +8,17 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type GetPostIdsCallbackFunc func(context.Context, int64) error
 
 type PostsDatabase interface {
 	GetPostIdsForDateRange(context.Context, int64, int64, GetPostIdsCallbackFunc) error
-	GetPostWithId(context.Context, int64) (*Post, error)
-	AddPost(context.Context, *Post) error
-	RemovePost(context.Context, *Post) error
-	UpdatePost(context.Context, *Post) error
+	GetPostWithId(context.Context, int64) (*activitypub.Post, error)
+	AddPost(context.Context, *activitypub.Post) error
+	RemovePost(context.Context, *activitypub.Post) error
+	UpdatePost(context.Context, *activitypub.Post) error
 	Close(context.Context) error
 }
 

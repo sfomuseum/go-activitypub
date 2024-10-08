@@ -10,13 +10,14 @@ import (
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type AccountHandlerOptions struct {
-	AccountsDatabase   activitypub.AccountsDatabase
-	AliasesDatabase    activitypub.AliasesDatabase
-	PropertiesDatabase activitypub.PropertiesDatabase
+	AccountsDatabase   database.AccountsDatabase
+	AliasesDatabase    database.AliasesDatabase
+	PropertiesDatabase database.PropertiesDatabase
 	URIs               *uris.URIs
 	Templates          *template.Template
 	RedirectOnAlias    bool

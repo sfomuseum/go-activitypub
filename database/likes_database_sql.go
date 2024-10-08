@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
@@ -110,13 +111,13 @@ func (db *SQLLikesDatabase) GetLikeIdsForDateRange(ctx context.Context, start in
 	return nil
 }
 
-func (db *SQLLikesDatabase) GetLikeWithId(ctx context.Context, id int64) (*Like, error) {
+func (db *SQLLikesDatabase) GetLikeWithId(ctx context.Context, id int64) (*activitypub.Like, error) {
 
 	where := "id = ?"
 	return db.getLike(ctx, where, id)
 }
 
-func (db *SQLLikesDatabase) GetLikeWithPostIdAndActor(ctx context.Context, post_id int64, actor string) (*Like, error) {
+func (db *SQLLikesDatabase) GetLikeWithPostIdAndActor(ctx context.Context, post_id int64, actor string) (*activitypub.Like, error) {
 
 	where := "post_id = ? AND actor = ?"
 	return db.getLike(ctx, where, post_id, actor)
@@ -191,7 +192,7 @@ func (db *SQLLikesDatabase) GetLikesForPostIdAndActor(ctx context.Context, post_
 
 }
 
-func (db *SQLLikesDatabase) AddLike(ctx context.Context, b *Like) error {
+func (db *SQLLikesDatabase) AddLike(ctx context.Context, b *activitypub.Like) error {
 
 	q := fmt.Sprintf("INSERT INTO %s (id, account_id, psot_id, actor, created) VALUES (?, ?, ?, ?, ?)", SQL_LIKES_TABLE_NAME)
 
@@ -204,7 +205,7 @@ func (db *SQLLikesDatabase) AddLike(ctx context.Context, b *Like) error {
 	return nil
 }
 
-func (db *SQLLikesDatabase) RemoveLike(ctx context.Context, b *Like) error {
+func (db *SQLLikesDatabase) RemoveLike(ctx context.Context, b *activitypub.Like) error {
 
 	q := fmt.Sprintf("DELETE FROM %s WHERE id= ?", SQL_LIKES_TABLE_NAME)
 
@@ -221,7 +222,7 @@ func (db *SQLLikesDatabase) Close(ctx context.Context) error {
 	return db.database.Close()
 }
 
-func (db *SQLLikesDatabase) getLike(ctx context.Context, where string, args ...interface{}) (*Like, error) {
+func (db *SQLLikesDatabase) getLike(ctx context.Context, where string, args ...interface{}) (*activitypub.Like, error) {
 
 	var id int64
 	var account_id int64

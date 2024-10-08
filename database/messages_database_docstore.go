@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"io"
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
+	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
 )
 
@@ -70,7 +71,7 @@ func (db *DocstoreMessagesDatabase) GetMessageIdsForDateRange(ctx context.Contex
 	return nil
 }
 
-func (db *DocstoreMessagesDatabase) GetMessageWithId(ctx context.Context, message_id int64) (*Message, error) {
+func (db *DocstoreMessagesDatabase) GetMessageWithId(ctx context.Context, message_id int64) (*activitypub.Message, error) {
 
 	q := db.collection.Query()
 	q = q.Where("Id", "=", message_id)
@@ -78,7 +79,7 @@ func (db *DocstoreMessagesDatabase) GetMessageWithId(ctx context.Context, messag
 	return db.getMessage(ctx, q)
 }
 
-func (db *DocstoreMessagesDatabase) GetMessageWithAccountAndNoteIds(ctx context.Context, account_id int64, note_id int64) (*Message, error) {
+func (db *DocstoreMessagesDatabase) GetMessageWithAccountAndNoteIds(ctx context.Context, account_id int64, note_id int64) (*activitypub.Message, error) {
 
 	q := db.collection.Query()
 	q = q.Where("AccountId", "=", account_id)
@@ -87,7 +88,7 @@ func (db *DocstoreMessagesDatabase) GetMessageWithAccountAndNoteIds(ctx context.
 	return db.getMessage(ctx, q)
 }
 
-func (db *DocstoreMessagesDatabase) getMessage(ctx context.Context, q *gc_docstore.Query) (*Message, error) {
+func (db *DocstoreMessagesDatabase) getMessage(ctx context.Context, q *gc_docstore.Query) (*activitypub.Message, error) {
 
 	iter := q.Get(ctx)
 	defer iter.Stop()
@@ -109,17 +110,17 @@ func (db *DocstoreMessagesDatabase) getMessage(ctx context.Context, q *gc_docsto
 	return nil, ErrNotFound
 }
 
-func (db *DocstoreMessagesDatabase) AddMessage(ctx context.Context, message *Message) error {
+func (db *DocstoreMessagesDatabase) AddMessage(ctx context.Context, message *activitypub.Message) error {
 
 	return db.collection.Put(ctx, message)
 }
 
-func (db *DocstoreMessagesDatabase) UpdateMessage(ctx context.Context, message *Message) error {
+func (db *DocstoreMessagesDatabase) UpdateMessage(ctx context.Context, message *activitypub.Message) error {
 
 	return db.collection.Replace(ctx, message)
 }
 
-func (db *DocstoreMessagesDatabase) RemoveMessage(ctx context.Context, message *Message) error {
+func (db *DocstoreMessagesDatabase) RemoveMessage(ctx context.Context, message *activitypub.Message) error {
 
 	return db.collection.Delete(ctx, message)
 }

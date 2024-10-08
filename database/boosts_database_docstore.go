@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"io"
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
+	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
 )
 
@@ -70,7 +71,7 @@ func (db *DocstoreBoostsDatabase) GetBoostIdsForDateRange(ctx context.Context, s
 	return nil
 }
 
-func (db *DocstoreBoostsDatabase) GetBoostWithId(ctx context.Context, id int64) (*Boost, error) {
+func (db *DocstoreBoostsDatabase) GetBoostWithId(ctx context.Context, id int64) (*activitypub.Boost, error) {
 
 	q := db.collection.Query()
 	q = q.Where("Id", "=", id)
@@ -78,7 +79,7 @@ func (db *DocstoreBoostsDatabase) GetBoostWithId(ctx context.Context, id int64) 
 	return db.getBoost(ctx, q)
 }
 
-func (db *DocstoreBoostsDatabase) GetBoostWithPostIdAndActor(ctx context.Context, post_id int64, actor string) (*Boost, error) {
+func (db *DocstoreBoostsDatabase) GetBoostWithPostIdAndActor(ctx context.Context, post_id int64, actor string) (*activitypub.Boost, error) {
 
 	q := db.collection.Query()
 	q = q.Where("PostId", "=", post_id)
@@ -118,7 +119,7 @@ func (db *DocstoreBoostsDatabase) GetBoostsForPost(ctx context.Context, post_id 
 
 }
 
-func (db *DocstoreBoostsDatabase) getBoost(ctx context.Context, q *gc_docstore.Query) (*Boost, error) {
+func (db *DocstoreBoostsDatabase) getBoost(ctx context.Context, q *gc_docstore.Query) (*activitypub.Boost, error) {
 
 	iter := q.Get(ctx)
 	defer iter.Stop()
@@ -136,12 +137,12 @@ func (db *DocstoreBoostsDatabase) getBoost(ctx context.Context, q *gc_docstore.Q
 
 }
 
-func (db *DocstoreBoostsDatabase) AddBoost(ctx context.Context, boost *Boost) error {
+func (db *DocstoreBoostsDatabase) AddBoost(ctx context.Context, boost *activitypub.Boost) error {
 
 	return db.collection.Put(ctx, boost)
 }
 
-func (db *DocstoreBoostsDatabase) RemoveBoost(ctx context.Context, boost *Boost) error {
+func (db *DocstoreBoostsDatabase) RemoveBoost(ctx context.Context, boost *activitypub.Boost) error {
 
 	return db.collection.Delete(ctx, boost)
 }

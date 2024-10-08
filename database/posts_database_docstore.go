@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"io"
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
+	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
 )
 
@@ -70,12 +71,12 @@ func (db *DocstorePostsDatabase) GetPostIdsForDateRange(ctx context.Context, sta
 	return nil
 }
 
-func (db *DocstorePostsDatabase) AddPost(ctx context.Context, p *Post) error {
+func (db *DocstorePostsDatabase) AddPost(ctx context.Context, p *activitypub.Post) error {
 
 	return db.collection.Put(ctx, p)
 }
 
-func (db *DocstorePostsDatabase) GetPostWithId(ctx context.Context, id int64) (*Post, error) {
+func (db *DocstorePostsDatabase) GetPostWithId(ctx context.Context, id int64) (*activitypub.Post, error) {
 
 	q := db.collection.Query()
 	q = q.Where("Id", "=", id)
@@ -83,7 +84,7 @@ func (db *DocstorePostsDatabase) GetPostWithId(ctx context.Context, id int64) (*
 	return db.getPost(ctx, q)
 }
 
-func (db *DocstorePostsDatabase) getPost(ctx context.Context, q *gc_docstore.Query) (*Post, error) {
+func (db *DocstorePostsDatabase) getPost(ctx context.Context, q *gc_docstore.Query) (*activitypub.Post, error) {
 
 	iter := q.Get(ctx)
 	defer iter.Stop()

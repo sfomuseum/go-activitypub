@@ -11,28 +11,18 @@ import (
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/id"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
-type DeliverActivityOptions struct {
-	From     *activitypub.Account `json:"from"`
-	To       string               `json:"to"`
-	Activity *ap.Activity         `json:"activity"`
-	Post     *Post                `json:"post"`
-	// PostTags           []*PostTag         `json:"post_tags"`
-	URIs               *uris.URIs         `json:"uris"`
-	DeliveriesDatabase DeliveriesDatabase `json:"deliveries_database,omitempty"`
-	MaxAttempts        int                `json:"max_attempts"`
-}
-
 type DeliverActivityToFollowersOptions struct {
-	AccountsDatabase   AccountsDatabase
-	FollowersDatabase  FollowersDatabase
-	PostTagsDatabase   PostTagsDatabase
-	NotesDatabase      NotesDatabase
-	DeliveriesDatabase DeliveriesDatabase
-	DeliveryQueue      DeliveryQueue
+	AccountsDatabase   database.AccountsDatabase
+	FollowersDatabase  database.FollowersDatabase
+	PostTagsDatabase   database.PostTagsDatabase
+	NotesDatabase      database.NotesDatabase
+	DeliveriesDatabase database.DeliveriesDatabase
+	DeliveryQueue      queue.DeliveryQueue
 	Activity           *ap.Activity
 	// PostTags           []*PostTag `json:"post_tags"`
 	MaxAttempts int `json:"max_attempts"`
@@ -96,7 +86,7 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 			return nil
 		}
 
-		post_opts := &DeliverActivityOptions{
+		post_opts := &queue.DeliverActivityOptions{
 			From:     acct,
 			To:       follower_uri,
 			Activity: opts.Activity,

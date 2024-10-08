@@ -7,12 +7,13 @@ import (
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type OutboxGetHandlerOptions struct {
-	AccountsDatabase activitypub.AccountsDatabase
-	PostsDatabase    activitypub.PostsDatabase
+	AccountsDatabase database.AccountsDatabase
+	PostsDatabase    database.PostsDatabase
 	URIs             *uris.URIs
 }
 

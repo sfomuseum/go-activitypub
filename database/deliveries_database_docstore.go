@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"io"
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
+	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
 )
 
@@ -71,12 +72,12 @@ func (db *DocstoreDeliveriesDatabase) GetDeliveryIdsForDateRange(ctx context.Con
 	return nil
 }
 
-func (db *DocstoreDeliveriesDatabase) AddDelivery(ctx context.Context, f *Delivery) error {
+func (db *DocstoreDeliveriesDatabase) AddDelivery(ctx context.Context, f *activitypub.Delivery) error {
 
 	return db.collection.Put(ctx, f)
 }
 
-func (db *DocstoreDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id int64) (*Delivery, error) {
+func (db *DocstoreDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id int64) (*activitypub.Delivery, error) {
 
 	q := db.collection.Query()
 	q = q.Where("Id", "=", id)
@@ -119,7 +120,7 @@ func (db *DocstoreDeliveriesDatabase) Close(ctx context.Context) error {
 	return db.collection.Close()
 }
 
-func (db *DocstoreDeliveriesDatabase) getDelivery(ctx context.Context, q *gc_docstore.Query) (*Delivery, error) {
+func (db *DocstoreDeliveriesDatabase) getDelivery(ctx context.Context, q *gc_docstore.Query) (*activitypub.Delivery, error) {
 
 	iter := q.Get(ctx)
 	defer iter.Stop()

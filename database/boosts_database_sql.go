@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
@@ -59,13 +60,13 @@ func NewSQLBoostsDatabase(ctx context.Context, uri string) (BoostsDatabase, erro
 	return db, nil
 }
 
-func (db *SQLBoostsDatabase) GetBoostWithId(ctx context.Context, id int64) (*Boost, error) {
+func (db *SQLBoostsDatabase) GetBoostWithId(ctx context.Context, id int64) (*activitypub.Boost, error) {
 
 	where := "id = ?"
 	return db.getBoost(ctx, where, id)
 }
 
-func (db *SQLBoostsDatabase) GetBoostWithPostIdAndActor(ctx context.Context, post_id int64, actor string) (*Boost, error) {
+func (db *SQLBoostsDatabase) GetBoostWithPostIdAndActor(ctx context.Context, post_id int64, actor string) (*activitypub.Boost, error) {
 
 	where := "post_id = ? AND actor = ?"
 	return db.getBoost(ctx, where, post_id, actor)
@@ -140,7 +141,7 @@ func (db *SQLBoostsDatabase) GetBoostsForPostIdAndActor(ctx context.Context, pos
 
 }
 
-func (db *SQLBoostsDatabase) AddBoost(ctx context.Context, b *Boost) error {
+func (db *SQLBoostsDatabase) AddBoost(ctx context.Context, b *activitypub.Boost) error {
 
 	q := fmt.Sprintf("INSERT INTO %s (id, account_id, psot_id, actor, created) VALUES (?, ?, ?, ?, ?)", SQL_BOOSTS_TABLE_NAME)
 
@@ -153,7 +154,7 @@ func (db *SQLBoostsDatabase) AddBoost(ctx context.Context, b *Boost) error {
 	return nil
 }
 
-func (db *SQLBoostsDatabase) RemoveBoost(ctx context.Context, b *Boost) error {
+func (db *SQLBoostsDatabase) RemoveBoost(ctx context.Context, b *activitypub.Boost) error {
 
 	q := fmt.Sprintf("DELETE FROM %s WHERE id= ?", SQL_BOOSTS_TABLE_NAME)
 
@@ -170,7 +171,7 @@ func (db *SQLBoostsDatabase) Close(ctx context.Context) error {
 	return db.database.Close()
 }
 
-func (db *SQLBoostsDatabase) getBoost(ctx context.Context, where string, args ...interface{}) (*Boost, error) {
+func (db *SQLBoostsDatabase) getBoost(ctx context.Context, where string, args ...interface{}) (*activitypub.Boost, error) {
 
 	var id int64
 	var account_id int64

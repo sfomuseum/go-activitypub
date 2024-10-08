@@ -1,7 +1,9 @@
-package activitypub
+package database
 
 import (
 	"context"
+
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type NullDeliveriesDatabase struct {
@@ -18,11 +20,11 @@ func NewNullDeliveriesDatabase(ctx context.Context, uri string) (DeliveriesDatab
 	return db, nil
 }
 
-func (db *NullDeliveriesDatabase) AddDelivery(ctx context.Context, d *Delivery) error {
+func (db *NullDeliveriesDatabase) AddDelivery(ctx context.Context, d *activitypub.Delivery) error {
 	return nil
 }
 
-func (db *NullDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id int64) (*Delivery, error) {
+func (db *NullDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id int64) (*activitypub.Delivery, error) {
 	return nil, ErrNotFound
 }
 

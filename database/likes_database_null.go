@@ -1,7 +1,9 @@
-package activitypub
+package database
 
 import (
 	"context"
+
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type NullLikesDatabase struct {
@@ -22,11 +24,11 @@ func (db *NullLikesDatabase) GetLikeIdsForDateRange(ctx context.Context, start i
 	return nil
 }
 
-func (db *NullLikesDatabase) GetLikeWithId(ctx context.Context, id int64) (*Like, error) {
+func (db *NullLikesDatabase) GetLikeWithId(ctx context.Context, id int64) (*activitypub.Like, error) {
 	return nil, ErrNotFound
 }
 
-func (db *NullLikesDatabase) GetLikeWithPostIdAndActor(ctx context.Context, id int64, actor string) (*Like, error) {
+func (db *NullLikesDatabase) GetLikeWithPostIdAndActor(ctx context.Context, id int64, actor string) (*activitypub.Like, error) {
 	return nil, ErrNotFound
 }
 
@@ -34,11 +36,11 @@ func (db *NullLikesDatabase) GetLikesForPost(ctx context.Context, post_id int64,
 	return nil
 }
 
-func (db *NullLikesDatabase) AddLike(ctx context.Context, like *Like) error {
+func (db *NullLikesDatabase) AddLike(ctx context.Context, like *activitypub.Like) error {
 	return nil
 }
 
-func (db *NullLikesDatabase) RemoveLike(ctx context.Context, like *Like) error {
+func (db *NullLikesDatabase) RemoveLike(ctx context.Context, like *activitypub.Like) error {
 	return nil
 }
 

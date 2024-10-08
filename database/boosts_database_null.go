@@ -1,7 +1,9 @@
-package activitypub
+package database
 
 import (
 	"context"
+
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type NullBoostsDatabase struct {
@@ -22,11 +24,11 @@ func (db *NullBoostsDatabase) GetBoostIdsForDateRange(ctx context.Context, start
 	return nil
 }
 
-func (db *NullBoostsDatabase) GetBoostWithId(ctx context.Context, id int64) (*Boost, error) {
+func (db *NullBoostsDatabase) GetBoostWithId(ctx context.Context, id int64) (*activitypub.Boost, error) {
 	return nil, ErrNotFound
 }
 
-func (db *NullBoostsDatabase) GetBoostWithPostIdAndActor(ctx context.Context, id int64, actor string) (*Boost, error) {
+func (db *NullBoostsDatabase) GetBoostWithPostIdAndActor(ctx context.Context, id int64, actor string) (*activitypub.Boost, error) {
 	return nil, ErrNotFound
 }
 
@@ -34,11 +36,11 @@ func (db *NullBoostsDatabase) GetBoostsForPost(ctx context.Context, post_id int6
 	return nil
 }
 
-func (db *NullBoostsDatabase) AddBoost(ctx context.Context, boost *Boost) error {
+func (db *NullBoostsDatabase) AddBoost(ctx context.Context, boost *activitypub.Boost) error {
 	return nil
 }
 
-func (db *NullBoostsDatabase) RemoveBoost(ctx context.Context, boost *Boost) error {
+func (db *NullBoostsDatabase) RemoveBoost(ctx context.Context, boost *activitypub.Boost) error {
 	return nil
 }
 

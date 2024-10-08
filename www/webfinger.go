@@ -7,13 +7,14 @@ import (
 
 	"github.com/aaronland/go-http-sanitize"
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/sfomuseum/go-activitypub/webfinger"
 )
 
 type WebfingerHandlerOptions struct {
-	AccountsDatabase activitypub.AccountsDatabase
-	AliasesDatabase  activitypub.AliasesDatabase
+	AccountsDatabase database.AccountsDatabase
+	AliasesDatabase  database.AliasesDatabase
 	URIs             *uris.URIs
 }
 

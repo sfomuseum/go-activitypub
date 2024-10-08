@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"io"
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
+	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
 )
 
@@ -78,7 +79,7 @@ func (db *DocstoreFollowersDatabase) HasFollowers(ctx context.Context, account_i
 
 }
 
-func (db *DocstoreFollowersDatabase) GetFollower(ctx context.Context, account_id int64, follower_address string) (*Follower, error) {
+func (db *DocstoreFollowersDatabase) GetFollower(ctx context.Context, account_id int64, follower_address string) (*activitypub.Follower, error) {
 
 	q := db.collection.Query()
 	q = q.Where("AccountId", "=", account_id)
@@ -104,12 +105,12 @@ func (db *DocstoreFollowersDatabase) GetFollower(ctx context.Context, account_id
 	return nil, ErrNotFound
 }
 
-func (db *DocstoreFollowersDatabase) AddFollower(ctx context.Context, f *Follower) error {
+func (db *DocstoreFollowersDatabase) AddFollower(ctx context.Context, f *activitypub.Follower) error {
 
 	return db.collection.Put(ctx, f)
 }
 
-func (db *DocstoreFollowersDatabase) RemoveFollower(ctx context.Context, f *Follower) error {
+func (db *DocstoreFollowersDatabase) RemoveFollower(ctx context.Context, f *activitypub.Follower) error {
 
 	return db.collection.Delete(ctx, f)
 }

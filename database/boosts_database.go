@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,18 +8,19 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type GetBoostIdsCallbackFunc func(context.Context, int64) error
-type GetBoostsCallbackFunc func(context.Context, *Boost) error
+type GetBoostsCallbackFunc func(context.Context, *activitypub.Boost) error
 
 type BoostsDatabase interface {
 	GetBoostIdsForDateRange(context.Context, int64, int64, GetBoostIdsCallbackFunc) error
 	GetBoostsForPost(context.Context, int64, GetBoostsCallbackFunc) error
-	GetBoostWithPostIdAndActor(context.Context, int64, string) (*Boost, error)
-	GetBoostWithId(context.Context, int64) (*Boost, error)
-	AddBoost(context.Context, *Boost) error
-	RemoveBoost(context.Context, *Boost) error
+	GetBoostWithPostIdAndActor(context.Context, int64, string) (*activitypub.Boost, error)
+	GetBoostWithId(context.Context, int64) (*activitypub.Boost, error)
+	AddBoost(context.Context, *activitypub.Boost) error
+	RemoveBoost(context.Context, *activitypub.Boost) error
 	Close(context.Context) error
 }
 

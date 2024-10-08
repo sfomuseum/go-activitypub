@@ -1,7 +1,9 @@
-package activitypub
+package database
 
 import (
 	"context"
+
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type NullAliasesDatabase struct {
@@ -22,15 +24,15 @@ func (db *NullAliasesDatabase) GetAliasesForAccount(ctx context.Context, account
 	return nil
 }
 
-func (db *NullAliasesDatabase) GetAliasWithName(ctx context.Context, name string) (*Alias, error) {
+func (db *NullAliasesDatabase) GetAliasWithName(ctx context.Context, name string) (*activitypub.Alias, error) {
 	return nil, ErrNotFound
 }
 
-func (db *NullAliasesDatabase) AddAlias(ctx context.Context, alias *Alias) error {
+func (db *NullAliasesDatabase) AddAlias(ctx context.Context, alias *activitypub.Alias) error {
 	return nil
 }
 
-func (db *NullAliasesDatabase) RemoveAlias(ctx context.Context, alias *Alias) error {
+func (db *NullAliasesDatabase) RemoveAlias(ctx context.Context, alias *activitypub.Alias) error {
 	return nil
 }
 

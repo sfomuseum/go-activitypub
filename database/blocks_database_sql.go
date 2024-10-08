@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
@@ -109,19 +110,19 @@ func (db *SQLBlocksDatabase) GetBlockIdsForDateRange(ctx context.Context, start 
 	return nil
 }
 
-func (db *SQLBlocksDatabase) GetBlockWithId(ctx context.Context, block_id int64) (*Block, error) {
+func (db *SQLBlocksDatabase) GetBlockWithId(ctx context.Context, block_id int64) (*activitypub.Block, error) {
 	where := "id = ?"
 	return db.getBlock(ctx, where, block_id)
 }
 
-func (db *SQLBlocksDatabase) GetBlockWithAccountIdAndAddress(ctx context.Context, account_id int64, host string, name string) (*Block, error) {
+func (db *SQLBlocksDatabase) GetBlockWithAccountIdAndAddress(ctx context.Context, account_id int64, host string, name string) (*activitypub.Block, error) {
 
 	where := "account_id = ? AND host = ? AND name = ?"
 	return db.getBlock(ctx, where, account_id, host, name)
 
 }
 
-func (db *SQLBlocksDatabase) getBlock(ctx context.Context, where string, args ...interface{}) (*Block, error) {
+func (db *SQLBlocksDatabase) getBlock(ctx context.Context, where string, args ...interface{}) (*activitypub.Block, error) {
 
 	q := fmt.Sprintf("SELECT id, account_id, name, host, created, lastmodified FROM %s WHERE %s", SQL_BLOCKS_TABLE_NAME, where)
 	row := db.database.QueryRowContext(ctx, q, args...)
@@ -156,7 +157,7 @@ func (db *SQLBlocksDatabase) getBlock(ctx context.Context, where string, args ..
 
 }
 
-func (db *SQLBlocksDatabase) AddBlock(ctx context.Context, block *Block) error {
+func (db *SQLBlocksDatabase) AddBlock(ctx context.Context, block *activitypub.Block) error {
 
 	q := fmt.Sprintf("INSERT INTO %s (id, account_id, name, host, created, lastmodified) VALUES (?, ?, ?, ?, ?, ?)", SQL_BLOCKS_TABLE_NAME)
 
@@ -169,7 +170,7 @@ func (db *SQLBlocksDatabase) AddBlock(ctx context.Context, block *Block) error {
 	return nil
 }
 
-func (db *SQLBlocksDatabase) UpdateBlock(ctx context.Context, block *Block) error {
+func (db *SQLBlocksDatabase) UpdateBlock(ctx context.Context, block *activitypub.Block) error {
 
 	q := fmt.Sprintf("UPDATE %s SET account_id=?, name=?, host=?, created=?, lastmodified=? WHERE id = ?", SQL_BLOCKS_TABLE_NAME)
 
@@ -182,7 +183,7 @@ func (db *SQLBlocksDatabase) UpdateBlock(ctx context.Context, block *Block) erro
 	return nil
 }
 
-func (db *SQLBlocksDatabase) RemoveBlock(ctx context.Context, block *Block) error {
+func (db *SQLBlocksDatabase) RemoveBlock(ctx context.Context, block *activitypub.Block) error {
 
 	q := fmt.Sprintf("DELETE FROM %s WHERE id = ?", SQL_BLOCKS_TABLE_NAME)
 

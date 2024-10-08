@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
@@ -69,7 +70,7 @@ func (db *SQLAliasesDatabase) GetAliasesForAccount(ctx context.Context, account_
 	return db.getAliasesWithCallback(ctx, where, args, cb)
 }
 
-func (db *SQLAliasesDatabase) GetAliasWithName(ctx context.Context, name string) (*Alias, error) {
+func (db *SQLAliasesDatabase) GetAliasWithName(ctx context.Context, name string) (*activitypub.Alias, error) {
 
 	where := "name = ?"
 
@@ -80,7 +81,7 @@ func (db *SQLAliasesDatabase) GetAliasWithName(ctx context.Context, name string)
 	return db.getAlias(ctx, where, args)
 }
 
-func (db *SQLAliasesDatabase) AddAlias(ctx context.Context, alias *Alias) error {
+func (db *SQLAliasesDatabase) AddAlias(ctx context.Context, alias *activitypub.Alias) error {
 
 	q := fmt.Sprintf("INSERT INTO %s (name, account_id, created) VALUES (?, ?, ?)", SQL_ALIASES_TABLE_NAME)
 
@@ -93,7 +94,7 @@ func (db *SQLAliasesDatabase) AddAlias(ctx context.Context, alias *Alias) error 
 	return nil
 }
 
-func (db *SQLAliasesDatabase) RemoveAlias(ctx context.Context, alias *Alias) error {
+func (db *SQLAliasesDatabase) RemoveAlias(ctx context.Context, alias *activitypub.Alias) error {
 
 	q := fmt.Sprintf("DELETE FROM %s WHERE name = ?", SQL_ALIASES_TABLE_NAME)
 
@@ -110,7 +111,7 @@ func (db *SQLAliasesDatabase) Close(ctx context.Context) error {
 	return db.database.Close()
 }
 
-func (db *SQLAliasesDatabase) getAlias(ctx context.Context, where string, args []interface{}) (*Alias, error) {
+func (db *SQLAliasesDatabase) getAlias(ctx context.Context, where string, args []interface{}) (*activitypub.Alias, error) {
 
 	var name string
 	var account_id int64

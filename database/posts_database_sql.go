@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
@@ -109,7 +110,7 @@ func (db *SQLPostsDatabase) GetPostIdsForDateRange(ctx context.Context, start in
 	return nil
 }
 
-func (db *SQLPostsDatabase) AddPost(ctx context.Context, p *Post) error {
+func (db *SQLPostsDatabase) AddPost(ctx context.Context, p *activitypub.Post) error {
 
 	q := fmt.Sprintf("INSERT INTO %s (id, account_id, body, in_reply_to, created, lastmodified) VALUES (?, ?, ?, ?, ?, ?)", SQL_POSTS_TABLE_NAME)
 
@@ -122,12 +123,12 @@ func (db *SQLPostsDatabase) AddPost(ctx context.Context, p *Post) error {
 	return nil
 }
 
-func (db *SQLPostsDatabase) GetPostWithId(ctx context.Context, id int64) (*Post, error) {
+func (db *SQLPostsDatabase) GetPostWithId(ctx context.Context, id int64) (*activitypub.Post, error) {
 	where := "id = ?"
 	return db.getPost(ctx, where, id)
 }
 
-func (db *SQLPostsDatabase) getPost(ctx context.Context, where string, args ...interface{}) (*Post, error) {
+func (db *SQLPostsDatabase) getPost(ctx context.Context, where string, args ...interface{}) (*activitypub.Post, error) {
 
 	var id int64
 	var account_id int64

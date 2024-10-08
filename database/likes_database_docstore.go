@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"io"
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
+	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
 )
 
@@ -70,7 +71,7 @@ func (db *DocstoreLikesDatabase) GetLikeIdsForDateRange(ctx context.Context, sta
 	return nil
 }
 
-func (db *DocstoreLikesDatabase) GetLikeWithId(ctx context.Context, id int64) (*Like, error) {
+func (db *DocstoreLikesDatabase) GetLikeWithId(ctx context.Context, id int64) (*activitypub.Like, error) {
 
 	q := db.collection.Query()
 	q = q.Where("Id", "=", id)
@@ -78,7 +79,7 @@ func (db *DocstoreLikesDatabase) GetLikeWithId(ctx context.Context, id int64) (*
 	return db.getLike(ctx, q)
 }
 
-func (db *DocstoreLikesDatabase) GetLikeWithPostIdAndActor(ctx context.Context, post_id int64, actor string) (*Like, error) {
+func (db *DocstoreLikesDatabase) GetLikeWithPostIdAndActor(ctx context.Context, post_id int64, actor string) (*activitypub.Like, error) {
 
 	q := db.collection.Query()
 	q = q.Where("PostId", "=", post_id)
@@ -118,7 +119,7 @@ func (db *DocstoreLikesDatabase) GetLikesForPost(ctx context.Context, post_id in
 
 }
 
-func (db *DocstoreLikesDatabase) getLike(ctx context.Context, q *gc_docstore.Query) (*Like, error) {
+func (db *DocstoreLikesDatabase) getLike(ctx context.Context, q *gc_docstore.Query) (*activitypub.Like, error) {
 
 	iter := q.Get(ctx)
 	defer iter.Stop()
@@ -136,12 +137,12 @@ func (db *DocstoreLikesDatabase) getLike(ctx context.Context, q *gc_docstore.Que
 
 }
 
-func (db *DocstoreLikesDatabase) AddLike(ctx context.Context, like *Like) error {
+func (db *DocstoreLikesDatabase) AddLike(ctx context.Context, like *activitypub.Like) error {
 
 	return db.collection.Put(ctx, like)
 }
 
-func (db *DocstoreLikesDatabase) RemoveLike(ctx context.Context, like *Like) error {
+func (db *DocstoreLikesDatabase) RemoveLike(ctx context.Context, like *activitypub.Like) error {
 
 	return db.collection.Delete(ctx, like)
 }

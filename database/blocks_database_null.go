@@ -1,7 +1,9 @@
-package activitypub
+package database
 
 import (
 	"context"
+
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type NullBlocksDatabase struct {
@@ -26,22 +28,22 @@ func (db *NullBlocksDatabase) IsBlockedByAccount(ctx context.Context, account_id
 	return false, nil
 }
 
-func (db *NullBlocksDatabase) GetBlockWithId(ctx context.Context, block_id int64) (*Block, error) {
+func (db *NullBlocksDatabase) GetBlockWithId(ctx context.Context, block_id int64) (*activitypub.Block, error) {
 	return nil, ErrNotFound
 }
 
-func (db *NullBlocksDatabase) GetBlockWithAccountIdAndAddress(ctx context.Context, account_id int64, host string, name string) (*Block, error) {
+func (db *NullBlocksDatabase) GetBlockWithAccountIdAndAddress(ctx context.Context, account_id int64, host string, name string) (*activitypub.Block, error) {
 	return nil, ErrNotFound
 }
 
-func (db *NullBlocksDatabase) AddBlock(ctx context.Context, block *Block) error {
+func (db *NullBlocksDatabase) AddBlock(ctx context.Context, block *activitypub.Block) error {
 	return nil
 }
 
-func (db *NullBlocksDatabase) UpdateBlock(ctx context.Context, block *Block) error {
+func (db *NullBlocksDatabase) UpdateBlock(ctx context.Context, block *activitypub.Block) error {
 	return nil
 }
 
-func (db *NullBlocksDatabase) RemoveBlock(ctx context.Context, block *Block) error {
+func (db *NullBlocksDatabase) RemoveBlock(ctx context.Context, block *activitypub.Block) error {
 	return nil
 }

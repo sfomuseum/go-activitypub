@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,18 +8,19 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type GetLikeIdsCallbackFunc func(context.Context, int64) error
-type GetLikesCallbackFunc func(context.Context, *Like) error
+type GetLikesCallbackFunc func(context.Context, *activitypub.Like) error
 
 type LikesDatabase interface {
 	GetLikeIdsForDateRange(context.Context, int64, int64, GetLikeIdsCallbackFunc) error
 	GetLikesForPost(context.Context, int64, GetLikesCallbackFunc) error
-	GetLikeWithPostIdAndActor(context.Context, int64, string) (*Like, error)
-	GetLikeWithId(context.Context, int64) (*Like, error)
-	AddLike(context.Context, *Like) error
-	RemoveLike(context.Context, *Like) error
+	GetLikeWithPostIdAndActor(context.Context, int64, string) (*activitypub.Like, error)
+	GetLikeWithId(context.Context, int64) (*activitypub.Like, error)
+	AddLike(context.Context, *activitypub.Like) error
+	RemoveLike(context.Context, *activitypub.Like) error
 	Close(context.Context) error
 }
 

@@ -13,13 +13,14 @@ import (
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type PostHandlerOptions struct {
-	AccountsDatabase activitypub.AccountsDatabase
-	PostsDatabase    activitypub.PostsDatabase
-	PostTagsDatabase activitypub.PostTagsDatabase
+	AccountsDatabase database.AccountsDatabase
+	PostsDatabase    database.PostsDatabase
+	PostTagsDatabase database.PostTagsDatabase
 	URIs             *uris.URIs
 	Templates        *template.Template
 }

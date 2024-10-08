@@ -1,8 +1,10 @@
-package activitypub
+package database
 
 import (
 	"context"
 	"log/slog"
+
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type SlogDeliveriesDatabase struct {
@@ -19,12 +21,12 @@ func NewSlogDeliveriesDatabase(ctx context.Context, uri string) (DeliveriesDatab
 	return db, nil
 }
 
-func (db *SlogDeliveriesDatabase) AddDelivery(ctx context.Context, d *Delivery) error {
+func (db *SlogDeliveriesDatabase) AddDelivery(ctx context.Context, d *activitypub.Delivery) error {
 	slog.Info("Add delivery", "post id", d.PostId, "recipient", d.Recipient, "success", d.Success, "error", d.Error)
 	return nil
 }
 
-func (db *SlogDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id int64) (*Delivery, error) {
+func (db *SlogDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id int64) (*activitypub.Delivery, error) {
 	return nil, ErrNotFound
 }
 

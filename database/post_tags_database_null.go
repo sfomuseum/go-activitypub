@@ -1,7 +1,9 @@
-package activitypub
+package database
 
 import (
 	"context"
+
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type NullPostTagsDatabase struct {
@@ -22,7 +24,7 @@ func (db *NullPostTagsDatabase) GetLikeIdsForDateRange(ctx context.Context, star
 	return nil
 }
 
-func (db *NullPostTagsDatabase) GetPostTagWithId(ctx context.Context, id int64) (*PostTag, error) {
+func (db *NullPostTagsDatabase) GetPostTagWithId(ctx context.Context, id int64) (*activitypub.PostTag, error) {
 	return nil, ErrNotFound
 }
 
@@ -38,11 +40,11 @@ func (db *NullPostTagsDatabase) GetPostTagsForPost(ctx context.Context, post_id 
 	return nil
 }
 
-func (db *NullPostTagsDatabase) AddPostTag(ctx context.Context, boost *PostTag) error {
+func (db *NullPostTagsDatabase) AddPostTag(ctx context.Context, boost *activitypub.PostTag) error {
 	return nil
 }
 
-func (db *NullPostTagsDatabase) RemovePostTag(ctx context.Context, boost *PostTag) error {
+func (db *NullPostTagsDatabase) RemovePostTag(ctx context.Context, boost *activitypub.PostTag) error {
 	return nil
 }
 

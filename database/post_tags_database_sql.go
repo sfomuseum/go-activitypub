@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
@@ -109,7 +110,7 @@ func (db *SQLPostTagsDatabase) GetPostTagIdsForDateRange(ctx context.Context, st
 	return nil
 }
 
-func (db *SQLPostTagsDatabase) GetPostTagWithId(ctx context.Context, id int64) (*PostTag, error) {
+func (db *SQLPostTagsDatabase) GetPostTagWithId(ctx context.Context, id int64) (*activitypub.PostTag, error) {
 
 	var account_id int64
 	var post_id int64
@@ -178,7 +179,7 @@ func (db *SQLPostTagsDatabase) GetPostTagsForPost(ctx context.Context, post_id i
 	return db.getPostTagsWithCallback(ctx, where, args, cb)
 }
 
-func (db *SQLPostTagsDatabase) AddPostTag(ctx context.Context, post_tag *PostTag) error {
+func (db *SQLPostTagsDatabase) AddPostTag(ctx context.Context, post_tag *activitypub.PostTag) error {
 
 	q := fmt.Sprintf("INSERT INTO %s (id, account_id, post_id, href, name, type, created) VALUES (?, ?, ?, ?, ?, ?, ?)", SQL_POST_TAGS_TABLE_NAME)
 
@@ -191,7 +192,7 @@ func (db *SQLPostTagsDatabase) AddPostTag(ctx context.Context, post_tag *PostTag
 	return nil
 }
 
-func (db *SQLPostTagsDatabase) RemovePostTag(ctx context.Context, post_tag *PostTag) error {
+func (db *SQLPostTagsDatabase) RemovePostTag(ctx context.Context, post_tag *activitypub.PostTag) error {
 
 	q := fmt.Sprintf("DELETE FROM %s WHERE id = ?", SQL_POST_TAGS_TABLE_NAME)
 

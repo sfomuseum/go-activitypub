@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type GetDeliveryIdsCallbackFunc func(context.Context, int64) error
@@ -23,8 +24,8 @@ type GetDeliveriesQuery struct {
 
 type DeliveriesDatabase interface {
 	GetDeliveryIdsForDateRange(context.Context, int64, int64, GetDeliveryIdsCallbackFunc) error
-	AddDelivery(context.Context, *Delivery) error
-	GetDeliveryWithId(context.Context, int64) (*Delivery, error)
+	AddDelivery(context.Context, *activitypub.Delivery) error
+	GetDeliveryWithId(context.Context, int64) (*activitypub.Delivery, error)
 	GetDeliveriesWithPostIdAndRecipient(context.Context, int64, string, GetDeliveriesCallbackFunc) error
 	Close(context.Context) error
 }

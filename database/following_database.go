@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type GetFollowingIdsCallbackFunc func(context.Context, int64) error
@@ -16,9 +17,9 @@ type GetFollowingCallbackFunc func(context.Context, string) error
 type FollowingDatabase interface {
 	GetFollowingIdsForDateRange(context.Context, int64, int64, GetFollowingIdsCallbackFunc) error
 	GetFollowingForAccount(context.Context, int64, GetFollowingCallbackFunc) error
-	GetFollowing(context.Context, int64, string) (*Following, error)
-	AddFollowing(context.Context, *Following) error
-	RemoveFollowing(context.Context, *Following) error
+	GetFollowing(context.Context, int64, string) (*activitypub.Following, error)
+	AddFollowing(context.Context, *activitypub.Following) error
+	RemoveFollowing(context.Context, *activitypub.Following) error
 	Close(context.Context) error
 }
 

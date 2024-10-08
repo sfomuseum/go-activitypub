@@ -1,4 +1,4 @@
-package activitypub
+package queue
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-pubsub/publisher"
 )
 

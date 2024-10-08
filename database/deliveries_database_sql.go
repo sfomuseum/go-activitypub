@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
@@ -109,7 +110,7 @@ func (db *SQLDeliveriesDatabase) GetDeliveryIdsForDateRange(ctx context.Context,
 	return nil
 }
 
-func (db *SQLDeliveriesDatabase) AddFollower(ctx context.Context, d *Delivery) error {
+func (db *SQLDeliveriesDatabase) AddFollower(ctx context.Context, d *activitypub.Delivery) error {
 
 	/*
 		q := fmt.Sprintf("INSERT INTO %s (id, account_id, follower_address, created) VALUES (?, ?, ?, ?)", SQL_DELIVERIES_TABLE_NAME)

@@ -1,4 +1,4 @@
-package activitypub
+package queue
 
 import (
 	"context"
@@ -7,11 +7,23 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/uris"		
 	"github.com/aaronland/go-roster"
 )
 
+type DeliverActivityOptions struct {
+	From     *activitypub.Account `json:"from"`
+	To       string               `json:"to"`
+	Activity *ap.Activity         `json:"activity"`
+	URIs               *uris.URIs         `json:"uris"`
+	DeliveriesDatabase DeliveriesDatabase `json:"deliveries_database,omitempty"`
+	MaxAttempts        int                `json:"max_attempts"`
+}
+
 type DeliveryQueue interface {
-	DeliverPost(context.Context, *DeliverPostOptions) error
+	DeliverActivity(context.Context, *DeliverActivityOptions) error
 }
 
 var delivery_queue_roster roster.Roster

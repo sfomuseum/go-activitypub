@@ -2,22 +2,19 @@ package main
 
 import (
 	"context"
-	"os"
+	"log"
 
 	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/sfomuseum/go-activitypub/app/stats/followers/list"
-	"github.com/sfomuseum/go-activitypub/slog"
 )
 
 func main() {
 
 	ctx := context.Background()
-	logger := slog.Default()
-
-	err := list.Run(ctx, logger)
+	err := list.Run(ctx)
 
 	if err != nil {
-		logger.Error("Failed to list followers", "error", err)
-		os.Exit(1)
+		log.Fatalf("Failed to list followers, %v", err)
 	}
 }

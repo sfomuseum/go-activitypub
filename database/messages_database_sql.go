@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
@@ -109,19 +110,19 @@ func (db *SQLMessagesDatabase) GetMessageIdsForDateRange(ctx context.Context, st
 	return nil
 }
 
-func (db *SQLMessagesDatabase) GetMessageWithId(ctx context.Context, message_id int64) (*Message, error) {
+func (db *SQLMessagesDatabase) GetMessageWithId(ctx context.Context, message_id int64) (*activitypub.Message, error) {
 	where := "id = ?"
 	return db.getMessage(ctx, where, message_id)
 }
 
-func (db *SQLMessagesDatabase) GetMessageWithAccountAndNoteIds(ctx context.Context, account_id int64, note_id int64) (*Message, error) {
+func (db *SQLMessagesDatabase) GetMessageWithAccountAndNoteIds(ctx context.Context, account_id int64, note_id int64) (*activitypub.Message, error) {
 
 	where := "account_id = ? AND note_id = ?"
 	return db.getMessage(ctx, where, account_id, note_id)
 
 }
 
-func (db *SQLMessagesDatabase) getMessage(ctx context.Context, where string, args ...interface{}) (*Message, error) {
+func (db *SQLMessagesDatabase) getMessage(ctx context.Context, where string, args ...interface{}) (*activitypub.Message, error) {
 
 	q := fmt.Sprintf("SELECT id, note_id, author_address, account_id, created, lastmodified FROM %s WHERE %s", SQL_MESSAGES_TABLE_NAME, where)
 	row := db.database.QueryRowContext(ctx, q, args...)
@@ -156,7 +157,7 @@ func (db *SQLMessagesDatabase) getMessage(ctx context.Context, where string, arg
 
 }
 
-func (db *SQLMessagesDatabase) AddMessage(ctx context.Context, message *Message) error {
+func (db *SQLMessagesDatabase) AddMessage(ctx context.Context, message *activitypub.Message) error {
 
 	q := fmt.Sprintf("INSERT INTO %s (id, note_id, author_address, account_id, created, lastmodified) VALUES (?, ?, ?, ?, ?, ?)", SQL_MESSAGES_TABLE_NAME)
 
@@ -169,7 +170,7 @@ func (db *SQLMessagesDatabase) AddMessage(ctx context.Context, message *Message)
 	return nil
 }
 
-func (db *SQLMessagesDatabase) UpdateMessage(ctx context.Context, message *Message) error {
+func (db *SQLMessagesDatabase) UpdateMessage(ctx context.Context, message *activitypub.Message) error {
 
 	q := fmt.Sprintf("UPDATE %s SET note_id=?, author_address=?, account_id=?, created=?, lastmodified=? WHERE id = ?", SQL_MESSAGES_TABLE_NAME)
 
@@ -182,7 +183,7 @@ func (db *SQLMessagesDatabase) UpdateMessage(ctx context.Context, message *Messa
 	return nil
 }
 
-func (db *SQLMessagesDatabase) RemoveMessage(ctx context.Context, message *Message) error {
+func (db *SQLMessagesDatabase) RemoveMessage(ctx context.Context, message *activitypub.Message) error {
 
 	q := fmt.Sprintf("DELETE FROM %s WHERE id = ?", SQL_MESSAGES_TABLE_NAME)
 

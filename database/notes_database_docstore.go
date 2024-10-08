@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"io"
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
+	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
 )
 
@@ -70,7 +71,7 @@ func (db *DocstoreNotesDatabase) GetNoteIdsForDateRange(ctx context.Context, sta
 	return nil
 }
 
-func (db *DocstoreNotesDatabase) GetNoteWithId(ctx context.Context, note_id int64) (*Note, error) {
+func (db *DocstoreNotesDatabase) GetNoteWithId(ctx context.Context, note_id int64) (*message.Note, error) {
 
 	q := db.collection.Query()
 	q = q.Where("Id", "=", note_id)
@@ -78,7 +79,7 @@ func (db *DocstoreNotesDatabase) GetNoteWithId(ctx context.Context, note_id int6
 	return db.getNote(ctx, q)
 }
 
-func (db *DocstoreNotesDatabase) GetNoteWithUUIDAndAuthorAddress(ctx context.Context, note_uuid string, author_address string) (*Note, error) {
+func (db *DocstoreNotesDatabase) GetNoteWithUUIDAndAuthorAddress(ctx context.Context, note_uuid string, author_address string) (*message.Note, error) {
 
 	q := db.collection.Query()
 	q = q.Where("UUID", "=", note_uuid)
@@ -87,7 +88,7 @@ func (db *DocstoreNotesDatabase) GetNoteWithUUIDAndAuthorAddress(ctx context.Con
 	return db.getNote(ctx, q)
 }
 
-func (db *DocstoreNotesDatabase) getNote(ctx context.Context, q *gc_docstore.Query) (*Note, error) {
+func (db *DocstoreNotesDatabase) getNote(ctx context.Context, q *gc_docstore.Query) (*message.Note, error) {
 
 	iter := q.Get(ctx)
 	defer iter.Stop()
@@ -109,17 +110,17 @@ func (db *DocstoreNotesDatabase) getNote(ctx context.Context, q *gc_docstore.Que
 	return nil, ErrNotFound
 }
 
-func (db *DocstoreNotesDatabase) AddNote(ctx context.Context, note *Note) error {
+func (db *DocstoreNotesDatabase) AddNote(ctx context.Context, note *message.Note) error {
 
 	return db.collection.Put(ctx, note)
 }
 
-func (db *DocstoreNotesDatabase) UpdateNote(ctx context.Context, note *Note) error {
+func (db *DocstoreNotesDatabase) UpdateNote(ctx context.Context, note *message.Note) error {
 
 	return db.collection.Replace(ctx, note)
 }
 
-func (db *DocstoreNotesDatabase) RemoveNote(ctx context.Context, note *Note) error {
+func (db *DocstoreNotesDatabase) RemoveNote(ctx context.Context, note *message.Note) error {
 
 	return db.collection.Delete(ctx, note)
 }

@@ -5,12 +5,13 @@ import (
 	"time"
 
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type OutboxPostHandlerOptions struct {
-	AccountsDatabase activitypub.AccountsDatabase
-	PostsDatabase    activitypub.PostsDatabase
+	AccountsDatabase database.AccountsDatabase
+	PostsDatabase    database.PostsDatabase
 	URIs             *uris.URIs
 }
 

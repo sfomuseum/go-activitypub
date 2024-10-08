@@ -4,17 +4,18 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log/slog"
 
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/slog"
 )
 
-func Run(ctx context.Context, logger *slog.Logger) error {
+func Run(ctx context.Context) error {
 	fs := DefaultFlagSet()
-	return RunWithFlagSet(ctx, fs, logger)
+	return RunWithFlagSet(ctx, fs)
 }
 
-func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) error {
+func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 
 	opts, err := OptionsFromFlagSet(ctx, fs)
 
@@ -22,30 +23,36 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) 
 		return fmt.Errorf("Failed to derive options from flagset, %w", err)
 	}
 
-	return RunWithOptions(ctx, opts, logger)
+	return RunWithOptions(ctx, opts)
 }
 
-func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) error {
+func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
-	slog.SetDefault(logger)
+	logger := slog.Default()
 
-	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
+	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to intialize accounts database, %w", err)
 	}
 
-	messages_db, err := activitypub.NewMessagesDatabase(ctx, opts.MessagesDatabaseURI)
+	defer accounts_db.Close()
+
+	messages_db, err := database.NewMessagesDatabase(ctx, opts.MessagesDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize messages database, %w", err)
 	}
 
-	notes_db, err := activitypub.NewNotesDatabase(ctx, opts.NotesDatabaseURI)
+	defer messages_db.Close()
+
+	notes_db, err := database.NewNotesDatabase(ctx, opts.NotesDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize notes database, %w", err)
 	}
+
+	defer notes_db.Close()
 
 	acct, err := accounts_db.GetAccountWithName(ctx, opts.AccountName)
 

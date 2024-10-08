@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,20 +8,21 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type GetMessageIdsCallbackFunc func(context.Context, int64) error
-type GetMessagesCallbackFunc func(context.Context, *Message) error
+type GetMessagesCallbackFunc func(context.Context, *activitypub.Message) error
 
 type MessagesDatabase interface {
 	GetMessageIdsForDateRange(context.Context, int64, int64, GetMessageIdsCallbackFunc) error
 	GetMessagesForAccount(context.Context, int64, GetMessagesCallbackFunc) error
 	GetMessagesForAccountAndAuthor(context.Context, int64, string, GetMessagesCallbackFunc) error
-	GetMessageWithId(context.Context, int64) (*Message, error)
-	GetMessageWithAccountAndNoteIds(context.Context, int64, int64) (*Message, error)
-	AddMessage(context.Context, *Message) error
-	UpdateMessage(context.Context, *Message) error
-	RemoveMessage(context.Context, *Message) error
+	GetMessageWithId(context.Context, int64) (*activitypub.Message, error)
+	GetMessageWithAccountAndNoteIds(context.Context, int64, int64) (*activitypub.Message, error)
+	AddMessage(context.Context, *activitypub.Message) error
+	UpdateMessage(context.Context, *activitypub.Message) error
+	RemoveMessage(context.Context, *activitypub.Message) error
 	Close(context.Context) error
 }
 

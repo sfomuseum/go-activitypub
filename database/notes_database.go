@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,18 +8,19 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type GetNoteIdsCallbackFunc func(context.Context, int64) error
-type GetNotesCallbackFunc func(context.Context, *Note) error
+type GetNotesCallbackFunc func(context.Context, *message.Note) error
 
 type NotesDatabase interface {
 	GetNoteIdsForDateRange(context.Context, int64, int64, GetNoteIdsCallbackFunc) error
-	GetNoteWithId(context.Context, int64) (*Note, error)
-	GetNoteWithUUIDAndAuthorAddress(context.Context, string, string) (*Note, error)
-	AddNote(context.Context, *Note) error
-	UpdateNote(context.Context, *Note) error
-	RemoveNote(context.Context, *Note) error
+	GetNoteWithId(context.Context, int64) (*message.Note, error)
+	GetNoteWithUUIDAndAuthorAddress(context.Context, string, string) (*message.Note, error)
+	AddNote(context.Context, *message.Note) error
+	UpdateNote(context.Context, *message.Note) error
+	RemoveNote(context.Context, *message.Note) error
 	Close(context.Context) error
 }
 

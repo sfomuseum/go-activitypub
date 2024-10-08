@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
@@ -19,7 +20,7 @@ func main() {
 
 	ctx := context.Background()
 
-	posts_db, err := activitypub.NewPostsDatabase(ctx, posts_database_uri)
+	posts_db, err := database.NewPostsDatabase(ctx, posts_database_uri)
 
 	if err != nil {
 		log.Fatalf("Failed to create posts database, %v", err)

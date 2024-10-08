@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"io"
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
+	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
 )
 
@@ -70,7 +71,7 @@ func (db *DocstoreBlocksDatabase) GetBlockIdsForDateRange(ctx context.Context, s
 	return nil
 }
 
-func (db *DocstoreBlocksDatabase) GetBlockWithId(ctx context.Context, id int64) (*Block, error) {
+func (db *DocstoreBlocksDatabase) GetBlockWithId(ctx context.Context, id int64) (*activitypub.Block, error) {
 
 	q := db.collection.Query()
 	q = q.Where("Id", "=", id)
@@ -78,7 +79,7 @@ func (db *DocstoreBlocksDatabase) GetBlockWithId(ctx context.Context, id int64) 
 	return db.getBlock(ctx, q)
 }
 
-func (db *DocstoreBlocksDatabase) GetBlockWithAccountIdAndAddress(ctx context.Context, account_id int64, host string, name string) (*Block, error) {
+func (db *DocstoreBlocksDatabase) GetBlockWithAccountIdAndAddress(ctx context.Context, account_id int64, host string, name string) (*activitypub.Block, error) {
 
 	q := db.collection.Query()
 	q = q.Where("AccountId", "=", account_id)
@@ -89,7 +90,7 @@ func (db *DocstoreBlocksDatabase) GetBlockWithAccountIdAndAddress(ctx context.Co
 
 }
 
-func (db *DocstoreBlocksDatabase) getBlock(ctx context.Context, q *gc_docstore.Query) (*Block, error) {
+func (db *DocstoreBlocksDatabase) getBlock(ctx context.Context, q *gc_docstore.Query) (*activitypub.Block, error) {
 
 	iter := q.Get(ctx)
 	defer iter.Stop()
@@ -112,17 +113,17 @@ func (db *DocstoreBlocksDatabase) getBlock(ctx context.Context, q *gc_docstore.Q
 
 }
 
-func (db *DocstoreBlocksDatabase) AddBlock(ctx context.Context, block *Block) error {
+func (db *DocstoreBlocksDatabase) AddBlock(ctx context.Context, block *activitypub.Block) error {
 
 	return db.collection.Put(ctx, block)
 }
 
-func (db *DocstoreBlocksDatabase) UpdateBlock(ctx context.Context, block *Block) error {
+func (db *DocstoreBlocksDatabase) UpdateBlock(ctx context.Context, block *activitypub.Block) error {
 
 	return db.collection.Replace(ctx, block)
 }
 
-func (db *DocstoreBlocksDatabase) RemoveBlock(ctx context.Context, block *Block) error {
+func (db *DocstoreBlocksDatabase) RemoveBlock(ctx context.Context, block *activitypub.Block) error {
 
 	return db.collection.Delete(ctx, block)
 }

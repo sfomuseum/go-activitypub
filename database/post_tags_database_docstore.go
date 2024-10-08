@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"io"
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
+	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
 )
 
@@ -69,7 +70,7 @@ func (db *DocstorePostTagsDatabase) GetPostTagIdsForDateRange(ctx context.Contex
 	return nil
 }
 
-func (db *DocstorePostTagsDatabase) GetPostTagWithId(ctx context.Context, id int64) (*PostTag, error) {
+func (db *DocstorePostTagsDatabase) GetPostTagWithId(ctx context.Context, id int64) (*activitypub.PostTag, error) {
 	q := db.collection.Query()
 	q = q.Where("Id", "=", id)
 	return db.getPostTag(ctx, q)
@@ -93,11 +94,11 @@ func (db *DocstorePostTagsDatabase) GetPostTagsForPost(ctx context.Context, post
 	return db.getPostTags(ctx, q, cb)
 }
 
-func (db *DocstorePostTagsDatabase) AddPostTag(ctx context.Context, tag *PostTag) error {
+func (db *DocstorePostTagsDatabase) AddPostTag(ctx context.Context, tag *activitypub.PostTag) error {
 	return db.collection.Put(ctx, tag)
 }
 
-func (db *DocstorePostTagsDatabase) RemovePostTag(ctx context.Context, tag *PostTag) error {
+func (db *DocstorePostTagsDatabase) RemovePostTag(ctx context.Context, tag *activitypub.PostTag) error {
 	return db.collection.Delete(ctx, tag)
 }
 
@@ -105,7 +106,7 @@ func (db *DocstorePostTagsDatabase) Close(ctx context.Context) error {
 	return db.collection.Close()
 }
 
-func (db *DocstorePostTagsDatabase) getPostTag(ctx context.Context, q *gc_docstore.Query) (*PostTag, error) {
+func (db *DocstorePostTagsDatabase) getPostTag(ctx context.Context, q *gc_docstore.Query) (*activitypub.PostTag, error) {
 
 	iter := q.Get(ctx)
 	defer iter.Stop()

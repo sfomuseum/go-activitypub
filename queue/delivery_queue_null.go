@@ -2,6 +2,8 @@ package activitypub
 
 import (
 	"context"
+
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type NullDeliveryQueue struct {
@@ -18,6 +20,6 @@ func NewNullDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, error
 	return q, nil
 }
 
-func (q *NullDeliveryQueue) DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
+func (q *NullDeliveryQueue) DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 	return nil
 }

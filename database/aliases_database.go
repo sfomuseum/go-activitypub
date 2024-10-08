@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,15 +8,16 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	"github.com/sfomuseum/go-activitypub"
 )
 
-type GetAliasesCallbackFunc func(context.Context, *Alias) error
+type GetAliasesCallbackFunc func(context.Context, *activitypub.Alias) error
 
 type AliasesDatabase interface {
 	GetAliasesForAccount(context.Context, int64, GetAliasesCallbackFunc) error
-	GetAliasWithName(context.Context, string) (*Alias, error)
-	AddAlias(context.Context, *Alias) error
-	RemoveAlias(context.Context, *Alias) error
+	GetAliasWithName(context.Context, string) (*activitypub.Alias, error)
+	AddAlias(context.Context, *activitypub.Alias) error
+	RemoveAlias(context.Context, *activitypub.Alias) error
 	Close(context.Context) error
 }
 

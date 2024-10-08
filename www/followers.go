@@ -7,12 +7,13 @@ import (
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type FollowersHandlerOptions struct {
-	AccountsDatabase  activitypub.AccountsDatabase
-	FollowersDatabase activitypub.FollowersDatabase
+	AccountsDatabase  database.AccountsDatabase
+	FollowersDatabase database.FollowersDatabase
 	URIs              *uris.URIs
 }
 

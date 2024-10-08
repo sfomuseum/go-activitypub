@@ -15,21 +15,22 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/crypto"
+	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/tidwall/gjson"
 )
 
 type InboxPostHandlerOptions struct {
-	AccountsDatabase    activitypub.AccountsDatabase
-	FollowersDatabase   activitypub.FollowersDatabase
-	FollowingDatabase   activitypub.FollowingDatabase
-	MessagesDatabase    activitypub.MessagesDatabase
-	NotesDatabase       activitypub.NotesDatabase
-	PostsDatabase       activitypub.PostsDatabase
-	BlocksDatabase      activitypub.BlocksDatabase
-	LikesDatabase       activitypub.LikesDatabase
-	BoostsDatabase      activitypub.BoostsDatabase
-	ProcessMessageQueue activitypub.ProcessMessageQueue
+	AccountsDatabase    database.AccountsDatabase
+	FollowersDatabase   database.FollowersDatabase
+	FollowingDatabase   database.FollowingDatabase
+	MessagesDatabase    database.MessagesDatabase
+	NotesDatabase       database.NotesDatabase
+	PostsDatabase       database.PostsDatabase
+	BlocksDatabase      database.BlocksDatabase
+	LikesDatabase       database.LikesDatabase
+	BoostsDatabase      database.BoostsDatabase
+	ProcessMessageQueue queue.ProcessMessageQueue
 	URIs                *uris.URIs
 	AllowFollow         bool
 	AllowCreate         bool

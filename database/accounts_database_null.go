@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 
-	"github.com/sfomuseum/go-activitypub"		
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type NullAccountsDatabase struct {

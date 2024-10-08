@@ -5,20 +5,20 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log/slog"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/sfomuseum/go-activitypub"
-	ap_slog "github.com/sfomuseum/go-activitypub/slog"
+	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/slog"
 )
 
-func Run(ctx context.Context, logger *slog.Logger) error {
+func Run(ctx context.Context) error {
 	fs := DefaultFlagSet()
-	return RunWithFlagSet(ctx, fs, logger)
+	return RunWithFlagSet(ctx, fs)
 }
 
-func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) error {
+func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 
 	opts, err := OptionsFromFlagSet(ctx, fs)
 
@@ -26,12 +26,12 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) 
 		return fmt.Errorf("Failed to derive options from flagset, %w", err)
 	}
 
-	return RunWithOptions(ctx, opts, logger)
+	return RunWithOptions(ctx, opts)
 }
 
-func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) error {
+func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
-	ap_slog.ConfigureLogger(logger, opts.Verbose)
+	logger := slog.Default()
 
 	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 

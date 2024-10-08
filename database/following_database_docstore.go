@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	_ "log/slog"
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
+	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
 )
 
@@ -73,7 +74,7 @@ func (db *DocstoreFollowingDatabase) GetFollowingIdsForDateRange(ctx context.Con
 	return nil
 }
 
-func (db *DocstoreFollowingDatabase) GetFollowing(ctx context.Context, account_id int64, following_address string) (*Following, error) {
+func (db *DocstoreFollowingDatabase) GetFollowing(ctx context.Context, account_id int64, following_address string) (*activitypub.Following, error) {
 
 	q := db.collection.Query()
 	q = q.Where("AccountId", "=", account_id)
@@ -99,12 +100,12 @@ func (db *DocstoreFollowingDatabase) GetFollowing(ctx context.Context, account_i
 	return nil, ErrNotFound
 }
 
-func (db *DocstoreFollowingDatabase) AddFollowing(ctx context.Context, f *Following) error {
+func (db *DocstoreFollowingDatabase) AddFollowing(ctx context.Context, f *activitypub.Following) error {
 
 	return db.collection.Put(ctx, f)
 }
 
-func (db *DocstoreFollowingDatabase) RemoveFollowing(ctx context.Context, f *Following) error {
+func (db *DocstoreFollowingDatabase) RemoveFollowing(ctx context.Context, f *activitypub.Following) error {
 
 	return db.collection.Delete(ctx, f)
 }

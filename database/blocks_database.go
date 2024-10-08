@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,17 +8,18 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type GetBlockIdsCallbackFunc func(context.Context, int64) error
-type GetBlocksCallbackFunc func(context.Context, *Block) error
+type GetBlocksCallbackFunc func(context.Context, *activitypub.Block) error
 
 type BlocksDatabase interface {
 	GetBlockIdsForDateRange(context.Context, int64, int64, GetBlockIdsCallbackFunc) error
-	GetBlockWithAccountIdAndAddress(context.Context, int64, string, string) (*Block, error)
-	GetBlockWithId(context.Context, int64) (*Block, error)
-	AddBlock(context.Context, *Block) error
-	RemoveBlock(context.Context, *Block) error
+	GetBlockWithAccountIdAndAddress(context.Context, int64, string, string) (*activitypub.Block, error)
+	GetBlockWithId(context.Context, int64) (*activitypub.Block, error)
+	AddBlock(context.Context, *activitypub.Block) error
+	RemoveBlock(context.Context, *activitypub.Block) error
 	Close(context.Context) error
 }
 

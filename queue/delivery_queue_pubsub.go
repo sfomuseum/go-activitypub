@@ -1,10 +1,11 @@
-package activitypub
+package queue
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
 
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-pubsub/publisher"
 )
 
@@ -51,7 +52,7 @@ func NewPubSubDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, err
 	return q, nil
 }
 
-func (q *PubSubDeliveryQueue) DeliverPost(ctx context.Context, opts *DeliverPostOptions) error {
+func (q *PubSubDeliveryQueue) DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 
 	ps_opts := PubSubDeliveryQueuePostOptions{
 		AccountId: opts.From.Id,

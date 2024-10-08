@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/sqlite"
 )
 
@@ -135,7 +136,7 @@ func (db *SQLFollowersDatabase) HasFollower(ctx context.Context, account_id int6
 	return false, nil
 }
 
-func (db *SQLFollowersDatabase) GetFollower(ctx context.Context, account_id int64, follower_address string) (*Follower, error) {
+func (db *SQLFollowersDatabase) GetFollower(ctx context.Context, account_id int64, follower_address string) (*activitypub.Follower, error) {
 
 	q := fmt.Sprintf("SELECT id, created FROM %s WHERE account_id = ? AND follower_address = ?", SQL_FOLLOWERS_TABLE_NAME)
 
@@ -165,7 +166,7 @@ func (db *SQLFollowersDatabase) GetFollower(ctx context.Context, account_id int6
 
 }
 
-func (db *SQLFollowersDatabase) AddFollower(ctx context.Context, f *Follower) error {
+func (db *SQLFollowersDatabase) AddFollower(ctx context.Context, f *activitypub.Follower) error {
 
 	q := fmt.Sprintf("INSERT INTO %s (id, account_id, follower_address, created) VALUES (?, ?, ?, ?)", SQL_FOLLOWERS_TABLE_NAME)
 
@@ -178,7 +179,7 @@ func (db *SQLFollowersDatabase) AddFollower(ctx context.Context, f *Follower) er
 	return nil
 }
 
-func (db *SQLFollowersDatabase) RemoveFollower(ctx context.Context, f *Follower) error {
+func (db *SQLFollowersDatabase) RemoveFollower(ctx context.Context, f *activitypub.Follower) error {
 
 	q := fmt.Sprintf("DELETE FROM %s WHERE id = ?", SQL_FOLLOWERS_TABLE_NAME)
 

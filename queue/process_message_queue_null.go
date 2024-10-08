@@ -1,7 +1,9 @@
-package activitypub
+package queue
 
 import (
 	"context"
+
+	"github.com/sfomuseum/go-activitypub"
 )
 
 type NullProcessMessageQueue struct {
