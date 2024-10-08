@@ -3,13 +3,12 @@ package properties
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/database"
 )
 
-func PropertiesMapForAccount(ctx context.Context, properties_db database.PropertiesDatabase, acct *activitypub.Account) (map[string]*Property, error) {
+func PropertiesMapForAccount(ctx context.Context, properties_db database.PropertiesDatabase, acct *activitypub.Account) (map[string]*activitypub.Property, error) {
 
 	props_map := make(map[string]*activitypub.Property)
 
@@ -52,7 +51,7 @@ func DerivePropertiesUpdates(ctx context.Context, acct *activitypub.Account, pro
 
 		} else {
 
-			pr, err := NewProperty(ctx, acct, k, v)
+			pr, err := activitypub.NewProperty(ctx, acct, k, v)
 
 			if err != nil {
 				return nil, nil, fmt.Errorf("Failed to create %s property for %d, %w", k, acct.Id, err)

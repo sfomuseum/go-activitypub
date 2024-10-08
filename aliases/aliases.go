@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/database"
 )
 
@@ -13,7 +14,7 @@ func IsAliasNameTaken(ctx context.Context, aliases_db database.AliasesDatabase, 
 
 	if err != nil {
 
-		if err != ErrNotFound {
+		if err != activitypub.ErrNotFound {
 			return false, fmt.Errorf("Failed to determine is name is taken, %w", err)
 		}
 

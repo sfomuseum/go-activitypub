@@ -62,3 +62,25 @@ func IsFollowing(ctx context.Context, db database.FollowingDatabase, account_id 
 
 	return false, nil, fmt.Errorf("Failed to following record, %w", err)
 }
+
+func FollowingResource(ctx context.Context, uris_table *uris.URIs, a *activitypub.Account, following_database database.FollowingDatabase) (*ap.Following, error) {
+
+	following_path := uris.AssignResource(uris_table.Following, a.Name)
+	following_url := uris.NewURL(uris_table, following_path)
+
+	count, err := CountFollowing(ctx, following_database, a.Id)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to count following, %w", err)
+	}
+
+	f := &ap.Following{
+		Context:    "https://www.w3.org/ns/activitystreams",
+		Id:         following_url.String(),
+		Type:       "OrderedCollection",
+		TotalItems: count,
+		First:      following_url.String(),
+	}
+
+	return f, nil
+}
