@@ -9,17 +9,17 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
-	"github.com/sfomuseum/go-activitypub/account"	
 	"github.com/sfomuseum/go-activitypub/id"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type DeliverActivityOptions struct {
-	From               *account.Account           `json:"from"`
-	To                 string             `json:"to"`
-	Activity *ap.Activity `json:"activity"`
-	Post               *Post              `json:"post"`
+	From     *activitypub.Account `json:"from"`
+	To       string               `json:"to"`
+	Activity *ap.Activity         `json:"activity"`
+	Post     *Post                `json:"post"`
 	// PostTags           []*PostTag         `json:"post_tags"`
 	URIs               *uris.URIs         `json:"uris"`
 	DeliveriesDatabase DeliveriesDatabase `json:"deliveries_database,omitempty"`
@@ -33,10 +33,10 @@ type DeliverActivityToFollowersOptions struct {
 	NotesDatabase      NotesDatabase
 	DeliveriesDatabase DeliveriesDatabase
 	DeliveryQueue      DeliveryQueue
-	Activity *ap.Activity
+	Activity           *ap.Activity
 	// PostTags           []*PostTag `json:"post_tags"`
-	MaxAttempts        int        `json:"max_attempts"`
-	URIs               *uris.URIs
+	MaxAttempts int `json:"max_attempts"`
+	URIs        *uris.URIs
 }
 
 func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFollowersOptions) error {
@@ -47,7 +47,7 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 
 	post_id := fmt.Sprintf("%s-%s", opts.Activity.Type, opts.Activity.Id)
 	logger = logger.With("post id", post_id)
-	
+
 	logger.Info("Deliver post to followers")
 
 	acct_name, _, err := activitypub.ParseAddress(opts.Activity.Actor)
@@ -56,7 +56,7 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 		logger.Error("Failed to parse (actor) address", "error", err)
 		return fmt.Errorf("Failed to parse (actor) address, %w", err)
 	}
-	
+
 	acct, err := opts.AccountsDatabase.GetAccountWithName(ctx, account_name)
 
 	if err != nil {
@@ -65,7 +65,7 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 	}
 
 	logger = logger.With("account id", acct.Id)
-	
+
 	// TBD - compare acct_address and opts.Activity.Actor?
 	acct_address := acct.Address(opts.URIs.Hostname)
 	logger = logger.With("account address", acct_address)
@@ -97,8 +97,8 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 		}
 
 		post_opts := &DeliverActivityOptions{
-			From:               acct,
-			To:                 follower_uri,
+			From:     acct,
+			To:       follower_uri,
 			Activity: opts.Activity,
 			// PostTags:           opts.PostTags,
 			URIs:               opts.URIs,
@@ -127,17 +127,17 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 	// tags/mentions... TBD...
 
 	/*
-	for _, t := range opts.PostTags {
+		for _, t := range opts.PostTags {
 
-		err := followers_cb(ctx, t.Name) // name or href?
+			err := followers_cb(ctx, t.Name) // name or href?
 
-		if err != nil {
-			logger.Error("Failed to deliver message", "to", t.Name, "to id", t.Id, "error", err)
-			return fmt.Errorf("Failed to deliver message to %s (%d), %w", t.Name, t.Id, err)
+			if err != nil {
+				logger.Error("Failed to deliver message", "to", t.Name, "to id", t.Id, "error", err)
+				return fmt.Errorf("Failed to deliver message to %s (%d), %w", t.Name, t.Id, err)
+			}
 		}
-	}
 	*/
-	
+
 	return nil
 }
 
@@ -146,16 +146,16 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 
 	actor := opts.Activity.Actor
-	recipient := opts.To	// TBD...
+	recipient := opts.To // TBD...
 
 	post_id := fmt.Sprintf("%s-%s", opts.Activity.Type, opts.Activity.Id)
-	
+
 	logger := slog.Default()
 	logger = logger.With("method", "DeliverActivity")
 	logger = logger.With("actor", opts.Activity.Actor)
 	logger = logger.With("recipient", recipient)
 	logger = logger.With("post id", post_id)
-	
+
 	logger.Info("Deliver activity to recipient")
 
 	acct_name, _, err := activitypub.ParseAddress(opts.Activity.Actor)
@@ -164,7 +164,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 		logger.Error("Failed to parse (actor) address", "error", err)
 		return fmt.Errorf("Failed to parse (actor) address, %w", err)
 	}
-	
+
 	acct, err := opts.AccountsDatabase.GetAccountWithName(ctx, account_name)
 
 	if err != nil {
@@ -173,7 +173,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 	}
 
 	logger = logger.With("account id", acct.Id)
-	
+
 	logger.Debug("Deliver activity", "max attempts", opts.MaxAttempts)
 
 	if opts.MaxAttempts > 0 {
@@ -188,7 +188,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 		err := opts.DeliveriesDatabase.GetDeliveriesWithPostIdAndRecipient(ctx, post_id, recipient, deliveries_cb)
 
 		if err != nil {
-			logger.Error("Failed to count deliveries for post ID and recipient",  "error", err)
+			logger.Error("Failed to count deliveries for post ID and recipient", "error", err)
 			return fmt.Errorf("Failed to count deliveries for post ID and recipient, %w", err)
 		}
 
@@ -204,7 +204,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 	delivery_id, _ := id.NewId()
 
 	logger = logger.With("delivery id", delivery_id)
-	
+
 	now := time.Now()
 	ts := now.Unix()
 

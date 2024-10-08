@@ -19,6 +19,6 @@ type Activity struct {
 	// CC is the list of URIs the activity should be copied to.
 	Cc []string `json:"cc,omitempty"`
 	// Object is body of the activity itself.
-	Object interface{} `json:"object,omitempty"`
+	Object    interface{} `json:"object,omitempty"`
 	Published string      `json:"published,omitempty"`
 }

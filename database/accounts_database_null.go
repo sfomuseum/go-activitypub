@@ -1,7 +1,9 @@
-package activitypub
+package database
 
 import (
 	"context"
+
+	"github.com/sfomuseum/go-activitypub"		
 )
 
 type NullAccountsDatabase struct {
@@ -27,23 +29,23 @@ func (db *NullAccountsDatabase) GetAccountIdsForDateRange(ctx context.Context, s
 	return nil
 }
 
-func (db *NullAccountsDatabase) AddAccount(ctx context.Context, a *Account) error {
+func (db *NullAccountsDatabase) AddAccount(ctx context.Context, a *activitypub.Account) error {
 	return nil
 }
 
-func (db *NullAccountsDatabase) GetAccountWithId(ctx context.Context, id int64) (*Account, error) {
+func (db *NullAccountsDatabase) GetAccountWithId(ctx context.Context, id int64) (*activitypub.Account, error) {
 	return nil, ErrNotFound
 }
 
-func (db *NullAccountsDatabase) GetAccountWithName(ctx context.Context, name string) (*Account, error) {
+func (db *NullAccountsDatabase) GetAccountWithName(ctx context.Context, name string) (*activitypub.Account, error) {
 	return nil, ErrNotFound
 }
 
-func (db *NullAccountsDatabase) UpdateAccount(ctx context.Context, acct *Account) error {
+func (db *NullAccountsDatabase) UpdateAccount(ctx context.Context, acct *activitypub.Account) error {
 	return nil
 }
 
-func (db *NullAccountsDatabase) RemoveAccount(ctx context.Context, acct *Account) error {
+func (db *NullAccountsDatabase) RemoveAccount(ctx context.Context, acct *activitypub.Account) error {
 	return nil
 }
 

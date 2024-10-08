@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/go-fed/httpsig"
-	"github.com/sfomuseum/go-activitypub/account"	
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/sfomuseum/iso8601duration"
@@ -22,7 +22,7 @@ import (
 
 type PostToInboxOptions struct {
 	// The `Account` instance of the actor sending the Activity.
-	From *account.Account
+	From *activitypub.Account
 	// The URL of the inbox where the Activity should be posted.
 	Inbox string
 	// The `Activity` instance being posted to the inbox.

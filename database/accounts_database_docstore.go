@@ -1,4 +1,4 @@
-package activitypub
+package database
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 
 	aa_docstore "github.com/aaronland/gocloud-docstore"
 	gc_docstore "gocloud.dev/docstore"
+	"github.com/sfomuseum/go-activitypub"	
 )
 
 type DocstoreAccountsDatabase struct {
@@ -118,12 +119,12 @@ func (db *DocstoreAccountsDatabase) GetAccountIdsForDateRange(ctx context.Contex
 	return nil
 }
 
-func (db *DocstoreAccountsDatabase) AddAccount(ctx context.Context, a *Account) error {
+func (db *DocstoreAccountsDatabase) AddAccount(ctx context.Context, a *activitypub.Account) error {
 
 	return db.collection.Put(ctx, a)
 }
 
-func (db *DocstoreAccountsDatabase) GetAccountWithId(ctx context.Context, id int64) (*Account, error) {
+func (db *DocstoreAccountsDatabase) GetAccountWithId(ctx context.Context, id int64) (*activitypub.Account, error) {
 
 	q := db.collection.Query()
 	q = q.Where("Id", "=", id)
@@ -131,7 +132,7 @@ func (db *DocstoreAccountsDatabase) GetAccountWithId(ctx context.Context, id int
 	return db.getAccount(ctx, q)
 }
 
-func (db *DocstoreAccountsDatabase) GetAccountWithName(ctx context.Context, name string) (*Account, error) {
+func (db *DocstoreAccountsDatabase) GetAccountWithName(ctx context.Context, name string) (*activitypub.Account, error) {
 
 	q := db.collection.Query()
 	q = q.Where("Name", "=", name)
@@ -139,11 +140,11 @@ func (db *DocstoreAccountsDatabase) GetAccountWithName(ctx context.Context, name
 	return db.getAccount(ctx, q)
 }
 
-func (db *DocstoreAccountsDatabase) UpdateAccount(ctx context.Context, acct *Account) error {
+func (db *DocstoreAccountsDatabase) UpdateAccount(ctx context.Context, acct *activitypub.Account) error {
 	return db.collection.Replace(ctx, acct)
 }
 
-func (db *DocstoreAccountsDatabase) RemoveAccount(ctx context.Context, acct *Account) error {
+func (db *DocstoreAccountsDatabase) RemoveAccount(ctx context.Context, acct *activitypub.Account) error {
 	return db.collection.Delete(ctx, acct)
 }
 
@@ -151,7 +152,7 @@ func (db *DocstoreAccountsDatabase) Close(ctx context.Context) error {
 	return db.collection.Close()
 }
 
-func (db *DocstoreAccountsDatabase) getAccount(ctx context.Context, q *gc_docstore.Query) (*Account, error) {
+func (db *DocstoreAccountsDatabase) getAccount(ctx context.Context, q *gc_docstore.Query) (*activitypub.Account, error) {
 
 	iter := q.Get(ctx)
 	defer iter.Stop()
