@@ -22,6 +22,7 @@ type DeliverActivityToFollowersOptions struct {
 	DeliveriesDatabase database.DeliveriesDatabase
 	DeliveryQueue      DeliveryQueue
 	Activity           *ap.Activity
+	PostId             int64
 	// PostTags           []*PostTag `json:"post_tags"`
 	MaxAttempts int `json:"max_attempts"`
 	URIs        *uris.URIs
@@ -33,10 +34,7 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 	logger = logger.With("method", "DeliverActivityToFollowers")
 	logger = logger.With("actor", opts.Activity.Actor)
 
-	// FIX ME
-	// post_id := fmt.Sprintf("%s-%s", opts.Activity.Type, opts.Activity.Id)
-	post_id, _ := id.NewId()
-
+	post_id := opts.PostId
 	logger = logger.With("post id", post_id)
 
 	logger.Info("Deliver post to followers")
@@ -88,10 +86,10 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 		}
 
 		post_opts := &DeliverActivityOptions{
-			From:     acct,
-			To:       follower_uri,
-			Activity: opts.Activity,
-			// PostTags:           opts.PostTags,
+			From:               acct,
+			To:                 follower_uri,
+			Activity:           opts.Activity,
+			PostId:             post_id,
 			URIs:               opts.URIs,
 			DeliveriesDatabase: opts.DeliveriesDatabase,
 			MaxAttempts:        opts.MaxAttempts,
@@ -139,11 +137,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 	activity := opts.Activity
 	actor := activity.Actor
 	recipient := opts.To // TBD...
-
-	// post_id := fmt.Sprintf("%s-%s", opts.Activity.Type, opts.Activity.Id)
-
-	// FIX ME..
-	post_id, _ := id.NewId()
+	post_id := opts.PostId
 
 	logger := slog.Default()
 	logger = logger.With("method", "DeliverActivity")
@@ -200,18 +194,22 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 	// Sort out dealing with Snowflake errors sooner...
 	delivery_id, _ := id.NewId()
 
+	activity_id := fmt.Sprintf("%s#%s", activity.Type, activity.Id)
+
 	logger = logger.With("delivery id", delivery_id)
+	logger = logger.With("activity_id", activity_id)
 
 	now := time.Now()
 	ts := now.Unix()
 
 	d := &activitypub.Delivery{
-		Id:        delivery_id,
-		PostId:    post_id,
-		AccountId: acct.Id,
-		Recipient: recipient,
-		Created:   ts,
-		Success:   false,
+		Id:         delivery_id,
+		ActivityId: activity_id,
+		PostId:     post_id,
+		AccountId:  acct.Id,
+		Recipient:  recipient,
+		Created:    ts,
+		Success:    false,
 	}
 
 	defer func() {

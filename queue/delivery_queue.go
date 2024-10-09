@@ -18,6 +18,7 @@ type DeliverActivityOptions struct {
 	From               *activitypub.Account        `json:"from"`
 	To                 string                      `json:"to"`
 	Activity           *ap.Activity                `json:"activity"`
+	PostId             int64                       `json:"post_id"`
 	URIs               *uris.URIs                  `json:"uris"`
 	AccountsDatabase   database.AccountsDatabase   `json:"accounts_database,omitempty"`
 	DeliveriesDatabase database.DeliveriesDatabase `json:"deliveries_database,omitempty"`

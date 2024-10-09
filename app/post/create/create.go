@@ -9,8 +9,8 @@ import (
 
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/posts"
 	"github.com/sfomuseum/go-activitypub/queue"
-	"github.com/sfomuseum/go-activitypub/posts"	
 	"github.com/sfomuseum/go-activitypub/slog"
 )
 
@@ -117,26 +117,38 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to add post, %w", err)
 	}
 
-	logger.Debug("post", "tags", post_tags)
-	
 	if opts.InReplyTo != "" {
 		post.InReplyTo = opts.InReplyTo
 	}
 
-	// Make post in to note/activity here...
-	
-	var a *ap.Activity
-	
+	note, err := posts.NoteFromPost(ctx, opts.URIs, acct, post, post_tags)
+
+	if err != nil {
+		return fmt.Errorf("Failed to derive note from post, %w", err)
+	}
+
+	from := acct.Address(opts.URIs.Hostname)
+
+	to := []string{
+		fmt.Sprintf("%s#Public", ap.ACTIVITYSTREAMS_CONTEXT),
+	}
+
+	a, err := ap.NewCreateActivity(ctx, opts.URIs, from, to, note)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create new (create) activity, %w", err)
+	}
+
 	deliver_opts := &queue.DeliverActivityToFollowersOptions{
 		AccountsDatabase:   accounts_db,
 		FollowersDatabase:  followers_db,
 		PostTagsDatabase:   post_tags_db,
 		DeliveriesDatabase: deliveries_db,
 		DeliveryQueue:      delivery_q,
-		Activity: a,
+		Activity:           a,
 		// PostTags:           post_tags,
-		URIs:               opts.URIs,
-		MaxAttempts:        opts.MaxAttempts,
+		URIs:        opts.URIs,
+		MaxAttempts: opts.MaxAttempts,
 	}
 
 	err = queue.DeliverActivityToFollowers(ctx, deliver_opts)
