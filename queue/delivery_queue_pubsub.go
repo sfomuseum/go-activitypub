@@ -5,14 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-pubsub/publisher"
 )
 
 type PubSubDeliveryQueuePostOptions struct {
-	AccountId int64  `json:"account_id"`
-	Recipient string `json:"recipient"`
-	PostId    int64  `json:"post_id"`
+	AccountId  int64  `json:"account_id"`
+	Recipient  string `json:"recipient"`
+	ActivityId string `json:"activity_id"`
 }
 
 type PubSubDeliveryQueue struct {
@@ -55,9 +54,9 @@ func NewPubSubDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, err
 func (q *PubSubDeliveryQueue) DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 
 	ps_opts := PubSubDeliveryQueuePostOptions{
-		AccountId: opts.From.Id,
-		Recipient: opts.To,
-		PostId:    opts.Post.Id,
+		AccountId:  opts.From.Id,
+		Recipient:  opts.To,
+		ActivityId: opts.Activity.Id,
 	}
 
 	enc_opts, err := json.Marshal(ps_opts)

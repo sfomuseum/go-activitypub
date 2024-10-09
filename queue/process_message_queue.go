@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
-	"github.com/sfomuseum/go-activitypub"
 )
 
 type ProcessMessageQueue interface {

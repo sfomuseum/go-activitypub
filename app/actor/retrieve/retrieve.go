@@ -8,8 +8,6 @@ import (
 	"os"
 
 	"github.com/sfomuseum/go-activitypub"
-	"github.com/sfomuseum/go-activitypub/database"
-	// "github.com/sfomuseum/go-activitypub/slog"
 )
 
 func Run(ctx context.Context) error {

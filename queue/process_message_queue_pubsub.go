@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/sfomuseum/go-pubsub/publisher"
 )
 
 type PubSubProcessMessageQueue struct {

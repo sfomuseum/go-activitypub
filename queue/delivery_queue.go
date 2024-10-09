@@ -19,6 +19,7 @@ type DeliverActivityOptions struct {
 	To                 string                      `json:"to"`
 	Activity           *ap.Activity                `json:"activity"`
 	URIs               *uris.URIs                  `json:"uris"`
+	AccountsDatabase   database.AccountsDatabase   `json:"accounts_database,omitempty"`
 	DeliveriesDatabase database.DeliveriesDatabase `json:"deliveries_database,omitempty"`
 	MaxAttempts        int                         `json:"max_attempts"`
 }

@@ -18,6 +18,8 @@ import (
 	_ "image/png"
 
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/accounts"
+	"github.com/sfomuseum/go-activitypub/aliases"
 	"github.com/sfomuseum/go-activitypub/crypto"
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/id"
@@ -73,7 +75,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	// START OF check for existing account name and aliases
 
-	acct_taken, err := activitypub.IsAccountNameTaken(ctx, accounts_db, opts.AccountName)
+	acct_taken, err := accounts.IsAccountNameTaken(ctx, accounts_db, opts.AccountName)
 
 	if err != nil {
 		return fmt.Errorf("Failed to determine if account name is taken, %w", err)
@@ -85,7 +87,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	for _, name := range opts.Aliases {
 
-		alias_taken, err := activitypub.IsAliasNameTaken(ctx, aliases_db, name)
+		alias_taken, err := aliases.IsAliasNameTaken(ctx, aliases_db, name)
 
 		if err != nil {
 			return fmt.Errorf("Failed to determine if alias name '%s' is taken, %w", name, err)

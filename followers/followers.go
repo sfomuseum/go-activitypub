@@ -6,7 +6,9 @@ import (
 	"sync/atomic"
 
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 func CountFollowers(ctx context.Context, db database.FollowersDatabase, account_id int64) (uint32, error) {
@@ -33,7 +35,7 @@ func GetFollower(ctx context.Context, db database.FollowersDatabase, account_id 
 
 func AddFollower(ctx context.Context, db database.FollowersDatabase, account_id int64, follower_address string) error {
 
-	f, err := NewFollower(ctx, account_id, follower_address)
+	f, err := activitypub.NewFollower(ctx, account_id, follower_address)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new follower, %w", err)
@@ -51,7 +53,7 @@ func IsFollower(ctx context.Context, db database.FollowersDatabase, account_id i
 		return true, f, nil
 	}
 
-	if err == ErrNotFound {
+	if err == activitypub.ErrNotFound {
 		return false, nil, nil
 	}
 
@@ -70,7 +72,7 @@ func FollowersResource(ctx context.Context, uris_table *uris.URIs, followers_dat
 	}
 
 	f := &ap.Followers{
-		Context:    "https://www.w3.org/ns/activitystreams",
+		Context:    ap.ACTIVITYSTREAMS_CONTEXT,
 		Id:         followers_url.String(),
 		Type:       "OrderedCollection",
 		TotalItems: count,

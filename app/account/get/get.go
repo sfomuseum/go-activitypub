@@ -9,7 +9,7 @@ import (
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/database"
-	"github.com/sfomuseum/go-activitypub/slog"
+	"github.com/sfomuseum/go-activitypub/properties"
 )
 
 type results struct {
@@ -34,8 +34,6 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 }
 
 func RunWithOptions(ctx context.Context, opts *RunOptions) error {
-
-	logger := slog.Default()
 
 	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
@@ -63,7 +61,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	r.Account = acct
 
-	props_map, err := activitypub.PropertiesMapForAccount(ctx, properties_db, acct)
+	props_map, err := properties.PropertiesMapForAccount(ctx, properties_db, acct)
 
 	if err != nil {
 		return fmt.Errorf("Failed to derive properties for account %s, %w", opts.AccountName, err)

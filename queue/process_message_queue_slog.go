@@ -3,8 +3,6 @@ package queue
 import (
 	"context"
 	"log/slog"
-
-	"github.com/sfomuseum/go-activitypub"
 )
 
 type SlogProcessMessageQueue struct {

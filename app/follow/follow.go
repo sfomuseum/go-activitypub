@@ -8,6 +8,7 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/inbox"
 	"github.com/sfomuseum/go-activitypub/slog"
 )
 
@@ -31,19 +32,19 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	logger := slog.Default()
 
-	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
+	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize accounts database, %w", err)
 	}
 
-	following_db, err := activitypub.NewFollowingDatabase(ctx, opts.FollowingDatabaseURI)
+	following_db, err := database.NewFollowingDatabase(ctx, opts.FollowingDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize following database, %w", err)
 	}
 
-	messages_db, err := activitypub.NewMessagesDatabase(ctx, opts.MessagesDatabaseURI)
+	messages_db, err := database.NewMessagesDatabase(ctx, opts.MessagesDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize messages database, %w", err)
@@ -76,14 +77,14 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to create follow activity, %w", err)
 	}
 
-	post_opts := &activitypub.PostToAccountOptions{
+	post_opts := &inbox.PostToInboxOptions{
 		From:     follower_acct,
-		To:       following_address,
+		Inbox:    following_address, // FIX ME...
 		Activity: activity,
 		URIs:     opts.URIs,
 	}
 
-	_, err = activitypub.PostToAccount(ctx, post_opts)
+	err = inbox.PostToInbox(ctx, post_opts)
 
 	if err != nil {
 		return fmt.Errorf("Failed to deliver follow activity, %w", err)

@@ -17,7 +17,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log/slog"
 	"slices"
 	"time"
 
@@ -96,7 +95,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 			continue
 		}
 
-		taken, err := activitypub.IsAliasNameTaken(ctx, aliases_db, a)
+		taken, err := aliases.IsAliasNameTaken(ctx, aliases_db, a)
 
 		if err != nil {
 			return fmt.Errorf("Failed to determine if alias (%s) is taken, %w", a, err)

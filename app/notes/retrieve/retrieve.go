@@ -7,10 +7,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
-	"github.com/sfomuseum/go-activitypub/slog"
 )
 
 func Run(ctx context.Context) error {
@@ -30,8 +28,6 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 }
 
 func RunWithOptions(ctx context.Context, opts *RunOptions) error {
-
-	logger := slog.Default()
 
 	notes_db, err := database.NewNotesDatabase(ctx, opts.NotesDatabaseURI)
 

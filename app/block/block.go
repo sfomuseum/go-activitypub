@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log/slog"
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/database"
@@ -31,13 +30,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	logger := slog.Default()
 
-	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
+	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize accounts database, %w", err)
 	}
 
-	blocks_db, err := activitypub.NewBlocksDatabase(ctx, opts.BlocksDatabaseURI)
+	blocks_db, err := database.NewBlocksDatabase(ctx, opts.BlocksDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize following database, %w", err)

@@ -33,7 +33,6 @@ import (
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/database"
-	"github.com/sfomuseum/go-activitypub/slog"
 )
 
 func Run(ctx context.Context) error {
@@ -54,9 +53,7 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 
 func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
-	logger := slog.Default()
-
-	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
+	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create accounts database, %w", err)
@@ -64,7 +61,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	defer accounts_db.Close(ctx)
 
-	aliases_db, err := activitypub.NewAliasesDatabase(ctx, opts.AliasesDatabaseURI)
+	aliases_db, err := database.NewAliasesDatabase(ctx, opts.AliasesDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create aliases database, %w", err)

@@ -36,7 +36,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to intialize accounts database, %w", err)
 	}
 
-	defer accounts_db.Close()
+	defer accounts_db.Close(ctx)
 
 	messages_db, err := database.NewMessagesDatabase(ctx, opts.MessagesDatabaseURI)
 
@@ -44,7 +44,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to initialize messages database, %w", err)
 	}
 
-	defer messages_db.Close()
+	defer messages_db.Close(ctx)
 
 	notes_db, err := database.NewNotesDatabase(ctx, opts.NotesDatabaseURI)
 
@@ -52,7 +52,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to initialize notes database, %w", err)
 	}
 
-	defer notes_db.Close()
+	defer notes_db.Close(ctx)
 
 	acct, err := accounts_db.GetAccountWithName(ctx, opts.AccountName)
 

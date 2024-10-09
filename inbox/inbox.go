@@ -1,4 +1,4 @@
-package deliver
+package inbox
 
 import (
 	"bytes"
