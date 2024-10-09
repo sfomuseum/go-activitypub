@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 )
 
-func CountAccountsForDateRange(ctx context.Context, accounts_db activitypub.AccountsDatabase, start int64, end int64) (int64, error) {
+func CountAccountsForDateRange(ctx context.Context, accounts_db database.AccountsDatabase, start int64, end int64) (int64, error) {
 
 	count := int64(0)
 

@@ -8,6 +8,7 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/following"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
@@ -76,7 +77,7 @@ func FollowingHandler(opts *FollowingHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("account id", acct.Id)
 
-		resource, err := acct.FollowingResource(ctx, opts.URIs, opts.FollowingDatabase)
+		resource, err := following.FollowingResource(ctx, opts.URIs, opts.FollowingDatabase, acct)
 
 		if err != nil {
 			logger.Error("Failed to create following resource", "error", err)

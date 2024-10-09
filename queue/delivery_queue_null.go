@@ -2,8 +2,6 @@ package queue
 
 import (
 	"context"
-
-	"github.com/sfomuseum/go-activitypub"
 )
 
 type NullDeliveryQueue struct {

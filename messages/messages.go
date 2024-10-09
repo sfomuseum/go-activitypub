@@ -5,17 +5,18 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/database"
 )
 
-func GetMessage(ctx context.Context, db database.MessagesDatabase, account_id int64, note_id int64) (*Message, error) {
+func GetMessage(ctx context.Context, db database.MessagesDatabase, account_id int64, note_id int64) (*activitypub.Message, error) {
 
 	return db.GetMessageWithAccountAndNoteIds(ctx, account_id, note_id)
 }
 
-func AddMessage(ctx context.Context, db database.MessagesDatabase, account_id int64, note_id int64, author_address string) (*Message, error) {
+func AddMessage(ctx context.Context, db database.MessagesDatabase, account_id int64, note_id int64, author_address string) (*activitypub.Message, error) {
 
-	m, err := NewMessage(ctx, account_id, note_id, author_address)
+	m, err := activitypub.NewMessage(ctx, account_id, note_id, author_address)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create new message, %w", err)
@@ -30,7 +31,7 @@ func AddMessage(ctx context.Context, db database.MessagesDatabase, account_id in
 	return m, nil
 }
 
-func UpdateMessage(ctx context.Context, db database.MessagesDatabase, m *Message) (*Message, error) {
+func UpdateMessage(ctx context.Context, db database.MessagesDatabase, m *activitypub.Message) (*activitypub.Message, error) {
 
 	now := time.Now()
 	ts := now.Unix()

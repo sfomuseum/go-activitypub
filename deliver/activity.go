@@ -13,6 +13,7 @@ import (
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/id"
+	"github.com/sfomuseum/go-activitypub/queue"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
@@ -170,7 +171,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 
 		count_attempts := 0
 
-		deliveries_cb := func(ctx context.Context, d *Delivery) error {
+		deliveries_cb := func(ctx context.Context, d *activitypub.Delivery) error {
 			count_attempts += 1
 			return nil
 		}
@@ -198,7 +199,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 	now := time.Now()
 	ts := now.Unix()
 
-	d := &Delivery{
+	d := &activitypubDelivery{
 		Id:        delivery_id,
 		PostId:    post_id,
 		AccountId: actor,

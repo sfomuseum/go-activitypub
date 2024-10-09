@@ -58,7 +58,7 @@ func IsFollower(ctx context.Context, db database.FollowersDatabase, account_id i
 	return false, nil, fmt.Errorf("Failed to follower record, %w", err)
 }
 
-func FollowersResource(ctx context.Context, uris_table *uris.URIs, a *activitypub.Account, followers_database database.FollowersDatabase) (*ap.Followers, error) {
+func FollowersResource(ctx context.Context, uris_table *uris.URIs, followers_database database.FollowersDatabase, a *activitypub.Account) (*ap.Followers, error) {
 
 	followers_path := uris.AssignResource(uris_table.Followers, a.Name)
 	followers_url := uris.NewURL(uris_table, followers_path)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/database"
 )
 
@@ -15,7 +16,7 @@ func IsBlockedByAccount(ctx context.Context, db database.BlocksDatabase, account
 		return true, nil
 	}
 
-	if err != ErrNotFound {
+	if err != activitypub.ErrNotFound {
 		return false, fmt.Errorf("Failed to retrieve block with account and address, %w", err)
 	}
 

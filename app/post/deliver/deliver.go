@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/queue"
 	"github.com/sfomuseum/go-activitypub/slog"
 )
 
@@ -33,7 +34,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	logger := slog.Default()
 
-	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
+	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new database, %w", err)
@@ -41,7 +42,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	defer accounts_db.Close(ctx)
 
-	deliveries_db, err := activitypub.NewDeliveriesDatabase(ctx, opts.DeliveriesDatabaseURI)
+	deliveries_db, err := database.NewDeliveriesDatabase(ctx, opts.DeliveriesDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create instantiate deliveries database, %w", err)
@@ -49,7 +50,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	defer deliveries_db.Close(ctx)
 
-	posts_db, err := activitypub.NewPostsDatabase(ctx, opts.PostsDatabaseURI)
+	posts_db, err := database.NewPostsDatabase(ctx, opts.PostsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create instantiate posts database, %w", err)
@@ -57,7 +58,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	defer posts_db.Close(ctx)
 
-	post_tags_db, err := activitypub.NewPostTagsDatabase(ctx, opts.PostTagsDatabaseURI)
+	post_tags_db, err := database.NewPostTagsDatabase(ctx, opts.PostTagsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create instantiate post tags database, %w", err)
@@ -65,7 +66,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	defer post_tags_db.Close(ctx)
 
-	followers_db, err := activitypub.NewFollowersDatabase(ctx, opts.FollowersDatabaseURI)
+	followers_db, err := database.NewFollowersDatabase(ctx, opts.FollowersDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to instantiate followers database, %w", err)
@@ -76,7 +77,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	switch opts.Mode {
 	case "cli":
 
-		delivery_q, err := activitypub.NewDeliveryQueue(ctx, opts.DeliveryQueueURI)
+		delivery_q, err := queue.NewDeliveryQueue(ctx, opts.DeliveryQueueURI)
 
 		if err != nil {
 			return fmt.Errorf("Failed to create new delivery queue, %w", err)
@@ -130,7 +131,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 				acct, err := accounts_db.GetAccountWithId(ctx, ps_opts.AccountId)
 
 				if err != nil {
-					slog.Error("Failed to retrieve account", "account id", ps_opts.Recipient, "error", err)
+					logger.Error("Failed to retrieve account", "account id", ps_opts.Recipient, "error", err)
 					return fmt.Errorf("Failed to retrieve account, %w", err)
 				}
 
@@ -140,7 +141,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 				is_follower, _, err := activitypub.IsFollower(ctx, followers_db, acct.Id, ps_opts.Recipient)
 
 				if err != nil {
-					slog.Error("Unable to determine if recipient is not following account", "recipient", ps_opts.Recipient, "error", err)
+					logger.Error("Unable to determine if recipient is not following account", "recipient", ps_opts.Recipient, "error", err)
 					return fmt.Errorf("Unable to determine if recipient is following account")
 				}
 
@@ -152,14 +153,14 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 				post, err := posts_db.GetPostWithId(ctx, ps_opts.PostId)
 
 				if err != nil {
-					slog.Error("Failed to retrieve post", "post id", ps_opts.PostId, "error", err)
+					logger.Error("Failed to retrieve post", "post id", ps_opts.PostId, "error", err)
 					return fmt.Errorf("Failed to retrieve post, %w", err)
 				}
 
 				logger = logger.With("post id", post.Id)
 
 				if post.AccountId != acct.Id {
-					slog.Error("Post owned by different account", "post account id", post.AccountId)
+					logger.Error("Post owned by different account", "post account id", post.AccountId)
 					return fmt.Errorf("Post owned by different account")
 				}
 
@@ -173,7 +174,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 				err = post_tags_db.GetPostTagsForPost(ctx, post.Id, post_tags_cb)
 
 				if err != nil {
-					slog.Error("Failed to retrieve post tags for post", "error", err)
+					logger.Error("Failed to retrieve post tags for post", "error", err)
 					return fmt.Errorf("Failed to retrieve post tags for post, %w", err)
 				}
 
@@ -223,7 +224,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 				err = activitypub.DeliverPost(ctx, opts)
 
 				if err != nil {
-					slog.Error("Failed to deliver post", "message id", message.MessageId, "error", err)
+					logger.Error("Failed to deliver post", "message id", message.MessageId, "error", err)
 					return fmt.Errorf("Failed to deliver post, %w", err)
 				}
 

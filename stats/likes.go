@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 )
 
-func CountLikesForDateRange(ctx context.Context, likes_db activitypub.LikesDatabase, start int64, end int64) (int64, error) {
+func CountLikesForDateRange(ctx context.Context, likes_db database.LikesDatabase, start int64, end int64) (int64, error) {
 
 	count := int64(0)
 

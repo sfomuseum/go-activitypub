@@ -3,14 +3,14 @@ package notes
 import (
 	"context"
 	"fmt"
-	"time"
 
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/database"
 )
 
-func AddNote(ctx context.Context, db database.NotesDatabase, uuid string, author string, body string) (*Note, error) {
+func AddNote(ctx context.Context, db database.NotesDatabase, uuid string, author string, body string) (*activitypub.Note, error) {
 
-	n, err := NewNote(ctx, uuid, author, body)
+	n, err := activitypub.NewNote(ctx, uuid, author, body)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create new note, %w", err)
@@ -22,6 +22,5 @@ func AddNote(ctx context.Context, db database.NotesDatabase, uuid string, author
 		return nil, fmt.Errorf("Failed to add note, %w", err)
 	}
 
-	slog.Debug("Return new note", "id", n.Id)
 	return n, nil
 }

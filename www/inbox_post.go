@@ -16,6 +16,7 @@ import (
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/crypto"
 	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/posts"
 	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/tidwall/gjson"
 )
@@ -550,7 +551,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
+			post, err := posts.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
 
 			if err != nil {
 
@@ -617,7 +618,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
+			post, err := posts.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
 
 			if err != nil {
 
@@ -814,7 +815,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				logger = logger.With("object uri", object_uri)
 
-				post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
+				post, err := posts.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
 
 				if err != nil {
 
@@ -877,7 +878,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				logger = logger.With("object uri", object_uri)
 
-				post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
+				post, err := posts.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
 
 				if err != nil {
 
@@ -1016,7 +1017,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 					is_own_post := false
 
-					post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, note.InReplyTo)
+					post, err := posts.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, note.InReplyTo)
 
 					if err != nil && err != activitypub.ErrNotFound {
 						logger.Error("Failed to determine if object URI references post", "error", err)

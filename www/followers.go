@@ -8,6 +8,7 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/followers"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
@@ -76,7 +77,7 @@ func FollowersHandler(opts *FollowersHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("account id", acct.Id)
 
-		resource, err := acct.FollowersResource(ctx, opts.URIs, opts.FollowersDatabase)
+		resource, err := followers.FollowersResource(ctx, opts.URIs, opts.FollowersDatabase, acct)
 
 		if err != nil {
 			logger.Error("Failed to create followers resource", "error", err)

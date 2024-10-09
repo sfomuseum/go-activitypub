@@ -5,8 +5,8 @@ import (
 	"flag"
 	"log"
 
-	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/posts"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
@@ -32,7 +32,7 @@ func main() {
 
 	for _, uri := range flag.Args() {
 
-		post, err := activitypub.GetPostFromObjectURI(ctx, uris_table, posts_db, uri)
+		post, err := posts.GetPostFromObjectURI(ctx, uris_table, posts_db, uri)
 
 		if err != nil {
 			log.Fatalf("Failed to get for post for '%s', %v", uri, err)

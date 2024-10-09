@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 )
 
-func CountFollowingForDateRange(ctx context.Context, following_db activitypub.FollowingDatabase, start int64, end int64) (int64, error) {
+func CountFollowingForDateRange(ctx context.Context, following_db database.FollowingDatabase, start int64, end int64) (int64, error) {
 
 	count := int64(0)
 
