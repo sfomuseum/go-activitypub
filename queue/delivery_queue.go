@@ -8,22 +8,7 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
-	"github.com/sfomuseum/go-activitypub"
-	"github.com/sfomuseum/go-activitypub/ap"
-	"github.com/sfomuseum/go-activitypub/database"
-	"github.com/sfomuseum/go-activitypub/uris"
 )
-
-type DeliverActivityOptions struct {
-	From               *activitypub.Account        `json:"from"`
-	To                 string                      `json:"to"`
-	Activity           *ap.Activity                `json:"activity"`
-	PostId             int64                       `json:"post_id"`
-	URIs               *uris.URIs                  `json:"uris"`
-	AccountsDatabase   database.AccountsDatabase   `json:"accounts_database,omitempty"`
-	DeliveriesDatabase database.DeliveriesDatabase `json:"deliveries_database,omitempty"`
-	MaxAttempts        int                         `json:"max_attempts"`
-}
 
 type DeliveryQueue interface {
 	DeliverActivity(context.Context, *DeliverActivityOptions) error

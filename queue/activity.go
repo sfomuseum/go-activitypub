@@ -14,6 +14,21 @@ import (
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
+type DeliverActivityOptions struct {
+	// This is what we used to do. Now we derive it from Activity.Actor
+	// From               *activitypub.Account        `json:"from"`
+	To       string       `json:"to"`
+	Activity *ap.Activity `json:"activity"`
+	// PostId is a misnomer. It is what unique 64-bit ID this package derives
+	// for things stored in one of the "database" tables. The name is a reflection
+	// of early attempts just to figure things out.
+	PostId             int64                       `json:"post_id"`
+	URIs               *uris.URIs                  `json:"uris"`
+	AccountsDatabase   database.AccountsDatabase   `json:"accounts_database,omitempty"`
+	DeliveriesDatabase database.DeliveriesDatabase `json:"deliveries_database,omitempty"`
+	MaxAttempts        int                         `json:"max_attempts"`
+}
+
 type DeliverActivityToFollowersOptions struct {
 	AccountsDatabase   database.AccountsDatabase
 	FollowersDatabase  database.FollowersDatabase
@@ -22,7 +37,10 @@ type DeliverActivityToFollowersOptions struct {
 	DeliveriesDatabase database.DeliveriesDatabase
 	DeliveryQueue      DeliveryQueue
 	Activity           *ap.Activity
-	PostId             int64
+	// PostId is a misnomer. It is what unique 64-bit ID this package derives
+	// for things stored in one of the "database" tables. The name is a reflection
+	// of early attempts just to figure things out.
+	PostId int64
 	// PostTags           []*PostTag `json:"post_tags"`
 	MaxAttempts int `json:"max_attempts"`
 	URIs        *uris.URIs
@@ -86,7 +104,6 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 		}
 
 		post_opts := &DeliverActivityOptions{
-			From:               acct,
 			To:                 follower_uri,
 			Activity:           opts.Activity,
 			PostId:             post_id,
@@ -135,19 +152,19 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 
 	activity := opts.Activity
-	actor := activity.Actor
-	recipient := opts.To // TBD...
+	from := activity.Actor
+	to := opts.To
 	post_id := opts.PostId
 
 	logger := slog.Default()
 	logger = logger.With("method", "DeliverActivity")
-	logger = logger.With("actor", actor)
-	logger = logger.With("recipient", recipient)
+	logger = logger.With("from", from)
+	logger = logger.With("to", to)
 	logger = logger.With("post id", post_id)
 
 	logger.Info("Deliver activity to recipient")
 
-	acct_name, _, err := activitypub.ParseAddress(opts.Activity.Actor)
+	acct_name, _, err := activitypub.ParseAddress(from)
 
 	if err != nil {
 		logger.Error("Failed to parse (actor) address", "error", err)
@@ -176,7 +193,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 			return nil
 		}
 
-		err := opts.DeliveriesDatabase.GetDeliveriesWithPostIdAndRecipient(ctx, post_id, recipient, deliveries_cb)
+		err := opts.DeliveriesDatabase.GetDeliveriesWithPostIdAndRecipient(ctx, post_id, to, deliveries_cb)
 
 		if err != nil {
 			logger.Error("Failed to count deliveries for post ID and recipient", "error", err)
@@ -207,7 +224,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 		ActivityId: activity_id,
 		PostId:     post_id,
 		AccountId:  acct.Id,
-		Recipient:  recipient,
+		Recipient:  to,
 		Created:    ts,
 		Success:    false,
 	}
@@ -219,7 +236,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 
 		d.Completed = ts
 
-		logger.Info("Add delivery for post", "success", d.Success)
+		logger.Info("Add delivery for activity", "success", d.Success)
 
 		err := opts.DeliveriesDatabase.AddDelivery(ctx, d)
 
@@ -228,21 +245,23 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 		}
 	}()
 
-	logger = logger.With("activity id", activity.Id)
+	recipient, err := activitypub.RetrieveActor(ctx, to, opts.URIs.Insecure)
 
-	d.ActivityId = activity.Id
+	if err != nil {
+		return fmt.Errorf("Failed to derive actor for to address, %w", err)
+	}
+
+	inbox_uri := recipient.Inbox
+	d.Inbox = inbox_uri
 
 	post_opts := &inbox.PostToInboxOptions{
 		From:     acct,
-		Inbox:    recipient, // is this right?
+		Inbox:    inbox_uri,
 		Activity: activity,
 		URIs:     opts.URIs,
 	}
 
 	err = inbox.PostToInbox(ctx, post_opts)
-
-	// Fix me... wut?
-	// d.Inbox = inbox
 
 	if err != nil {
 		logger.Error("Failed to post activity to inbox", "error", err)

@@ -9,7 +9,8 @@ import (
 )
 
 type PubSubDeliveryQueuePostOptions struct {
-	AccountId  int64  `json:"account_id"`
+	AccountId  int64  `json:"account_id"` // Deprecated
+	Actor      string `json:"actor"`      // The new new
 	Recipient  string `json:"recipient"`
 	ActivityId string `json:"activity_id"`
 }
@@ -54,7 +55,7 @@ func NewPubSubDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, err
 func (q *PubSubDeliveryQueue) DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 
 	ps_opts := PubSubDeliveryQueuePostOptions{
-		AccountId:  opts.From.Id,
+		Actor:      opts.Activity.Actor,
 		Recipient:  opts.To,
 		ActivityId: opts.Activity.Id,
 	}

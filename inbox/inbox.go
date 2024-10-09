@@ -21,7 +21,8 @@ import (
 )
 
 type PostToInboxOptions struct {
-	// The `Account` instance of the actor sending the Activity.
+	// The `Account` instance of the actor sending the Activity. This is necessary in order
+	// to get access to the private key used to sign the message.
 	From *activitypub.Account
 	// The URL of the inbox where the Activity should be posted.
 	Inbox string
