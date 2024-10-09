@@ -28,7 +28,7 @@ var embed_icon_uri bool
 
 var discoverable bool
 
-var aliases multi.MultiString
+var aliases_list multi.MultiString
 var properties_kv multi.KeyValueString
 
 func DefaultFlagSet() *flag.FlagSet {
@@ -42,7 +42,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.Int64Var(&account_id, "account-id", 0, "...")
 
 	fs.StringVar(&account_name, "account-name", "", "...")
-	fs.Var(&aliases, "alias", "...")
+	fs.Var(&aliases_list, "alias", "...")
 
 	fs.StringVar(&display_name, "display-name", "", "...")
 	fs.StringVar(&blurb, "blurb", "", "...")

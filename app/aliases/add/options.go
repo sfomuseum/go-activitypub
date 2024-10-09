@@ -29,7 +29,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		AccountsDatabaseURI: accounts_database_uri,
 		AliasesDatabaseURI:  aliases_database_uri,
 		AccountName:         account_name,
-		Aliases:             aliases,
+		Aliases:             aliases_list,
 	}
 
 	return opts, nil

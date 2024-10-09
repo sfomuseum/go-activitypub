@@ -23,13 +23,13 @@ import (
 	"github.com/sfomuseum/go-activitypub/crypto"
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/id"
-	"github.com/sfomuseum/go-activitypub/slog"
+	"github.com/sfomuseum/go-activitypub/properties"
 )
 
 // Reconcile with www/icon.go
 var re_http_url = regexp.MustCompile(`^https?\:\/\/(.*)`)
 
-func Run(ctx context.Contextr) error {
+func Run(ctx context.Context) error {
 	fs := DefaultFlagSet()
 	return RunWithFlagSet(ctx, fs)
 }
@@ -46,8 +46,6 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 }
 
 func RunWithOptions(ctx context.Context, opts *RunOptions) error {
-
-	logger := slog.Default()
 
 	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
@@ -209,7 +207,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		IconURI:       icon_uri,
 	}
 
-	a, err = activitypub.AddAccount(ctx, accounts_db, a)
+	a, err = accounts.AddAccount(ctx, accounts_db, a)
 
 	if err != nil {
 		return fmt.Errorf("Failed to add new account, %w", err)
@@ -217,7 +215,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	// Properties
 
-	_, _, err = activitypub.ApplyPropertiesUpdates(ctx, properties_db, a, opts.Properties)
+	_, _, err = properties.ApplyPropertiesUpdates(ctx, properties_db, a, opts.Properties)
 
 	if err != nil {
 		return fmt.Errorf("Account created (%d) but failed to apply properties, %w", a.Id, err)

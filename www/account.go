@@ -11,6 +11,7 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/properties"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
@@ -143,7 +144,7 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("account id", acct.Id)
 
-		props_map, err := activitypub.PropertiesMapForAccount(ctx, opts.PropertiesDatabase, acct)
+		props_map, err := properties.PropertiesMapForAccount(ctx, opts.PropertiesDatabase, acct)
 
 		if err != nil {
 			logger.Error("Failed to derive properties map for account", "error", err)

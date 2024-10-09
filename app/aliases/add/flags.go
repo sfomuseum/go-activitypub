@@ -11,7 +11,7 @@ var accounts_database_uri string
 var aliases_database_uri string
 
 var account_name string
-var aliases multi.MultiCSVString
+var aliases_list multi.MultiCSVString
 
 func DefaultFlagSet() *flag.FlagSet {
 
@@ -20,7 +20,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "null://", "A known sfomuseum/go-activitypub/AccountsDatabase URI.")
 	fs.StringVar(&aliases_database_uri, "aliases-database-uri", "null://", "A known sfomuseum/go-activitypub/AliasesDatabase URI.")
 	fs.StringVar(&account_name, "account-name", "", "A valid sfomuseum/go-activitypub account name")
-	fs.Var(&aliases, "alias", "One or more aliases to add for an account. Each -alias flag may be a CSV-encoded string containing multiple aliases.")
+	fs.Var(&aliases_list, "alias", "One or more aliases to add for an account. Each -alias flag may be a CSV-encoded string containing multiple aliases.")
 
 	return fs
 }

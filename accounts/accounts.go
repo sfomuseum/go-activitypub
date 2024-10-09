@@ -6,13 +6,10 @@ import (
 	"time"
 
 	"github.com/sfomuseum/go-activitypub"
-	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
-	"github.com/sfomuseum/go-activitypub/followers"
-	"github.com/sfomuseum/go-activitypub/uris"
 )
 
-func AddAccount(ctx context.Context, db database.AccountsDatabase, a *activitypub.Account) (*activitypub.AAccount, error) {
+func AddAccount(ctx context.Context, db database.AccountsDatabase, a *activitypub.Account) (*activitypub.Account, error) {
 
 	now := time.Now()
 	ts := now.Unix()

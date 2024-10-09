@@ -14,9 +14,16 @@ import (
 	"github.com/go-fed/httpsig"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/blocks"
 	"github.com/sfomuseum/go-activitypub/crypto"
 	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/followers"
+	"github.com/sfomuseum/go-activitypub/following"
+	"github.com/sfomuseum/go-activitypub/inbox"
+	"github.com/sfomuseum/go-activitypub/messages"
+	"github.com/sfomuseum/go-activitypub/notes"
 	"github.com/sfomuseum/go-activitypub/posts"
+	"github.com/sfomuseum/go-activitypub/queue"
 	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/tidwall/gjson"
 )
@@ -367,7 +374,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		// Check if the requestor is being blocked
 
-		is_blocked, err := activitypub.IsBlockedByAccount(ctx, opts.BlocksDatabase, acct.Id, requestor_host, requestor_name)
+		is_blocked, err := blocks.IsBlockedByAccount(ctx, opts.BlocksDatabase, acct.Id, requestor_host, requestor_name)
 
 		if err != nil {
 			logger.Error("Failed to determine if requestor is blocked", "error", err)
@@ -674,7 +681,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		case "Follow":
 
-			is_following, _, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
+			is_following, _, err := followers.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)
@@ -688,7 +695,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			err = activitypub.AddFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
+			err = followers.AddFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
 			if err != nil {
 				logger.Error("Failed to create new follower", "error", err)
@@ -720,20 +727,20 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				logger = logger.With("accept", accept.Id)
 
-				post_opts := &activitypub.PostToInboxOptions{
+				post_opts := &inbox.PostToInboxOptions{
 					From:     acct,
 					Inbox:    requestor_actor.Inbox,
 					Activity: accept,
 					URIs:     opts.URIs,
 				}
 
-				err = activitypub.PostToInbox(ctx, post_opts)
+				err = inbox.PostToInbox(ctx, post_opts)
 
 				if err != nil {
 
 					logger.Error("Failed to post accept activity to requestor, remove follower", "to", requestor_actor.Inbox, "error", err)
 
-					f, err := activitypub.GetFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
+					f, err := followers.GetFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
 					if err != nil {
 						logger.Error("Failed to retrieve newly created follower to remove", "error", err)
@@ -779,7 +786,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				// Note: We have prevented Block Undo activities above so we're going to assume it's an undo follow request
 
-				is_following, f, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
+				is_following, f, err := followers.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
 				if err != nil {
 					logger.Error("Failed to determine if following", "error", err)
@@ -952,7 +959,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			logger = logger.With("note id", note.Id)
 
-			is_following, _, err := activitypub.IsFollowing(ctx, opts.FollowingDatabase, acct.Id, requestor_address)
+			is_following, _, err := following.IsFollowing(ctx, opts.FollowingDatabase, acct.Id, requestor_address)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)
@@ -1069,7 +1076,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			} else {
 
-				new_note, err := activitypub.AddNote(ctx, opts.NotesDatabase, note_uuid, requestor_address, string(enc_obj))
+				new_note, err := notes.AddNote(ctx, opts.NotesDatabase, note_uuid, requestor_address, string(enc_obj))
 
 				if err != nil {
 					logger.Error("Failed to create new note", "error", err)
@@ -1084,7 +1091,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			// Now store a "message" which is a pointer to the note associated with the account the
 			// note is being delivered to
 
-			db_message, err := activitypub.GetMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id)
+			db_message, err := messages.GetMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id)
 
 			switch {
 			case err == activitypub.ErrNotFound:
@@ -1101,7 +1108,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				logger = logger.With("message id", db_message.Id)
 
-				db_message, err = activitypub.UpdateMessage(ctx, opts.MessagesDatabase, db_message)
+				db_message, err = messages.UpdateMessage(ctx, opts.MessagesDatabase, db_message)
 
 				if err != nil {
 					logger.Error("Failed to update message", "error", err)
@@ -1111,7 +1118,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			} else {
 
-				new_message, err := activitypub.AddMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id, requestor_address)
+				new_message, err := messages.AddMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id, requestor_address)
 
 				if err != nil {
 					logger.Error("Failed to add message", "error", err)

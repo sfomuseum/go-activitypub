@@ -24,6 +24,7 @@ import (
 	"github.com/fogleman/gg"
 	"github.com/golang/freetype/truetype"
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/uris"
 	"golang.org/x/image/font/gofont/goregular"
 )
@@ -34,7 +35,7 @@ var re_data_url = regexp.MustCompile(`^data:image\/[^;]+;base64,(.*)`)
 var re_http_url = regexp.MustCompile(`^https?\:\/\/(.*)`)
 
 type IconHandlerOptions struct {
-	AccountsDatabase activitypub.AccountsDatabase
+	AccountsDatabase database.AccountsDatabase
 	URIs             *uris.URIs
 	AllowRemote      bool
 }
