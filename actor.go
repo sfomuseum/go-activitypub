@@ -15,6 +15,9 @@ import (
 func RetrieveActor(ctx context.Context, id string, insecure bool) (*ap.Actor, error) {
 
 	logger := slog.Default()
+	logger = logger.With("actor", id)
+
+	logger.Debug("Retrieve actor")
 
 	actor_id, actor_hostname, err := ParseAddress(id)
 

@@ -32,6 +32,11 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 
 func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
+	if opts.Verbose {
+		slog.SetLogLoggerLevel(slog.LevelDebug)
+		slog.Debug("Verbose logging enabled")
+	}
+
 	logger := slog.Default()
 
 	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
@@ -99,11 +104,15 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Empty message string")
 	}
 
+	logger = logger.With("account", opts.AccountName)
+
 	acct, err := accounts_db.GetAccountWithName(ctx, opts.AccountName)
 
 	if err != nil {
 		return fmt.Errorf("Failed to retrieve account %s, %w", opts.AccountName, err)
 	}
+
+	logger = logger.With("account id", acct.Id)
 
 	post_opts := &posts.AddPostOptions{
 		URIs:          opts.URIs,
@@ -111,6 +120,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		// aka mentions
 		PostTagsDatabase: post_tags_db,
 	}
+
+	logger.Debug("Add post", "message", message)
 
 	post, mentions, err := posts.AddPost(ctx, post_opts, acct, opts.Message)
 
@@ -122,6 +133,11 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		post.InReplyTo = opts.InReplyTo
 	}
 
+	logger = logger.With("post id", post.Id)
+	logger = logger.With("post id", post.Id)
+
+	logger.Debug("Create (AP) note from post")
+
 	note, err := posts.NoteFromPost(ctx, opts.URIs, acct, post, mentions)
 
 	if err != nil {
@@ -130,9 +146,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	from := acct.Address(opts.URIs.Hostname)
 
+	logger = logger.With("from", from)
+
 	to := []string{
 		fmt.Sprintf("%s#Public", ap.ACTIVITYSTREAMS_CONTEXT),
 	}
+
+	logger.Debug("Create new activity from note")
 
 	a, err := ap.NewCreateActivity(ctx, opts.URIs, from, to, note)
 
@@ -151,6 +171,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		URIs:               opts.URIs,
 		MaxAttempts:        opts.MaxAttempts,
 	}
+
+	logger.Debug("Deliver activity")
 
 	err = queue.DeliverActivityToFollowers(ctx, deliver_opts)
 
