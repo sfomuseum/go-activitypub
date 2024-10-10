@@ -152,7 +152,8 @@ block:
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-account-name bob \
-		-block-host block.club
+		-block-host block.club \
+		-verbose
 
 unblock:
 	go run cmd/block/main.go \
@@ -160,7 +161,8 @@ unblock:
 		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-account-name bob \
 		-block-host block.club \
-		-undo
+		-undo \
+		-verbose
 
 # Alice wants to post something (to Bob, if Bob is following Alice)
 

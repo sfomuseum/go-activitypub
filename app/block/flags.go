@@ -15,10 +15,11 @@ var block_name string
 var block_host string
 
 var undo bool
+var verbose bool
 
 func DefaultFlagSet() *flag.FlagSet {
 
-	fs := flagset.NewFlagSet("follow")
+	fs := flagset.NewFlagSet("block")
 
 	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "...")
 	fs.StringVar(&blocks_database_uri, "blocks-database-uri", "", "...")
@@ -29,5 +30,6 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&block_host, "block-host", "", "...")
 
 	fs.BoolVar(&undo, "undo", false, "...")
+	fs.BoolVar(&verbose, "verbose", false, "Enable verbose logging")
 	return fs
 }
