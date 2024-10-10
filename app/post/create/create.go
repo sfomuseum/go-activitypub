@@ -5,13 +5,13 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/posts"
 	"github.com/sfomuseum/go-activitypub/queue"
-	"github.com/sfomuseum/go-activitypub/slog"
 )
 
 func Run(ctx context.Context) error {

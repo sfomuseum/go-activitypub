@@ -4,16 +4,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	log_slog "log/slog"
+	"log/slog"
 
-	"encoding/json"
-	"os"
-	
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/inbox"
-	"github.com/sfomuseum/go-activitypub/slog"
 )
 
 func Run(ctx context.Context) error {
@@ -35,13 +31,12 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	if opts.Verbose {
-		log_slog.SetLogLoggerLevel(log_slog.LevelDebug)
-		log_slog.Debug("Verbose logging enabled")
-
+		slog.SetLogLoggerLevel(slog.LevelDebug)
+		slog.Debug("Verbose logging enabled")
 	}
 
 	logger := slog.Default()
-	
+
 	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
@@ -49,7 +44,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	}
 
 	defer accounts_db.Close(ctx)
-	
+
 	following_db, err := database.NewFollowingDatabase(ctx, opts.FollowingDatabaseURI)
 
 	if err != nil {
@@ -57,7 +52,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	}
 
 	defer following_db.Close(ctx)
-	
+
 	messages_db, err := database.NewMessagesDatabase(ctx, opts.MessagesDatabaseURI)
 
 	if err != nil {
@@ -65,7 +60,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	}
 
 	defer messages_db.Close(ctx)
-	
+
 	follower_acct, err := accounts_db.GetAccountWithName(ctx, opts.AccountName)
 
 	if err != nil {
@@ -82,15 +77,24 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	following_address := opts.FollowAddress
 
 	logger = logger.With("follower", follower_address)
-	logger = logger.With("following", following_address)	
+	logger = logger.With("following", following_address)
+
+	following_actor, err := activitypub.RetrieveActor(ctx, following_address, opts.URIs.Insecure)
+
+	if err != nil {
+		return fmt.Errorf("Failed to retrieve actor for %s, %w", following_address, err)
+	}
+
+	following_inbox := following_actor.Inbox
+	logger = logger.With("inbox", following_inbox)
 
 	var activity *ap.Activity
 
 	if opts.Undo {
-		logger.Info("Create unfollow activity")				
+		logger.Info("Create unfollow activity")
 		activity, err = ap.NewUndoFollowActivity(ctx, opts.URIs, follower_address, following_address)
 	} else {
-		logger.Info("Create follow activity")		
+		logger.Info("Create follow activity")
 		activity, err = ap.NewFollowActivity(ctx, opts.URIs, follower_address, following_address)
 	}
 
@@ -98,12 +102,12 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to create follow activity, %w", err)
 	}
 
-	enc := json.NewEncoder(os.Stdout)
-	enc.Encode(activity)
-	
+	// enc := json.NewEncoder(os.Stdout)
+	// enc.Encode(activity)
+
 	post_opts := &inbox.PostToInboxOptions{
 		From:     follower_acct,
-		Inbox:    following_address, // FIX ME...
+		Inbox:    following_inbox,
 		Activity: activity,
 		URIs:     opts.URIs,
 	}

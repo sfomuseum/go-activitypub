@@ -2,15 +2,14 @@ package database
 
 import (
 	"context"
-	log_slog "log/slog"
+	"log/slog"
 
 	"github.com/sfomuseum/go-activitypub"
-	"github.com/sfomuseum/go-activitypub/slog"
 )
 
 type SlogDeliveriesDatabase struct {
 	DeliveriesDatabase
-	logger *log_slog.Logger
+	logger *slog.Logger
 }
 
 func init() {

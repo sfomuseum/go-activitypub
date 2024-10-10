@@ -3,6 +3,7 @@ package queue
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/sfomuseum/go-activitypub"
@@ -10,7 +11,6 @@ import (
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/id"
 	"github.com/sfomuseum/go-activitypub/inbox"
-	"github.com/sfomuseum/go-activitypub/slog"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 

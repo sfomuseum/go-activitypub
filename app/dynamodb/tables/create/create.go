@@ -4,12 +4,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log/slog"
 
 	aa_dynamodb "github.com/aaronland/go-aws-dynamodb"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	ap_dynamodb "github.com/sfomuseum/go-activitypub/schema/dynamodb"
-	"github.com/sfomuseum/go-activitypub/slog"
 )
 
 func Run(ctx context.Context) error {

@@ -4,9 +4,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log/slog"
 
 	"github.com/sfomuseum/go-activitypub/database"
-	"github.com/sfomuseum/go-activitypub/slog"
 )
 
 func Run(ctx context.Context) error {

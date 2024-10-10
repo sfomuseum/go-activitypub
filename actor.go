@@ -14,11 +14,15 @@ import (
 
 func RetrieveActor(ctx context.Context, id string, insecure bool) (*ap.Actor, error) {
 
+	logger := slog.Default()
+
 	actor_id, actor_hostname, err := ParseAddress(id)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to parse ID, %w", err)
 	}
+
+	logger = logger.With("actor id", actor_id)
 
 	webfinger_scheme := "https"
 
@@ -39,7 +43,9 @@ func RetrieveActor(ctx context.Context, id string, insecure bool) (*ap.Actor, er
 
 	webfinger_url := webfinger_u.String()
 
-	slog.Debug("Webfinger URL for resource", "resource", actor_id, "url", webfinger_url)
+	logger.Debug("Webfinger URL for resource", "url", webfinger_url)
+
+	logger = logger.With("webfinger", webfinger_url)
 
 	webfinger_rsp, err := http.Get(webfinger_url)
 
@@ -76,7 +82,8 @@ func RetrieveActor(ctx context.Context, id string, insecure bool) (*ap.Actor, er
 		return nil, fmt.Errorf("Failed to derive profile URL from webfinger resource")
 	}
 
-	slog.Debug("Profile page for actor", "actor", actor_id, "url", profile_url)
+	logger.Debug("Profile page for actor", "profile url", profile_url)
+	logger = logger.With("profile url", profile_url)
 
 	profile_req, err := http.NewRequestWithContext(ctx, "GET", profile_url, nil)
 

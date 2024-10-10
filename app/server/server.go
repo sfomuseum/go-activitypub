@@ -4,12 +4,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	log_slog "log/slog"
+	"log/slog"
 	"net/http"
 
 	"github.com/aaronland/go-http-server"
 	"github.com/aaronland/go-http-server/handler"
-	"github.com/sfomuseum/go-activitypub/slog"
 	"github.com/sfomuseum/go-activitypub/webfinger"
 )
 
@@ -66,7 +65,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		outbox_get:              outboxGetHandlerFunc,
 	}
 
-	log_logger := log_slog.NewLogLogger(logger.Handler(), log_slog.LevelInfo)
+	log_logger := slog.NewLogLogger(logger.Handler(), slog.LevelInfo)
 
 	route_handler_opts := &handler.RouteHandlerOptions{
 		Handlers: handlers,
