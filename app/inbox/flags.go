@@ -11,6 +11,7 @@ var notes_database_uri string
 var messages_database_uri string
 
 var account_name string
+var verbose bool
 
 func DefaultFlagSet() *flag.FlagSet {
 
@@ -21,6 +22,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&messages_database_uri, "messages-database-uri", "", "...")
 
 	fs.StringVar(&account_name, "account-name", "", "...")
+	fs.BoolVar(&verbose, "verbose", false, "Enable verbose (debug) logging.")
 
 	return fs
 }

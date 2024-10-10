@@ -214,12 +214,13 @@ delivery:
 		-delivery-id $(ID) \
 		-verbose
 
-inbox:
+list-inbox:
 	go run cmd/inbox/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-messages-database-uri '$(MESSAGES_DB_URI)' \
 		-notes-database-uri '$(NOTES_DB_URI)' \
-		-account-name $(ACCOUNT)
+		-account-name $(ACCOUNT) \
+		-verbose
 
 server:
 	go run cmd/server/main.go \

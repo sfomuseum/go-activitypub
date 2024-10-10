@@ -13,6 +13,7 @@ type RunOptions struct {
 	MessagesDatabaseURI string
 	NotesDatabaseURI    string
 	AccountName         string
+	Verbose             bool
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -30,6 +31,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		MessagesDatabaseURI: messages_database_uri,
 		NotesDatabaseURI:    notes_database_uri,
 		AccountName:         account_name,
+		Verbose:             verbose,
 	}
 
 	return opts, nil

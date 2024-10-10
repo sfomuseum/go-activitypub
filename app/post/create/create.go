@@ -134,7 +134,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	}
 
 	logger = logger.With("post id", post.Id)
-	logger = logger.With("post id", post.Id)
 
 	logger.Debug("Create (AP) note from post")
 

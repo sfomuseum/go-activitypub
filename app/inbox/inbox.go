@@ -28,6 +28,11 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 
 func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
+	if opts.Verbose {
+		slog.SetLogLoggerLevel(slog.LevelDebug)
+		slog.Debug("Verbose logging enabled")
+	}
+
 	logger := slog.Default()
 
 	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
@@ -54,11 +59,15 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	defer notes_db.Close(ctx)
 
+	logger = logger.With("account", opts.AccountName)
+
 	acct, err := accounts_db.GetAccountWithName(ctx, opts.AccountName)
 
 	if err != nil {
 		return fmt.Errorf("Failed to retrieve account %s, %w", opts.AccountName, err)
 	}
+
+	logger = logger.With("account id", acct.Id)
 
 	messages_cb := func(ctx context.Context, m *activitypub.Message) error {
 
@@ -73,6 +82,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		logger.Info("NOTE", "body", string(n.Body))
 		return nil
 	}
+
+	logger.Debug("Get messages")
 
 	err = messages_db.GetMessagesForAccount(ctx, acct.Id, messages_cb)
 
