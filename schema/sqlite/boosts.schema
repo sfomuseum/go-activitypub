@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS boosts;
+
 CREATE TABLE boosts (
        id INTEGER PRIMARY KEY,
        account_id INTEGER,
@@ -6,7 +8,7 @@ CREATE TABLE boosts (
        created INTEGER
 );
 
-CREATE UNIQUE INDEX `boosts_by_post_actor` ON boosts (`post_id`, `actor_id`);
+CREATE UNIQUE INDEX `boosts_by_post_actor` ON boosts (`post_id`, `account_id`);
 CREATE INDEX `boosts_by_account` ON boosts (`account_id`, `created`);
 CREATE INDEX `boosts_by_post` ON boosts (`post_id`, `created`);
 CREATE INDEX `boosts_by_created` ON boosts (`created`);

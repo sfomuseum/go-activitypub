@@ -119,7 +119,7 @@ func (db *SQLPostTagsDatabase) GetPostTagWithId(ctx context.Context, id int64) (
 	var pt_type string
 	var created int64
 
-	q := fmt.Sprintf("SELECT id, account_id, post_id, href, name, typem created FROM %s", SQL_POST_TAGS_TABLE_NAME)
+	q := fmt.Sprintf("SELECT id, account_id, post_id, href, name, type, created FROM %s", SQL_POST_TAGS_TABLE_NAME)
 
 	row := db.database.QueryRowContext(ctx, q, id)
 

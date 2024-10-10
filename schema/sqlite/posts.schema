@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS posts;
+
 CREATE TABLE posts (
        id INTEGER PRIMARY KEY,
        account_id INTEGER,

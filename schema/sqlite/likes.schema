@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS likes;
+
 CREATE TABLE likes (
        id INTEGER PRIMARY KEY,
        account_id INTEGER,
@@ -6,7 +8,7 @@ CREATE TABLE likes (
        created INTEGER
 );
 
-CREATE UNIQUE INDEX `likes_by_post_actor` ON likes (`post_id`, `actor_id`);
+CREATE UNIQUE INDEX `likes_by_post_actor` ON likes (`post_id`, `account_id`);
 CREATE INDEX `likes_by_account` ON likes (`account_id`, `created`);
 CREATE INDEX `likes_by_post` ON likes (`post_id`, `created`);
 CREATE INDEX `likes_by_created` ON likes (`created`);

@@ -1,6 +1,9 @@
+DROP TABLE IF EXISTS deliveries;
+
 CREATE TABLE deliveries (
        id INTEGER PRIMARY KEY,
        activity_id TEXT,
+       post_id INTEGER,
        account_id INTEGER,
        recipient TEXT,
        inbox TEXT,
@@ -10,8 +13,8 @@ CREATE TABLE deliveries (
        error TEXT
 );
 
-CREATE INDEX `deliveries_by_account` ON posts (`account_id`, `created`);
-CREATE INDEX `deliveries_by_post` ON posts (`post_id`, `created`);
-CREATE INDEX `deliveries_by_recipient` ON posts (`recipient`, `created`);
-CREATE INDEX `deliveries_by_created` ON posts (`created`);
+CREATE INDEX `deliveries_by_account` ON deliveries (`account_id`, `created`);
+CREATE INDEX `deliveries_by_post` ON deliveries (`post_id`, `created`);
+CREATE INDEX `deliveries_by_recipient` ON deliveries (`recipient`, `created`);
+CREATE INDEX `deliveries_by_created` ON deliveries (`created`);
        

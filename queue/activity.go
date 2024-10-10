@@ -40,9 +40,9 @@ type DeliverActivityToFollowersOptions struct {
 	// PostId is a misnomer. It is what unique 64-bit ID this package derives
 	// for things stored in one of the "database" tables. The name is a reflection
 	// of early attempts just to figure things out.
-	PostId int64
-	// PostTags           []*PostTag `json:"post_tags"`
-	MaxAttempts int `json:"max_attempts"`
+	PostId      int64
+	Mentions    []*activitypub.PostTag `json:"mentions"`
+	MaxAttempts int                    `json:"max_attempts"`
 	URIs        *uris.URIs
 }
 
@@ -130,19 +130,17 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 		return fmt.Errorf("Failed to get followers for post author, %w", err)
 	}
 
-	// tags/mentions... TBD...
+	// tags/mentions...
 
-	/*
-		for _, t := range opts.PostTags {
+	for _, t := range opts.Mentions {
 
-			err := followers_cb(ctx, t.Name) // name or href?
+		err := followers_cb(ctx, t.Name) // name or href?
 
-			if err != nil {
-				logger.Error("Failed to deliver message", "to", t.Name, "to id", t.Id, "error", err)
-				return fmt.Errorf("Failed to deliver message to %s (%d), %w", t.Name, t.Id, err)
-			}
+		if err != nil {
+			logger.Error("Failed to deliver message", "to", t.Name, "to id", t.Id, "error", err)
+			return fmt.Errorf("Failed to deliver message to %s (%d), %w", t.Name, t.Id, err)
 		}
-	*/
+	}
 
 	return nil
 }

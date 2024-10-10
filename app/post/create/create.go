@@ -106,12 +106,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	}
 
 	post_opts := &posts.AddPostOptions{
-		URIs:             opts.URIs,
-		PostsDatabase:    posts_db,
+		URIs:          opts.URIs,
+		PostsDatabase: posts_db,
+		// aka mentions
 		PostTagsDatabase: post_tags_db,
 	}
 
-	post, post_tags, err := posts.AddPost(ctx, post_opts, acct, opts.Message)
+	post, mentions, err := posts.AddPost(ctx, post_opts, acct, opts.Message)
 
 	if err != nil {
 		return fmt.Errorf("Failed to add post, %w", err)
@@ -121,7 +122,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		post.InReplyTo = opts.InReplyTo
 	}
 
-	note, err := posts.NoteFromPost(ctx, opts.URIs, acct, post, post_tags)
+	note, err := posts.NoteFromPost(ctx, opts.URIs, acct, post, mentions)
 
 	if err != nil {
 		return fmt.Errorf("Failed to derive note from post, %w", err)
@@ -146,9 +147,9 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		DeliveriesDatabase: deliveries_db,
 		DeliveryQueue:      delivery_q,
 		Activity:           a,
-		// PostTags:           post_tags,
-		URIs:        opts.URIs,
-		MaxAttempts: opts.MaxAttempts,
+		Mentions:           mentions,
+		URIs:               opts.URIs,
+		MaxAttempts:        opts.MaxAttempts,
 	}
 
 	err = queue.DeliverActivityToFollowers(ctx, deliver_opts)

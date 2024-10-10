@@ -35,18 +35,18 @@ lambda-deliver-post:
 SQLITE3=sqlite3
 TABLE_PREFIX=
 
-ACCOUNTS_DB=accounts.db
-FOLLOWERS_DB=followers.db
-FOLLOWING_DB=following.db
-POSTS_DB=posts.db
-POST_TAGS_DB=posts.db
-NOTES_DB=notes.db
-MESSAGES_DB=messages.db
-BLOCKS_DB=blocks.db
-DELIVERIES_DB=deliveries.db
-BOOSTS_DB=boosts.db
-LIKES_DB=likes.db
-PROPERTIES_DB=properties.db
+ACCOUNTS_DB=work/accounts.db
+FOLLOWERS_DB=work/followers.db
+FOLLOWING_DB=work/following.db
+POSTS_DB=work/posts.db
+POST_TAGS_DB=work/posts.db
+NOTES_DB=work/notes.db
+MESSAGES_DB=work/messages.db
+BLOCKS_DB=work/blocks.db
+DELIVERIES_DB=work/deliveries.db
+BOOSTS_DB=work/boosts.db
+LIKES_DB=work/likes.db
+PROPERTIES_DB=work/properties.db
 
 ACCOUNTS_DB_URI=sql://sqlite3?dsn=$(ACCOUNTS_DB)
 FOLLOWERS_DB_URI=sql://sqlite3?dsn=$(FOLLOWERS_DB)
@@ -85,12 +85,12 @@ db-sqlite:
 	$(SQLITE3) $(NOTES_DB) < schema/sqlite/notes.schema
 	$(SQLITE3) $(MESSAGES_DB) < schema/sqlite/messages.schema
 	$(SQLITE3) $(BLOCKS_DB) < schema/sqlite/blocks.schema
-	$(SQLITE3) $(DELIVERIES_DB) < schema/sqlite/deliveries.schema
 	$(SQLITE3) $(BOOSTS_DB) < schema/sqlite/boosts.schema
 	$(SQLITE3) $(LIKES_DB) < schema/sqlite/likes.schema
 	$(SQLITE3) $(PROPERTIES_DB) < schema/sqlite/properties.schema
+	$(SQLITE3) $(DELIVERIES_DB) < schema/sqlite/deliveries.schema
 
-accounts:
+setup-accounts:
 	go run cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
@@ -245,12 +245,6 @@ retrieve:
 		-address $(ADDRESS) \
 		-verbose \
 		-insecure
-
-# https://aws.amazon.com/about-aws/whats-new/2018/08/use-amazon-dynamodb-local-more-easily-with-the-new-docker-image/
-# https://hub.docker.com/r/amazon/dynamodb-local/
-
-dynamo-local:
-	docker run --rm -it -p 8000:8000 amazon/dynamodb-local
 
 dynamo-tables-local:
 	go run -mod vendor cmd/create-dynamodb-tables/main.go \
