@@ -4,7 +4,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	log_slog "log/slog"
 
+	"encoding/json"
+	"os"
+	
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
@@ -30,26 +34,38 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 
 func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
-	logger := slog.Default()
+	if opts.Verbose {
+		log_slog.SetLogLoggerLevel(log_slog.LevelDebug)
+		log_slog.Debug("Verbose logging enabled")
 
+	}
+
+	logger := slog.Default()
+	
 	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize accounts database, %w", err)
 	}
 
+	defer accounts_db.Close(ctx)
+	
 	following_db, err := database.NewFollowingDatabase(ctx, opts.FollowingDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize following database, %w", err)
 	}
 
+	defer following_db.Close(ctx)
+	
 	messages_db, err := database.NewMessagesDatabase(ctx, opts.MessagesDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize messages database, %w", err)
 	}
 
+	defer messages_db.Close(ctx)
+	
 	follower_acct, err := accounts_db.GetAccountWithName(ctx, opts.AccountName)
 
 	if err != nil {
@@ -65,11 +81,16 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	follower_address := follower_acct.Address(opts.URIs.Hostname)
 	following_address := opts.FollowAddress
 
+	logger = logger.With("follower", follower_address)
+	logger = logger.With("following", following_address)	
+
 	var activity *ap.Activity
 
 	if opts.Undo {
+		logger.Info("Create unfollow activity")				
 		activity, err = ap.NewUndoFollowActivity(ctx, opts.URIs, follower_address, following_address)
 	} else {
+		logger.Info("Create follow activity")		
 		activity, err = ap.NewFollowActivity(ctx, opts.URIs, follower_address, following_address)
 	}
 
@@ -77,6 +98,9 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to create follow activity, %w", err)
 	}
 
+	enc := json.NewEncoder(os.Stdout)
+	enc.Encode(activity)
+	
 	post_opts := &inbox.PostToInboxOptions{
 		From:     follower_acct,
 		Inbox:    following_address, // FIX ME...
