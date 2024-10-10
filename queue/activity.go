@@ -30,9 +30,9 @@ type DeliverActivityOptions struct {
 }
 
 type DeliverActivityToFollowersOptions struct {
-	AccountsDatabase   database.AccountsDatabase
-	FollowersDatabase  database.FollowersDatabase
-	PostTagsDatabase   database.PostTagsDatabase
+	AccountsDatabase  database.AccountsDatabase
+	FollowersDatabase database.FollowersDatabase
+	// PostTagsDatabase   database.PostTagsDatabase
 	NotesDatabase      database.NotesDatabase
 	DeliveriesDatabase database.DeliveriesDatabase
 	DeliveryQueue      DeliveryQueue
@@ -108,9 +108,12 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 			Activity:           opts.Activity,
 			PostId:             post_id,
 			URIs:               opts.URIs,
+			AccountsDatabase:   opts.AccountsDatabase,
 			DeliveriesDatabase: opts.DeliveriesDatabase,
 			MaxAttempts:        opts.MaxAttempts,
 		}
+
+		logger.Debug("Queue deliver activity", "to", follower_uri)
 
 		err = opts.DeliveryQueue.DeliverActivity(ctx, post_opts)
 
@@ -133,6 +136,8 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 	// tags/mentions...
 
 	for _, t := range opts.Mentions {
+
+		logger.Debug("Deliver activity to mention", "mention", t)
 
 		err := followers_cb(ctx, t.Name) // name or href?
 

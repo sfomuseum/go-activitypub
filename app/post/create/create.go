@@ -161,12 +161,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	}
 
 	deliver_opts := &queue.DeliverActivityToFollowersOptions{
-		AccountsDatabase:   accounts_db,
-		FollowersDatabase:  followers_db,
-		PostTagsDatabase:   post_tags_db,
+		AccountsDatabase:  accounts_db,
+		FollowersDatabase: followers_db,
+		// PostTagsDatabase:   post_tags_db,
 		DeliveriesDatabase: deliveries_db,
 		DeliveryQueue:      delivery_q,
 		Activity:           a,
+		PostId:             post.Id,
 		Mentions:           mentions,
 		URIs:               opts.URIs,
 		MaxAttempts:        opts.MaxAttempts,
