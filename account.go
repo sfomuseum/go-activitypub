@@ -11,7 +11,6 @@ import (
 
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/crypto"
-	"github.com/sfomuseum/go-activitypub/inbox"
 	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/sfomuseum/go-activitypub/webfinger"
 	"github.com/sfomuseum/runtimevar"
@@ -306,14 +305,5 @@ func (a *Account) SendActivity(ctx context.Context, uris_table *uris.URIs, inbox
 
 	logger.Debug("Post activity to inbox")
 
-	post_opts := &inbox.PostToInboxOptions{
-		// From:     acct,
-		KeyId:      key_id,
-		PrivateKey: private_key,
-		Inbox:      inbox_uri,
-		Activity:   activity,
-		// URIs:       opts.URIs,
-	}
-
-	return inbox.PostToInbox(ctx, post_opts)
+	return activity.PostToInbox(ctx, key_id, private_key, inbox_uri)
 }
