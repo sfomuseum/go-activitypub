@@ -9,7 +9,6 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
-	"github.com/sfomuseum/go-activitypub/inbox"
 )
 
 func Run(ctx context.Context) error {
@@ -102,17 +101,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to create follow activity, %w", err)
 	}
 
-	// enc := json.NewEncoder(os.Stdout)
-	// enc.Encode(activity)
-
-	post_opts := &inbox.PostToInboxOptions{
-		From:     follower_acct,
-		Inbox:    following_inbox,
-		Activity: activity,
-		URIs:     opts.URIs,
-	}
-
-	err = inbox.PostToInbox(ctx, post_opts)
+	err = follower_acct.SendActivity(ctx, opts.URIs, following_inbox, activity)
 
 	if err != nil {
 		return fmt.Errorf("Failed to deliver follow activity, %w", err)

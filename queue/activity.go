@@ -10,13 +10,10 @@ import (
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/id"
-	"github.com/sfomuseum/go-activitypub/inbox"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type DeliverActivityOptions struct {
-	// This is what we used to do. Now we derive it from Activity.Actor
-	// From               *activitypub.Account        `json:"from"`
 	To       string       `json:"to"`
 	Activity *ap.Activity `json:"activity"`
 	// PostId is a misnomer. It is what unique 64-bit ID this package derives
@@ -30,9 +27,8 @@ type DeliverActivityOptions struct {
 }
 
 type DeliverActivityToFollowersOptions struct {
-	AccountsDatabase  database.AccountsDatabase
-	FollowersDatabase database.FollowersDatabase
-	// PostTagsDatabase   database.PostTagsDatabase
+	AccountsDatabase   database.AccountsDatabase
+	FollowersDatabase  database.FollowersDatabase
 	NotesDatabase      database.NotesDatabase
 	DeliveriesDatabase database.DeliveriesDatabase
 	DeliveryQueue      DeliveryQueue
@@ -49,7 +45,6 @@ type DeliverActivityToFollowersOptions struct {
 func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFollowersOptions) error {
 
 	logger := slog.Default()
-	logger = logger.With("method", "DeliverActivityToFollowers")
 	logger = logger.With("actor", opts.Activity.Actor)
 
 	post_id := opts.PostId
@@ -160,7 +155,6 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 	post_id := opts.PostId
 
 	logger := slog.Default()
-	logger = logger.With("method", "DeliverActivity")
 	logger = logger.With("from", from)
 	logger = logger.With("to", to)
 	logger = logger.With("post id", post_id)
@@ -257,14 +251,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 	inbox_uri := recipient.Inbox
 	d.Inbox = inbox_uri
 
-	post_opts := &inbox.PostToInboxOptions{
-		From:     acct,
-		Inbox:    inbox_uri,
-		Activity: activity,
-		URIs:     opts.URIs,
-	}
-
-	err = inbox.PostToInbox(ctx, post_opts)
+	err = acct.SendActivity(ctx, opts.URIs, inbox_uri, activity)
 
 	if err != nil {
 		logger.Error("Failed to post activity to inbox", "error", err)

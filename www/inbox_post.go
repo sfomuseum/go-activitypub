@@ -19,7 +19,6 @@ import (
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/followers"
 	"github.com/sfomuseum/go-activitypub/following"
-	"github.com/sfomuseum/go-activitypub/inbox"
 	"github.com/sfomuseum/go-activitypub/messages"
 	"github.com/sfomuseum/go-activitypub/notes"
 	"github.com/sfomuseum/go-activitypub/posts"
@@ -727,14 +726,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				logger = logger.With("accept", accept.Id)
 
-				post_opts := &inbox.PostToInboxOptions{
-					From:     acct,
-					Inbox:    requestor_actor.Inbox,
-					Activity: accept,
-					URIs:     opts.URIs,
-				}
-
-				err = inbox.PostToInbox(ctx, post_opts)
+				err = acct.SendActivity(ctx, opts.URIs, requestor_actor.Inbox, accept)
 
 				if err != nil {
 

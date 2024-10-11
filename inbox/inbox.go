@@ -3,6 +3,7 @@ package inbox
 import (
 	"bytes"
 	"context"
+	"crypto/rsa"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,21 +15,25 @@ import (
 	"time"
 
 	"github.com/go-fed/httpsig"
-	"github.com/sfomuseum/go-activitypub"
+	// "github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
-	"github.com/sfomuseum/go-activitypub/uris"
+	// "github.com/sfomuseum/go-activitypub/uris"
 	"github.com/sfomuseum/iso8601duration"
 )
 
 type PostToInboxOptions struct {
 	// The `Account` instance of the actor sending the Activity. This is necessary in order
 	// to get access to the private key used to sign the message.
-	From *activitypub.Account
+	// From *activitypub.Account
+	// ...
+	KeyId string
+	// ...
+	PrivateKey *rsa.PrivateKey
 	// The URL of the inbox where the Activity should be posted.
 	Inbox string
 	// The `Activity` instance being posted to the inbox.
 	Activity *ap.Activity
-	URIs     *uris.URIs
+	// URIs     *uris.URIs
 	// Log POST requests before they are sent using the default [log/slog] Logger. Note that this will
 	// include the HTTP signature sent with the request so you should apply all the necessary care that
 	// these values are logged somewhere you don't want unauthorized eyes to see the.
@@ -97,16 +102,18 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) error {
 	// Note that "key_id" here means a pointer to the actor/profile page where the public key
 	// for the follower can be retrieved
 
-	profile_url := opts.From.AccountURL(ctx, opts.URIs)
+	/*
+		profile_url := opts.From.AccountURL(ctx, opts.URIs)
 
-	key_id := profile_url.String()
-	logger.Debug("Post to inbox", "inbox", opts.Inbox, "key_id", key_id)
+		key_id := profile_url.String()
+		logger.Debug("Post to inbox", "inbox", opts.Inbox, "key_id", key_id)
 
-	private_key, err := opts.From.PrivateKeyRSA(ctx)
+		private_key, err := opts.From.PrivateKeyRSA(ctx)
 
-	if err != nil {
-		return fmt.Errorf("Failed to derive private key for from account, %w", err)
-	}
+		if err != nil {
+			return fmt.Errorf("Failed to derive private key for from account, %w", err)
+		}
+	*/
 
 	// https://datatracker.ietf.org/doc/html/draft-cavage-http-signatures#section-1.1
 	// https://pkg.go.dev/github.com/go-fed/httpsig
@@ -133,7 +140,7 @@ func PostToInbox(ctx context.Context, opts *PostToInboxOptions) error {
 		return fmt.Errorf("Failed to create new signer, %w", err)
 	}
 
-	err = signer.SignRequest(private_key, key_id, http_req, enc_req)
+	err = signer.SignRequest(opts.PrivateKey, opts.KeyId, http_req, enc_req)
 
 	if err != nil {
 		return fmt.Errorf("Failed to sign request, %w", err)

@@ -4,12 +4,14 @@ import (
 	"context"
 	"crypto/rsa"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"strconv"
 	"time"
 
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/crypto"
+	"github.com/sfomuseum/go-activitypub/inbox"
 	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/sfomuseum/go-activitypub/webfinger"
 	"github.com/sfomuseum/runtimevar"
@@ -281,4 +283,37 @@ func (a *Account) PrivateKeyRSA(ctx context.Context) (*rsa.PrivateKey, error) {
 
 func (a *Account) loadRuntimeVar(ctx context.Context, uri string) (string, error) {
 	return runtimevar.StringVar(ctx, uri)
+}
+
+func (a *Account) SendActivity(ctx context.Context, uris_table *uris.URIs, inbox_uri string, activity *ap.Activity) error {
+
+	logger := slog.Default()
+
+	profile_url := a.AccountURL(ctx, uris_table)
+	key_id := profile_url.String()
+
+	logger = logger.With("account", a.String())
+	// logger = logger.With("key id", key_id)
+	logger = logger.With("inbox", inbox_uri)
+	logger = logger.With("activity id", activity.Id)
+
+	private_key, err := a.PrivateKeyRSA(ctx)
+
+	if err != nil {
+		logger.Error("Failed to derive private key", "error", err)
+		return fmt.Errorf("Failed to derive private key for from account, %w", err)
+	}
+
+	logger.Debug("Post activity to inbox")
+
+	post_opts := &inbox.PostToInboxOptions{
+		// From:     acct,
+		KeyId:      key_id,
+		PrivateKey: private_key,
+		Inbox:      inbox_uri,
+		Activity:   activity,
+		// URIs:       opts.URIs,
+	}
+
+	return inbox.PostToInbox(ctx, post_opts)
 }
