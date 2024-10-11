@@ -3,6 +3,7 @@ package ap
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/sfomuseum/go-activitypub/uris"
@@ -10,23 +11,37 @@ import (
 
 func NewBoostActivityForNote(ctx context.Context, uris_table *uris.URIs, from string, note_uri string) (*Activity, error) {
 
+	logger := slog.Default()
+	logger = logger.With("from", from)
+	logger = logger.With("note", note_uri)
+
+	logger.Debug("Retrieve note")
+
 	n, err := RetrieveNote(ctx, note_uri)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to retrieve note, %w", err)
 	}
 
-	author, err := RetrieveActor(ctx, n.AttributedTo, uris_table.Insecure)
+	logger = logger.With("attributed to", n.AttributedTo)
+	logger.Debug("Retrieve note")
+
+	author, err := RetrieveActorWithProfileURL(ctx, n.AttributedTo)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to retrieve author (actor) for note, %w", err)
 	}
+
+	logger.Debug("Derive address for author")
 
 	author_addr, err := author.Address()
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to derive note author address, %w", err)
 	}
+
+	logger = logger.With("author address", author_addr)
+	logger.Debug("Create new boost (annouce) activity")
 
 	return NewBoostActivity(ctx, uris_table, from, author_addr, note_uri)
 }
