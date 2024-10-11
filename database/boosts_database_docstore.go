@@ -93,6 +93,51 @@ func (db *DocstoreBoostsDatabase) GetBoostsForPost(ctx context.Context, post_id 
 	q := db.collection.Query()
 	q = q.Where("PostId", "=", post_id)
 
+	return db.getBoostsForQuery(ctx, q, cb)
+}
+
+func (db *DocstoreBoostsDatabase) GetBoostsForAccount(ctx context.Context, account_id int64, cb GetBoostsCallbackFunc) error {
+
+	q := db.collection.Query()
+	q = q.Where("AccountId", "=", account_id)
+
+	return db.getBoostsForQuery(ctx, q, cb)
+}
+
+func (db *DocstoreBoostsDatabase) AddBoost(ctx context.Context, boost *activitypub.Boost) error {
+
+	return db.collection.Put(ctx, boost)
+}
+
+func (db *DocstoreBoostsDatabase) RemoveBoost(ctx context.Context, boost *activitypub.Boost) error {
+
+	return db.collection.Delete(ctx, boost)
+}
+
+func (db *DocstoreBoostsDatabase) Close(ctx context.Context) error {
+	return db.collection.Close()
+}
+
+func (db *DocstoreBoostsDatabase) getBoost(ctx context.Context, q *gc_docstore.Query) (*activitypub.Boost, error) {
+
+	iter := q.Get(ctx)
+	defer iter.Stop()
+
+	var b activitypub.Boost
+	err := iter.Next(ctx, &b)
+
+	if err == io.EOF {
+		return nil, activitypub.ErrNotFound
+	} else if err != nil {
+		return nil, fmt.Errorf("Failed to interate, %w", err)
+	} else {
+		return &b, nil
+	}
+
+}
+
+func (db *DocstoreBoostsDatabase) getBoostsForQuery(ctx context.Context, q *gc_docstore.Query, cb GetBoostsCallbackFunc) error {
+
 	iter := q.Get(ctx)
 	defer iter.Stop()
 
@@ -116,37 +161,4 @@ func (db *DocstoreBoostsDatabase) GetBoostsForPost(ctx context.Context, post_id 
 	}
 
 	return nil
-
-}
-
-func (db *DocstoreBoostsDatabase) getBoost(ctx context.Context, q *gc_docstore.Query) (*activitypub.Boost, error) {
-
-	iter := q.Get(ctx)
-	defer iter.Stop()
-
-	var b activitypub.Boost
-	err := iter.Next(ctx, &b)
-
-	if err == io.EOF {
-		return nil, activitypub.ErrNotFound
-	} else if err != nil {
-		return nil, fmt.Errorf("Failed to interate, %w", err)
-	} else {
-		return &b, nil
-	}
-
-}
-
-func (db *DocstoreBoostsDatabase) AddBoost(ctx context.Context, boost *activitypub.Boost) error {
-
-	return db.collection.Put(ctx, boost)
-}
-
-func (db *DocstoreBoostsDatabase) RemoveBoost(ctx context.Context, boost *activitypub.Boost) error {
-
-	return db.collection.Delete(ctx, boost)
-}
-
-func (db *DocstoreBoostsDatabase) Close(ctx context.Context) error {
-	return db.collection.Close()
 }

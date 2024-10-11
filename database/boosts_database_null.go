@@ -36,6 +36,10 @@ func (db *NullBoostsDatabase) GetBoostsForPost(ctx context.Context, post_id int6
 	return nil
 }
 
+func (db *NullBoostsDatabase) GetBoostsForAccount(ctx context.Context, account_id int64, cb GetBoostsCallbackFunc) error {
+	return nil
+}
+
 func (db *NullBoostsDatabase) AddBoost(ctx context.Context, boost *activitypub.Boost) error {
 	return nil
 }

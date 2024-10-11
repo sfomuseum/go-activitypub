@@ -17,6 +17,8 @@ type GetBoostsCallbackFunc func(context.Context, *activitypub.Boost) error
 type BoostsDatabase interface {
 	GetBoostIdsForDateRange(context.Context, int64, int64, GetBoostIdsCallbackFunc) error
 	GetBoostsForPost(context.Context, int64, GetBoostsCallbackFunc) error
+	GetBoostsForAccount(context.Context, int64, GetBoostsCallbackFunc) error
+	// GetBoostsForActor(context.Context, string, GetBoostsCallbackFunc) error
 	GetBoostWithPostIdAndActor(context.Context, int64, string) (*activitypub.Boost, error)
 	GetBoostWithId(context.Context, int64) (*activitypub.Boost, error)
 	AddBoost(context.Context, *activitypub.Boost) error

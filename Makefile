@@ -190,6 +190,15 @@ boost-note:
 		-insecure \
 		-verbose
 
+list-boosts:
+	go run cmd/list-boosts/main.go \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-boosts-database-uri '$(BOOSTS_DB_URI)' \
+		-account-name $(ACCOUNT) \
+		-hostname localhost:8080 \
+		-insecure \
+		-verbose
+
 # -mention $(MENTION) \
 
 reply:

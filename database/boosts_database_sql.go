@@ -72,73 +72,37 @@ func (db *SQLBoostsDatabase) GetBoostWithPostIdAndActor(ctx context.Context, pos
 	return db.getBoost(ctx, where, post_id, actor)
 }
 
+func (db *SQLBoostsDatabase) GetBoostsForAccount(ctx context.Context, account_id int64, cb GetBoostsCallbackFunc) error {
+
+	where := "account_id = ?"
+
+	args := []interface{}{
+		account_id,
+	}
+
+	return db.getBoostsForQuery(ctx, where, args, cb)
+}
+
+func (db *SQLBoostsDatabase) GetBoostsForPosts(ctx context.Context, post_id int64, cb GetBoostsCallbackFunc) error {
+
+	where := "post_id = ?"
+
+	args := []interface{}{
+		post_id,
+	}
+
+	return db.getBoostsForQuery(ctx, where, args, cb)
+}
+
 func (db *SQLBoostsDatabase) GetBoostsForPostIdAndActor(ctx context.Context, post_id int64, actor string, cb GetBoostsCallbackFunc) error {
 
-	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
-
-		rows := pg_rsp.Rows()
-
-		for rows.Next() {
-
-			var id int64
-			var account_id int64
-			var post_id int64
-			var actor string
-			var created int64
-
-			err := rows.Scan(&id, &account_id, &post_id, &actor, &created)
-
-			switch {
-			case err == sql.ErrNoRows:
-				return nil
-			case err != nil:
-				return err
-			default:
-
-				b := &activitypub.Boost{
-					Id:        id,
-					AccountId: account_id,
-					PostId:    post_id,
-					Actor:     actor,
-					Created:   created,
-				}
-
-				err = cb(ctx, b)
-
-				if err != nil {
-					return fmt.Errorf("Failed to execute callback for '%b', %w", b.Id, err)
-				}
-
-			}
-
-			return nil
-		}
-
-		err := rows.Close()
-
-		if err != nil {
-			return fmt.Errorf("Failed to iterate through database rows, %w", err)
-		}
-
-		return nil
+	where := "post_id = ? AND actor = ?"
+	args := []interface{}{
+		post_id,
+		actor,
 	}
 
-	pg_opts, err := countable.NewCountableOptions()
-
-	if err != nil {
-		return fmt.Errorf("Failed to create pagination options, %w", err)
-	}
-
-	q := fmt.Sprintf("SELECT id, account_id, post_id, actor, created FROM %s WHERE post_id = ? AND actor = ?", SQL_BOOSTS_TABLE_NAME)
-
-	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q, post_id, actor)
-
-	if err != nil {
-		return fmt.Errorf("Failed to execute paginated query, %w", err)
-	}
-
-	return nil
-
+	return db.getBoostsForQuery(ctx, where, args, cb)
 }
 
 func (db *SQLBoostsDatabase) AddBoost(ctx context.Context, b *activitypub.Boost) error {
@@ -203,4 +167,72 @@ func (db *SQLBoostsDatabase) getBoost(ctx context.Context, where string, args ..
 	}
 
 	return b, nil
+}
+
+func (db *SQLBoostsDatabase) getBoostsForQuery(ctx context.Context, where string, args []interface{}, cb GetBoostsCallbackFunc) error {
+
+	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
+
+		rows := pg_rsp.Rows()
+
+		for rows.Next() {
+
+			var id int64
+			var account_id int64
+			var post_id int64
+			var actor string
+			var created int64
+
+			err := rows.Scan(&id, &account_id, &post_id, &actor, &created)
+
+			switch {
+			case err == sql.ErrNoRows:
+				return nil
+			case err != nil:
+				return err
+			default:
+
+				b := &activitypub.Boost{
+					Id:        id,
+					AccountId: account_id,
+					PostId:    post_id,
+					Actor:     actor,
+					Created:   created,
+				}
+
+				err = cb(ctx, b)
+
+				if err != nil {
+					return fmt.Errorf("Failed to execute callback for '%b', %w", b.Id, err)
+				}
+
+			}
+
+			return nil
+		}
+
+		err := rows.Close()
+
+		if err != nil {
+			return fmt.Errorf("Failed to iterate through database rows, %w", err)
+		}
+
+		return nil
+	}
+
+	pg_opts, err := countable.NewCountableOptions()
+
+	if err != nil {
+		return fmt.Errorf("Failed to create pagination options, %w", err)
+	}
+
+	q := fmt.Sprintf("SELECT id, account_id, post_id, actor, created FROM %s WHERE %s", SQL_BOOSTS_TABLE_NAME, where)
+
+	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q, args...)
+
+	if err != nil {
+		return fmt.Errorf("Failed to execute paginated query, %w", err)
+	}
+
+	return nil
 }
