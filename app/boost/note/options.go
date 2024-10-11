@@ -1,4 +1,4 @@
-package boost
+package note
 
 import (
 	"context"
@@ -10,17 +10,14 @@ import (
 )
 
 type RunOptions struct {
-	AccountsDatabaseURI  string
-	FollowersDatabaseURI string
-	// PostsDatabaseURI      string
-	// PostTagsDatabaseURI   string
+	AccountsDatabaseURI   string
+	FollowersDatabaseURI  string
 	DeliveriesDatabaseURI string
 	DeliveryQueueURI      string
 	AccountName           string
-	PostURI               string
-	// MaxAttempts           int
-	URIs    *uris.URIs
-	Verbose bool
+	NoteURI               string
+	URIs                  *uris.URIs
+	Verbose               bool
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -38,17 +35,14 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	uris_table.Insecure = insecure
 
 	opts := &RunOptions{
-		AccountsDatabaseURI:  accounts_database_uri,
-		FollowersDatabaseURI: followers_database_uri,
-		// PostsDatabaseURI:      posts_database_uri,
-		// PostTagsDatabaseURI:   post_tags_database_uri,
+		AccountsDatabaseURI:   accounts_database_uri,
+		FollowersDatabaseURI:  followers_database_uri,
 		DeliveriesDatabaseURI: deliveries_database_uri,
 		DeliveryQueueURI:      delivery_queue_uri,
 		AccountName:           account_name,
-		PostURI:               post,
+		NoteURI:               note_uri,
 		URIs:                  uris_table,
 		Verbose:               verbose,
-		// MaxAttempts:           max_attempts,
 	}
 
 	return opts, nil

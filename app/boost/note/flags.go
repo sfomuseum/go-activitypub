@@ -1,4 +1,4 @@
-package boost
+package note
 
 import (
 	"flag"
@@ -8,17 +8,12 @@ import (
 
 var accounts_database_uri string
 var followers_database_uri string
-
-// var posts_database_uri string
-// var post_tags_database_uri string
 var deliveries_database_uri string
 
 var delivery_queue_uri string
 
 var account_name string
-var post string
-
-// var max_attempts int
+var note_uri string
 
 var hostname string
 var insecure bool
@@ -30,8 +25,6 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "...")
 	fs.StringVar(&followers_database_uri, "followers-database-uri", "", "...")
-	// fs.StringVar(&posts_database_uri, "posts-database-uri", "", "...")
-	// fs.StringVar(&post_tags_database_uri, "post-tags-database-uri", "", "...")
 	fs.StringVar(&deliveries_database_uri, "deliveries-database-uri", "", "...")
 
 	fs.StringVar(&delivery_queue_uri, "delivery-queue-uri", "synchronous://", "...")
@@ -40,9 +33,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&hostname, "hostname", "localhost:8080", "...")
 	fs.BoolVar(&insecure, "insecure", false, "...")
 
-	// fs.IntVar(&max_attempts, "max-attempts", 5, "...")
-
-	fs.StringVar(&post, "post", "", "The URI of the post being boosted.")
+	fs.StringVar(&note_uri, "post", "", "The URI of the note being boosted.")
 
 	fs.BoolVar(&verbose, "verbose", false, "Enable verbose logging")
 	return fs
