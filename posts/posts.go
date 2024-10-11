@@ -96,6 +96,32 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *activitypub.Accoun
 	return p, post_tags, nil
 }
 
+// ActivityFromPost creates a new (ActivityPub) `Activity` instance derived from 'acct', 'post' and 'post_tags'.
+func ActivityFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.Account, post *activitypub.Post, mentions []*activitypub.PostTag) (*ap.Activity, error) {
+
+	from := acct.Address(uris_table.Hostname)
+
+	logger := slog.Default()
+	logger = logger.With("post id", post.Id)
+	logger = logger.With("from", from)
+
+	logger.Debug("Create note from post")
+
+	note, err := NoteFromPost(ctx, uris_table, acct, post, mentions)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to derive note from post, %w", err)
+	}
+
+	to := []string{
+		fmt.Sprintf("%s#Public", ap.ACTIVITYSTREAMS_CONTEXT),
+	}
+
+	logger.Debug("Create activity from note")
+
+	return ap.NewCreateActivity(ctx, uris_table, from, to, note)
+}
+
 // NoteFromPost creates a new (ActivityPub) `Note` instance derived from 'acct', 'post' and 'post_tags'.
 func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.Account, post *activitypub.Post, post_tags []*activitypub.PostTag) (*ap.Note, error) {
 

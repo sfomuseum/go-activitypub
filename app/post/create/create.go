@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/sfomuseum/go-activitypub/ap"
+	// "github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/posts"
 	"github.com/sfomuseum/go-activitypub/queue"
@@ -135,37 +135,20 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	logger = logger.With("post id", post.Id)
 
-	logger.Debug("Create (AP) note from post")
-
-	note, err := posts.NoteFromPost(ctx, opts.URIs, acct, post, mentions)
-
-	if err != nil {
-		return fmt.Errorf("Failed to derive note from post, %w", err)
-	}
-
-	from := acct.Address(opts.URIs.Hostname)
-
-	logger = logger.With("from", from)
-
-	to := []string{
-		fmt.Sprintf("%s#Public", ap.ACTIVITYSTREAMS_CONTEXT),
-	}
-
-	logger.Debug("Create new activity from note")
-
-	a, err := ap.NewCreateActivity(ctx, opts.URIs, from, to, note)
+	activity, err := posts.ActivityFromPost(ctx, opts.URIs, acct, post, mentions)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new (create) activity, %w", err)
 	}
 
+	logger = logger.With("activity id", activity.Id)
+
 	deliver_opts := &queue.DeliverActivityToFollowersOptions{
-		AccountsDatabase:  accounts_db,
-		FollowersDatabase: followers_db,
-		// PostTagsDatabase:   post_tags_db,
+		AccountsDatabase:   accounts_db,
+		FollowersDatabase:  followers_db,
 		DeliveriesDatabase: deliveries_db,
 		DeliveryQueue:      delivery_q,
-		Activity:           a,
+		Activity:           activity,
 		PostId:             post.Id,
 		Mentions:           mentions,
 		URIs:               opts.URIs,
@@ -180,6 +163,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to deliver post, %w", err)
 	}
 
-	logger.Info("Delivered post", "ID", acct.PostURL(ctx, opts.URIs, post).String())
+	logger.Info("Delivered post", "post url", acct.PostURL(ctx, opts.URIs, post).String())
 	return nil
 }
