@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/ap"
 )
 
 func Run(ctx context.Context) error {
@@ -30,7 +30,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	// logger := slog.Default()
 
-	actor, err := activitypub.RetrieveActor(ctx, opts.Address, opts.Insecure)
+	actor, err := ap.RetrieveActor(ctx, opts.Address, opts.Insecure)
 
 	if err != nil {
 		return fmt.Errorf("Failed to retrieve actor, %w", err)

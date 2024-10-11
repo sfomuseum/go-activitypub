@@ -46,7 +46,7 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *activitypub.Accoun
 
 	// Determine other accounts mentioned in post
 
-	addrs_mentioned, err := activitypub.ParseAddressesFromString(body)
+	addrs_mentioned, err := ap.ParseAddressesFromString(body)
 
 	if err != nil {
 		return nil, nil, fmt.Errorf("Failed to derive addresses mentioned in message body, %w", err)
@@ -59,7 +59,7 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *activitypub.Accoun
 
 	for _, name := range addrs_mentioned {
 
-		actor, err := activitypub.RetrieveActor(ctx, name, opts.URIs.Insecure)
+		actor, err := ap.RetrieveActor(ctx, name, opts.URIs.Insecure)
 
 		if err != nil {
 			slog.Error("Failed to retrieve actor data for name, skipping", "name", name, "error", err)

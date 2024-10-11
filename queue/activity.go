@@ -52,7 +52,7 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 
 	logger.Info("Deliver post to followers")
 
-	acct_name, _, err := activitypub.ParseAddress(opts.Activity.Actor)
+	acct_name, _, err := ap.ParseAddress(opts.Activity.Actor)
 
 	if err != nil {
 		logger.Error("Failed to parse (actor) address", "error", err)
@@ -161,7 +161,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 
 	logger.Info("Deliver activity to recipient")
 
-	acct_name, _, err := activitypub.ParseAddress(from)
+	acct_name, _, err := ap.ParseAddress(from)
 
 	if err != nil {
 		logger.Error("Failed to parse (actor) address", "error", err)
@@ -242,7 +242,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 		}
 	}()
 
-	recipient, err := activitypub.RetrieveActor(ctx, to, opts.URIs.Insecure)
+	recipient, err := ap.RetrieveActor(ctx, to, opts.URIs.Insecure)
 
 	if err != nil {
 		return fmt.Errorf("Failed to derive actor for to address, %w", err)

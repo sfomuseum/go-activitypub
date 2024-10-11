@@ -43,7 +43,7 @@ func OutboxGetHandler(opts *OutboxGetHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		account_name, host, err := activitypub.ParseAddressFromRequest(req)
+		account_name, host, err := ap.ParseAddressFromRequest(req)
 
 		if err != nil {
 			logger.Error("Failed to parse address from request", "error", err)

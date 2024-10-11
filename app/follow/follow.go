@@ -78,7 +78,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	logger = logger.With("follower", follower_address)
 	logger = logger.With("following", following_address)
 
-	following_actor, err := activitypub.RetrieveActor(ctx, following_address, opts.URIs.Insecure)
+	following_actor, err := ap.RetrieveActor(ctx, following_address, opts.URIs.Insecure)
 
 	if err != nil {
 		return fmt.Errorf("Failed to retrieve actor for %s, %w", following_address, err)

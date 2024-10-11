@@ -7,6 +7,7 @@ import (
 
 	"github.com/aaronland/go-http-sanitize"
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/sfomuseum/go-activitypub/webfinger"
@@ -54,7 +55,7 @@ func WebfingerHandler(opts *WebfingerHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("resource", resource)
 
-		name, host, err := activitypub.ParseAddress(resource)
+		name, host, err := ap.ParseAddress(resource)
 
 		if err != nil {
 			logger.Error("Failed to parse address (resource)", "error", err)
