@@ -75,20 +75,9 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to retrieve account %s, %w", opts.AccountName, err)
 	}
 
-	// https://github.com/sfomuseum/go-activitypub-sfomuseum/blob/main/app/message/process/process.go#L164-L201
-
-	//  curl -H 'Accept: application/activity+json' https://collection.sfomuseum.org/ap/@N977JE/posts/1844576284093452288 | jq
-
-	n, err := ap.RetrieveNote(ctx, opts.NoteURI)
-
-	if err != nil {
-		return fmt.Errorf("Failed to retrieve note, %w", err)
-	}
-
 	from := acct.Address(opts.URIs.Hostname)
-	author_uri := n.AttributedTo // this is a URI.. is it supposed to be an address?
 
-	boost_activity, err := ap.NewBoostActivity(ctx, opts.URIs, from, author_uri, opts.NoteURI)
+	boost_activity, err := ap.NewBoostActivityForNote(ctx, opts.URIs, from, opts.NoteURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new boost activity, %v", err)

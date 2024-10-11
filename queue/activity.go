@@ -142,6 +142,19 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 		}
 	}
 
+	for _, a := range opts.Activity.Cc {
+
+		logger.Debug("Deliver activity to cc", "address", a)
+
+		err := followers_cb(ctx, a)
+
+		if err != nil {
+			logger.Error("Failed to deliver activity", "address", a, "error", err)
+			return fmt.Errorf("Failed to deliver message to %s , %w", a, err)
+		}
+
+	}
+
 	return nil
 }
 

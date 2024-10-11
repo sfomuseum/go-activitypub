@@ -38,6 +38,17 @@ type Actor struct {
 	Attachments  []*Attachment `json:"attachment,omitempty"` // Is this just a Mastodon-ism?
 }
 
+func (a *Actor) Address() (string, error) {
+
+	u, err := url.Parse(a.Inbox)
+
+	if err != nil {
+		return "", fmt.Errorf("Failed to parse inbox URL, %w", err)
+	}
+
+	return fmt.Sprintf("%s@%s", a.PreferredUsername, u.Host), nil
+}
+
 // Returns the `rsa.PublicKey` instance for 'a'.
 func (a *Actor) PublicKeyRSA(ctx context.Context) (*rsa.PublicKey, error) {
 
@@ -130,8 +141,17 @@ func RetrieveActor(ctx context.Context, id string, insecure bool) (*Actor, error
 		return nil, fmt.Errorf("Failed to derive profile URL from webfinger resource")
 	}
 
-	logger.Debug("Profile page for actor", "profile url", profile_url)
+	return RetrieveActorWithProfileURL(ctx, profile_url)
+}
+
+func RetrieveActorWithProfileURL(ctx context.Context, profile_url string) (*Actor, error) {
+
+	// slog.Info(profile_url)
+
+	logger := slog.Default()
 	logger = logger.With("profile url", profile_url)
+
+	logger.Debug("Retrieve actor with profile")
 
 	profile_req, err := http.NewRequestWithContext(ctx, "GET", profile_url, nil)
 
@@ -157,7 +177,7 @@ func RetrieveActor(ctx context.Context, id string, insecure bool) (*Actor, error
 
 	var actor *Actor
 
-	dec = json.NewDecoder(profile_rsp.Body)
+	dec := json.NewDecoder(profile_rsp.Body)
 	err = dec.Decode(&actor)
 
 	if err != nil {
