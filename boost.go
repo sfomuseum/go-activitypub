@@ -8,9 +8,16 @@ import (
 	"github.com/sfomuseum/go-activitypub/id"
 )
 
-// Note that we are not including the '//' part because that does not get
-// included in serialized net/url.URL instances if the Host element is empty
-const BOOST_URI_SCHEME string = "boost:"
+// Type Boosted represents an object/URI/thing that a sfomuseum/go-activitypub.Account
+// has boosted. It remains TBD whether this should try to be merged with the `Boost`
+// struct below which would really mean replace `Boost.PostId` with `Boost.Object`...
+type Boosted struct {
+	Id        int64  `json:"id"`
+	AccountId int64  `json:"account_id"`
+	Author    string `json:"author"`
+	Object    string `json:"object"`
+	Created   int64  `json:"created"`
+}
 
 // Type Boost is possibly (probably) a misnomer in the same way that type `Post` is (see notes in
 // post.go). Specifically this data and the correspinding `BoostsDatabase` was created to record

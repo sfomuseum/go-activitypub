@@ -83,7 +83,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to create new boost activity, %v", err)
 	}
 
-	// FIX ME..
+	// FIX ME. See notes in sfomuseum/go-activitypub/boost.go
 	boost_id, _ := id.NewId()
 
 	logger = logger.With("activity id", boost_activity.Id)
