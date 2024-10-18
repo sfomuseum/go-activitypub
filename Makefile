@@ -14,7 +14,6 @@ cli:
 
 lambda:
 	@make lambda-server
-	@make lambda-deliver-post
 
 lambda-server:
 	if test -f bootstrap; then rm -f bootstrap; fi
