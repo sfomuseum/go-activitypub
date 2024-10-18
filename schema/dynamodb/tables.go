@@ -11,6 +11,7 @@ import (
 )
 
 var ACCOUNTS_TABLE_NAME = "accounts"
+var ACTIVITIES_TABLE_NAME = "activities"
 var ALIASES_TABLE_NAME = "aliases"
 var PROPERTIES_TABLE_NAME = "properties"
 var FOLLOWERS_TABLE_NAME = "followers"
@@ -28,6 +29,7 @@ var BILLING_MODE = types.BillingModePayPerRequest
 
 var DynamoDBTables = map[string]*dynamodb.CreateTableInput{
 	ACCOUNTS_TABLE_NAME:   DynamoDBAccountsTable,
+	ACTIVITIES_TABLE_NAME: DynamoDBActivitiesTable,
 	ALIASES_TABLE_NAME:    DynamoDBAliasesTable,
 	FOLLOWERS_TABLE_NAME:  DynamoDBFollowersTable,
 	FOLLOWING_TABLE_NAME:  DynamoDBFollowingTable,

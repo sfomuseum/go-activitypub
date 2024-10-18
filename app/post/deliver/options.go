@@ -16,7 +16,7 @@ type RunOptions struct {
 	PostTagsDatabaseURI   string
 	DeliveriesDatabaseURI string
 	DeliveryQueueURI      string
-	SubscriberURI string
+	SubscriberURI         string
 	URIs                  *uris.URIs
 	Mode                  string
 	PostId                int64
@@ -53,6 +53,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		URIs:                  uris_table,
 		Verbose:               verbose,
 		AllowMentions:         allow_mentions,
+		SubscriberURI:         subscriber_uri,
 	}
 
 	return opts, nil

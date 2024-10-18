@@ -96,6 +96,8 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *activitypub.Accoun
 	return p, post_tags, nil
 }
 
+// TBD replace the return value ap.Activity to be activitypub.Activity ?
+
 // ActivityFromPost creates a new (ActivityPub) `Activity` instance derived from 'acct', 'post' and 'post_tags'.
 func ActivityFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.Account, post *activitypub.Post, mentions []*activitypub.PostTag) (*ap.Activity, error) {
 

@@ -4,9 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
+	"sync"
 
 	"github.com/sfomuseum/go-pubsub/publisher"
 )
+
+// TBD replace all instances of ap.Activity with activitypub.Activity ?
+// This would allow to get rid of all the PostId stuff (below) and simply
+// move ap.Activity.Id references around.
 
 type PubSubDeliveryQueueOptions struct {
 	// The actor to whom the activity should be delivered.
@@ -20,21 +26,65 @@ type PubSubDeliveryQueue struct {
 	publisher publisher.Publisher
 }
 
+// In principle this could also be done with a sync.OnceFunc call but that will
+// require that everyone uses Go 1.21 (whose package import changes broke everything)
+// which is literally days old as I write this. So maybe a few releases after 1.21.
+//
+// Also, _not_ using a sync.OnceFunc means we can call RegisterSchemes multiple times
+// if and when multiple gomail-sender instances register themselves.
+
+var register_mu = new(sync.RWMutex)
+var register_map = map[string]bool{}
+
 func init() {
 
 	ctx := context.Background()
+	err := RegisterPubSubSchemes(ctx)
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+// RegisterSchemes will explicitly register all the schemes associated with the `AccessTokensDeliveryAgent` interface.
+func RegisterPubSubSchemes(ctx context.Context) error {
+
+	register_mu.Lock()
+	defer register_mu.Unlock()
 
 	to_register := []string{
 		"awssqs-creds",
 	}
 
-	for _, scheme := range to_register {
-		RegisterDeliveryQueue(ctx, scheme, NewPubSubDeliveryQueue)
+	for _, scheme := range publisher.PublisherSchemes() {
+
+		scheme = strings.Replace(scheme, "://", "", 1)
+
+		// I don't love this so maybe prefix everything as pubsub-{SCHEME} ? TBD... ?
+
+		if scheme != "null" {
+			to_register = append(to_register, scheme)
+		}
 	}
 
-	for _, scheme := range publisher.PublisherSchemes() {
-		RegisterDeliveryQueue(ctx, scheme, NewPubSubDeliveryQueue)
+	for _, scheme := range to_register {
+
+		_, exists := register_map[scheme]
+
+		if exists {
+			continue
+		}
+
+		err := RegisterDeliveryQueue(ctx, scheme, NewPubSubDeliveryQueue)
+
+		if err != nil {
+			return fmt.Errorf("Failed to register delivery queue for '%s', %w", scheme, err)
+		}
+
+		register_map[scheme] = true
 	}
+
+	return nil
 }
 
 func NewPubSubDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, error) {
@@ -55,10 +105,6 @@ func NewPubSubDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, err
 func (q *PubSubDeliveryQueue) DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 
 	ps_opts := PubSubDeliveryQueueOptions{
-		// Actor:      opts.Activity.Actor,
-		// Recipient:  opts.To,
-		// ActivityId: opts.Activity.Id,
-
 		To:     opts.To,
 		PostId: opts.PostId,
 	}

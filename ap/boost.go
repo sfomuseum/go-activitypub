@@ -9,6 +9,9 @@ import (
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
+// TBD replace the return value ap.Activity to be activitypub.Activity ?
+// Also move this in to go-activitypub/boosts...
+
 func NewBoostActivityForNote(ctx context.Context, uris_table *uris.URIs, from string, note_uri string) (*Activity, error) {
 
 	logger := slog.Default()

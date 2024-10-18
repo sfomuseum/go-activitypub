@@ -141,6 +141,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to create new (create) activity, %w", err)
 	}
 
+	// TBD add activity to activities_db
+
 	logger = logger.With("activity id", activity.Id)
 
 	deliver_opts := &queue.DeliverActivityToFollowersOptions{

@@ -12,6 +12,8 @@ var posts_database_uri string
 var post_tags_database_uri string
 var deliveries_database_uri string
 
+var subscriber_uri string
+
 var delivery_queue_uri string
 var max_attempts int
 
@@ -41,7 +43,9 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.IntVar(&max_attempts, "max-attempts", 5, "...")
 	fs.Int64Var(&post_id, "post-id", 0, "...")
 
-	fs.StringVar(&mode, "mode", "cli", "...")
+	fs.StringVar(&subscriber_uri, "subscriber-uri", "", "A valid sfomuseum/go-pubsub/subscriber URI. Required if -mode parameter is 'pubsub'.")
+
+	fs.StringVar(&mode, "mode", "cli", "Valid options are: cli, lambda, pubsub.")
 
 	fs.StringVar(&hostname, "hostname", "localhost:8080", "...")
 	fs.BoolVar(&insecure, "insecure", false, "...")

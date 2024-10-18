@@ -1,5 +1,8 @@
 package queue
 
+// TBD replace all instances of ap.Activity with activitypub.Activity ?
+// This would allow to get rid of all the PostId stuff...
+
 import (
 	"context"
 	"fmt"

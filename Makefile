@@ -6,6 +6,7 @@ cli:
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/add-account cmd/add-account/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/get-account cmd/get-account/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/create-post cmd/create-post/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/deliver-post cmd/deliver-post/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-followers cmd/list-followers/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-addresses cmd/list-addresses/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/counts-for-date cmd/counts-for-date/main.go
@@ -36,6 +37,7 @@ SQLITE3=sqlite3
 TABLE_PREFIX=
 
 ACCOUNTS_DB=work/accounts.db
+ACTIVITIES_DB=work/activities.db
 FOLLOWERS_DB=work/followers.db
 FOLLOWING_DB=work/following.db
 POSTS_DB=work/posts.db
@@ -49,6 +51,7 @@ LIKES_DB=work/likes.db
 PROPERTIES_DB=work/properties.db
 
 ACCOUNTS_DB_URI=sql://sqlite3?dsn=$(ACCOUNTS_DB)
+ACTIVITIES_DB_URI=sql://sqlite3?dsn=$(ACTIVITIES_DB)
 FOLLOWERS_DB_URI=sql://sqlite3?dsn=$(FOLLOWERS_DB)
 FOLLOWING_DB_URI=sql://sqlite3?dsn=$(FOLLOWING_DB)
 BLOCKS_DB_URI=sql://sqlite3?dsn=$(BLOCKS_DB)
@@ -62,6 +65,7 @@ LIKES_DB_URI=sql://sqlite3?dsn=$(LIKES_DB)
 PROPERTIES_DB_URI=sql://sqlite3?dsn=$(PROPERTIES_DB)
 
 ACCOUNTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+ACTVITIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)activities?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
 ALIASES_DB_URI=awsdynamodb://$(TABLE_PREFIX)aliases?partition_key=Name&allow_scans=true&local=true&region=localhost&credentials=anon:
 BLOCKS_DB_URI=awsdynamodb://$(TABLE_PREFIX)blocks?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
 BOOSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)boosts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
@@ -89,6 +93,20 @@ db-sqlite:
 	$(SQLITE3) $(LIKES_DB) < schema/sqlite/likes.schema
 	$(SQLITE3) $(PROPERTIES_DB) < schema/sqlite/properties.schema
 	$(SQLITE3) $(DELIVERIES_DB) < schema/sqlite/deliveries.schema
+
+DELIVERY_QUEUE_URI=synchronous://
+
+deliver-pubsub:
+	go run cmd/deliver-post/main.go \
+		-mode pubsub \
+		-subscriber-uri 'redis://?channel=activitypub' \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
+		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
+		-posts-database-uri '$(POSTS_DB_URI)' \
+		-post-tags-database-uri '$(POST_TAGS_DB_URI)' \
+		-insecure \
+		-verbose
 
 setup-accounts:
 	go run cmd/add-account/main.go \
@@ -173,6 +191,7 @@ post:
 		-posts-database-uri '$(POSTS_DB_URI)' \
 		-post-tags-database-uri '$(POST_TAGS_DB_URI)' \
 		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
+		-delivery-queue-uri '$(DELIVERY_QUEUE_URI)' \
 		-account-name alice \
 		-message "$(MESSAGE)" \
 		-hostname localhost:8080 \
@@ -187,6 +206,7 @@ boost-note:
 		-account-name doug \
 		-note "$(NOTE)" \
 		-hostname localhost:8080 \
+		-delivery-queue-uri '$(DELIVERY_QUEUE_URI)' \
 		-insecure \
 		-verbose
 
