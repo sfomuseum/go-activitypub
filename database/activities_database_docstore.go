@@ -55,6 +55,23 @@ func (db *DocstoreActivitiesDatabase) GetActivityWithId(ctx context.Context, id 
 	return db.getActivity(ctx, q)
 }
 
+func (db *DocstoreActivitiesDatabase) GetActivityWithActivityPubId(ctx context.Context, id string) (*activitypub.Activity, error) {
+
+	q := db.collection.Query()
+	q = q.Where("ActivityPubId", "=", id)
+
+	return db.getActivity(ctx, q)
+}
+
+func (db *DocstoreActivitiesDatabase) GetActivityWithActivityTypeAndId(ctx context.Context, activity_type activitypub.ActivityType, id int64) (*activitypub.Activity, error) {
+
+	q := db.collection.Query()
+	q = q.Where("ActivityType", "=", activity_type)
+	q = q.Where("ActivityTypeId", "=", id)
+
+	return db.getActivity(ctx, q)
+}
+
 func (db *DocstoreActivitiesDatabase) Close(ctx context.Context) error {
 	return db.collection.Close()
 }

@@ -17,6 +17,7 @@ type ActivitiesDatabase interface {
 	AddActivity(context.Context, *activitypub.Activity) error
 	GetActivityWithId(context.Context, int64) (*activitypub.Activity, error)
 	GetActivityWithActivityPubId(context.Context, string) (*activitypub.Activity, error)
+	GetActivityWithActivityTypeAnId(context.Context, activitypub.ActivityType, int64) (*activitypub.Activity, error)
 	GetActivities(context.Context, GetActivityCallbackFunc) error
 	GetActivitiesForAccount(context.Context, int64, GetActivityCallbackFunc) error
 	Close(context.Context) error
