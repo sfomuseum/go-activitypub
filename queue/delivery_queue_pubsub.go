@@ -8,11 +8,11 @@ import (
 	"github.com/sfomuseum/go-pubsub/publisher"
 )
 
-type PubSubDeliveryQueuePostOptions struct {
-	AccountId  int64  `json:"account_id"` // Deprecated
-	Actor      string `json:"actor"`      // The new new
-	Recipient  string `json:"recipient"`
-	ActivityId string `json:"activity_id"`
+type PubSubDeliveryQueueOptions struct {
+	// The actor to whom the activity should be delivered.
+	To string `json:"to"`
+	// Remember PostId is a misnomer. See notes in activity.go
+	PostId int64 `json:"post_id"`
 }
 
 type PubSubDeliveryQueue struct {
@@ -54,10 +54,13 @@ func NewPubSubDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, err
 
 func (q *PubSubDeliveryQueue) DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 
-	ps_opts := PubSubDeliveryQueuePostOptions{
-		Actor:      opts.Activity.Actor,
-		Recipient:  opts.To,
-		ActivityId: opts.Activity.Id,
+	ps_opts := PubSubDeliveryQueueOptions{
+		// Actor:      opts.Activity.Actor,
+		// Recipient:  opts.To,
+		// ActivityId: opts.Activity.Id,
+
+		To:     opts.To,
+		PostId: opts.PostId,
 	}
 
 	enc_opts, err := json.Marshal(ps_opts)

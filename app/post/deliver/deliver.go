@@ -181,7 +181,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 				// logger.Debug("SQS", "message", message.Body)
 
-				var ps_opts *queue.PubSubDeliveryQueuePostOptions
+				var ps_opts *queue.PubSubDeliveryQueueOptions
 
 				err := json.Unmarshal([]byte(message.Body), &ps_opts)
 
@@ -190,41 +190,38 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 					return fmt.Errorf("Failed to unmarshal post options, %w", err)
 				}
 
-				acct, err := accounts_db.GetAccountWithId(ctx, ps_opts.AccountId)
+				// We check this below after we've ensured recipient isn't mentioned in post (tags)
+
+				recipient := ps_opts.To
+
+				logger = logger.With("to", recipient)
+				logger = logger.With("post id", ps_opts.PostId)
+
+				post, err := posts_db.GetPostWithId(ctx, ps_opts.PostId)
 
 				if err != nil {
-					slog.Error("Failed to retrieve account", "account id", ps_opts.Recipient, "error", err)
+					logger.Error("Failed to retrieve post", "error", err)
+					return fmt.Errorf("Failed to retrieve post, %w", err)
+				}
+
+				acct, err := accounts_db.GetAccountWithId(ctx, post.AccountId)
+
+				if err != nil {
+					logger.Error("Failed to retrieve account", "account id", post.AccountId)
 					return fmt.Errorf("Failed to retrieve account, %w", err)
 				}
 
 				logger = logger.With("account id", acct.Id)
-				logger = logger.With("recipient", ps_opts.Recipient)
 
-				is_follower, _, err := followers.IsFollower(ctx, followers_db, acct.Id, ps_opts.Recipient)
+				is_follower, _, err := followers.IsFollower(ctx, followers_db, acct.Id, recipient)
 
 				if err != nil {
-					slog.Error("Unable to determine if recipient is not following account", "recipient", ps_opts.Recipient, "error", err)
+					logger.Error("Unable to determine if recipient is not following account", "error", err)
 					return fmt.Errorf("Unable to determine if recipient is following account")
 				}
 
 				logger.Info("Follower check", "is_follower", is_follower)
 				is_allowed := is_follower
-
-				// We check this below after we've ensured recipient isn't mentioned in post (tags)
-
-				post, err := posts_db.GetPostWithId(ctx, ps_opts.PostId)
-
-				if err != nil {
-					slog.Error("Failed to retrieve post", "post id", ps_opts.PostId, "error", err)
-					return fmt.Errorf("Failed to retrieve post, %w", err)
-				}
-
-				logger = logger.With("post id", post.Id)
-
-				if post.AccountId != acct.Id {
-					slog.Error("Post owned by different account", "post account id", post.AccountId)
-					return fmt.Errorf("Post owned by different account")
-				}
 
 				mentions := make([]*activitypub.PostTag, 0)
 
@@ -244,10 +241,10 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 					logger.Debug("Check to see whether recipient is listed in post tags", "count tags", len(mentions))
 
-					r_actor, err := ap.RetrieveActor(ctx, ps_opts.Recipient, opts.URIs.Insecure)
+					r_actor, err := ap.RetrieveActor(ctx, recipient, opts.URIs.Insecure)
 
 					if err != nil {
-						logger.Warn("Failed to retrieve actor record for recipient", "recipient", ps_opts.Recipient, "error", err)
+						logger.Warn("Failed to retrieve actor record for recipient", "error", err)
 					} else {
 
 						for _, t := range mentions {
@@ -284,7 +281,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 				logger = logger.With("activity id", activity.Id)
 
 				deliver_opts := &queue.DeliverActivityOptions{
-					To:                 ps_opts.Recipient,
+					To:                 recipient,
 					Activity:           activity,
 					PostId:             post.Id,
 					AccountsDatabase:   accounts_db,
