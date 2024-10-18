@@ -2,6 +2,8 @@ module github.com/sfomuseum/go-activitypub
 
 go 1.23
 
+replace github.com/hpcloud/tail v1.0.0 => github.com/sfomuseum/tail v1.0.2
+
 require (
 	github.com/aaronland/go-aws-dynamodb v0.4.0
 	github.com/aaronland/go-http-sanitize v0.0.8
@@ -69,6 +71,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/wire v0.6.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.13.0 // indirect
+	github.com/hpcloud/tail v1.0.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jtacoma/uritemplates v1.0.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
@@ -89,4 +92,5 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240812133136-8ffd90a71988 // indirect
 	google.golang.org/grpc v1.65.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
+	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 )

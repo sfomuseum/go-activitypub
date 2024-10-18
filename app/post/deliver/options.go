@@ -16,6 +16,7 @@ type RunOptions struct {
 	PostTagsDatabaseURI   string
 	DeliveriesDatabaseURI string
 	DeliveryQueueURI      string
+	SubscriberURI string
 	URIs                  *uris.URIs
 	Mode                  string
 	PostId                int64

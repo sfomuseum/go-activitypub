@@ -311,6 +311,13 @@ github.com/googleapis/gax-go/v2/apierror
 github.com/googleapis/gax-go/v2/apierror/internal/proto
 github.com/googleapis/gax-go/v2/callctx
 github.com/googleapis/gax-go/v2/internal
+# github.com/hpcloud/tail v1.0.0 => github.com/sfomuseum/tail v1.0.2
+## explicit; go 1.18
+github.com/hpcloud/tail
+github.com/hpcloud/tail/ratelimiter
+github.com/hpcloud/tail/util
+github.com/hpcloud/tail/watch
+github.com/hpcloud/tail/winfile
 # github.com/jmespath/go-jmespath v0.4.0
 ## explicit; go 1.14
 github.com/jmespath/go-jmespath
@@ -348,6 +355,7 @@ github.com/sfomuseum/go-flags/multi
 ## explicit; go 1.23
 github.com/sfomuseum/go-pubsub
 github.com/sfomuseum/go-pubsub/publisher
+github.com/sfomuseum/go-pubsub/subscriber
 # github.com/sfomuseum/go-template v1.10.0
 ## explicit; go 1.18
 github.com/sfomuseum/go-template/funcs
@@ -567,3 +575,6 @@ google.golang.org/protobuf/runtime/protoimpl
 google.golang.org/protobuf/types/known/anypb
 google.golang.org/protobuf/types/known/durationpb
 google.golang.org/protobuf/types/known/timestamppb
+# gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7
+## explicit
+gopkg.in/tomb.v1
