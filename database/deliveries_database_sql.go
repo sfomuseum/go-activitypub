@@ -77,6 +77,13 @@ func (db *SQLDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id int64
 	return db.getDelivery(ctx, where, id)
 }
 
+func (db *SQLDeliveriesDatabase) GetDeliveries(ctx context.Context, cb GetDeliveriesCallbackFunc) error {
+	where := "1 = 1"
+	args := make([]interface{}, 0)
+
+	return db.getDeliveries(ctx, where, args, cb)
+}
+
 func (db *SQLDeliveriesDatabase) GetDeliveriesWithActivityIdAndRecipient(ctx context.Context, activity_id int64, recipient string, cb GetDeliveriesCallbackFunc) error {
 
 	where := "activity_id = ? AND recipient = ?"

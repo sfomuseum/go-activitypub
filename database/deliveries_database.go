@@ -17,6 +17,7 @@ type GetDeliveriesCallbackFunc func(context.Context, *activitypub.Delivery) erro
 type DeliveriesDatabase interface {
 	AddDelivery(context.Context, *activitypub.Delivery) error
 	GetDeliveryWithId(context.Context, int64) (*activitypub.Delivery, error)
+	GetDeliveries(context.Context, GetDeliveriesCallbackFunc) error
 	GetDeliveriesWithActivityIdAndRecipient(context.Context, int64, string, GetDeliveriesCallbackFunc) error
 	GetDeliveriesWithActivityPubIdAndRecipient(context.Context, string, string, GetDeliveriesCallbackFunc) error
 	GetDeliveryIdsForDateRange(context.Context, int64, int64, GetDeliveryIdsCallbackFunc) error

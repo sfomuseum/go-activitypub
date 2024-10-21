@@ -33,6 +33,10 @@ func (db *SlogDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id int6
 	return nil, activitypub.ErrNotFound
 }
 
+func (db *SlogDeliveriesDatabase) GetDeliveries(ctx context.Context, cb GetDeliveriesCallbackFunc) error {
+	return nil
+}
+
 func (db *SlogDeliveriesDatabase) GetDeliveriesWithActivityIdAndRecipient(ctx context.Context, activity_id int64, recipient string, cb GetDeliveriesCallbackFunc) error {
 	return nil
 }

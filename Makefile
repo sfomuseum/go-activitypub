@@ -278,6 +278,11 @@ list-activities:
 		-activities-database-uri '$(ACTIVITIES_DB_URI)' \
 		-verbose
 
+list-deliveries:
+	go run cmd/list-deliveries/main.go \
+		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
+		-verbose
+
 retrieve:
 	go run cmd/retrieve-actor/main.go \
 		-address $(ADDRESS) \

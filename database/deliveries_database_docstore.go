@@ -85,6 +85,12 @@ func (db *DocstoreDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id 
 	return db.getDelivery(ctx, q)
 }
 
+func (db *DocstoreDeliveriesDatabase) GetDeliveries(ctx context.Context, deliveries_callback GetDeliveriesCallbackFunc) error {
+
+	q := db.collection.Query()
+	return db.getDeliveriesWithQuery(ctx, q, deliveries_callback)
+}
+
 func (db *DocstoreDeliveriesDatabase) GetDeliveriesWithActivityIdAndRecipient(ctx context.Context, activity_id int64, recipient string, deliveries_callback GetDeliveriesCallbackFunc) error {
 
 	q := db.collection.Query()
