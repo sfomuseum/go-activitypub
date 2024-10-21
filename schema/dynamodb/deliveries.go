@@ -24,7 +24,7 @@ var DynamoDBDeliveriesTable = &dynamodb.CreateTableInput{
 		},
 		{
 			AttributeName: aws.String("ActivityPubId"),
-			AttributeType: "N",
+			AttributeType: "S",
 		},
 		{
 			AttributeName: aws.String("AccountId"),
@@ -105,10 +105,10 @@ var DynamoDBDeliveriesTable = &dynamodb.CreateTableInput{
 			},
 		},
 		{
-			IndexName: aws.String("by_post_recipient"),
+			IndexName: aws.String("by_activity_recipient"),
 			KeySchema: []types.KeySchemaElement{
 				{
-					AttributeName: aws.String("PostId"),
+					AttributeName: aws.String("ActivityId"),
 					KeyType:       "HASH",
 				},
 				{

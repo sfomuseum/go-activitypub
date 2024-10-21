@@ -188,6 +188,7 @@ unblock:
 post:
 	go run cmd/create-post/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-activities-database-uri '$(ACTIVITIES_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
 		-posts-database-uri '$(POSTS_DB_URI)' \
 		-post-tags-database-uri '$(POST_TAGS_DB_URI)' \
@@ -202,6 +203,7 @@ post:
 boost-note:
 	go run cmd/boost-note/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-activities-database-uri '$(ACTIVITIES_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
 		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
 		-account-name doug \
