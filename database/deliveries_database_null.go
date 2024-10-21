@@ -36,6 +36,10 @@ func (db *NullDeliveriesDatabase) GetDeliveriesWithActivityPubIdAndRecipient(ctx
 	return nil
 }
 
+func (db *NullDeliveriesDatabase) GetDeliveryIdsForDateRange(ctx context.Context, start int64, end int64, cb GetDeliveryIdsCallbackFunc) error {
+	return nil
+}
+
 func (db *NullDeliveriesDatabase) Close(ctx context.Context) error {
 	return nil
 }

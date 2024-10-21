@@ -15,11 +15,11 @@ type GetDeliveryIdsCallbackFunc func(context.Context, int64) error
 type GetDeliveriesCallbackFunc func(context.Context, *activitypub.Delivery) error
 
 type DeliveriesDatabase interface {
-	GetDeliveryIdsForDateRange(context.Context, int64, int64, GetDeliveryIdsCallbackFunc) error
 	AddDelivery(context.Context, *activitypub.Delivery) error
 	GetDeliveryWithId(context.Context, int64) (*activitypub.Delivery, error)
 	GetDeliveriesWithActivityIdAndRecipient(context.Context, int64, string, GetDeliveriesCallbackFunc) error
 	GetDeliveriesWithActivityPubIdAndRecipient(context.Context, string, string, GetDeliveriesCallbackFunc) error
+	GetDeliveryIdsForDateRange(context.Context, int64, int64, GetDeliveryIdsCallbackFunc) error
 	Close(context.Context) error
 }
 

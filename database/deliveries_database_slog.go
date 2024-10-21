@@ -41,6 +41,10 @@ func (db *SlogDeliveriesDatabase) GetDeliveriesWithActivityPubIdAndRecipient(ctx
 	return nil
 }
 
+func (db *SlogDeliveriesDatabase) GetDeliveryIdsForDateRange(ctx context.Context, start int64, end int64, cb GetDeliveryIdsCallbackFunc) error {
+	return nil
+}
+
 func (db *SlogDeliveriesDatabase) Close(ctx context.Context) error {
 	return nil
 }
