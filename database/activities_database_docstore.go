@@ -72,6 +72,21 @@ func (db *DocstoreActivitiesDatabase) GetActivityWithActivityTypeAndId(ctx conte
 	return db.getActivity(ctx, q)
 }
 
+func (db *DocstoreActivitiesDatabase) GetActivities(ctx context.Context, cb GetActivitiesCallbackFunc) error {
+
+	q := db.collection.Query()
+
+	return db.getActivitiesWithQuery(ctx, q, cb)
+}
+
+func (db *DocstoreActivitiesDatabase) GetActivitiesForAccount(ctx context.Context, id int64, cb GetActivitiesCallbackFunc) error {
+
+	q := db.collection.Query()
+	q = q.Where("AccountId", "=", id)
+
+	return db.getActivitiesWithQuery(ctx, q, cb)
+}
+
 func (db *DocstoreActivitiesDatabase) Close(ctx context.Context) error {
 	return db.collection.Close()
 }
@@ -97,4 +112,31 @@ func (db *DocstoreActivitiesDatabase) getActivity(ctx context.Context, q *gc_doc
 
 	return nil, activitypub.ErrNotFound
 
+}
+
+func (db *DocstoreActivitiesDatabase) getActivitiesWithQuery(ctx context.Context, q *gc_docstore.Query, cb GetActivitiesCallbackFunc) error {
+
+	iter := q.Get(ctx)
+	defer iter.Stop()
+
+	for {
+
+		var a activitypub.Activity
+		err := iter.Next(ctx, &a)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+
+			err := cb(ctx, &a)
+
+			if err != nil {
+				return fmt.Errorf("Failed to execute activities callback for '%s', %w", a.Id, err)
+			}
+		}
+	}
+
+	return nil
 }

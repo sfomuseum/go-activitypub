@@ -1,0 +1,17 @@
+DROP TABLE IF EXISTS activities;
+
+CREATE TABLE activities (
+       id INTEGER PRIMARY KEY,
+       activitypub_id TEXT,
+       account_type INTEGER,
+       activity_type INTEGER,
+       activity_type_id INTEGER,       
+       body JSON,
+       created INTEGER,
+       lastmodified INTEGER
+);
+
+CREATE UNIQUE INDEX `activities_by_activitypub_id` ON activities (`activitypub_id`);
+CREATE UNIQUE INDEX `activities_by_account_id` ON activities (`account_id`);
+CREATE UNIQUE INDEX `activities_by_activity_type_and_id` ON activities (`activity_type`,`activity_type_id`);
+CREATE INDEX `activities_by_created` ON activities (`created`);

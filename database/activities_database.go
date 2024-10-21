@@ -11,15 +11,15 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 )
 
-type GetActivityCallbackFunc func(context.Context, *activitypub.Activity) error
+type GetActivitiesCallbackFunc func(context.Context, *activitypub.Activity) error
 
 type ActivitiesDatabase interface {
 	AddActivity(context.Context, *activitypub.Activity) error
 	GetActivityWithId(context.Context, int64) (*activitypub.Activity, error)
 	GetActivityWithActivityPubId(context.Context, string) (*activitypub.Activity, error)
 	GetActivityWithActivityTypeAnId(context.Context, activitypub.ActivityType, int64) (*activitypub.Activity, error)
-	GetActivities(context.Context, GetActivityCallbackFunc) error
-	GetActivitiesForAccount(context.Context, int64, GetActivityCallbackFunc) error
+	GetActivities(context.Context, GetActivitiesCallbackFunc) error
+	GetActivitiesForAccount(context.Context, int64, GetActivitiesCallbackFunc) error
 	Close(context.Context) error
 }
 
