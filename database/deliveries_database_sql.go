@@ -59,6 +59,22 @@ func NewSQLDeliveriesDatabase(ctx context.Context, uri string) (DeliveriesDataba
 	return db, nil
 }
 
+func (db *SQLDeliveriesDatabase) AddDelivery(ctx context.Context, d *activitypub.Delivery) error {
+	return nil
+}
+
+func (db *SQLDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id int64) (*activitypub.Delivery, error) {
+	return nil, activitypub.ErrNotFound
+}
+
+func (db *SQLDeliveriesDatabase) GetDeliveriesWithActivityIdAndRecipient(ctx context.Context, activity_id int64, recipient string, cb GetDeliveriesCallbackFunc) error {
+	return nil
+}
+
+func (db *SQLDeliveriesDatabase) GetDeliveriesWithActivityPubIdAndRecipient(ctx context.Context, activity_pub_id string, recipient string, cb GetDeliveriesCallbackFunc) error {
+	return nil
+}
+
 func (db *SQLDeliveriesDatabase) GetDeliveryIdsForDateRange(ctx context.Context, start int64, end int64, cb GetDeliveryIdsCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
@@ -106,21 +122,6 @@ func (db *SQLDeliveriesDatabase) GetDeliveryIdsForDateRange(ctx context.Context,
 	if err != nil {
 		return fmt.Errorf("Failed to execute paginated query, %w", err)
 	}
-
-	return nil
-}
-
-func (db *SQLDeliveriesDatabase) AddFollower(ctx context.Context, d *activitypub.Delivery) error {
-
-	/*
-		q := fmt.Sprintf("INSERT INTO %s (id, account_id, follower_address, created) VALUES (?, ?, ?, ?)", SQL_DELIVERIES_TABLE_NAME)
-
-		_, err := db.database.ExecContext(ctx, q, f.Id, f.AccountId, f.FollowerAddress, f.Created)
-
-		if err != nil {
-			return fmt.Errorf("Failed to add follower, %w", err)
-		}
-	*/
 
 	return nil
 }

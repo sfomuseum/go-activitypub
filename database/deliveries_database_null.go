@@ -28,7 +28,11 @@ func (db *NullDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id int6
 	return nil, activitypub.ErrNotFound
 }
 
-func (db *NullDeliveriesDatabase) GetDeliveriesWithPostIdAndRecipient(ctx context.Context, post_id int64, recipient string, cb GetDeliveriesCallbackFunc) error {
+func (db *NullDeliveriesDatabase) GetDeliveriesWithActivityIdAndRecipient(ctx context.Context, activity_id int64, recipient string, cb GetDeliveriesCallbackFunc) error {
+	return nil
+}
+
+func (db *NullDeliveriesDatabase) GetDeliveriesWithActivityPubIdAndRecipient(ctx context.Context, activity_pub_id string, recipient string, cb GetDeliveriesCallbackFunc) error {
 	return nil
 }
 
