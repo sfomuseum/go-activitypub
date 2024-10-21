@@ -17,12 +17,8 @@ import (
 )
 
 type DeliverActivityOptions struct {
-	To       string       `json:"to"`
-	Activity *ap.Activity `json:"activity"`
-	// PostId is a misnomer. It is what unique 64-bit ID this package derives
-	// for things stored in one of the "database" tables. The name is a reflection
-	// of early attempts just to figure things out.
-	PostId             int64                       `json:"post_id"`
+	To                 string                      `json:"to"`
+	Activity           *activitypub.Activity       `json:"activity"`
 	URIs               *uris.URIs                  `json:"uris"`
 	AccountsDatabase   database.AccountsDatabase   `json:"accounts_database,omitempty"`
 	DeliveriesDatabase database.DeliveriesDatabase `json:"deliveries_database,omitempty"`
@@ -35,41 +31,26 @@ type DeliverActivityToFollowersOptions struct {
 	NotesDatabase      database.NotesDatabase
 	DeliveriesDatabase database.DeliveriesDatabase
 	DeliveryQueue      DeliveryQueue
-	Activity           *ap.Activity
-	// PostId is a misnomer. It is what unique 64-bit ID this package derives
-	// for things stored in one of the "database" tables. The name is a reflection
-	// of early attempts just to figure things out.
-	PostId      int64
-	Mentions    []*activitypub.PostTag `json:"mentions"`
-	MaxAttempts int                    `json:"max_attempts"`
-	URIs        *uris.URIs
+	Activity           *activitypub.Activity
+	Mentions           []*activitypub.PostTag `json:"mentions"`
+	MaxAttempts        int                    `json:"max_attempts"`
+	URIs               *uris.URIs
 }
 
 func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFollowersOptions) error {
 
 	logger := slog.Default()
-	logger = logger.With("actor", opts.Activity.Actor)
+	logger = logger.With("activity id", opts.Activity.Id)
+	logger = logger.With("account id", opts.Activity.AccountId)
 
-	post_id := opts.PostId
-	logger = logger.With("post id", post_id)
+	logger.Info("Deliver activity to followers")
 
-	logger.Info("Deliver post to followers")
-
-	acct_name, _, err := ap.ParseAddress(opts.Activity.Actor)
-
-	if err != nil {
-		logger.Error("Failed to parse (actor) address", "error", err)
-		return fmt.Errorf("Failed to parse (actor) address, %w", err)
-	}
-
-	acct, err := opts.AccountsDatabase.GetAccountWithName(ctx, acct_name)
+	acct, err := opts.AccountsDatabase.GetAccountWithId(ctx, opts.Activity.AccountId)
 
 	if err != nil {
 		logger.Error("Failed to retrieve account ID for post", "error", err)
 		return fmt.Errorf("Failed to retrieve account ID for post, %w", err)
 	}
-
-	logger = logger.With("account id", acct.Id)
 
 	// TBD - compare acct_address and opts.Activity.Actor?
 	acct_address := acct.Address(opts.URIs.Hostname)
@@ -89,11 +70,11 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 		}
 
 		// This will probably fail because types...?
-		err := opts.DeliveriesDatabase.GetDeliveriesWithPostIdAndRecipient(ctx, post_id, follower_uri, deliveries_cb)
+		err := opts.DeliveriesDatabase.GetDeliveriesWithPostIdAndRecipient(ctx, opts.Activity.Id, follower_uri, deliveries_cb)
 
 		if err != nil {
 			logger.Error("Failed to retrieve deliveries for post and recipient", "recipient", follower_uri, "error", err)
-			return fmt.Errorf("Failed to retrieve deliveries for post (%d) and recipient (%s), %w", post_id, follower_uri, err)
+			return fmt.Errorf("Failed to retrieve deliveries for post (%d) and recipient (%s), %w", opts.Activity.Id, follower_uri, err)
 		}
 
 		if already_delivered {
@@ -104,7 +85,6 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 		post_opts := &DeliverActivityOptions{
 			To:                 follower_uri,
 			Activity:           opts.Activity,
-			PostId:             post_id,
 			URIs:               opts.URIs,
 			AccountsDatabase:   opts.AccountsDatabase,
 			DeliveriesDatabase: opts.DeliveriesDatabase,
@@ -145,7 +125,14 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 		}
 	}
 
-	for _, a := range opts.Activity.Cc {
+	ap_activity, err := opts.Activity.UnmarshalActivity()
+
+	if err != nil {
+		logger.Error("Failed to unmarshal activity", "error", err)
+		return fmt.Errorf("Failed to unmarshal activity, %w", err)
+	}
+
+	for _, a := range ap_activity.Cc {
 
 		logger.Debug("Deliver activity to cc", "address", a)
 
@@ -165,15 +152,21 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 // For posts with bodies starting with "boost:" see notes in `DeliverActivityToFollowers` above.
 func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 
-	activity := opts.Activity
-	from := activity.Actor
-	to := opts.To
-	post_id := opts.PostId
-
 	logger := slog.Default()
+	logger = logger.With("activity id", opts.Activity.Id)
+
+	ap_activity, err := opts.Activity.UnmarshalActivity()
+
+	if err != nil {
+		logger.Error("Failed to unmarshal activity", "error", err)
+		return fmt.Errorf("Failed to unmarshal activity, %w", err)
+	}
+
+	from := ap_activity.Actor
+	to := opts.To
+
 	logger = logger.With("from", from)
 	logger = logger.With("to", to)
-	logger = logger.With("post id", post_id)
 
 	logger.Info("Deliver activity to recipient")
 
@@ -206,11 +199,11 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 			return nil
 		}
 
-		err := opts.DeliveriesDatabase.GetDeliveriesWithPostIdAndRecipient(ctx, post_id, to, deliveries_cb)
+		err := opts.DeliveriesDatabase.GetDeliveriesWithPostIdAndRecipient(ctx, opts.Activity.Id, to, deliveries_cb)
 
 		if err != nil {
-			logger.Error("Failed to count deliveries for post ID and recipient", "error", err)
-			return fmt.Errorf("Failed to count deliveries for post ID and recipient, %w", err)
+			logger.Error("Failed to count deliveries for \"post\" ID and recipient", "error", err)
+			return fmt.Errorf("Failed to count deliveries for \"post\" ID and recipient, %w", err)
 		}
 
 		logger.Debug("Deliveries attempted", "count", count_attempts)
@@ -224,18 +217,15 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 	// Sort out dealing with Snowflake errors sooner...
 	delivery_id, _ := id.NewId()
 
-	activity_id := fmt.Sprintf("%s#%s", activity.Type, activity.Id)
-
 	logger = logger.With("delivery id", delivery_id)
-	logger = logger.With("activity_id", activity_id)
 
 	now := time.Now()
 	ts := now.Unix()
 
 	d := &activitypub.Delivery{
-		Id:         delivery_id,
-		ActivityId: activity_id,
-		PostId:     post_id,
+		Id: delivery_id,
+		// FIX ME activity ID and activitypub ID...
+		ActivityId: opts.Activity.ActivityPubId,
 		AccountId:  acct.Id,
 		Recipient:  to,
 		Created:    ts,
@@ -267,7 +257,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 	inbox_uri := recipient.Inbox
 	d.Inbox = inbox_uri
 
-	err = acct.SendActivity(ctx, opts.URIs, inbox_uri, activity)
+	err = acct.SendActivity(ctx, opts.URIs, inbox_uri, ap_activity)
 
 	if err != nil {
 		logger.Error("Failed to post activity to inbox", "error", err)

@@ -101,7 +101,7 @@ func (db *SQLActivitiesDatabase) GetActivities(ctx context.Context, cb GetActivi
 func (db *SQLActivitiesDatabase) GetActivitiesForAccount(ctx context.Context, id int64, cb GetActivitiesCallbackFunc) error {
 
 	where := "account_id = ?"
-	args := []interface{}{ id }
+	args := []interface{}{id}
 
 	return db.getActivities(ctx, where, args, cb)
 }

@@ -18,7 +18,7 @@ type PubSubDeliveryQueueOptions struct {
 	// The actor to whom the activity should be delivered.
 	To string `json:"to"`
 	// Remember PostId is a misnomer. See notes in activity.go
-	PostId int64 `json:"post_id"`
+	ActivityId int64 `json:"activity_id"`
 }
 
 type PubSubDeliveryQueue struct {
@@ -105,8 +105,8 @@ func NewPubSubDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, err
 func (q *PubSubDeliveryQueue) DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 
 	ps_opts := PubSubDeliveryQueueOptions{
-		To:     opts.To,
-		PostId: opts.PostId,
+		To:         opts.To,
+		ActivityId: opts.Activity.Id,
 	}
 
 	enc_opts, err := json.Marshal(ps_opts)
