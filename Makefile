@@ -273,6 +273,11 @@ server:
 		-hostname localhost:8080 \
 		-insecure
 
+list-activities:
+	go run cmd/list-activities/main.go \
+		-activities-database-uri '$(ACTIVITIES_DB_URI)' \
+		-verbose
+
 retrieve:
 	go run cmd/retrieve-actor/main.go \
 		-address $(ADDRESS) \
