@@ -1,4 +1,4 @@
-package create
+package deliver
 
 import (
 	"context"
@@ -17,12 +17,14 @@ type RunOptions struct {
 	PostTagsDatabaseURI   string
 	DeliveriesDatabaseURI string
 	DeliveryQueueURI      string
-	AccountName           string
-	Message               string
-	InReplyTo             string
-	MaxAttempts           int
+	SubscriberURI         string
 	URIs                  *uris.URIs
-	Verbose               bool
+	Mode                  string
+	PostId                int64
+	MaxAttempts           int
+	// Allows posts to accounts not followed by author but where account is mentioned in post
+	AllowMentions bool
+	Verbose       bool
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -47,12 +49,13 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		PostTagsDatabaseURI:   post_tags_database_uri,
 		DeliveriesDatabaseURI: deliveries_database_uri,
 		DeliveryQueueURI:      delivery_queue_uri,
-		AccountName:           account_name,
-		Message:               message,
-		InReplyTo:             in_reply_to,
+		MaxAttempts:           max_attempts,
+		Mode:                  mode,
+		PostId:                post_id,
 		URIs:                  uris_table,
 		Verbose:               verbose,
-		MaxAttempts:           max_attempts,
+		AllowMentions:         allow_mentions,
+		SubscriberURI:         subscriber_uri,
 	}
 
 	return opts, nil

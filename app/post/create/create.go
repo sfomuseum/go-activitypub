@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"os"
 
-	// "github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/posts"
 	"github.com/sfomuseum/go-activitypub/queue"
@@ -42,10 +42,18 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create new database, %w", err)
+		return fmt.Errorf("Failed to create accounts database, %w", err)
 	}
 
 	defer accounts_db.Close(ctx)
+
+	activities_db, err := database.NewActivitiesDatabase(ctx, opts.ActivitiesDatabaseURI)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create activities database, %w", err)
+	}
+
+	defer activities_db.Close(ctx)
 
 	followers_db, err := database.NewFollowersDatabase(ctx, opts.FollowersDatabaseURI)
 
@@ -135,10 +143,26 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	logger = logger.With("post id", post.Id)
 
-	activity, err := posts.ActivityFromPost(ctx, opts.URIs, acct, post, mentions)
+	ap_activity, err := posts.ActivityFromPost(ctx, opts.URIs, acct, post, mentions)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new (create) activity, %w", err)
+	}
+
+	activity, err := activitypub.NewActivity(ctx, ap_activity)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create new AP wrapper, %w", err)
+	}
+
+	activity.ActivityType = activitypub.PostActivityType
+	activity.ActivityTypeId = post.Id
+	activity.AccountId = acct.Id
+
+	err = activities_db.AddActivity(ctx, activity)
+
+	if err != nil {
+		return fmt.Errorf("Failed to add activity, %w", err)
 	}
 
 	// TBD add activity to activities_db
@@ -151,7 +175,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		DeliveriesDatabase: deliveries_db,
 		DeliveryQueue:      delivery_q,
 		Activity:           activity,
-		PostId:             post.Id,
 		Mentions:           mentions,
 		URIs:               opts.URIs,
 		MaxAttempts:        opts.MaxAttempts,
