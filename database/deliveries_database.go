@@ -14,19 +14,12 @@ import (
 type GetDeliveryIdsCallbackFunc func(context.Context, int64) error
 type GetDeliveriesCallbackFunc func(context.Context, *activitypub.Delivery) error
 
-type GetDeliveriesQuery struct {
-	AccountId int64
-	Recipient string
-	Status    string
-	Type      string
-	Id        string
-}
-
 type DeliveriesDatabase interface {
 	GetDeliveryIdsForDateRange(context.Context, int64, int64, GetDeliveryIdsCallbackFunc) error
 	AddDelivery(context.Context, *activitypub.Delivery) error
 	GetDeliveryWithId(context.Context, int64) (*activitypub.Delivery, error)
-	GetDeliveriesWithPostIdAndRecipient(context.Context, int64, string, GetDeliveriesCallbackFunc) error
+	GetDeliveriesWithActivityIdAndRecipient(context.Context, int64, string, GetDeliveriesCallbackFunc) error
+	GetDeliveriesWithActivityPubIdAndRecipient(context.Context, string, string, GetDeliveriesCallbackFunc) error
 	Close(context.Context) error
 }
 

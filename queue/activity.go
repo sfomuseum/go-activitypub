@@ -70,7 +70,7 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 		}
 
 		// This will probably fail because types...?
-		err := opts.DeliveriesDatabase.GetDeliveriesWithPostIdAndRecipient(ctx, opts.Activity.Id, follower_uri, deliveries_cb)
+		err := opts.DeliveriesDatabase.GetDeliveriesWithActivityIdAndRecipient(ctx, opts.Activity.Id, follower_uri, deliveries_cb)
 
 		if err != nil {
 			logger.Error("Failed to retrieve deliveries for post and recipient", "recipient", follower_uri, "error", err)
@@ -199,7 +199,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 			return nil
 		}
 
-		err := opts.DeliveriesDatabase.GetDeliveriesWithPostIdAndRecipient(ctx, opts.Activity.Id, to, deliveries_cb)
+		err := opts.DeliveriesDatabase.GetDeliveriesWithActivityIdAndRecipient(ctx, opts.Activity.Id, to, deliveries_cb)
 
 		if err != nil {
 			logger.Error("Failed to count deliveries for \"post\" ID and recipient", "error", err)
@@ -223,13 +223,13 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 	ts := now.Unix()
 
 	d := &activitypub.Delivery{
-		Id: delivery_id,
-		// FIX ME activity ID and activitypub ID...
-		ActivityId: opts.Activity.ActivityPubId,
-		AccountId:  acct.Id,
-		Recipient:  to,
-		Created:    ts,
-		Success:    false,
+		Id:            delivery_id,
+		ActivityId:    opts.Activity.Id,
+		ActivityPubId: opts.Activity.ActivityPubId,
+		AccountId:     acct.Id,
+		Recipient:     to,
+		Created:       ts,
+		Success:       false,
 	}
 
 	defer func() {

@@ -85,35 +85,22 @@ func (db *DocstoreDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id 
 	return db.getDelivery(ctx, q)
 }
 
-func (db *DocstoreDeliveriesDatabase) GetDeliveriesWithPostIdAndRecipient(ctx context.Context, post_id int64, recipient string, deliveries_callback GetDeliveriesCallbackFunc) error {
+func (db *DocstoreDeliveriesDatabase) GetDeliveriesWithActivityIdAndRecipient(ctx context.Context, activity_id int64, recipient string, deliveries_callback GetDeliveriesCallbackFunc) error {
 
 	q := db.collection.Query()
-	q = q.Where("PostId", "=", post_id)
+	q = q.Where("ActivityId", "=", activity_id)
 	q = q.Where("Recipient", "=", recipient)
 
-	iter := q.Get(ctx)
-	defer iter.Stop()
+	return db.getDeliveriesWithQuery(ctx, q, deliveries_callback)
+}
 
-	for {
+func (db *DocstoreDeliveriesDatabase) GetDeliveriesWithActivityPubIdAndRecipient(ctx context.Context, activity_pub_id string, recipient string, deliveries_callback GetDeliveriesCallbackFunc) error {
 
-		var d activitypub.Delivery
-		err := iter.Next(ctx, &d)
+	q := db.collection.Query()
+	q = q.Where("ActivityPubId", "=", activity_pub_id)
+	q = q.Where("Recipient", "=", recipient)
 
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			return fmt.Errorf("Failed to interate, %w", err)
-		} else {
-
-			err := deliveries_callback(ctx, &d)
-
-			if err != nil {
-				return fmt.Errorf("Failed to execute deliveries callback for '%d', %w", d.Id, err)
-			}
-		}
-	}
-
-	return nil
+	return db.getDeliveriesWithQuery(ctx, q, deliveries_callback)
 }
 
 func (db *DocstoreDeliveriesDatabase) Close(ctx context.Context) error {
@@ -141,4 +128,31 @@ func (db *DocstoreDeliveriesDatabase) getDelivery(ctx context.Context, q *gc_doc
 
 	return nil, activitypub.ErrNotFound
 
+}
+
+func (db *DocstoreDeliveriesDatabase) getDeliveriesWithQuery(ctx context.Context, q *gc_docstore.Query, deliveries_callback GetDeliveriesCallbackFunc) error {
+
+	iter := q.Get(ctx)
+	defer iter.Stop()
+
+	for {
+
+		var d activitypub.Delivery
+		err := iter.Next(ctx, &d)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+
+			err := deliveries_callback(ctx, &d)
+
+			if err != nil {
+				return fmt.Errorf("Failed to execute deliveries callback for '%d', %w", d.Id, err)
+			}
+		}
+	}
+
+	return nil
 }

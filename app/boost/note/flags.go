@@ -7,6 +7,7 @@ import (
 )
 
 var accounts_database_uri string
+var activities_database_uri string
 var followers_database_uri string
 var deliveries_database_uri string
 
@@ -24,6 +25,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs := flagset.NewFlagSet("follow")
 
 	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "...")
+	fs.StringVar(&activities_database_uri, "activities-database-uri", "", "...")
 	fs.StringVar(&followers_database_uri, "followers-database-uri", "", "...")
 	fs.StringVar(&deliveries_database_uri, "deliveries-database-uri", "", "...")
 

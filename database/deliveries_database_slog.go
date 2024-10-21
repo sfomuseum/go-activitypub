@@ -25,7 +25,7 @@ func NewSlogDeliveriesDatabase(ctx context.Context, uri string) (DeliveriesDatab
 }
 
 func (db *SlogDeliveriesDatabase) AddDelivery(ctx context.Context, d *activitypub.Delivery) error {
-	db.logger.Info("Add delivery", "post id", d.PostId, "recipient", d.Recipient, "success", d.Success, "error", d.Error)
+	db.logger.Info("Add delivery", "activity id", d.ActivityId, "recipient", d.Recipient, "success", d.Success, "error", d.Error)
 	return nil
 }
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/id"
@@ -40,10 +41,18 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create new database, %w", err)
+		return fmt.Errorf("Failed to create new accounts database, %w", err)
 	}
 
 	defer accounts_db.Close(ctx)
+
+	activities_db, err := database.NewActivitiesDatabase(ctx, opts.ActivitiesDatabaseURI)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create new activities database, %w", err)
+	}
+
+	defer activities_db.Close(ctx)
 
 	followers_db, err := database.NewFollowersDatabase(ctx, opts.FollowersDatabaseURI)
 
@@ -77,24 +86,44 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	from := acct.Address(opts.URIs.Hostname)
 
-	boost_activity, err := ap.NewBoostActivityForNote(ctx, opts.URIs, from, opts.NoteURI)
+	ap_activity, err := ap.NewBoostActivityForNote(ctx, opts.URIs, from, opts.NoteURI)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create new boost activity, %v", err)
+		return fmt.Errorf("Failed to create new boost AP activity, %w", err)
 	}
 
-	// FIX ME. See notes in sfomuseum/go-activitypub/boost.go
-	boost_id, _ := id.NewId()
+	activity, err := activitypub.NewActivity(ctx, ap_activity)
 
-	logger = logger.With("activity id", boost_activity.Id)
+	if err != nil {
+		return fmt.Errorf("Failed to create new book AP wrapper, %w", err)
+	}
+
+	boost_id, err := id.NewId()
+
+	if err != nil {
+		return fmt.Errorf("Failed to create new boost ID, %w", err)
+	}
+
+	activity.ActivityType = activitypub.BoostActivityType
+	activity.ActivityTypeId = boost_id
+	activity.AccountId = acct.Id
+
+	logger = logger.With("activity id", activity.Id)
+	logger = logger.With("boost id", boost_id)
+
+	err = activities_db.AddActivity(ctx, activity)
+
+	if err != nil {
+		logger.Error("Failed to add new activity", "error", err)
+		return fmt.Errorf("Failed to add new activity, %w", err)
+	}
 
 	deliver_opts := &queue.DeliverActivityToFollowersOptions{
 		AccountsDatabase:   accounts_db,
 		FollowersDatabase:  followers_db,
 		DeliveriesDatabase: deliveries_db,
 		DeliveryQueue:      delivery_q,
-		Activity:           boost_activity,
-		PostId:             boost_id,
+		Activity:           activity,
 		URIs:               opts.URIs,
 	}
 

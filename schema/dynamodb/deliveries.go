@@ -19,7 +19,11 @@ var DynamoDBDeliveriesTable = &dynamodb.CreateTableInput{
 			AttributeType: "N",
 		},
 		{
-			AttributeName: aws.String("PostId"),
+			AttributeName: aws.String("ActivityId"),
+			AttributeType: "N",
+		},
+		{
+			AttributeName: aws.String("ActivityPubId"),
 			AttributeType: "N",
 		},
 		{
@@ -53,10 +57,26 @@ var DynamoDBDeliveriesTable = &dynamodb.CreateTableInput{
 			},
 		},
 		{
-			IndexName: aws.String("by_post"),
+			IndexName: aws.String("by_activity_id"),
 			KeySchema: []types.KeySchemaElement{
 				{
-					AttributeName: aws.String("PostId"),
+					AttributeName: aws.String("ActivityId"),
+					KeyType:       "HASH",
+				},
+				{
+					AttributeName: aws.String("Created"),
+					KeyType:       "RANGE",
+				},
+			},
+			Projection: &types.Projection{
+				ProjectionType: "ALL",
+			},
+		},
+		{
+			IndexName: aws.String("by_activitypub_id"),
+			KeySchema: []types.KeySchemaElement{
+				{
+					AttributeName: aws.String("ActivityPubId"),
 					KeyType:       "HASH",
 				},
 				{

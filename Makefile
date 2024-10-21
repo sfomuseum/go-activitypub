@@ -6,7 +6,7 @@ cli:
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/add-account cmd/add-account/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/get-account cmd/get-account/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/create-post cmd/create-post/main.go
-	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/deliver-post cmd/deliver-post/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/deliver-activity cmd/deliver-activity/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-followers cmd/list-followers/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-addresses cmd/list-addresses/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/counts-for-date cmd/counts-for-date/main.go
@@ -15,7 +15,7 @@ cli:
 
 lambda:
 	@make lambda-server
-	@make lambda-deliver-post
+	@make lambda-deliver-activity
 
 lambda-server:
 	if test -f bootstrap; then rm -f bootstrap; fi
@@ -24,10 +24,10 @@ lambda-server:
 	zip server.zip bootstrap
 	rm -f bootstrap
 
-lambda-deliver-post:
+lambda-deliver-activity:
 	if test -f bootstrap; then rm -f bootstrap; fi
 	if test -f deliver.zip; then rm -f deliver.zip; fi
-	GOARCH=arm64 GOOS=linux go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -tags lambda.norpc -o bootstrap cmd/deliver-post/main.go
+	GOARCH=arm64 GOOS=linux go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -tags lambda.norpc -o bootstrap cmd/deliver-activity/main.go
 	zip deliver.zip bootstrap
 	rm -f bootstrap
 
@@ -97,10 +97,11 @@ db-sqlite:
 DELIVERY_QUEUE_URI=synchronous://
 
 deliver-pubsub:
-	go run cmd/deliver-post/main.go \
+	go run cmd/deliver-activity/main.go \
 		-mode pubsub \
 		-subscriber-uri 'redis://?channel=activitypub' \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-activities-database-uri '$(ACTIVITIES_DB_URI)' \
 		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
 		-posts-database-uri '$(POSTS_DB_URI)' \

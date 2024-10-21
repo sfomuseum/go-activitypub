@@ -1,6 +1,7 @@
 package activitypub
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -13,6 +14,7 @@ const (
 	// UndefinedActivityType is an unknown (or undefined) object type
 	UndefinedActivityType ActivityType = iota
 	PostActivityType
+	BoostActivityType
 )
 
 type ActivityType int
@@ -38,7 +40,7 @@ type Activity struct {
 }
 
 // NewActivity returns a new `Activity` instance using properties derived from 'ap_activity'.
-func NewActivity(ap_activity *ap.Activity) (*Activity, error) {
+func NewActivity(ctx context.Context, ap_activity *ap.Activity) (*Activity, error) {
 
 	enc_ap, err := json.Marshal(ap_activity)
 
