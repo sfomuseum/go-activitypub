@@ -3,7 +3,6 @@ package queue
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"net/url"
 	"sort"
 	"strings"
@@ -66,7 +65,6 @@ func NewDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, error) {
 
 	i, err := delivery_queue_roster.Driver(ctx, scheme)
 
-	slog.Debug("WYF", "scheme", scheme, "error", err)
 	if err != nil {
 		return nil, err
 	}

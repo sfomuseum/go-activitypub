@@ -101,8 +101,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 		logger := slog.Default()
 
-		logger = logger.With("to", recipient)
 		logger = logger.With("activity id", activity_id)
+		logger = logger.With("to", recipient)
 
 		activity, err := activities_db.GetActivityWithId(ctx, activity_id)
 
@@ -132,7 +132,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 		// START OF wrangle mentions if activity is post
 
-		if activity.ActivityType == activitypub.PostActivityType {
+		switch activity.ActivityType {
+		case activitypub.PostActivityType:
 
 			post_id := activity.ActivityTypeId
 			logger = logger.With("post id", post_id)
@@ -178,6 +179,32 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 				}
 
 			}
+
+		case activitypub.BoostActivityType:
+
+			// TBD... do this for all activities not just boosts?
+
+			if !is_allowed {
+
+				ap_activity, err := activity.UnmarshalActivity()
+
+				if err != nil {
+					logger.Error("Failed to unmarshal activity", "error", err)
+					return fmt.Errorf("Failed to unmarshal activity, %w", err)
+				}
+
+				for _, addr := range ap_activity.Cc {
+
+					if addr == recipient {
+						logger.Info("Recipient is not allowed/followed but is listed in Cc", "addr", addr)
+						is_allowed = true
+						break
+					}
+				}
+			}
+
+		default:
+			// pass
 		}
 
 		// END OF wrangle mentions if activity is post
@@ -201,10 +228,10 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		err = queue.DeliverActivity(ctx, deliver_opts)
 
 		if err != nil {
-			return fmt.Errorf("Failed to deliver post, %w", err)
+			return fmt.Errorf("Failed to deliver activity, %w", err)
 		}
 
-		logger.Info("Delivered post")
+		logger.Info("Activity delivered")
 		return nil
 	}
 
