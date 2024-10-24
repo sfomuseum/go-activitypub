@@ -8,10 +8,11 @@ import (
 	"strings"
 
 	"github.com/aaronland/go-roster"
+	"github.com/sfomuseum/go-activitypub/deliver"
 )
 
 type DeliveryQueue interface {
-	DeliverActivity(context.Context, *DeliverActivityOptions) error
+	DeliverActivity(context.Context, *deliver.DeliverActivityOptions) error
 }
 
 var delivery_queue_roster roster.Roster

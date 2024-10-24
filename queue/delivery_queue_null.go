@@ -2,6 +2,8 @@ package queue
 
 import (
 	"context"
+
+	"github.com/sfomuseum/go-activitypub/deliver"
 )
 
 type NullDeliveryQueue struct {
@@ -18,6 +20,6 @@ func NewNullDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, error
 	return q, nil
 }
 
-func (q *NullDeliveryQueue) DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
+func (q *NullDeliveryQueue) DeliverActivity(ctx context.Context, opts *deliver.DeliverActivityOptions) error {
 	return nil
 }

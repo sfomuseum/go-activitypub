@@ -1,9 +1,5 @@
 package deliver
 
-// TBD replace all instances of ap.Activity with activitypub.Activity ?
-// This would allow to get rid of all the PostId stuff and move this in
-// app/activity/deliver
-
 import (
 	"context"
 	"encoding/json"
@@ -16,8 +12,8 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/deliver"
 	"github.com/sfomuseum/go-activitypub/followers"
-	// "github.com/sfomuseum/go-activitypub/posts"
 	"github.com/sfomuseum/go-activitypub/queue"
 	"github.com/sfomuseum/go-pubsub/subscriber"
 )
@@ -214,7 +210,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 			return nil
 		}
 
-		deliver_opts := &queue.DeliverActivityOptions{
+		deliver_opts := &deliver.DeliverActivityOptions{
 			To:                 recipient,
 			Activity:           activity,
 			AccountsDatabase:   accounts_db,
@@ -225,7 +221,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 		logger.Debug("Deliver activity")
 
-		err = queue.DeliverActivity(ctx, deliver_opts)
+		err = deliver.DeliverActivity(ctx, deliver_opts)
 
 		if err != nil {
 			return fmt.Errorf("Failed to deliver activity, %w", err)

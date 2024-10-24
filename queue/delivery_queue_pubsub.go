@@ -7,12 +7,9 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/sfomuseum/go-activitypub/deliver"
 	"github.com/sfomuseum/go-pubsub/publisher"
 )
-
-// TBD replace all instances of ap.Activity with activitypub.Activity ?
-// This would allow to get rid of all the PostId stuff (below) and simply
-// move ap.Activity.Id references around.
 
 type PubSubDeliveryQueueOptions struct {
 	// The actor to whom the activity should be delivered.
@@ -102,7 +99,7 @@ func NewPubSubDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, err
 	return q, nil
 }
 
-func (q *PubSubDeliveryQueue) DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
+func (q *PubSubDeliveryQueue) DeliverActivity(ctx context.Context, opts *deliver.DeliverActivityOptions) error {
 
 	ps_opts := PubSubDeliveryQueueOptions{
 		To:         opts.To,

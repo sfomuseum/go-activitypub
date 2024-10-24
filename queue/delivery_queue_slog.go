@@ -3,6 +3,8 @@ package queue
 import (
 	"context"
 	"log/slog"
+
+	"github.com/sfomuseum/go-activitypub/deliver"
 )
 
 type SlogDeliveryQueue struct {
@@ -19,7 +21,7 @@ func NewSlogDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, error
 	return q, nil
 }
 
-func (q *SlogDeliveryQueue) DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
+func (q *SlogDeliveryQueue) DeliverActivity(ctx context.Context, opts *deliver.DeliverActivityOptions) error {
 	slog.Info("Deliver post", "activity id", opts.Activity.Id, "from", opts.Activity.AccountId, "to", opts.To)
 	return nil
 }
