@@ -8,6 +8,8 @@ import (
 	"github.com/sfomuseum/go-activitypub/id"
 )
 
+// Post is a message (or post) written by an account holder. It is internal representation
+// of what would be delivered as an ActivityPub note.x
 type Post struct {
 	// The unique ID for the post.
 	Id int64 `json:"id"`

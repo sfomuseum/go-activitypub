@@ -8,6 +8,7 @@ import (
 	"github.com/sfomuseum/go-activitypub/id"
 )
 
+// Note is a message (or post) delivered to an account.
 type Note struct {
 	Id            int64  `json:"id"`
 	UUID          string `json:"uuid"`

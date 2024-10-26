@@ -8,6 +8,7 @@ import (
 	"github.com/sfomuseum/go-activitypub/id"
 )
 
+// Property is a single key-value property associated with an account holder.
 type Property struct {
 	Id        int64  `json:"id"`
 	AccountId int64  `json:"account_id"`
