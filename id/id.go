@@ -1,3 +1,4 @@
+// Package id provides methods for generating unique identifiers.
 package id
 
 import (
@@ -25,6 +26,7 @@ func setupSnowflake() {
 	snowflake_node = node
 }
 
+// NewId will return a unique 64-bit identifier.
 func NewId() (int64, error) {
 
 	setupSnowflakeOnce.Do(setupSnowflake)
@@ -37,6 +39,7 @@ func NewId() (int64, error) {
 	return id.Int64(), nil
 }
 
+// NewUUID will return a UUID (v4) string.
 func NewUUID() string {
 	guid := uuid.New()
 	return guid.String()

@@ -1,3 +1,4 @@
+// Package deliver provides methods for delivering activities to external actors.
 package deliver
 
 import (
@@ -13,15 +14,23 @@ import (
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
+// DeliveryActivityOptions defines configuration options for delivering an `activitypub.Activity` instance to an external actor.
 type DeliverActivityOptions struct {
-	To                 string                      `json:"to"`
-	Activity           *activitypub.Activity       `json:"activity"`
-	URIs               *uris.URIs                  `json:"uris"`
-	AccountsDatabase   database.AccountsDatabase   `json:"accounts_database,omitempty"`
+	// To is the ActivityPub address of the external actor to deliver the `activitypub.Activity` instance to.
+	To string `json:"to"`
+	// Activity is the `activitypub.Activity` being delivered.
+	Activity *activitypub.Activity `json:"activity"`
+	// URIs is a `uris.URIs` instance containing host and domain specific information of the service delivering the activity.
+	URIs *uris.URIs `json:"uris"`
+	// AccountsDatabase is a `database.AccountsDatabase` instance used to lookup details about the account sending the activity.
+	AccountsDatabase database.AccountsDatabase `json:"accounts_database,omitempty"`
+	// DelivereisDatabase is a `database.DeliveriesDatabase` instance used to store and retrieve details about the delivery.
 	DeliveriesDatabase database.DeliveriesDatabase `json:"deliveries_database,omitempty"`
-	MaxAttempts        int                         `json:"max_attempts"`
+	// MaxAttempts is the maximum number of times to attempt to deliver the activity.
+	MaxAttempts int `json:"max_attempts"`
 }
 
+// DeliveryActivity attempts to deliver an `activitypub.Activity` instance to an external actor.
 func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 
 	logger := slog.Default()
