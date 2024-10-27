@@ -28,3 +28,41 @@ go build -mod vendor -ldflags="-s -w" -o bin/create-dynamodb-tables cmd/create-d
 ### boost-note
 
 ### counts-for-date
+
+### create-dynamodb-tables
+
+### create-icon
+
+### create-post
+
+### deliver-activity
+
+### follow
+
+### get-account
+
+### get-note
+
+### inbox
+
+### list-activities
+
+### list-addresses
+
+### list-aliases
+
+### list-boosts
+
+### list-deliveries
+
+### list-followers
+
+### parse-activity
+
+### post-from-uri
+
+### retrieve-actor
+
+### retrieve-delivery
+
+### server

@@ -11,17 +11,29 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 )
 
+// GetAccountIdsCallbackFunc is a custom function used to process an `activitypub.Account` identifier.
 type GetAccountIdsCallbackFunc func(context.Context, int64) error
+
+// GetAccountsCallbackFunc is a custom function used to process an `activitypub.Account` record.
 type GetAccountsCallbackFunc func(context.Context, *activitypub.Account) error
 
+// AccountsDatabase defines an interface for working with individual accounts associated with an atomic instance of the `go-activity` tools and services.
 type AccountsDatabase interface {
+	// GetAccounts iterates through all the account records and dispatches each to an instance of `GetAccountsCallbackFunc`.
 	GetAccounts(context.Context, GetAccountsCallbackFunc) error
+	// GetAccountsForDateRange iterates through all the account records created between two dates and dispatches each to an instance of `GetAccountIdsCallbackFunc`.
 	GetAccountIdsForDateRange(context.Context, int64, int64, GetAccountIdsCallbackFunc) error
+	// GetAccountWithId returns the account matching a specific 64-bit ID.
 	GetAccountWithId(context.Context, int64) (*activitypub.Account, error)
+	// GetAccountWithId returns the account matching a specific name.
 	GetAccountWithName(context.Context, string) (*activitypub.Account, error)
+	// AddAccount adds a new `activitypub.Account` instance.
 	AddAccount(context.Context, *activitypub.Account) error
+	// RemoveAccount removes a specific `activitypub.Account` instance.
 	RemoveAccount(context.Context, *activitypub.Account) error
+	// UpdateAccount updates a specific `activitypub.Account` instance.
 	UpdateAccount(context.Context, *activitypub.Account) error
+	// Close performs any final operations to terminate the underlying database connection.
 	Close(context.Context) error
 }
 
