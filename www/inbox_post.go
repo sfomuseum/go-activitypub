@@ -247,7 +247,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			}
 
 		default:
-			logger.Error("Unsupported activity type")
+			logger.Debug("Unsupported activity type")
 			http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 			return
 		}
@@ -514,6 +514,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		accept_obj := activity
 
+		logger.Info("PROCESS", "type", activity.Type)
+		
 		switch activity.Type {
 		case "Announce":
 
@@ -529,8 +531,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				// as the body (object) of the activity. This may or may not be incorrect.
 				// I am not sure.
 
-				logger.Info("DEBUG", "map", activity.Object)
-
+				//logger.Info("DEBUG", "map", activity.Object)
+				
 				obj_map := activity.Object.(map[string]interface{})
 				v, exists := obj_map["url"]
 
@@ -549,7 +551,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 					return
 				}
 
-				logger.Info("DEBUG", "object_uri", object_uri)
+				// logger.Info("DEBUG", "object_uri", object_uri)
 
 			default:
 				logger.Error("Invalid or unsupport activity object type for announce activity", "type", fmt.Sprintf("%T", activity.Object))

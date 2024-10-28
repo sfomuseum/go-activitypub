@@ -157,15 +157,12 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.
 		To: []string{
 			"https://www.w3.org/ns/activitystreams#Public", // what?
 		},
+		Cc: cc,
 		Content:   post.Body,
 		Published: t.Format(http.TimeFormat),
 		InReplyTo: post.InReplyTo,
 		Tags:      tags,
 		URL:       post_url.String(),
-	}
-
-	if len(cc) > 0 {
-		n.Cc = cc
 	}
 
 	return n, nil
