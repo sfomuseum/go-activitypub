@@ -146,7 +146,7 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.
 		tags[idx] = t
 
 		if pt.Type == "Mention" {
-			cc = append(cc, pt.Href)
+			// cc = append(cc, pt.Name)
 		}
 	}
 
