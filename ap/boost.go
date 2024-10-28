@@ -57,7 +57,7 @@ func NewBoostActivity(ctx context.Context, uris_table *uris.URIs, from string, a
 // NewAnnounceActivity will return an ActivityPub "Announce" activity from 'from' about 'object' (created by 'author_uri').
 func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string, author_uri string, object interface{}) (*Activity, error) {
 
-	ap_id := NewId(uris_table)
+	ap_id := NewId(uris_table, "announce")
 
 	now := time.Now()
 
