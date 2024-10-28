@@ -45,6 +45,7 @@ type RunOptions struct {
 	AllowMentions            bool
 	AllowRemoteIconURI       bool
 	Verbose                  bool
+	Disabled                 bool
 	Templates                *template.Template
 	AccountHandlerMiddleware MiddlewareFunc
 	PostHandlerMiddleware    MiddlewareFunc
@@ -105,6 +106,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		AllowLikes:             allow_likes,
 		AllowRemoteIconURI:     allow_remote_icon_uri,
 		Verbose:                verbose,
+		Disabled:               disabled,
 		Templates:              t,
 		ProcessMessageQueueURI: process_message_queue_uri,
 	}

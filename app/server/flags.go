@@ -35,6 +35,7 @@ var allow_mentions bool
 
 var allow_remote_icon_uri bool
 
+var disabled bool
 var verbose bool
 
 func DefaultFlagSet() *flag.FlagSet {
@@ -69,5 +70,7 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.BoolVar(&allow_remote_icon_uri, "allow-remote-icon-uri", false, "...")
 	fs.BoolVar(&verbose, "verbose", false, "Enable verbose logging")
+	fs.BoolVar(&disabled, "disabled", false, "Return a 503 Service unavailable response for all requests.")
+
 	return fs
 }

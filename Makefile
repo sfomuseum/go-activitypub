@@ -252,6 +252,9 @@ list-inbox:
 		-account-name $(ACCOUNT) \
 		-verbose
 
+SERVER_DISABLED=false
+SERVER_VERBOSE=true
+
 server:
 	go run cmd/server/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
@@ -269,7 +272,8 @@ server:
 		-process-message-queue-uri 'stdout://' \
 		-allow-remote-icon-uri \
 		-allow-create \
-		-verbose \
+		-verbose=$(SERVER_VERBOSE) \
+		-disabled=$(SERVER_DISABLED) \
 		-hostname localhost:8080 \
 		-insecure
 

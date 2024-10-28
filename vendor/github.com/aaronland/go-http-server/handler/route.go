@@ -213,7 +213,7 @@ func deriveHandler(req *http.Request, handlers map[string]RouteHandlerFunc, matc
 		// and then use the result to build a new regular expression
 
 		re_mutex.Lock()
-		
+
 		re_wildcard, exists := wildcard_matches[route_path]
 
 		if !exists {
@@ -222,7 +222,7 @@ func deriveHandler(req *http.Request, handlers map[string]RouteHandlerFunc, matc
 			re, err := regexp.Compile(str_wildcard)
 
 			if err != nil {
-				re_mutex.Unlock()				
+				re_mutex.Unlock()
 				return nil, fmt.Errorf("Failed to compile wildcard regexp, %w", err)
 			}
 
@@ -231,7 +231,7 @@ func deriveHandler(req *http.Request, handlers map[string]RouteHandlerFunc, matc
 		}
 
 		re_mutex.Unlock()
-		
+
 		// Does the current path (like the actual request being processed) match the wildcard?
 
 		path_m := re_wildcard.FindStringSubmatch(path)

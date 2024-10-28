@@ -1,5 +1,7 @@
 package main
 
+//  ./bin/create-dynamodb-tables -dynamodb-client-uri 'awsdynamodb://?region=us-east-1&credentials=default' -table activities -table-prefix collection_ap_
+
 import (
 	"context"
 	"log"
