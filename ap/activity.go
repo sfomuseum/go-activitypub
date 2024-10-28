@@ -61,17 +61,23 @@ func (activity *Activity) PostToInbox(ctx context.Context, key_id string, privat
 
 	logger := slog.Default()
 
-	logger.Debug("Post to inbox", "inbox", inbox_uri)
+	logger = logger.With("activity id", activity.Id)
+	logger = logger.With("to", activity.To)
+	logger = logger.With("inbox", inbox_uri)
+
+	logger.Info("Post activity to inbox")
 
 	enc_req, err := json.Marshal(activity)
 
 	if err != nil {
+		logger.Error("Failed to marshal activity", "error", err)
 		return fmt.Errorf("Failed to marshal follow activity request, %w", err)
 	}
 
 	http_req, err := http.NewRequestWithContext(ctx, "POST", inbox_uri, bytes.NewBuffer(enc_req))
 
 	if err != nil {
+		logger.Error("Failed to create new request for activity", "error", err)
 		return fmt.Errorf("Failed to create new request to %s, %w", inbox_uri, err)
 	}
 
@@ -86,6 +92,7 @@ func (activity *Activity) PostToInbox(ctx context.Context, key_id string, privat
 	inbox_u, err := url.Parse(inbox_uri)
 
 	if err != nil {
+		logger.Error("Failed to parse inbox URI", "error", err)
 		return fmt.Errorf("Failed to parse inbox URL, %w", err)
 	}
 
@@ -134,12 +141,14 @@ func (activity *Activity) PostToInbox(ctx context.Context, key_id string, privat
 	signer, _, err := httpsig.NewSigner(prefs, digestAlgorithm, headersToSign, httpsig.Signature, ttl)
 
 	if err != nil {
+		logger.Error("Failed to create new HTTP signer", "error", err)
 		return fmt.Errorf("Failed to create new signer, %w", err)
 	}
 
 	err = signer.SignRequest(private_key, key_id, http_req, enc_req)
 
 	if err != nil {
+		logger.Error("Failed to sign request", "error", err)
 		return fmt.Errorf("Failed to sign request, %w", err)
 	}
 
@@ -167,7 +176,7 @@ func (activity *Activity) PostToInbox(ctx context.Context, key_id string, privat
 
 	defer http_rsp.Body.Close()
 
-	logger.Debug("Response", "code", http_rsp.StatusCode, "content-type", http_rsp.Header.Get("Content-Type"))
+	logger.Info("Response", "code", http_rsp.StatusCode, "content-type", http_rsp.Header.Get("Content-Type"))
 
 	// https://www.w3.org/wiki/ActivityPub/Primer/HTTP_status_codes_for_delivery
 

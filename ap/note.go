@@ -20,6 +20,7 @@ type Note struct {
 	Published    string   `json:"published"`
 }
 
+// Retrieve note fetches and unmarshals the "application/activity+json" representation of 'uri'.
 func RetrieveNote(ctx context.Context, uri string) (*Note, error) {
 
 	req, err := http.NewRequestWithContext(ctx, "GET", uri, nil)

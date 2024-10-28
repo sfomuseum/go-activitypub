@@ -68,8 +68,13 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		t1 := time.Now()
 
+		valid_activity := false
+
 		defer func() {
-			logger.Info("Time to serve request", "ms", time.Since(t1).Milliseconds())
+
+			if valid_activity {
+				logger.Info("Time to serve request", "ms", time.Since(t1).Milliseconds())
+			}
 		}()
 
 		if req.Method != http.MethodPost {
@@ -251,6 +256,10 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 			return
 		}
+
+		valid_activity = true
+
+		logger.Info("Valid activity")
 
 		// Ensure the account being poked exists
 
@@ -515,7 +524,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		accept_obj := activity
 
 		logger.Info("PROCESS", "type", activity.Type)
-		
+
 		switch activity.Type {
 		case "Announce":
 
@@ -532,7 +541,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				// I am not sure.
 
 				//logger.Info("DEBUG", "map", activity.Object)
-				
+
 				obj_map := activity.Object.(map[string]interface{})
 				v, exists := obj_map["url"]
 

@@ -116,7 +116,8 @@ func ActivityFromPost(ctx context.Context, uris_table *uris.URIs, acct *activity
 	}
 
 	to := []string{
-		fmt.Sprintf("%s#Public", ap.ACTIVITYSTREAMS_CONTEXT),
+		// This gets assigned on-the-fly in deliver/activity.go
+		// fmt.Sprintf("%s#Public", ap.ACTIVITYSTREAMS_CONTEXT),
 	}
 
 	logger.Debug("Create activity from note")
@@ -146,7 +147,7 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.
 		tags[idx] = t
 
 		if pt.Type == "Mention" {
-			// cc = append(cc, pt.Name)
+			cc = append(cc, pt.Name)
 		}
 	}
 
@@ -157,7 +158,7 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.
 		To: []string{
 			"https://www.w3.org/ns/activitystreams#Public", // what?
 		},
-		Cc: cc,
+		Cc:        cc,
 		Content:   post.Body,
 		Published: t.Format(http.TimeFormat),
 		InReplyTo: post.InReplyTo,

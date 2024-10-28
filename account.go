@@ -292,7 +292,6 @@ func (a *Account) SendActivity(ctx context.Context, uris_table *uris.URIs, inbox
 	key_id := profile_url.String()
 
 	logger = logger.With("account", a.String())
-	// logger = logger.With("key id", key_id)
 	logger = logger.With("inbox", inbox_uri)
 	logger = logger.With("activity id", activity.Id)
 

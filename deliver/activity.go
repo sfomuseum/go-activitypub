@@ -138,6 +138,12 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 	inbox_uri := recipient.Inbox
 	d.Inbox = inbox_uri
 
+	// Note how we are updating the To: address on the fly.
+
+	ap_activity.To = []string{
+		opts.To,
+	}
+
 	err = acct.SendActivity(ctx, opts.URIs, inbox_uri, ap_activity)
 
 	if err != nil {

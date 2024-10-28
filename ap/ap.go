@@ -11,7 +11,6 @@ const ACTIVITYSTREAMS_CONTEXT string = "https://www.w3.org/ns/activitystreams"
 
 const ACCEPT_ACTIVITY string = "Accept"
 
-
 const CREATE_ACTIVITY string = "Create"
 
 const FOLLOW_ACTIVITY string = "Follow"
