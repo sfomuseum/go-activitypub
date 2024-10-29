@@ -78,8 +78,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to configure route handler, %w", err)
 	}
 
-	// Is this the problem... TBD...
-	// route_handler = handler.DisabledHandler(run_opts.Disabled, route_handler)
+	route_handler = handler.DisabledHandler(run_opts.Disabled, route_handler)
 
 	mux := http.NewServeMux()
 	mux.Handle("/", route_handler)
