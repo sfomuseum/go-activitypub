@@ -49,13 +49,13 @@ func NewBoostActivityForNote(ctx context.Context, uris_table *uris.URIs, from st
 	return NewBoostActivity(ctx, uris_table, from, author_addr, note_uri)
 }
 
-// NewBoostActivity will return an ActivityPub "Announce" activity from 'from' about 'object' (created by 'author_uri').
-func NewBoostActivity(ctx context.Context, uris_table *uris.URIs, from string, author_uri string, object interface{}) (*Activity, error) {
-	return NewAnnounceActivity(ctx, uris_table, from, author_uri, object)
+// NewBoostActivity will return an ActivityPub "Announce" activity from 'from' about 'object' (created by 'author_addr').
+func NewBoostActivity(ctx context.Context, uris_table *uris.URIs, from string, author_addr string, object interface{}) (*Activity, error) {
+	return NewAnnounceActivity(ctx, uris_table, from, author_addr, object)
 }
 
-// NewAnnounceActivity will return an ActivityPub "Announce" activity from 'from' about 'object' (created by 'author_uri').
-func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string, author_uri string, object interface{}) (*Activity, error) {
+// NewAnnounceActivity will return an ActivityPub "Announce" activity from 'from' about 'object' (created by 'author_addr').
+func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string, author_addr string, object interface{}) (*Activity, error) {
 
 	ap_id := NewId(uris_table, "announce")
 
@@ -67,14 +67,14 @@ func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string
 		Type:    "Announce",
 		Actor:   from,
 		To: []string{
-			ACTIVITYSTREAMS_CONTEXT,
+			ACTIVITYSTREAMS_CONTEXT_PUBLIC,
 		},
 		Cc: []string{
 			// Despite the example here which includes a URL it appears
 			// that an address is necessary? See also: the DeliverActivity
 			// method in (sfomuseum/go-activitypub/queue/deliver_activity.go)
 			// https://boyter.org/posts/activitypub-announce-post/
-			author_uri,
+			author_addr,
 		},
 		Object:    object,
 		Published: now.Format(time.RFC3339),
