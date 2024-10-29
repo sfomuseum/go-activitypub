@@ -84,8 +84,9 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to retrieve account %s, %w", opts.AccountName, err)
 	}
 
-	from := acct.Address(opts.URIs.Hostname)
-
+	from_u := acct.AccountURL(opts.URIs.Hostname)
+	from := from_u.String()
+	
 	ap_activity, err := ap.NewBoostActivityForNote(ctx, opts.URIs, from, opts.NoteURI)
 
 	if err != nil {
