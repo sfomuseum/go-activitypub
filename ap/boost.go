@@ -66,9 +66,8 @@ func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string
 		Id:      ap_id,
 		Type:    "Announce",
 		Actor:   from,
-		To:      []string{
-			// This gets assigned on-the-fly in deliver/activity.go
-			// fmt.Sprintf("%s#Public", ACTIVITYSTREAMS_CONTEXT),
+		To: []string{
+			ACTIVITYSTREAMS_CONTEXT,
 		},
 		Cc: []string{
 			// Despite the example here which includes a URL it appears

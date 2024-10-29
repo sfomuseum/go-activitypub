@@ -96,12 +96,13 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *activitypub.Accoun
 	return p, post_tags, nil
 }
 
-// Move this in to ap/...
+// THIS SHOULD BE IN /ap BUT CAUSES IMPORT CYCLE ERRORS
 
 // ActivityFromPost creates a new (ActivityPub) `Activity` instance derived from 'acct', 'post' and 'post_tags'.
 func ActivityFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.Account, post *activitypub.Post, mentions []*activitypub.PostTag) (*ap.Activity, error) {
 
-	from := acct.Address(uris_table.Hostname)
+	from_u := acct.AccountURL(ctx, uris_table)
+	from := from_u.String()
 
 	logger := slog.Default()
 	logger = logger.With("post id", post.Id)
@@ -112,18 +113,20 @@ func ActivityFromPost(ctx context.Context, uris_table *uris.URIs, acct *activity
 	note, err := NoteFromPost(ctx, uris_table, acct, post, mentions)
 
 	if err != nil {
+		logger.Error("Failed to create note from post", "error", err)
 		return nil, fmt.Errorf("Failed to derive note from post, %w", err)
 	}
 
 	to := []string{
-		// This gets assigned on-the-fly in deliver/activity.go
-		// fmt.Sprintf("%s#Public", ap.ACTIVITYSTREAMS_CONTEXT),
+		ap.ACTIVITYSTREAMS_CONTEXT_PUBLIC,
 	}
 
 	logger.Debug("Create activity from note")
 
 	return ap.NewCreateActivity(ctx, uris_table, from, to, note)
 }
+
+// THIS SHOULD BE IN /ap BUT CAUSES IMPORT CYCLE ERRORS
 
 // NoteFromPost creates a new (ActivityPub) `Note` instance derived from 'acct', 'post' and 'post_tags'.
 func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.Account, post *activitypub.Post, post_tags []*activitypub.PostTag) (*ap.Note, error) {
@@ -156,7 +159,7 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.
 		Id:           post_url.String(),
 		AttributedTo: attr,
 		To: []string{
-			"https://www.w3.org/ns/activitystreams#Public", // what?
+			ap.ACTIVITYSTREAMS_CONTEXT_PUBLIC,
 		},
 		Cc:        cc,
 		Content:   post.Body,

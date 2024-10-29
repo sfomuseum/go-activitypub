@@ -8,16 +8,26 @@ import (
 )
 
 type Note struct {
-	Type         string   `json:"type"`
-	Id           string   `json:"id"`
-	AttributedTo string   `json:"attributedTo"`
-	InReplyTo    string   `json:"inReplyTo,omitempty"`
-	Tags         []*Tag   `json:"tag,omitempty"`
-	To           []string `json:"to"`
-	Cc           []string `json:"cc"`
-	Content      string   `json:"content"`
-	URL          string   `json:"url"`
-	Published    string   `json:"published"`
+	// Type is the type of the note (aka "Note").
+	Type string `json:"type"`
+	// Id is the unique identifier for the note.
+	Id string `json:"id"`
+	// The URI of the actor that the note is attributed to.
+	AttributedTo string `json:"attributedTo"`
+	// ...
+	InReplyTo string `json:"inReplyTo,omitempty"`
+	// Zero or more tags associated with the note.
+	Tags []*Tag `json:"tag,omitempty"`
+	// To is the list of URIs the activity should be delivered to.
+	To []string `json:"to"`
+	// CC is the list of URIs the activity should be copied to.
+	Cc []string `json:"cc,omitempty"`
+	// The body of the note.
+	Content string `json:"content"`
+	// The permanent URL of the post.
+	URL string `json:"url"`
+	// The RFC3339 date that the activity was published.
+	Published string `json:"published"`
 }
 
 // Retrieve note fetches and unmarshals the "application/activity+json" representation of 'uri'.

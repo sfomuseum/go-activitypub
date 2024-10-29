@@ -29,15 +29,16 @@ type Activity struct {
 	Id string `json:"id"`
 	// Type is the name of the activity being performed.
 	Type string `json:"type"`
-	// Actor is the URI of the person (actor) performing the activity.
+	// Actor is the URI of the person (actor) performing the activity. Note: This is a fully-qualified "profile" URI and not a "@user@host" address.
 	Actor string `json:"actor"`
-	// To is the list of URIs the activity should be delivered to.
+	// To is the list of URIs the activity should be delivered to. Note: The fact that this can be something like [ "https://www.w3.org/ns/activitystreams#Public" ] makes me wonder what the point of this property is (since the relevant issue is the inbox that the encoded activity is delivered to).
 	To []string `json:"to,omitempty"`
-	// CC is the list of URIs the activity should be copied to.
+	// CC is the list of URIs the activity should be copied to. Note: It's not clear what the point of this unless the purpose of this property (and the "To" property) is for an activity to double as a complete record, inclusive of every address it should be delivered to, that can be scheduled for asynchronous delivery.
 	Cc []string `json:"cc,omitempty"`
 	// Object is body of the activity itself.
-	Object    interface{} `json:"object,omitempty"`
-	Published string      `json:"published,omitempty"`
+	Object interface{} `json:"object,omitempty"`
+	// The RFC3339 date that the activity was published.
+	Published string `json:"published,omitempty"`
 }
 
 type PostToInboxOptions struct {

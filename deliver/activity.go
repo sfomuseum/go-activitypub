@@ -43,22 +43,37 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 		return fmt.Errorf("Failed to unmarshal activity, %w", err)
 	}
 
-	from := ap_activity.Actor
+	from_uri := ap_activity.Actor
 	to := opts.To
 
-	logger = logger.With("from", from)
+	logger = logger.With("from", from_uri)
 	logger = logger.With("to", to)
 
 	logger.Info("Deliver activity to recipient")
 
-	acct_name, _, err := ap.ParseAddress(from)
+	// I guess we could just assume that the tail end is the account name but...
+	// Note that in ap.ParseAddressFromRequest we rely on the Go 1.22 net/http
+	// {resource} placeholder to derive the name...
+	actor, err := ap.RetrieveActorWithProfileURL(ctx, from_uri)
 
 	if err != nil {
-		logger.Error("Failed to parse (actor) address", "error", err)
-		return fmt.Errorf("Failed to parse (actor) address, %w", err)
+		logger.Error("Failed to retrieve actor for profile (from) URI", "error", err)
+		return fmt.Errorf("Failed to retrieve actor for profile (from) URI, %w", err)
 	}
 
+	/*
+		acct_name, _, err := ap.ParseAddress(from_uri)
+
+		if err != nil {
+			logger.Error("Failed to parse (actor) address", "error", err)
+			return fmt.Errorf("Failed to parse (actor) address, %w", err)
+		}
+	*/
+
+	acct_name := actor.PreferredUsername
+
 	logger = logger.With("account name", acct_name)
+	logger.Debug("Lookup account for actor name")
 
 	acct, err := opts.AccountsDatabase.GetAccountWithName(ctx, acct_name)
 
@@ -132,17 +147,14 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 	recipient, err := ap.RetrieveActor(ctx, to, opts.URIs.Insecure)
 
 	if err != nil {
+		logger.Error("Failed to retrieve (to) actor", "error", err)
+
+		d.Error = err.Error()
 		return fmt.Errorf("Failed to derive actor for to address, %w", err)
 	}
 
 	inbox_uri := recipient.Inbox
 	d.Inbox = inbox_uri
-
-	// Note how we are updating the To: address on the fly.
-
-	ap_activity.To = []string{
-		opts.To,
-	}
 
 	err = acct.SendActivity(ctx, opts.URIs, inbox_uri, ap_activity)
 
