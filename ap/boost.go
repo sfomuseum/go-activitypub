@@ -72,7 +72,7 @@ func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string
 		Cc: []string{
 			// Despite the example here which includes a URL it appears
 			// that an address is necessary? See also: the DeliverActivity
-			// method in (sfomuseum/go-activitypub/queue/delivery.go)
+			// method in (sfomuseum/go-activitypub/queue/deliver_activity.go)
 			// https://boyter.org/posts/activitypub-announce-post/
 			author_uri,
 		},

@@ -137,7 +137,7 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.
 	t := time.Unix(post.Created, 0)
 
 	tags := make([]*ap.Tag, len(post_tags))
-	cc := make([]string, 0)
+	// cc := make([]string, 0)
 
 	for idx, pt := range post_tags {
 
@@ -150,7 +150,7 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.
 		tags[idx] = t
 
 		if pt.Type == "Mention" {
-			cc = append(cc, pt.Name)
+			// cc = append(cc, pt.Name)
 		}
 	}
 
@@ -161,7 +161,7 @@ func NoteFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.
 		To: []string{
 			ap.ACTIVITYSTREAMS_CONTEXT_PUBLIC,
 		},
-		Cc:        cc,
+		// Cc:        cc,
 		Content:   post.Body,
 		Published: t.Format(http.TimeFormat),
 		InReplyTo: post.InReplyTo,

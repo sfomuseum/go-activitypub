@@ -27,8 +27,10 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 
 	logger := slog.Default()
 	logger = logger.With("activity id", opts.Activity.Id)
+	logger = logger.With("activity type", opts.Activity.ActivityType)		
+	logger = logger.With("activity type id", opts.Activity.ActivityTypeId)	
 	logger = logger.With("account id", opts.Activity.AccountId)
-
+	
 	logger.Info("Deliver activity to followers")
 
 	acct, err := opts.AccountsDatabase.GetAccountWithId(ctx, opts.Activity.AccountId)
@@ -40,9 +42,9 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 
 	// TBD - compare acct_address and opts.Activity.Actor?
 	acct_address := acct.Address(opts.URIs.Hostname)
-	logger = logger.With("account address", acct_address)
+	logger = logger.With("from address", acct_address)
 
-	followers_cb := func(ctx context.Context, follower_uri string) error {
+	followers_cb := func(ctx context.Context, follower_address string) error {
 
 		already_delivered := false
 
@@ -56,20 +58,20 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 		}
 
 		// This will probably fail because types...?
-		err := opts.DeliveriesDatabase.GetDeliveriesWithActivityIdAndRecipient(ctx, opts.Activity.Id, follower_uri, deliveries_cb)
+		err := opts.DeliveriesDatabase.GetDeliveriesWithActivityIdAndRecipient(ctx, opts.Activity.Id, follower_address, deliveries_cb)
 
 		if err != nil {
-			logger.Error("Failed to retrieve deliveries for post and recipient", "recipient", follower_uri, "error", err)
-			return fmt.Errorf("Failed to retrieve deliveries for post (%d) and recipient (%s), %w", opts.Activity.Id, follower_uri, err)
+			logger.Error("Failed to retrieve deliveries for post and recipient", "recipient", follower_address, "error", err)
+			return fmt.Errorf("Failed to retrieve deliveries for post (%d) and recipient (%s), %w", opts.Activity.Id, follower_address, err)
 		}
 
 		if already_delivered {
-			logger.Debug("Post already delivered", "recipient", follower_uri)
+			logger.Debug("Post already delivered", "recipient", follower_address)
 			return nil
 		}
 
 		deliver_opts := &deliver.DeliverActivityOptions{
-			To:                 follower_uri,
+			To:                 follower_address,
 			Activity:           opts.Activity,
 			URIs:               opts.URIs,
 			AccountsDatabase:   opts.AccountsDatabase,
@@ -77,16 +79,16 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 			MaxAttempts:        opts.MaxAttempts,
 		}
 
-		logger.Debug("Queue deliver activity", "to", follower_uri)
+		logger.Info("Queue deliver activity", "to", follower_address)
 
 		err = opts.DeliveryQueue.DeliverActivity(ctx, deliver_opts)
 
 		if err != nil {
-			logger.Error("Failed to schedule post delivery", "recipient", follower_uri, "error", err)
-			return fmt.Errorf("Failed to deliver post to %s, %w", follower_uri, err)
+			logger.Error("Failed to schedule post delivery", "recipient", follower_address, "error", err)
+			return fmt.Errorf("Failed to deliver post to %s, %w", follower_address, err)
 		}
 
-		logger.Info("Schedule post delivery", "recipient", follower_uri)
+		logger.Info("Schedule post delivery", "recipient", follower_address)
 		return nil
 	}
 
@@ -120,7 +122,7 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 
 	for _, a := range ap_activity.Cc {
 
-		logger.Debug("Deliver activity to cc", "address", a)
+		logger.Info("Deliver activity to cc", "address", a)
 
 		err := followers_cb(ctx, a)
 
