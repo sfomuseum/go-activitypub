@@ -12,6 +12,7 @@ import (
 
 type ProcessMessageQueue interface {
 	ProcessMessage(context.Context, int64) error
+	Close(context.Context) error
 }
 
 var process_message_queue_roster roster.Roster

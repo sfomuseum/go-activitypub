@@ -21,3 +21,7 @@ func NewNullProcessMessageQueue(ctx context.Context, uri string) (ProcessMessage
 func (q *NullProcessMessageQueue) ProcessMessage(ctx context.Context, message_id int64) error {
 	return nil
 }
+
+func (q *NullProcessMessageQueue) Close(ctx context.Context) error {
+	return nil
+}

@@ -31,3 +31,7 @@ func (q *SynchronousDeliveryQueue) DeliverActivity(ctx context.Context, opts *de
 
 	return nil
 }
+
+func (q *SynchronousDeliveryQueue) Close(ctx context.Context) error {
+	return nil
+}

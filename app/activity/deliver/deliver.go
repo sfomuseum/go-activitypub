@@ -312,7 +312,11 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 		// For processing posts scheduled to be delivered to individual recipients  an AWS SQS queue
 
+		logger := slog.Default()
+
 		handler := func(ctx context.Context, sqsEvent events.SQSEvent) error {
+
+			logger.Info("Deliver activities", "count", len(sqsEvent.Records))
 
 			for _, message := range sqsEvent.Records {
 
@@ -327,20 +331,21 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 					logger.Error("Failed to unmarshal deliver options", "error", err)
 					return fmt.Errorf("Failed to unmarshal deliver options, %w", err)
 				}
-				
+
 				logger = logger.With("pubsub id", ps_opts.Id)
 				logger = logger.With("activity id", ps_opts.ActivityId)
 				logger = logger.With("to", ps_opts.To)
-				
-				logger.Info("Deliver activity")
-				
+
+				logger.Info("Handle deliver activity")
+
 				err = deliverActivityTo(ctx, ps_opts.ActivityId, ps_opts.To)
 
 				if err != nil {
 					logger.Error("Failed to deliver activity", "error", err)
 				}
 
-				return nil
+				// Remember: Don't return here. It's a loop.
+				// That may seem obvious but let me tell you...
 			}
 
 			return nil

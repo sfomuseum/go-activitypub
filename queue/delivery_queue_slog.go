@@ -25,3 +25,7 @@ func (q *SlogDeliveryQueue) DeliverActivity(ctx context.Context, opts *deliver.D
 	slog.Info("Deliver post", "activity id", opts.Activity.Id, "from", opts.Activity.AccountId, "to", opts.To)
 	return nil
 }
+
+func (q *SlogDeliveryQueue) Close(ctx context.Context) error {
+	return nil
+}

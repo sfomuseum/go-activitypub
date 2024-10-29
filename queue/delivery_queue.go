@@ -13,6 +13,7 @@ import (
 
 type DeliveryQueue interface {
 	DeliverActivity(context.Context, *deliver.DeliverActivityOptions) error
+	Close(context.Context) error
 }
 
 var delivery_queue_roster roster.Roster

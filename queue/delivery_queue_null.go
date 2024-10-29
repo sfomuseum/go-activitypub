@@ -23,3 +23,7 @@ func NewNullDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, error
 func (q *NullDeliveryQueue) DeliverActivity(ctx context.Context, opts *deliver.DeliverActivityOptions) error {
 	return nil
 }
+
+func (q *NullDeliveryQueue) Close(ctx context.Context) error {
+	return nil
+}

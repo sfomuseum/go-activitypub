@@ -23,3 +23,7 @@ func (q *SlogProcessMessageQueue) ProcessMessage(ctx context.Context, message_id
 	slog.Info("Process message", "message_id", message_id)
 	return nil
 }
+
+func (q *SlogProcessMessageQueue) Close(ctx context.Context) error {
+	return nil
+}

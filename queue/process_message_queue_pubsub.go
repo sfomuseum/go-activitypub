@@ -63,3 +63,7 @@ func (q *PubSubProcessMessageQueue) ProcessMessage(ctx context.Context, message_
 
 	return nil
 }
+
+func (q *PubSubProcessMessageQueue) Close(ctx context.Context) error {
+	return q.publisher.Close()
+}

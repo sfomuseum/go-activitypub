@@ -131,6 +131,10 @@ func (q *PubSubDeliveryQueue) DeliverActivity(ctx context.Context, opts *deliver
 
 	logger := slog.Default()
 	logger.Info("Published pubsub activity", "to", opts.To, "from", opts.Activity.AccountId, "activity id", opts.Activity.Id, "pubsub id", ps_id)
-	
+
 	return nil
+}
+
+func (q *PubSubDeliveryQueue) Close(ctx context.Context) error {
+	return q.publisher.Close()
 }
