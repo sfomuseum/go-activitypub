@@ -8,13 +8,16 @@ import (
 	"sync"
 
 	"github.com/sfomuseum/go-activitypub/deliver"
+	"github.com/sfomuseum/go-activitypub/id"
 	"github.com/sfomuseum/go-pubsub/publisher"
 )
 
 type PubSubDeliveryQueueOptions struct {
+	// The unique ID associated with the pubsub delivery. This is mostly for debugging between the sender and the receiver.
+	Id int64 `json:"id"`
 	// The actor to whom the activity should be delivered.
 	To string `json:"to"`
-	// Remember PostId is a misnomer. See notes in activity.go
+	// The unique Activity(Database) Id associated with the delivery.
 	ActivityId int64 `json:"activity_id"`
 }
 
@@ -101,7 +104,14 @@ func NewPubSubDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, err
 
 func (q *PubSubDeliveryQueue) DeliverActivity(ctx context.Context, opts *deliver.DeliverActivityOptions) error {
 
+	ps_id, err := id.NewId()
+
+	if err != nil {
+		return fmt.Errorf("Failed to create unique pubsub ID, %w", err)
+	}
+
 	ps_opts := PubSubDeliveryQueueOptions{
+		Id:         ps_id,
 		To:         opts.To,
 		ActivityId: opts.Activity.Id,
 	}

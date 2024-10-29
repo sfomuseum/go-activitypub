@@ -27,10 +27,10 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 
 	logger := slog.Default()
 	logger = logger.With("activity id", opts.Activity.Id)
-	logger = logger.With("activity type", opts.Activity.ActivityType)		
-	logger = logger.With("activity type id", opts.Activity.ActivityTypeId)	
+	logger = logger.With("activity type", opts.Activity.ActivityType)
+	logger = logger.With("activity type id", opts.Activity.ActivityTypeId)
 	logger = logger.With("account id", opts.Activity.AccountId)
-	
+
 	logger.Info("Deliver activity to followers")
 
 	acct, err := opts.AccountsDatabase.GetAccountWithId(ctx, opts.Activity.AccountId)
@@ -46,11 +46,14 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 
 	followers_cb := func(ctx context.Context, follower_address string) error {
 
+		logger.Info("Process follower", "follower", follower_address)
+
 		already_delivered := false
 
 		deliveries_cb := func(ctx context.Context, d *activitypub.Delivery) error {
 
 			if d.Success {
+				logger.Info("Delivery already happened", "delivery id", d.Id, "activity id", d.ActivityId, "recipient", d.Recipient)
 				already_delivered = true
 			}
 
@@ -66,7 +69,7 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 		}
 
 		if already_delivered {
-			logger.Debug("Post already delivered", "recipient", follower_address)
+			logger.Info("Post already delivered", "recipient", follower_address)
 			return nil
 		}
 

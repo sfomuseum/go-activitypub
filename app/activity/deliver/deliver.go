@@ -368,16 +368,23 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 					var ps_opts *queue.PubSubDeliveryQueueOptions
 
+					logger := slog.Default()
 					err := json.Unmarshal([]byte(msg), &ps_opts)
 
 					if err != nil {
 						logger.Error("Failed to unmarshal post options", "error", err)
 					} else {
 
+						logger = logger.With("pubsub id", ps_opts.Id)
+						logger = logger.With("activity id", ps_opts.ActivityId)
+						logger = logger.With("to", ps_opts.To)
+
+						logger.Info("Deliver activity")
+
 						err := deliverActivityTo(ctx, ps_opts.ActivityId, ps_opts.To)
 
 						if err != nil {
-							logger.Error("Failed to deliver activity", "activity id", ps_opts.ActivityId, "to", ps_opts.To, "error", err)
+							logger.Error("Failed to deliver activity", "error", err)
 						}
 					}
 

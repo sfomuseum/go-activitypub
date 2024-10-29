@@ -86,7 +86,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	from_u := acct.AccountURL(ctx, opts.URIs)
 	from := from_u.String()
-	
+
 	ap_activity, err := ap.NewBoostActivityForNote(ctx, opts.URIs, from, opts.NoteURI)
 
 	if err != nil {
