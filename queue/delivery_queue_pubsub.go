@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"strings"
 	"sync"
 
@@ -128,5 +129,8 @@ func (q *PubSubDeliveryQueue) DeliverActivity(ctx context.Context, opts *deliver
 		return fmt.Errorf("Failed to send message, %w", err)
 	}
 
+	logger := slog.Default()
+	logger.Info("Published pubsub activity", "to", opts.To, "from", opts.Activity.AccountId, "activity id", opts.Activity.Id, "pubsub id", ps_id)
+	
 	return nil
 }

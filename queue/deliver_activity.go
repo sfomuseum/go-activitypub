@@ -46,14 +46,14 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 
 	followers_cb := func(ctx context.Context, follower_address string) error {
 
-		logger.Info("Process follower", "follower", follower_address)
+		logger.Info("Process follower (for activity deliver)", "follower", follower_address)
 
 		already_delivered := false
 
 		deliveries_cb := func(ctx context.Context, d *activitypub.Delivery) error {
 
 			if d.Success {
-				logger.Info("Delivery already happened", "delivery id", d.Id, "activity id", d.ActivityId, "recipient", d.Recipient)
+				logger.Info("Delivery (to follower) already happened", "delivery id", d.Id, "activity id", d.ActivityId, "recipient", d.Recipient)
 				already_delivered = true
 			}
 
@@ -69,7 +69,7 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 		}
 
 		if already_delivered {
-			logger.Info("Post already delivered", "recipient", follower_address)
+			logger.Info("Activity already delivered", "recipient", follower_address)
 			return nil
 		}
 
@@ -91,7 +91,7 @@ func DeliverActivityToFollowers(ctx context.Context, opts *DeliverActivityToFoll
 			return fmt.Errorf("Failed to deliver post to %s, %w", follower_address, err)
 		}
 
-		logger.Info("Schedule post delivery", "recipient", follower_address)
+		logger.Info("Activity delivery complete", "recipient", follower_address)
 		return nil
 	}
 

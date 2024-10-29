@@ -327,8 +327,20 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 					logger.Error("Failed to unmarshal deliver options", "error", err)
 					return fmt.Errorf("Failed to unmarshal deliver options, %w", err)
 				}
+				
+				logger = logger.With("pubsub id", ps_opts.Id)
+				logger = logger.With("activity id", ps_opts.ActivityId)
+				logger = logger.With("to", ps_opts.To)
+				
+				logger.Info("Deliver activity")
+				
+				err = deliverActivityTo(ctx, ps_opts.ActivityId, ps_opts.To)
 
-				return deliverActivityTo(ctx, ps_opts.ActivityId, ps_opts.To)
+				if err != nil {
+					logger.Error("Failed to deliver activity", "error", err)
+				}
+
+				return nil
 			}
 
 			return nil
