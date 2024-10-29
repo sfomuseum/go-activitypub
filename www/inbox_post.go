@@ -73,7 +73,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		defer func() {
 
 			if valid_activity {
-				logger.Info("Time to serve request", "ms", time.Since(t1).Milliseconds())
+				logger.Debug("Time to serve request", "ms", time.Since(t1).Milliseconds())
 			}
 		}()
 
@@ -296,6 +296,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("account id", acct.Id)
 
+		logger.Info("Valid account")
+		
 		// Figure out who is doing the poking
 
 		var requestor_name string
@@ -380,6 +382,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("requestor_address", requestor_address, "requestor_name", requestor_name, "requestor_host", requestor_host)
 
+		logger.Info("Valid requestor")
+		
 		// Check if the requestor is being blocked
 
 		is_blocked, err := blocks.IsBlockedByAccount(ctx, opts.BlocksDatabase, acct.Id, requestor_host, requestor_name)
@@ -511,6 +515,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		// END OF verify request
 
+		logger.Info("Valid request")
+		
 		// Actually do something
 
 		// So really, at this point we should simple have per actitivy type handlers that
@@ -523,7 +529,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		accept_obj := activity
 
-		logger.Info("PROCESS", "type", activity.Type)
+		logger.Info("Process activity", "type", activity.Type)
 
 		switch activity.Type {
 		case "Announce":
@@ -568,6 +574,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
+			logger.Info("Get post from Announce URI", "uri", object_uri)
+			
 			post, err := posts.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
 
 			if err != nil {
@@ -591,6 +599,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
+			logger.Info("Get boost", "actor", activity.Actor)
+			
 			boost, err := opts.BoostsDatabase.GetBoostWithPostIdAndActor(ctx, post.Id, activity.Actor)
 
 			if err != nil && err != activitypub.ErrNotFound {
@@ -1139,6 +1149,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			wg.Add(1)
 
+			logger.Info("Schedule process message queue")
+			
 			go func() {
 
 				defer wg.Done()
