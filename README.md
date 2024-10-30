@@ -50,27 +50,27 @@ This is now the second iteration of the code and a major refactoring of the firs
 
 Here is a high-level boxes-and-arrows diagram of the core components of this package:
 
-![](docs/images/ap-arch.png)
+![](docs/images/activitypub-arch.png)
 
 There are four main components:
 
-1. A database layer (which is anything implemeting the interfaces for the "databases" or "tables" discussed below)
-2. A queueing layer which is anything that implements the "delivery queue" interface discussed below)
-3. A [cmd/deliver-post](cmd/deliver-post/main.go) application for delivering messages which can be run from the command line or as an AWS Lambda function
+1. A database layer (which is anything implemeting the interfaces for the "databases" or "tables", discussed [in its own documentation](database/README.md).)
+2. A queueing layer (which is anything that implements the "delivery queue" or "message processing" interfaces, discussed [in its own documentation](queue/README.md).)
+3. A [cmd/deliver-activity](cmd/deliver-activity/main.go) application for delivering messages which can be run from the command line or as an AWS Lambda function
 4. A [cmd/server](cmd/server/main.go) application which implements a subset of the ActvityPub related resources. These are: A `/.well-known/webfinger` resource for retrieving account information; Individual account resource pages; Individual account "inbox" resources; Minimalistic "permalink" pages for individual posts.
 
 Importantly, this package does _not_ implement ActivityPub "outboxes" yet. It is assumed that individual posts are written directly to your "posts" database/table and then registered with the delivery queue explicitly in your custom code. That doesn't mean it will always be this way. It just means it's that way right now. Take a look at [cmd/create-post](cmd/create-post/main.go) and [app/post/create](app/post/create) for an example of how to post messages manually.
 
 For example, imagine that:
 
-* The purple box is an AWS DynamoDB database (with 12 separate tables)
-* The blue box is an AWS SQS queue
+* The purple box is an AWS DynamoDB database (with 13 separate tables)
+* The blue boxes are AWS SQS queues
 * The green boxes are AWS Lambda functions. The `cmd/server` function will need to be configured so that it is reachable from the internet whether that means it is configured as a Lambda Function URL or "fronted" by an API Gateway instance; those details are left as an exercise to the reader.
 
 However, this same setup could be configured and deployed where:
 
-* The purple box is a MySQL database (with 12 separate tables)
-* The blue box is a plain-vanilla "pub-sub" style queue
+* The purple box is a MySQL database (with 13 separate tables)
+* The blue boxes are plain-vanilla "pub-sub" style queues
 * The green boxes are long-running daemons on a plain-vanilla Linux server
 
 The point is that the code tries to be agnostic about these details. As such the code tries to define abstract "interfaces" for these high-level concepts in order to allow for a multiplicity of concrete implementations. Currently those implementations are centered on local and synchronous processes and AWS services but the hope is that it will be easy (or at least straightforward) to write custom implementations as needed.
@@ -92,6 +92,18 @@ Documentation for databases has been moved in to [database/README.md](database/R
 ### Queues
 
 Documentation for databases has been moved in to [queue/README.md](queue/README.md)
+
+### Deliveries
+
+There are four principal "layers" involved in delivering an ActivityPub "activity":
+
+* The [PostToInbox](ap/activity.go) method which is what actually delivers the raw bytes of an activity to a remote host (inbox). It takes as its input the message body, a private key and an inbox URI. Importantly, it does not know anything about databases or accounts or anything of the other underlying infrastructure. It simply sends messages.
+
+* The [SendActivity](account/go) method for `Account` instances which takes as its input the activity to send and a destination "inbox" and then calls the `PostToInbox` message, appending that accounts private key.
+
+* The [DeliverActivity](deliver/activity.go) method which takes as its input an ActivityPub activity, a `@name@host` address to deliver the activity and resolves sender actors to underlying accounts and to addresses to inboxes. Ultimately, it calls the `account.SendActivity` method and performs any additional logging steps.
+
+* The [DeliverActivityToFollowers](queue/deliver_activity.go] method takes as its input an ActivityPub activity and a delivery queue and resolves sender actors and schedules the message to be delivered to all of that actor's followers (using the delivery queue). The details of the delivery queue are unknown to this method but it is assumed that, eventually, the "other end" of the delivery queue will invoke the `DeliverActivity` method.
 
 ### Example
 
