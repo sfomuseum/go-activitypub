@@ -75,7 +75,17 @@ However, this same setup could be configured and deployed where:
 
 The point is that the code tries to be agnostic about these details. As such the code tries to define abstract "interfaces" for these high-level concepts in order to allow for a multiplicity of concrete implementations. Currently those implementations are centered on local and synchronous processes and AWS services but the hope is that it will be easy (or at least straightforward) to write custom implementations as needed.
 
-These interfaces are discussed further below.
+### Activities and "Activities"
+
+As of this writing the `go-activitypub` package exposes two `Activity` types. This is not ideal but for the time being it just is. One is a generic ActivityPub construct and the other is specific to this package and how it processes ActivityPub messages.
+
+#### ap.Activity
+
+This is a struct encapsulating an ActivityPub activity message. It is defined in the [ap](ap/activity.go) package.
+
+#### activitypub.Activity
+
+This is a struct which represents and internal representation of an ActivityPub Activity message with pointers to other relevant internal representations of things like account IDs rather than actor, URIs, etc. It is defined in the root [activitypub](activity.go) package.
 
 ### Notes, Posts and Messages
 
@@ -84,14 +94,6 @@ These interfaces are discussed further below.
 "Posts" are the internal representations of messages sent by an account hosted	by the `go-activitypub`	web service. They are transformed in to ActivityPub "notes" before delivery.
 
 "Messages" are pointers to "notes" and the accounts they are delivered to. Messages exists to deduplicate notes which may have been sent to multiple accounts hosted by the `go-activitypub` web service.
-
-### Databases
-
-Documentation for databases has been moved in to [database/README.md](database/README.md)
-
-### Queues
-
-Documentation for databases has been moved in to [queue/README.md](queue/README.md)
 
 ### Deliveries
 
@@ -105,9 +107,15 @@ There are four principal "layers" involved in delivering an ActivityPub "activit
 
 * The [DeliverActivityToFollowers](queue/deliver_activity.go] method takes as its input an ActivityPub activity and a delivery queue and resolves sender actors and schedules the message to be delivered to all of that actor's followers (using the delivery queue). The details of the delivery queue are unknown to this method but it is assumed that, eventually, the "other end" of the delivery queue will invoke the `DeliverActivity` method.
 
+### Databases
+
+Documentation for databases has been moved in to [database/README.md](database/README.md)
+
+### Queues
+
+Documentation for databases has been moved in to [queue/README.md](queue/README.md)
+
 ### Example
 
 This documentation has moved in to [docs/EXAMPLE.md](docs/EXAMPLE.md)
-
-## See also
 
