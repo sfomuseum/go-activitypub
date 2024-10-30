@@ -81,7 +81,7 @@ As of this writing the `go-activitypub` package exposes two `Activity` types. Th
 
 #### ap.Activity
 
-This is a struct encapsulating an ActivityPub activity message. It is defined in the [ap](ap/activity.go) package.
+This is a struct encapsulating an ActivityPub/ActivityStreams activity message. It is defined in the [ap](ap/activity.go) package.
 
 #### activitypub.Activity
 
@@ -105,7 +105,7 @@ There are four principal "layers" involved in delivering an ActivityPub "activit
 
 * The [DeliverActivity](deliver/activity.go) method which takes as its input an ActivityPub activity, a `@name@host` address to deliver the activity and resolves sender actors to underlying accounts and to addresses to inboxes. Ultimately, it calls the `account.SendActivity` method and performs any additional logging steps.
 
-* The [DeliverActivityToFollowers](queue/deliver_activity.go] method takes as its input an ActivityPub activity and a delivery queue and resolves sender actors and schedules the message to be delivered to all of that actor's followers (using the delivery queue). The details of the delivery queue are unknown to this method but it is assumed that, eventually, the "other end" of the delivery queue will invoke the `DeliverActivity` method.
+* The [DeliverActivityToFollowers](queue/deliver_activity.go) method takes as its input an ActivityPub activity and a delivery queue and resolves sender actors and schedules the message to be delivered to all of that actor's followers (using the delivery queue). The details of the delivery queue are unknown to this method but it is assumed that, eventually, the "other end" of the delivery queue will invoke the `DeliverActivity` method.
 
 ### Databases
 
