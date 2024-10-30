@@ -77,6 +77,14 @@ The point is that the code tries to be agnostic about these details. As such the
 
 These interfaces are discussed further below.
 
+### Notes, Posts and Messages
+
+"Notes" are the messages sent by an external actor to an account hosted by the `go-activitypub` package. They are the body (content) of an ActivityPub "note".
+
+"Posts" are the internal representations of messages sent by an account hosted	by the `go-activitypub`	web service. They are transformed in to ActivityPub "notes" before delivery.
+
+"Messages" are pointers to "notes" and the accounts they are delivered to. Messages exists to deduplicate notes which may have been sent to multiple accounts hosted by the `go-activitypub` web service.
+
 ### Databases
 
 Documentation for databases has been moved in to [database/README.md](database/README.md)
