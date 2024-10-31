@@ -65,4 +65,20 @@ go build -mod vendor -ldflags="-s -w" -o bin/create-dynamodb-tables cmd/create-d
 
 ### retrieve-delivery
 
+### retrieve-note
+
+Retrieve a given note from the Notes database.
+
+```
+$> ./bin/retrieve-note -h
+  -body
+    	Display the (ActivityPub) body of the note.
+  -note-id int
+    	The unique 64-bit note ID to retrieve.
+  -notes-database-uri string
+    	A valid sfomuseum/go-activitypub/database.NotesDatabase URI.
+  -verbose
+    	Enable verbose (debug) logging.
+```
+
 ### server
