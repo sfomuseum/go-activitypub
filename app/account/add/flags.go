@@ -2,6 +2,8 @@ package add
 
 import (
 	"flag"
+	"fmt"
+	"os"
 
 	"github.com/sfomuseum/go-flags/flagset"
 	"github.com/sfomuseum/go-flags/multi"
@@ -51,13 +53,21 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.BoolVar(&discoverable, "discoverable", true, "Boolean flag indicating whether the account should be discoverable.")
 
-	fs.StringVar(&public_key_uri, "public-key-uri", "", "...")
-	fs.StringVar(&private_key_uri, "private-key-uri", "", "...")
+	fs.StringVar(&public_key_uri, "public-key-uri", "", "A valid `gocloud.dev/runtimevar` referencing the PEM-encoded public key for the account.")
+	fs.StringVar(&private_key_uri, "private-key-uri", "", "A valid `gocloud.dev/runtimevar` referencing the PEM-encoded private key for the account.")
 
-	fs.StringVar(&account_icon_uri, "account-icon-uri", "", "...")
-	fs.BoolVar(&allow_remote_icon_uri, "allow-remote-icon-uri", false, "...")
-	fs.BoolVar(&embed_icon_uri, "embed-icon-uri", false, "...")
+	fs.StringVar(&account_icon_uri, "account-icon-uri", "", "A valid `gocloud.dev/blob` URI (as in the bucket URI + filename) referencing the icon URI for the account.")
+	fs.BoolVar(&allow_remote_icon_uri, "allow-remote-icon-uri", false, "Allow the -account-icon-uri flag to specify a remote URI.")
+	fs.BoolVar(&embed_icon_uri, "embed-icon-uri", false, "If true then assume the -account-icon-uri flag references a local file and read its body in to a base64-encoded value to be stored with the account record.")
 
 	fs.Var(&properties_kv, "property", "Zero or more {KEY}={VALUE} properties to be assigned to the new account.")
+
+	fs.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Add a new ActivityPub account.\n")
+		fmt.Fprintf(os.Stderr, "Usage:\n\t %s [options]\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Valid options are:\n")
+		fs.PrintDefaults()
+	}
+
 	return fs
 }
