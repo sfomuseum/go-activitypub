@@ -119,3 +119,7 @@ Documentation for databases has been moved in to [queue/README.md](queue/README.
 
 This documentation has moved in to [docs/EXAMPLE.md](docs/EXAMPLE.md)
 
+### Logging
+
+This package uses the `log/slog` package for logging. The reality, though, is that between the inherent chatiness of ActivityPub (AP) to and from servers coupled with the endless abuse of bad actors probing and trying to perform mischief on AP endpoints the log output for a publicly accessible server can become "challenging". I am still thinking about how to deal with this.
+

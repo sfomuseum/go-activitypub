@@ -35,21 +35,21 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs := flagset.NewFlagSet("activitypub")
 
-	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "...")
-	fs.StringVar(&aliases_database_uri, "aliases-database-uri", "", "...")
-	fs.StringVar(&properties_database_uri, "properties-database-uri", "", "...")
+	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "A valid sfomuseum/go-activitypub/database.AccountsDatabase URI.")
+	fs.StringVar(&aliases_database_uri, "aliases-database-uri", "", "A valid sfomuseum/go-activitypub/database.AliasesDatabase URI.")
+	fs.StringVar(&properties_database_uri, "properties-database-uri", "", "A valid sfomuseum/go-activitypub/database.PropertiesDatabase URI.")
 
-	fs.Int64Var(&account_id, "account-id", 0, "...")
+	fs.Int64Var(&account_id, "account-id", 0, "An optional unique identifier to assign to the account being created. If 0 then an ID will be generated automatically.")
 
-	fs.StringVar(&account_name, "account-name", "", "...")
-	fs.Var(&aliases_list, "alias", "...")
+	fs.StringVar(&account_name, "account-name", "", "The user (preferred) name for the account being created.")
+	fs.Var(&aliases_list, "alias", "Zero or more aliases for the account being created.")
 
-	fs.StringVar(&display_name, "display-name", "", "...")
-	fs.StringVar(&blurb, "blurb", "", "...")
-	fs.StringVar(&account_url, "url", "", "...")
-	fs.StringVar(&account_type, "account-type", "Person", "...")
+	fs.StringVar(&display_name, "display-name", "", "The display name for the account being created.")
+	fs.StringVar(&blurb, "blurb", "", "The descriptive blurb (caption) for the account being created.")
+	fs.StringVar(&account_url, "url", "", "The URL for the account being created.")
+	fs.StringVar(&account_type, "account-type", "Person", "The type of account being created. Valid options are: Person, Service.")
 
-	fs.BoolVar(&discoverable, "discoverable", true, "...")
+	fs.BoolVar(&discoverable, "discoverable", true, "Boolean flag indicating whether the account should be discoverable.")
 
 	fs.StringVar(&public_key_uri, "public-key-uri", "", "...")
 	fs.StringVar(&private_key_uri, "private-key-uri", "", "...")
@@ -58,6 +58,6 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.BoolVar(&allow_remote_icon_uri, "allow-remote-icon-uri", false, "...")
 	fs.BoolVar(&embed_icon_uri, "embed-icon-uri", false, "...")
 
-	fs.Var(&properties_kv, "property", "...")
+	fs.Var(&properties_kv, "property", "Zero or more {KEY}={VALUE} properties to be assigned to the new account.")
 	return fs
 }
