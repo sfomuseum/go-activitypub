@@ -146,6 +146,20 @@ Valid options are:
 
 ### list-activities
 
+List all the activities that have been created.
+
+```
+$> ./bin/list-activities -h
+List all the activities that have been created.
+Usage:
+	 ./bin/list-activities [options]
+Valid options are:
+  -activities-database-uri string
+    	A registered sfomuseum/go-activitypub/database.ActivitiesDatabase URI.
+  -verbose
+    	Enable verbose (debug) logging.
+```
+
 ### list-addresses
 
 ### list-aliases
@@ -161,6 +175,22 @@ Valid options are:
 ### post-from-uri
 
 ### retrieve-actor
+
+Retrieve an ActivityPub actor by its @user@host address and emit it as a JSON-encoded string..
+
+```
+$> ./bin/retrieve-actor -h
+Retrieve an ActivityPub actor by its @user@host address and emit it as a JSON-encoded string..
+Usage:
+	 ./bin/retrieve-actor [options]
+Valid options are:
+  -address string
+    	The @user@host address of the actor to retrieve.
+  -insecure
+    	A boolean flag indicating whether the host that the -address flag resolves to is running without TLS enabled.
+  -verbose
+    	Enable verbose (debug) logging.
+```
 
 ### retrieve-delivery
 
