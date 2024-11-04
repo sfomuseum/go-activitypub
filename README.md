@@ -115,6 +115,10 @@ Documentation for databases has been moved in to [database/README.md](database/R
 
 Documentation for databases has been moved in to [queue/README.md](queue/README.md)
 
+### Tools
+
+Documentation for command line tools has been moved in to [cmd/README.md](cmd/README.md)
+
 ### Example
 
 This documentation has moved in to [docs/EXAMPLE.md](docs/EXAMPLE.md)
