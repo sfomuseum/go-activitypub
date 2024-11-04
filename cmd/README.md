@@ -82,9 +82,63 @@ Valid options are:
 
 ### deliver-activity
 
+Deliver an ActivityPub activity to subscribers.
+
+```
+$> ./bin/deliver-activity -h
+Deliver an ActivityPub activity to subscribers.
+Usage:
+	 ./bin/deliver-activity [options]
+Valid options are:
+  -accounts-database-uri string
+    	A registered sfomuseum/go-activitypub/database.AccountsDatabase URI.
+  -activities-database-uri string
+    	A registered sfomuseum/go-activitypub/database.ActivitiesDatabase URI.
+  -allow-mentions
+    	Enable support for processing mentions in (post) activities. This enabled posts to accounts not followed by author but where account is mentioned in post. (default true)
+  -deliveries-database-uri string
+    	A registered sfomuseum/go-activitypub/database.DeliveriesDatabase URI.
+  -delivery-queue-uri string
+    	A registered sfomuseum/go-activitypub/queue.DeliveryQueue URI. (default "synchronous://")
+  -followers-database-uri string
+    	A registered sfomuseum/go-activitypub/database.FollowersDatabase URI.
+  -hostname string
+    	The hostname of the ActivityPub server delivering activities. (default "localhost:8080")
+  -insecure
+    	A boolean flag indicating the ActivityPub server delivering activities is insecure.
+  -max-attempts int
+    	The maximum number of attempts to deliver the activity. (default 5)
+  -mode string
+    	The operation mode for delivering activities. Valid options are: lambda, pubsub. "cli" mode is currently disabled.
+  -post-tags-database-uri string
+    	A registered sfomuseum/go-activitypub/database.PostTagsDatabase URI. (default "null://")
+  -posts-database-uri string
+    	A registered sfomuseum/go-activitypub/database.PostsDatabase URI.
+  -subscriber-uri string
+    	A valid sfomuseum/go-pubsub/subscriber URI. Required if -mode parameter is 'pubsub'.
+  -verbose
+    	Enable verbose logging
+```
+
 ### follow
 
 ### get-account
+
+Retrieve an ActivityPub account and emit its details as a JSON-encoded string.
+
+```
+$> ./bin/get-account -h
+Retrieve an ActivityPub account and emit its details as a JSON-encoded string.
+Usage:
+	 ./bin/get-account [options]
+Valid options are:
+  -account-name string
+    	A valid sfomuseum/go-activitypub account name
+  -accounts-database-uri string
+    	A registered sfomuseum/go-activitypub/AccountsDatabase URI. (default "null://")
+  -properties-database-uri string
+    	A registered sfomuseum/go-activitypub/PropertiesDatabase URI (default "null://")
+```
 
 ### get-note
 

@@ -63,8 +63,8 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.BoolVar(&allow_mentions, "allow-mentions", true, "...")
 
 	fs.StringVar(&server_uri, "server-uri", "http://localhost:8080", "...")
-	fs.StringVar(&hostname, "hostname", "", "...")
-	fs.BoolVar(&insecure, "insecure", false, "...")
+	fs.StringVar(&hostname, "hostname", "", "The hostname of the ActivityPub server delivering activities.")
+	fs.BoolVar(&insecure, "insecure", false, "A boolean flag indicating the ActivityPub server delivering activities is insecure.")
 
 	fs.StringVar(&process_message_queue_uri, "process-message-queue-uri", "null://", "...")
 

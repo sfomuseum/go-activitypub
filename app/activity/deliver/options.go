@@ -20,7 +20,7 @@ type RunOptions struct {
 	SubscriberURI         string
 	URIs                  *uris.URIs
 	Mode                  string
-	PostId                int64
+	ActivityId            int64
 	MaxAttempts           int
 	// Allows posts to accounts not followed by author but where account is mentioned in post
 	AllowMentions bool
@@ -51,7 +51,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		DeliveryQueueURI:      delivery_queue_uri,
 		MaxAttempts:           max_attempts,
 		Mode:                  mode,
-		PostId:                post_id,
+		ActivityId:            activity_id,
 		URIs:                  uris_table,
 		Verbose:               verbose,
 		AllowMentions:         allow_mentions,

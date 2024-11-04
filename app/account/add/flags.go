@@ -37,9 +37,9 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs := flagset.NewFlagSet("activitypub")
 
-	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "A valid sfomuseum/go-activitypub/database.AccountsDatabase URI.")
-	fs.StringVar(&aliases_database_uri, "aliases-database-uri", "", "A valid sfomuseum/go-activitypub/database.AliasesDatabase URI.")
-	fs.StringVar(&properties_database_uri, "properties-database-uri", "", "A valid sfomuseum/go-activitypub/database.PropertiesDatabase URI.")
+	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "A registered sfomuseum/go-activitypub/database.AccountsDatabase URI.")
+	fs.StringVar(&aliases_database_uri, "aliases-database-uri", "", "A registered sfomuseum/go-activitypub/database.AliasesDatabase URI.")
+	fs.StringVar(&properties_database_uri, "properties-database-uri", "", "A registered sfomuseum/go-activitypub/database.PropertiesDatabase URI.")
 
 	fs.Int64Var(&account_id, "account-id", 0, "An optional unique identifier to assign to the account being created. If 0 then an ID will be generated automatically.")
 
