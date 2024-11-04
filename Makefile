@@ -4,6 +4,7 @@ LDFLAGS=-s -w
 cli:
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/server cmd/server/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/add-account cmd/add-account/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/add-aliases cmd/add-aliases/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/get-account cmd/get-account/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/create-post cmd/create-post/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/deliver-activity cmd/deliver-activity/main.go

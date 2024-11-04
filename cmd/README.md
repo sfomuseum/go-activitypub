@@ -68,6 +68,24 @@ Valid options are:
 
 ### add-aliases
 
+Add aliases for a registered sfomuseum/go-activity account.
+
+```
+$> ./bin/add-aliases -h
+Add aliases for a registered sfomuseum/go-activity account.
+Usage:
+	 ./bin/add-aliases [options]
+Valid options are:
+  -account-name string
+    	A valid sfomuseum/go-activitypub account name
+  -accounts-database-uri string
+    	A registered sfomuseum/go-activitypub/AccountsDatabase URI. (default "null://")
+  -alias value
+    	One or more aliases to add for an account. Each -alias flag may be a CSV-encoded string containing multiple aliases.
+  -aliases-database-uri string
+    	A registered sfomuseum/go-activitypub/AliasesDatabase URI. (default "null://")
+```
+
 ### block
 
 ### boost-note
