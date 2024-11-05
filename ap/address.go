@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 	"regexp"
+
+	"github.com/sfomuseum/go-activitypub/html"
 )
 
 // copied from: https://github.com/mcnijman/go-emailaddress
@@ -48,6 +50,12 @@ func ParseAddressFromRequest(req *http.Request) (string, string, error) {
 }
 
 func ParseAddressesFromString(body string) ([]string, error) {
+
+	body, err := html.HtmlToText(body)
+
+	if err != nil {
+		return nil, err
+	}
 
 	matches := re_addresses.FindAllStringSubmatch(body, -1)
 	lookup := make(map[string]bool)

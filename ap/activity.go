@@ -35,6 +35,8 @@ type Activity struct {
 	To []string `json:"to,omitempty"`
 	// CC is the list of URIs the activity should be copied to. Note: It's not clear what the point of this unless the purpose of this property (and the "To" property) is for an activity to double as a complete record, inclusive of every address it should be delivered to, that can be scheduled for asynchronous delivery.
 	Cc []string `json:"cc,omitempty"`
+	// Audience limits visibility to just the specified users.
+	Audience string `json:"audience,omitempty"`
 	// Object is body of the activity itself.
 	Object interface{} `json:"object,omitempty"`
 	// The RFC3339 date that the activity was published.

@@ -90,6 +90,7 @@ func TestParseAddressesFromString(t *testing.T) {
 		"test mentioning @doug@localhost yo":                                               1,
 		"test mentioning @doug@localhost:8080 and @bob@localhost:8080 yo":                  2,
 		"test mentioning @doug@localhost:8080 and @bob@localhost:8080 yo @alice@alice.com": 3,
+		`<a href="http://localhost:8080/users/doug/">@doug@localhost</a> nearby`:           1,
 	}
 
 	for str, expected_count := range tests {
