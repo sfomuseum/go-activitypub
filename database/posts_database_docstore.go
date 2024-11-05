@@ -72,8 +72,11 @@ func (db *DocstorePostsDatabase) GetPostIdsForDateRange(ctx context.Context, sta
 }
 
 func (db *DocstorePostsDatabase) AddPost(ctx context.Context, p *activitypub.Post) error {
-
 	return db.collection.Put(ctx, p)
+}
+
+func (db *DocstorePostsDatabase) UpdatePost(ctx context.Context, p *activitypub.Post) error {
+	return db.collection.Replace(ctx, p)
 }
 
 func (db *DocstorePostsDatabase) GetPostWithId(ctx context.Context, id int64) (*activitypub.Post, error) {
