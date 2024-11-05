@@ -87,10 +87,11 @@ func TestParseAddressesFromString(t *testing.T) {
 		"hello @bob@example.com pass the mustard to @alice@mustard.com and doug@localhost":                                                   2,
 		"hello @bob@example.com pass the mustard to @alice@mustard.com and doug@localhost before sending it @doug@bob.com":                   3,
 		"hello @bob@example.com pass the mustard to @alice@mustard.com and doug@localhost before sending it @doug@bob.com and max@gmail.com": 3,
-		"test mentioning @doug@localhost yo":                                               1,
-		"test mentioning @doug@localhost:8080 and @bob@localhost:8080 yo":                  2,
-		"test mentioning @doug@localhost:8080 and @bob@localhost:8080 yo @alice@alice.com": 3,
-		`<a href="http://localhost:8080/users/doug/">@doug@localhost</a> nearby`:           1,
+		"test mentioning @doug@localhost yo":                                                    1,
+		"test mentioning @doug@localhost:8080 and @bob@localhost:8080 yo":                       2,
+		"test mentioning @doug@localhost:8080 and @bob@localhost:8080 yo @alice@alice.com":      3,
+		`<a href="http://localhost:8080/users/doug/">@doug@localhost</a> nearby`:                1,
+		`<a href="http://localhost:8080/users/doug/">@doug@localhost</a> nearby @alice@bob.com`: 2,
 	}
 
 	for str, expected_count := range tests {
