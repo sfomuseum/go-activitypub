@@ -28,6 +28,8 @@ type Note struct {
 	URL string `json:"url"`
 	// The RFC3339 date that the activity was published.
 	Published string `json:"published"`
+	// Zero or more attachments to include with the note.
+	Attachments []*Attachment `json:"attachment,omitempty"`
 }
 
 // Retrieve note fetches and unmarshals the "application/activity+json" representation of 'uri'.
