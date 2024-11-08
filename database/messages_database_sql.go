@@ -21,7 +21,11 @@ type SQLMessagesDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterMessagesDatabase(ctx, "sql", NewSQLMessagesDatabase)
+	err := RegisterMessagesDatabase(ctx, "sql", NewSQLMessagesDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewSQLMessagesDatabase(ctx context.Context, uri string) (MessagesDatabase, error) {

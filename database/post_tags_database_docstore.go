@@ -19,10 +19,18 @@ func init() {
 
 	ctx := context.Background()
 
-	RegisterPostTagsDatabase(ctx, "awsdynamodb", NewDocstorePostTagsDatabase)
+	err := RegisterPostTagsDatabase(ctx, "awsdynamodb", NewDocstorePostTagsDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 
 	for _, scheme := range gc_docstore.DefaultURLMux().CollectionSchemes() {
-		RegisterPostTagsDatabase(ctx, scheme, NewDocstorePostTagsDatabase)
+		err := RegisterPostTagsDatabase(ctx, scheme, NewDocstorePostTagsDatabase)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 

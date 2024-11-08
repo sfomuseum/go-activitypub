@@ -18,10 +18,19 @@ type DocstoreAliasesDatabase struct {
 func init() {
 	ctx := context.Background()
 
-	RegisterAliasesDatabase(ctx, "awsdynamodb", NewDocstoreAliasesDatabase)
+	err := RegisterAliasesDatabase(ctx, "awsdynamodb", NewDocstoreAliasesDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 
 	for _, scheme := range gc_docstore.DefaultURLMux().CollectionSchemes() {
-		RegisterAliasesDatabase(ctx, scheme, NewDocstoreAliasesDatabase)
+		err := RegisterAliasesDatabase(ctx, scheme, NewDocstoreAliasesDatabase)
+
+		if err != nil {
+			panic(err)
+		}
+
 	}
 }
 

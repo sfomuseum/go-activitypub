@@ -12,7 +12,12 @@ type NullAliasesDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterAliasesDatabase(ctx, "null", NewNullAliasesDatabase)
+	err := RegisterAliasesDatabase(ctx, "null", NewNullAliasesDatabase)
+
+	if err != nil {
+		panic(err)
+	}
+
 }
 
 func NewNullAliasesDatabase(ctx context.Context, uri string) (AliasesDatabase, error) {

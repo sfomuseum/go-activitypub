@@ -21,7 +21,11 @@ type SQLActivitiesDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterActivitiesDatabase(ctx, "sql", NewSQLActivitiesDatabase)
+	err := RegisterActivitiesDatabase(ctx, "sql", NewSQLActivitiesDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewSQLActivitiesDatabase(ctx context.Context, uri string) (ActivitiesDatabase, error) {

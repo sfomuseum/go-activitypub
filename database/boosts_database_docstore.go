@@ -19,10 +19,18 @@ func init() {
 
 	ctx := context.Background()
 
-	RegisterBoostsDatabase(ctx, "awsdynamodb", NewDocstoreBoostsDatabase)
+	err := RegisterBoostsDatabase(ctx, "awsdynamodb", NewDocstoreBoostsDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 
 	for _, scheme := range gc_docstore.DefaultURLMux().CollectionSchemes() {
-		RegisterBoostsDatabase(ctx, scheme, NewDocstoreBoostsDatabase)
+		err := RegisterBoostsDatabase(ctx, scheme, NewDocstoreBoostsDatabase)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 

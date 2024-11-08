@@ -21,7 +21,11 @@ type SQLFollowingDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterFollowingDatabase(ctx, "sql", NewSQLFollowingDatabase)
+	err := RegisterFollowingDatabase(ctx, "sql", NewSQLFollowingDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewSQLFollowingDatabase(ctx context.Context, uri string) (FollowingDatabase, error) {

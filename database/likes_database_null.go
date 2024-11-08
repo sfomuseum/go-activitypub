@@ -12,7 +12,11 @@ type NullLikesDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterLikesDatabase(ctx, "null", NewNullLikesDatabase)
+	err := RegisterLikesDatabase(ctx, "null", NewNullLikesDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewNullLikesDatabase(ctx context.Context, uri string) (LikesDatabase, error) {

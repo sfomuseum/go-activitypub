@@ -12,7 +12,11 @@ type NullDeliveryQueue struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterDeliveryQueue(ctx, "null", NewNullDeliveryQueue)
+	err := RegisterDeliveryQueue(ctx, "null", NewNullDeliveryQueue)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewNullDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, error) {

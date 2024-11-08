@@ -21,7 +21,11 @@ type SQLDeliveriesDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterDeliveriesDatabase(ctx, "sql", NewSQLDeliveriesDatabase)
+	err := RegisterDeliveriesDatabase(ctx, "sql", NewSQLDeliveriesDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewSQLDeliveriesDatabase(ctx context.Context, uri string) (DeliveriesDatabase, error) {

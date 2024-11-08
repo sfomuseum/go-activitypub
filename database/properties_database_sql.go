@@ -19,7 +19,11 @@ type SQLPropertiesDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterPropertiesDatabase(ctx, "sql", NewSQLPropertiesDatabase)
+	err := RegisterPropertiesDatabase(ctx, "sql", NewSQLPropertiesDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewSQLPropertiesDatabase(ctx context.Context, uri string) (PropertiesDatabase, error) {

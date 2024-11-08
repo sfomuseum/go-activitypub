@@ -18,10 +18,18 @@ type DocstorePropertiesDatabase struct {
 func init() {
 	ctx := context.Background()
 
-	RegisterPropertiesDatabase(ctx, "awsdynamodb", NewDocstorePropertiesDatabase)
+	err := RegisterPropertiesDatabase(ctx, "awsdynamodb", NewDocstorePropertiesDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 
 	for _, scheme := range gc_docstore.DefaultURLMux().CollectionSchemes() {
-		RegisterPropertiesDatabase(ctx, scheme, NewDocstorePropertiesDatabase)
+		err := RegisterPropertiesDatabase(ctx, scheme, NewDocstorePropertiesDatabase)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 

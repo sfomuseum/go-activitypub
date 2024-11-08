@@ -10,7 +10,12 @@ type NullProcessMessageQueue struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterProcessMessageQueue(ctx, "null", NewNullProcessMessageQueue)
+	err := RegisterProcessMessageQueue(ctx, "null", NewNullProcessMessageQueue)
+
+	if err != nil {
+		panic(err)
+	}
+
 }
 
 func NewNullProcessMessageQueue(ctx context.Context, uri string) (ProcessMessageQueue, error) {

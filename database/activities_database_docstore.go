@@ -18,11 +18,20 @@ type DocstoreActivitiesDatabase struct {
 func init() {
 
 	ctx := context.Background()
+	
+	err := RegisterActivitiesDatabase(ctx, "awsdynamodb", NewDocstoreActivitiesDatabase)
 
-	RegisterActivitiesDatabase(ctx, "awsdynamodb", NewDocstoreActivitiesDatabase)
-
+	if err != nil {
+		panic(err)
+	}		
+	
 	for _, scheme := range gc_docstore.DefaultURLMux().CollectionSchemes() {
-		RegisterActivitiesDatabase(ctx, scheme, NewDocstoreActivitiesDatabase)
+		err := RegisterActivitiesDatabase(ctx, scheme, NewDocstoreActivitiesDatabase)
+
+		if err != nil {
+			panic(err)
+		}
+
 	}
 
 }

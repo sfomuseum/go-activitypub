@@ -12,7 +12,11 @@ type NullPostTagsDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterPostTagsDatabase(ctx, "null", NewNullPostTagsDatabase)
+	err := RegisterPostTagsDatabase(ctx, "null", NewNullPostTagsDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewNullPostTagsDatabase(ctx context.Context, uri string) (PostTagsDatabase, error) {

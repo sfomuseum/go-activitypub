@@ -12,7 +12,11 @@ type NullBoostsDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterBoostsDatabase(ctx, "null", NewNullBoostsDatabase)
+	err := RegisterBoostsDatabase(ctx, "null", NewNullBoostsDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewNullBoostsDatabase(ctx context.Context, uri string) (BoostsDatabase, error) {

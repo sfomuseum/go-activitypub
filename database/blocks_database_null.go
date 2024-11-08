@@ -12,7 +12,11 @@ type NullBlocksDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterBlocksDatabase(ctx, "null", NewNullBlocksDatabase)
+	err := RegisterBlocksDatabase(ctx, "null", NewNullBlocksDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewNullBlocksDatabase(ctx context.Context, uri string) (BlocksDatabase, error) {

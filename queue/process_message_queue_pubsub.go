@@ -23,12 +23,20 @@ func init() {
 	}
 
 	for _, scheme := range to_register {
-		RegisterProcessMessageQueue(ctx, scheme, NewPubSubProcessMessageQueue)
+		err := RegisterProcessMessageQueue(ctx, scheme, NewPubSubProcessMessageQueue)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	for _, scheme := range publisher.PublisherSchemes() {
 		scheme = strings.Replace(scheme, "://", "", 1)
-		RegisterProcessMessageQueue(ctx, scheme, NewPubSubProcessMessageQueue)
+		err := RegisterProcessMessageQueue(ctx, scheme, NewPubSubProcessMessageQueue)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 

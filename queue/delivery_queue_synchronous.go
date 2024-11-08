@@ -13,7 +13,11 @@ type SynchronousDeliveryQueue struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterDeliveryQueue(ctx, "synchronous", NewSynchronousDeliveryQueue)
+	err := RegisterDeliveryQueue(ctx, "synchronous", NewSynchronousDeliveryQueue)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewSynchronousDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, error) {

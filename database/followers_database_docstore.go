@@ -19,10 +19,18 @@ func init() {
 
 	ctx := context.Background()
 
-	RegisterFollowersDatabase(ctx, "awsdynamodb", NewDocstoreFollowersDatabase)
+	err := RegisterFollowersDatabase(ctx, "awsdynamodb", NewDocstoreFollowersDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 
 	for _, scheme := range gc_docstore.DefaultURLMux().CollectionSchemes() {
-		RegisterFollowersDatabase(ctx, scheme, NewDocstoreFollowersDatabase)
+		err := RegisterFollowersDatabase(ctx, scheme, NewDocstoreFollowersDatabase)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 
 }

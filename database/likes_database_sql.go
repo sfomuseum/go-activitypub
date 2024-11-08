@@ -22,7 +22,11 @@ type SQLLikesDatabase struct {
 func init() {
 
 	ctx := context.Background()
-	RegisterLikesDatabase(ctx, "sql", NewSQLLikesDatabase)
+	err := RegisterLikesDatabase(ctx, "sql", NewSQLLikesDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewSQLLikesDatabase(ctx context.Context, uri string) (LikesDatabase, error) {

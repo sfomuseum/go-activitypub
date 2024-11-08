@@ -22,7 +22,11 @@ type SQLBoostsDatabase struct {
 func init() {
 
 	ctx := context.Background()
-	RegisterBoostsDatabase(ctx, "sql", NewSQLBoostsDatabase)
+	err := RegisterBoostsDatabase(ctx, "sql", NewSQLBoostsDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewSQLBoostsDatabase(ctx context.Context, uri string) (BoostsDatabase, error) {

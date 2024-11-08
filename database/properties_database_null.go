@@ -12,7 +12,11 @@ type NullPropertiesDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterPropertiesDatabase(ctx, "null", NewNullPropertiesDatabase)
+	err := RegisterPropertiesDatabase(ctx, "null", NewNullPropertiesDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewNullPropertiesDatabase(ctx context.Context, uri string) (PropertiesDatabase, error) {

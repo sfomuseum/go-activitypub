@@ -12,7 +12,11 @@ type NullDeliveriesDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterDeliveriesDatabase(ctx, "null", NewNullDeliveriesDatabase)
+	err := RegisterDeliveriesDatabase(ctx, "null", NewNullDeliveriesDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewNullDeliveriesDatabase(ctx context.Context, uri string) (DeliveriesDatabase, error) {

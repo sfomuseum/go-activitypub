@@ -21,7 +21,11 @@ type SQLPostTagsDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterPostTagsDatabase(ctx, "sql", NewSQLPostTagsDatabase)
+	err := RegisterPostTagsDatabase(ctx, "sql", NewSQLPostTagsDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewSQLPostTagsDatabase(ctx context.Context, uri string) (PostTagsDatabase, error) {

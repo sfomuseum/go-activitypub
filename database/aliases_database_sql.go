@@ -21,7 +21,12 @@ type SQLAliasesDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterAliasesDatabase(ctx, "sql", NewSQLAliasesDatabase)
+	err := RegisterAliasesDatabase(ctx, "sql", NewSQLAliasesDatabase)
+
+	if err != nil {
+		panic(err)
+	}
+
 }
 
 func NewSQLAliasesDatabase(ctx context.Context, uri string) (AliasesDatabase, error) {

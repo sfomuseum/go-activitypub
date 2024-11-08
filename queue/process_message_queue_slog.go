@@ -11,7 +11,11 @@ type SlogProcessMessageQueue struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterProcessMessageQueue(ctx, "slog", NewSlogProcessMessageQueue)
+	err := RegisterProcessMessageQueue(ctx, "slog", NewSlogProcessMessageQueue)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewSlogProcessMessageQueue(ctx context.Context, uri string) (ProcessMessageQueue, error) {

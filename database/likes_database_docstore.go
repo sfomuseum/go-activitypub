@@ -19,10 +19,18 @@ func init() {
 
 	ctx := context.Background()
 
-	RegisterLikesDatabase(ctx, "awsdynamodb", NewDocstoreLikesDatabase)
+	err := RegisterLikesDatabase(ctx, "awsdynamodb", NewDocstoreLikesDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 
 	for _, scheme := range gc_docstore.DefaultURLMux().CollectionSchemes() {
-		RegisterLikesDatabase(ctx, scheme, NewDocstoreLikesDatabase)
+		err := RegisterLikesDatabase(ctx, scheme, NewDocstoreLikesDatabase)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 

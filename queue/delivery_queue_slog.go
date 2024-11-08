@@ -13,7 +13,11 @@ type SlogDeliveryQueue struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterDeliveryQueue(ctx, "slog", NewSlogDeliveryQueue)
+	err := RegisterDeliveryQueue(ctx, "slog", NewSlogDeliveryQueue)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewSlogDeliveryQueue(ctx context.Context, uri string) (DeliveryQueue, error) {

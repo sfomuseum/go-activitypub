@@ -21,7 +21,11 @@ type SQLFollowersDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterFollowersDatabase(ctx, "sql", NewSQLFollowersDatabase)
+	err := RegisterFollowersDatabase(ctx, "sql", NewSQLFollowersDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewSQLFollowersDatabase(ctx context.Context, uri string) (FollowersDatabase, error) {

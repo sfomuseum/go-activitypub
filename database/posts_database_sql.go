@@ -21,7 +21,11 @@ type SQLPostsDatabase struct {
 
 func init() {
 	ctx := context.Background()
-	RegisterPostsDatabase(ctx, "sql", NewSQLPostsDatabase)
+	err := RegisterPostsDatabase(ctx, "sql", NewSQLPostsDatabase)
+
+	if err != nil {
+		panic(err)
+	}
 }
 
 func NewSQLPostsDatabase(ctx context.Context, uri string) (PostsDatabase, error) {
