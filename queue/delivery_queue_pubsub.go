@@ -34,24 +34,24 @@ type PubSubDeliveryQueue struct {
 // Also, _not_ using a sync.OnceFunc means we can call RegisterSchemes multiple times
 // if and when multiple gomail-sender instances register themselves.
 
-var register_mu = new(sync.RWMutex)
-var register_map = map[string]bool{}
+var delivery_register_mu = new(sync.RWMutex)
+var delivery_register_map = map[string]bool{}
 
 func init() {
 
 	ctx := context.Background()
-	err := RegisterPubSubSchemes(ctx)
+	err := RegisterPubSubDeliverySchemes(ctx)
 
 	if err != nil {
 		panic(err)
 	}
 }
 
-// RegisterSchemes will explicitly register all the schemes associated with the `AccessTokensDeliveryAgent` interface.
-func RegisterPubSubSchemes(ctx context.Context) error {
+func RegisterPubSubDeliverySchemes(ctx context.Context) error {
 
-	register_mu.Lock()
-	defer register_mu.Unlock()
+	delivery_register_mu.Lock()
+
+	defer delivery_register_mu.Unlock()
 
 	to_register := []string{
 		"awssqs-creds",
@@ -70,7 +70,7 @@ func RegisterPubSubSchemes(ctx context.Context) error {
 
 	for _, scheme := range to_register {
 
-		_, exists := register_map[scheme]
+		_, exists := delivery_register_map[scheme]
 
 		if exists {
 			continue
@@ -82,7 +82,7 @@ func RegisterPubSubSchemes(ctx context.Context) error {
 			return fmt.Errorf("Failed to register delivery queue for '%s', %w", scheme, err)
 		}
 
-		register_map[scheme] = true
+		delivery_register_map[scheme] = true
 	}
 
 	return nil
