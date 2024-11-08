@@ -278,6 +278,20 @@ Valid options are:
 
 ### list-deliveries
 
+List all the (ActivityPub activities) deliveries that have been recorded.
+
+```
+$> ./bin/list-deliveries -h
+List all the (ActivityPub activities) deliveries that have been recorded.
+Usage:
+	 ./bin/list-deliveries [options]
+Valid options are:
+  -deliveries-database-uri string
+    	A known sfomuseum/go-activitypub/DeliveriesDatabase URI.
+  -verbose
+    	Enable verbose (debug) logging.
+```	
+
 ### list-followers
 
 ### parse-activity
