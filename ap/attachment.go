@@ -1,9 +1,9 @@
 package ap
 
 type Attachment struct {
-	Type  string `json:"type"`
+	Type      string `json:"type"`
 	MediaType string `json:"mediaType"`
-	Name  string `json:"name"`
-	Value string `json:"value,omitempty"`
-	URL string `json:"url"`
+	Name      string `json:"name"`
+	Value     string `json:"value,omitempty"`
+	URL       string `json:"url"`
 }

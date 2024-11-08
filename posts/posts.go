@@ -96,7 +96,8 @@ func AddPost(ctx context.Context, opts *AddPostOptions, acct *activitypub.Accoun
 	return p, post_tags, nil
 }
 
-// THIS SHOULD BE IN /ap BUT CAUSES IMPORT CYCLE ERRORS
+// ActivityFromPost should be kept in /ap but that causes Golang import cycle errors.
+// ActivityFromPost should also be updated to accept media attachments.
 
 // ActivityFromPost creates a new (ActivityPub) `Activity` instance derived from 'acct', 'post' and 'post_tags'.
 func ActivityFromPost(ctx context.Context, uris_table *uris.URIs, acct *activitypub.Account, post *activitypub.Post, mentions []*activitypub.PostTag) (*ap.Activity, error) {
@@ -122,6 +123,8 @@ func ActivityFromPost(ctx context.Context, uris_table *uris.URIs, acct *activity
 	}
 
 	logger.Debug("Create activity from note")
+
+	// Something something something media attachments here...
 
 	return ap.NewCreateActivity(ctx, uris_table, from, to, note)
 }
