@@ -1143,8 +1143,6 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				logger = logger.With("message id", db_message.Id)
 			}
 
-			// Dispatch to handle message queue here... maybe?
-
 			logger.Info("Note has been added to messages")
 
 			wg.Add(1)
