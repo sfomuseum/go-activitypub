@@ -36,7 +36,7 @@ That's it, at least for now. It does have support for ActivityPub account migrat
 
 ## How does ActivityPub work?
 
-This section has been moved in to the [docs/README.v1.md](docs/ACTIVITYPUB.md) document.
+This section has been moved in to the [docs/ACTIVITYPUB.md](docs/ACTIVITYPUB.md) document.
 
 ## The Code
 
