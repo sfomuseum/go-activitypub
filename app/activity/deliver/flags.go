@@ -51,7 +51,7 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs.StringVar(&mode, "mode", "", "The operation mode for delivering activities. Valid options are: lambda, pubsub. \"cli\" mode is currently disabled.")
 
-	fs.StringVar(&hostname, "hostname", "localhost:8080", "The hostname of the ActivityPub server delivering activities.")
+	fs.StringVar(&hostname, "hostname", "localhost:8080", "The hostname (domain) of the ActivityPub server delivering activities.")
 	fs.BoolVar(&insecure, "insecure", false, "A boolean flag indicating the ActivityPub server delivering activities is insecure (not using TLS).")
 	fs.BoolVar(&verbose, "verbose", false, "Enable verbose logging")
 

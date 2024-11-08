@@ -45,6 +45,6 @@ func DefaultFlagSet() *flag.FlagSet {
 		fmt.Fprintf(os.Stderr, "Valid options are:\n")
 		fs.PrintDefaults()
 	}
-	
+
 	return fs
 }

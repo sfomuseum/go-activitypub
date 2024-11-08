@@ -5,17 +5,32 @@ The easiest way to build the tools provided by this package is to run the `cli` 
 ```
 $> make cli
 cd ../ && make cli && cd -
-go build -mod vendor -ldflags="-s -w" -o bin/server cmd/server/main.go
 go build -mod vendor -ldflags="-s -w" -o bin/add-account cmd/add-account/main.go
-go build -mod vendor -ldflags="-s -w" -o bin/get-account cmd/get-account/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/add-aliases cmd/add-aliases/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/block cmd/block/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/boost-note cmd/boost-note/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/counts-for-date cmd/counts-for-date/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/create-dynamodb-tables cmd/create-dynamodb-tables/main.go
 go build -mod vendor -ldflags="-s -w" -o bin/create-post cmd/create-post/main.go
 go build -mod vendor -ldflags="-s -w" -o bin/deliver-activity cmd/deliver-activity/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/get-account cmd/get-account/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/follow cmd/follow/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/list-boosts cmd/list-boosts/main.go
 go build -mod vendor -ldflags="-s -w" -o bin/list-followers cmd/list-followers/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/list-activities cmd/list-activities/main.go
 go build -mod vendor -ldflags="-s -w" -o bin/list-addresses cmd/list-addresses/main.go
-go build -mod vendor -ldflags="-s -w" -o bin/counts-for-date cmd/counts-for-date/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/list-aliases cmd/list-aliases/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/list-deliveries cmd/list-deliveries/main.go
 go build -mod vendor -ldflags="-s -w" -o bin/inbox cmd/inbox/main.go
-go build -mod vendor -ldflags="-s -w" -o bin/create-dynamodb-tables cmd/create-dynamodb-tables/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/retrieve-actor cmd/retrieve-actor/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/retrieve-delivery cmd/retrieve-delivery/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/retrieve-note cmd/retrieve-note/main.go
+go build -mod vendor -ldflags="-s -w" -o bin/server cmd/server/main.go
 ```
+
+## Structure
+
+Generally speaking the code in the `cmd` folder are thin wrappers to invoke application code located in the `app` package. This is to make it easier to individual tools to be supplemented with custom code, or additional flags, on an as-needed basis.
 
 ## Tools
 
@@ -166,9 +181,43 @@ Valid options are:
     	A optional prefix to assign to each table name.
 ```
 
-### create-icon
-
 ### create-post
+
+```
+$> ./bin/create-post -h
+Create a new post (note, activity) on behalf of a registered go-activitypub account and schedule it for delivery to all their followers.
+Usage:
+	 ./bin/create-post [options]
+Valid options are:
+  -account-name string
+    	The name of the go-activitypub account creating the post.
+  -accounts-database-uri string
+    	A registered sfomuseum/go-activitypub/database.AccountsDatabase URI.
+  -activities-database-uri string
+    	A registered sfomuseum/go-activitypub/database.ActivitiesDatabase URI.
+  -deliveries-database-uri string
+    	A registered sfomuseum/go-activitypub/database.DeliveriesDatabase URI.
+  -delivery-queue-uri string
+    	A registered sfomuseum/go-activitypub/queue/DeliveryQueue URI. (default "synchronous://")
+  -followers-database-uri string
+    	A registered sfomuseum/go-activitypub/database.FollowersDatabase URI.
+  -hostname string
+    	The hostname (domain) of the ActivityPub server delivering activities. (default "localhost:8080")
+  -in-reply-to string
+    	The URI of that the post is in reply to (optional).
+  -insecure
+    	A boolean flag indicating the ActivityPub server delivering activities is insecure (not using TLS).
+  -max-attempts int
+    	The maximum number of attempts to deliver the activity. (default 5)
+  -message string
+    	The body (content) of the message to post.
+  -post-tags-database-uri string
+    	A registered sfomuseum/go-activitypub/database.PostTagsDatabase URI.
+  -posts-database-uri string
+    	A registered sfomuseum/go-activitypub/database.PostsDatabase URI.
+  -verbose
+    	Enable verbose (debug) logging.
+```
 
 ### deliver-activity
 
@@ -212,6 +261,34 @@ Valid options are:
 
 ### follow
 
+Follow a @user@host ActivityPub account on behalf of a registered go-activitypub account.
+
+```
+$> ./bin/follow -h
+Follow a @user@host ActivityPub account on behalf of a registered go-activitypub account.
+Usage:
+	 ./bin/follow [options]
+Valid options are:
+  -account-name string
+    	The name of the account doing the following.
+  -accounts-database-uri string
+    	A registered sfomuseum/go-activitypub/AccountsDatabase URI.
+  -follow string
+    	The ActivityPub @user@host address to follow.
+  -following-database-uri string
+    	A registered sfomuseum/go-activitypub/FollowingDatabase URI.
+  -hostname string
+    	The hostname (domain) of the ActivityPub server delivering activities. (default "localhost:8080")
+  -insecure
+    	A boolean flag indicating the ActivityPub server delivering activities is insecure (not using TLS).
+  -messages-database-uri string
+    	A registered sfomuseum/go-activitypub/MessagesDatabase URI.
+  -undo
+    	Stop following the account defined by the -follow flag.
+  -verbose
+    	Enable verbose (debug) logging.
+```
+
 ### get-account
 
 Retrieve an ActivityPub account and emit its details as a JSON-encoded string.
@@ -230,9 +307,25 @@ Valid options are:
     	A registered sfomuseum/go-activitypub/PropertiesDatabase URI (default "null://")
 ```
 
-### get-note
-
 ### inbox
+
+```
+$> ./bin/inbox -h
+Display all the messges (notes) received for a registered go-activitypub account.
+Usage:
+	 ./bin/inbox [options]
+Valid options are:
+  -account-name string
+    	The name of the account whose inbox you want to display.
+  -accounts-database-uri string
+    	A registered sfomuseum/go-activitypub/AccountsDatabase URI.
+  -messages-database-uri string
+    	A registered sfomuseum/go-activitypub/MessagesDatabase URI.
+  -notes-database-uri string
+    	A registered sfomuseum/go-activitypub/NotesDatabase URI.
+  -verbose
+    	Enable verbose (debug) logging.
+```
 
 ### list-activities
 
@@ -249,8 +342,6 @@ Valid options are:
   -verbose
     	Enable verbose (debug) logging.
 ```
-
-### list-addresses
 
 ### list-aliases
 
@@ -310,12 +401,6 @@ Valid options are:
     	Enable verbose (debug) logging.
 ```	
 
-### list-followers
-
-### parse-activity
-
-### post-from-uri
-
 ### retrieve-actor
 
 Retrieve an ActivityPub actor by its @user@host address and emit it as a JSON-encoded string..
@@ -354,18 +439,80 @@ Valid options are:
 
 ### retrieve-note
 
-Retrieve a given note from the Notes database.
+Retrieve a message (note) by its unique go-activitypub ID.
 
 ```
 $> ./bin/retrieve-note -h
+Retrieve a message (note) by its unique go-activitypub ID.
+Usage:
+	 ./bin/retrieve-note [options]
+Valid options are:
   -body
     	Display the (ActivityPub) body of the note.
   -note-id int
     	The unique 64-bit note ID to retrieve.
   -notes-database-uri string
-    	A valid sfomuseum/go-activitypub/database.NotesDatabase URI.
+    	A registered sfomuseum/go-activitypub/database.NotesDatabase URI.
   -verbose
     	Enable verbose (debug) logging.
 ```
-
+ 
 ### server
+
+Start a HTTP (web) server to handle ActivityPub-related requests.
+
+```
+$> ./bin/server -h
+Start a HTTP (web) server to handle ActivityPub-related requests.
+Usage:
+	 ./bin/server [options]
+Valid options are:
+  -accounts-database-uri string
+    	A registered sfomuseum/go-activitypub/database.DeliveriesDatabase URI.
+  -aliases-database-uri string
+    	A registered sfomuseum/go-activitypub/database.AliasesDatabase URI.
+  -allow-boosts
+    	Enable support for ActivityPub "Announce" (boost) activities. (default true)
+  -allow-create
+    	Enable support for ActivityPub "Create" activities.
+  -allow-follow
+    	Enable support for ActivityPub "Follow" activities. (default true)
+  -allow-likes
+    	Enable support for ActivityPub "Like" activities. (default true)
+  -allow-mentions
+    	If enabled allows posts ("Create" activities) to accounts not followed by author but where account is mentioned in post. (default true)
+  -allow-remote-icon-uri
+    	Allow account icons hosted on a remote host.
+  -blocks-database-uri string
+    	A registered sfomuseum/go-activitypub/database.BlocksDatabase URI.
+  -boosts-database-uri string
+    	A registered sfomuseum/go-activitypub/database.BoostsDatabase URI.
+  -disabled
+    	Return a 503 Service unavailable response for all requests.
+  -followers-database-uri string
+    	A registered sfomuseum/go-activitypub/database.FollowersDatabase URI.
+  -following-database-uri string
+    	A registered sfomuseum/go-activitypub/database.FollowingDatabase URI.
+  -hostname string
+    	The hostname (domain) of the ActivityPub server delivering activities.
+  -insecure
+    	A boolean flag indicating the ActivityPub server delivering activities is insecure (not using TLS).
+  -likes-database-uri string
+    	A registered sfomuseum/go-activitypub/database.LikesDatabase URI.
+  -messages-database-uri string
+    	A registered sfomuseum/go-activitypub/database.MessagesDatabase URI.
+  -notes-database-uri string
+    	A registered sfomuseum/go-activitypub/database.NotesDatabase URI.
+  -post-tags-database-uri string
+    	A registered sfomuseum/go-activitypub/database.PostTagsDatabase URI.
+  -posts-database-uri string
+    	A registered sfomuseum/go-activitypub/database.PostsDatabase URI.
+  -process-message-queue-uri string
+    	A registered go-activitypub/queue.ProcessMessageQueue URI. (default "null://")
+  -properties-database-uri string
+    	A registered sfomuseum/go-activitypub/database.PropertiesDatabase URI.
+  -server-uri string
+    	A registered aaronland/go-http-server/server.Server URI. (default "http://localhost:8080")
+  -verbose
+    	Enable verbose (debug) logging.
+```	

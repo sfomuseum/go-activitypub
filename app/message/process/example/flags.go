@@ -2,6 +2,8 @@ package example
 
 import (
 	"flag"
+	"fmt"
+	"os"
 
 	"github.com/sfomuseum/go-flags/flagset"
 	"github.com/sfomuseum/go-flags/multi"

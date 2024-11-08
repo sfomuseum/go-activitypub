@@ -11,6 +11,7 @@ cli:
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/create-post cmd/create-post/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/deliver-activity cmd/deliver-activity/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/get-account cmd/get-account/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/follow cmd/follow/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-boosts cmd/list-boosts/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-followers cmd/list-followers/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-activities cmd/list-activities/main.go
