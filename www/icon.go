@@ -2,7 +2,6 @@ package www
 
 import (
 	"bytes"
-	"crypto/md5"
 	"encoding/base64"
 	"fmt"
 	"image"
@@ -16,7 +15,6 @@ import (
 	"net/url"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -26,6 +24,7 @@ import (
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/text"
 	"github.com/sfomuseum/go-activitypub/uris"
 	"golang.org/x/image/font/gofont/goregular"
 )
@@ -235,25 +234,15 @@ func IconHandler(opts *IconHandlerOptions) (http.Handler, error) {
 
 		// START OF replace with icon/GenerateIcon
 
-		data := []byte(account_name)
-		hash := fmt.Sprintf("%x", md5.Sum(data))
-		hex := hash[0:6]
-
-		logger = logger.With("hex", hex)
-		values, err := strconv.ParseUint(string(hex), 16, 32)
+		im_c, err := text.TextToRGBAColor(account_name)
 
 		if err != nil {
-			logger.Error("Failed to parse hex value", "err", err)
+			logger.Error("Failed to derive colour from text", "err", err)
 			http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 			return
 		}
 
-		r := uint8(values >> 16)
-		g := uint8((values >> 8) & 0xFF)
-		b := uint8(values & 0xFF)
-
 		im := image.NewRGBA(image.Rect(0, 0, im_w, im_h)) // x1,y1,  x2,y2 of background rectangle
-		im_c := color.RGBA{r, g, b, 255}                  //  R, G, B, Alpha
 
 		draw.Draw(im, im.Bounds(), &image.Uniform{im_c}, image.ZP, draw.Src)
 

@@ -2,17 +2,16 @@ package icon
 
 import (
 	"context"
-	"crypto/md5"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
 	"log/slog"
-	"strconv"
 	"strings"
 
 	"github.com/fogleman/gg"
 	"github.com/golang/freetype/truetype"
+	"github.com/sfomuseum/go-activitypub/text"
 	"golang.org/x/image/font/gofont/goregular"
 )
 
@@ -54,24 +53,14 @@ func GenerateIcon(ctx context.Context, opts *GenerateIconOptions) (image.Image, 
 		Size: font_size,
 	})
 
-	data := []byte(opts.Label)
-	hash := fmt.Sprintf("%x", md5.Sum(data))
-	hex := hash[0:6]
-
-	logger = logger.With("hex", hex)
-	values, err := strconv.ParseUint(string(hex), 16, 32)
+	im_c, err := text.TextToRGBAColor(opts.Label)
 
 	if err != nil {
-		logger.Error("Failed to parse hex value", "err", err)
+		logger.Error("Failed to derive colour from text", "err", err)
 		return nil, err
 	}
 
-	r := uint8(values >> 16)
-	g := uint8((values >> 8) & 0xFF)
-	b := uint8(values & 0xFF)
-
 	im := image.NewRGBA(image.Rect(0, 0, im_w, im_h)) // x1,y1,  x2,y2 of background rectangle
-	im_c := color.RGBA{r, g, b, 255}                  //  R, G, B, Alpha
 
 	draw.Draw(im, im.Bounds(), &image.Uniform{im_c}, image.ZP, draw.Src)
 
