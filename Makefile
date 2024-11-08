@@ -19,6 +19,7 @@ cli:
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-deliveries cmd/list-deliveries/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/inbox cmd/inbox/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/retrieve-actor cmd/retrieve-actor/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/retrieve-delivery cmd/retrieve-delivery/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/retrieve-note cmd/retrieve-note/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/server cmd/server/main.go
 

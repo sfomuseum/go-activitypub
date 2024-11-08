@@ -148,6 +148,24 @@ Valid options are:
 
 ### create-dynamodb-tables
 
+Create (or refresh) the DynamoDB tables necessary for use with the go-activitypub package.
+
+```
+$> ./bin/create-dynamodb-tables -h
+Create (or refresh) the DynamoDB tables necessary for use with the go-activitypub package.
+Usage:
+	 ./bin/create-dynamodb-tables [options]
+Valid options are:
+  -dynamodb-client-uri string
+    	A valid aaronland/gocloud-docstore URI (dynamodb:// or awsdynamodb://).
+  -refresh
+    	Refresh tables if already present.
+  -table value
+    	Zero or more table names to create. If zero then all the default tables will be created.
+  -table-prefix string
+    	A optional prefix to assign to each table name.
+```
+
 ### create-icon
 
 ### create-post
@@ -317,6 +335,22 @@ Valid options are:
 ```
 
 ### retrieve-delivery
+
+Retrieve and display a specific (ActivityPub activity) delivery.
+
+```
+$> ./bin/retrieve-delivery -h
+Retrieve and display a specific (ActivityPub activity) delivery.
+Usage:
+	 ./bin/retrieve-delivery [options]
+Valid options are:
+  -deliveries-database-uri string
+    	A registered sfomuseum/go-activitypub/DeliveriesDatabase URI.
+  -delivery-id int
+    	The unique ID of the delivery to retrieve.
+  -verbose
+    	Enable verbose (debug) logging.
+```
 
 ### retrieve-note
 
