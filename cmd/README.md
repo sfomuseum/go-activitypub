@@ -182,6 +182,22 @@ Valid options are:
 
 ### list-aliases
 
+List the aliases for a registered sfomuseum/go-activity account.
+
+```
+$> ./bin/list-aliases -h
+List the aliases for a registered sfomuseum/go-activity account.
+Usage:
+	 ./bin/list-aliases [options]
+Valid options are:
+  -account-name string
+    	A valid sfomuseum/go-activitypub account name
+  -accounts-database-uri string
+    	A known sfomuseum/go-activitypub/AccountsDatabase URI. (default "null://")
+  -aliases-database-uri string
+    	A known sfomuseum/go-activitypub/AliasesDatabase URI. (default "null://")
+```
+
 ### list-boosts
 
 ### list-deliveries
