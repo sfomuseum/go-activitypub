@@ -46,6 +46,10 @@ type ProcessMessageQueue interface {
 }
 ```
 
+Currently, "messages" are considered to be ActivityPub "Create" activities with type "Note". Remember a "message" in the `go-activitypub` is a pointer to a note associated with a specific account. Messages are dispatched to a `ProcessMessageQueue` in the [www.InboxPostHandler](../www/inbox_post.go) in the (server)[../app/server] application.
+
+There is no default endpoint, or code, for receiving or processing those messages after they have been dispatched. That is left up to individual users to implement, out of bounds, as their needs suit them. There is an [example application for processing messages](../app/message/process/example) that you can use as "starter code" which can run from the command line or as a Lambda function. It does nothing more than validate the message, recipient account and associated note and logging those details.
+
 ### Implementations
 
 #### null://
