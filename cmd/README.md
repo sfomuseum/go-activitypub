@@ -114,6 +114,36 @@ Valid options are:
 
 ### boost-note
 
+Boost an ActivityPub note on behalf of a registered go-activity account.
+
+```
+$> ./bin/boost-note -h
+Boost an ActivityPub note on behalf of a registered go-activity account.
+Usage:
+	 ./bin/boost-note [options]
+Valid options are:
+  -account-name string
+    	The account doing the boosting.
+  -accounts-database-uri string
+    	A known sfomuseum/go-activitypub/AccountsDatabase URI.
+  -activities-database-uri string
+    	A known sfomuseum/go-activitypub/ActivitiesDatabase URI.
+  -deliveries-database-uri string
+    	A known sfomuseum/go-activitypub/DeliveriesDatabase URI.
+  -delivery-queue-uri string
+    	A known sfomuseum/go-activitypub/queue.DeliveryQueue URI. (default "synchronous://")
+  -followers-database-uri string
+    	A known sfomuseum/go-activitypub/FollowersDatabase URI.
+  -hostname string
+    	The hostname (domain) for the account doing the boosting. (default "localhost:8080")
+  -insecure
+    	A boolean flag indicating the ActivityPub server delivering activities is insecure (not using TLS).
+  -note string
+    	The URI of the note being boosted.
+  -verbose
+    	Enable verbose (debug) logging.
+```
+
 ### counts-for-date
 
 ### create-dynamodb-tables

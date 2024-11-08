@@ -5,6 +5,7 @@ cli:
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/add-account cmd/add-account/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/add-aliases cmd/add-aliases/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/block cmd/block/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/boost-note cmd/boost-note/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/counts-for-date cmd/counts-for-date/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/create-dynamodb-tables cmd/create-dynamodb-tables/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/create-post cmd/create-post/main.go
