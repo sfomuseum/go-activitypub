@@ -88,6 +88,30 @@ Valid options are:
 
 ### block
 
+Manage the blocking of third-parties on behalf of a registered sfomuseum/go-activity account.
+
+```
+$> ./bin/block -h
+Manage the blocking of third-parties on behalf of a registered sfomuseum/go-activity account.
+Usage:
+	 ./bin/block [options]
+Valid options are:
+  -account-name string
+    	The name of the account doing the blocking.
+  -accounts-database-uri string
+    	A known sfomuseum/go-activitypub/AccountsDatabase URI.
+  -block-host string
+    	The name of the host associated with the account being blocked.
+  -block-name string
+    	The name of the account being blocked. If "*" then all the accounts associated with the blocked host will be blocked. (default "*")
+  -blocks-database-uri string
+    	A known sfomuseum/go-activitypub/BlocksDatabase URI.
+  -undo
+    	Undo an existing block.
+  -verbose
+    	Enable verbose (debug) logging.
+```
+
 ### boost-note
 
 ### counts-for-date
@@ -199,6 +223,28 @@ Valid options are:
 ```
 
 ### list-boosts
+
+List all the boosts received by a go-activitypub account.
+
+```
+$> ./bin/list-boosts -h
+List all the boosts received by a go-activitypub account.
+Usage:
+	 ./bin/list-boosts [options]
+Valid options are:
+  -account-name string
+    	The account whose posts have been boosted.
+  -accounts-database-uri string
+    	A known sfomuseum/go-activitypub/AccountsDatabase URI.
+  -boosts-database-uri string
+    	A known sfomuseum/go-activitypub/BlockDatabase URI.
+  -hostname string
+    	The hostname (domain) for the account doing the boosting. (default "localhost:8080")
+  -insecure
+    	A boolean flag indicating the ActivityPub server delivering activities is insecure (not using TLS).
+  -verbose
+    	Enable verbose (debug) logging.
+```
 
 ### list-deliveries
 
