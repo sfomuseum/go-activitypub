@@ -4,7 +4,11 @@ An opionated (and incomplete) ActivityPub service implementation in Go.
 
 ## Background
 
-The ["Holding Hands with the "Fediverse" – ActivityPub at SFO Museum"](https://millsfield.sfomuseum.org/blog/2024/03/12/activitypub/) blog post is a good place to start. It is a long, but thorough, discussion of why, what and how SFO Museum is thinking about ActivityPub in relation to its collection and digital initiatives.
+The ["Holding Hands with the "Fediverse" – ActivityPub at SFO Museum"](https://millsfield.sfomuseum.org/blog/2024/03/12/activitypub/) blog post (March, 2024) is a good place to start. It is a long, but thorough, discussion of why, what and how SFO Museum is thinking about ActivityPub in relation to its collection and digital initiatives.
+
+### Additional reading
+
+* ["Updates to the SFO Museum ActivityPub services"](https://millsfield.sfomuseum.org/blog/2024/11/12/activitypub/), November 2024.
 
 ## Documentation
 
