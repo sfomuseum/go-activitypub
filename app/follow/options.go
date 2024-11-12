@@ -10,7 +10,6 @@ import (
 )
 
 type RunOptions struct {
-	ServerURI            string
 	Hostname             string
 	AccountsDatabaseURI  string
 	FollowingDatabaseURI string
@@ -37,7 +36,6 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	uris_table.Insecure = insecure
 
 	opts := &RunOptions{
-		ServerURI:            server_uri,
 		Hostname:             hostname,
 		AccountsDatabaseURI:  accounts_database_uri,
 		FollowingDatabaseURI: following_database_uri,

@@ -1,3 +1,4 @@
+// Package crypto provides methods for generating and processing x509 public and private keys.
 package crypto
 
 import (
@@ -8,6 +9,7 @@ import (
 	"fmt"
 )
 
+// GenerateKeyPair generates a new public and private x509 key of size 'sz'.
 func GenerateKeyPair(sz int) ([]byte, []byte, error) {
 
 	key, err := rsa.GenerateKey(rand.Reader, sz)
@@ -35,6 +37,7 @@ func GenerateKeyPair(sz int) ([]byte, []byte, error) {
 	return keyPEM, pubPEM, nil
 }
 
+// RSAPublicKeyFromPEM returns a new `rsa.PublicKey` instance derived from 'str_pem'.
 func RSAPublicKeyFromPEM(str_pem string) (*rsa.PublicKey, error) {
 
 	public_key_block, _ := pem.Decode([]byte(str_pem))
@@ -62,6 +65,7 @@ func RSAPublicKeyFromPEM(str_pem string) (*rsa.PublicKey, error) {
 	return public_key.(*rsa.PublicKey), nil
 }
 
+// RSAPrivateKeyFromPEM returns a new `rsa.PrivateKey` instance derived from 'str_pem'.
 func RSAPrivateKeyFromPEM(str_pem string) (*rsa.PrivateKey, error) {
 
 	private_key_block, _ := pem.Decode([]byte(str_pem))

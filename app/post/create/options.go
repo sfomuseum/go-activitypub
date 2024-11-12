@@ -11,6 +11,7 @@ import (
 
 type RunOptions struct {
 	AccountsDatabaseURI   string
+	ActivitiesDatabaseURI string
 	FollowersDatabaseURI  string
 	PostsDatabaseURI      string
 	PostTagsDatabaseURI   string
@@ -40,6 +41,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 
 	opts := &RunOptions{
 		AccountsDatabaseURI:   accounts_database_uri,
+		ActivitiesDatabaseURI: activities_database_uri,
 		FollowersDatabaseURI:  followers_database_uri,
 		PostsDatabaseURI:      posts_database_uri,
 		PostTagsDatabaseURI:   post_tags_database_uri,

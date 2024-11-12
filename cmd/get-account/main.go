@@ -2,22 +2,19 @@ package main
 
 import (
 	"context"
-	"os"
+	"log"
 
 	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/sfomuseum/go-activitypub/app/account/get"
-	"github.com/sfomuseum/go-activitypub/slog"
 )
 
 func main() {
 
 	ctx := context.Background()
-	logger := slog.Default()
-
-	err := get.Run(ctx, logger)
+	err := get.Run(ctx)
 
 	if err != nil {
-		logger.Error("Failed to get account, %v", err)
-		os.Exit(1)
+		log.Fatalf("Failed to retrieve actor, %v", err)
 	}
 }

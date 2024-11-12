@@ -8,15 +8,15 @@ import (
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
-	ap_slog "github.com/sfomuseum/go-activitypub/slog"
+	"github.com/sfomuseum/go-activitypub/database"
 )
 
-func Run(ctx context.Context, logger *slog.Logger) error {
+func Run(ctx context.Context) error {
 	fs := DefaultFlagSet()
-	return RunWithFlagSet(ctx, fs, logger)
+	return RunWithFlagSet(ctx, fs)
 }
 
-func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) error {
+func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 
 	opts, err := OptionsFromFlagSet(ctx, fs)
 
@@ -24,30 +24,41 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) 
 		return fmt.Errorf("Failed to derive options from flagset, %w", err)
 	}
 
-	return RunWithOptions(ctx, opts, logger)
+	return RunWithOptions(ctx, opts)
 }
 
-func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) error {
+func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
-	ap_slog.ConfigureLogger(logger, opts.Verbose)
+	if opts.Verbose {
+		slog.SetLogLoggerLevel(slog.LevelDebug)
+		slog.Debug("Verbose logging enabled")
+	}
 
-	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
+	logger := slog.Default()
+
+	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize accounts database, %w", err)
 	}
 
-	following_db, err := activitypub.NewFollowingDatabase(ctx, opts.FollowingDatabaseURI)
+	defer accounts_db.Close(ctx)
+
+	following_db, err := database.NewFollowingDatabase(ctx, opts.FollowingDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize following database, %w", err)
 	}
 
-	messages_db, err := activitypub.NewMessagesDatabase(ctx, opts.MessagesDatabaseURI)
+	defer following_db.Close(ctx)
+
+	messages_db, err := database.NewMessagesDatabase(ctx, opts.MessagesDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize messages database, %w", err)
 	}
+
+	defer messages_db.Close(ctx)
 
 	follower_acct, err := accounts_db.GetAccountWithName(ctx, opts.AccountName)
 
@@ -64,11 +75,25 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 	follower_address := follower_acct.Address(opts.URIs.Hostname)
 	following_address := opts.FollowAddress
 
+	logger = logger.With("follower", follower_address)
+	logger = logger.With("following", following_address)
+
+	following_actor, err := ap.RetrieveActor(ctx, following_address, opts.URIs.Insecure)
+
+	if err != nil {
+		return fmt.Errorf("Failed to retrieve actor for %s, %w", following_address, err)
+	}
+
+	following_inbox := following_actor.Inbox
+	logger = logger.With("inbox", following_inbox)
+
 	var activity *ap.Activity
 
 	if opts.Undo {
+		logger.Info("Create unfollow activity")
 		activity, err = ap.NewUndoFollowActivity(ctx, opts.URIs, follower_address, following_address)
 	} else {
+		logger.Info("Create follow activity")
 		activity, err = ap.NewFollowActivity(ctx, opts.URIs, follower_address, following_address)
 	}
 
@@ -76,14 +101,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		return fmt.Errorf("Failed to create follow activity, %w", err)
 	}
 
-	post_opts := &activitypub.PostToAccountOptions{
-		From:     follower_acct,
-		To:       following_address,
-		Activity: activity,
-		URIs:     opts.URIs,
-	}
-
-	_, err = activitypub.PostToAccount(ctx, post_opts)
+	err = follower_acct.SendActivity(ctx, opts.URIs, following_inbox, activity)
 
 	if err != nil {
 		return fmt.Errorf("Failed to deliver follow activity, %w", err)

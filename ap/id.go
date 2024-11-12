@@ -9,12 +9,12 @@ import (
 )
 
 // NewId return a new identifier in the form of a unique URI.
-func NewId(uris_table *uris.URIs) string {
+func NewId(uris_table *uris.URIs, prefix string) string {
 
 	uuid := id.NewUUID()
 
 	u := uris.NewURL(uris_table, uris_table.Root)
-	u.Fragment = fmt.Sprintf("as-%s", uuid)
+	u.Fragment = fmt.Sprintf("as-%s-%s", prefix, uuid)
 
 	// slog.Debug("New ap ID", "id", u.String())
 	return u.String()

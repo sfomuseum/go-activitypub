@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS following;
+
 CREATE TABLE following (
        id INTEGER primary key,
        account_id INTEGER,

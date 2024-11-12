@@ -50,7 +50,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		PropertiesDatabaseURI: properties_database_uri,
 		AccountId:             account_id,
 		AccountName:           account_name,
-		Aliases:               aliases,
+		Aliases:               aliases_list,
 		AccountType:           account_type,
 		AccountIconURI:        account_icon_uri,
 		AllowRemoteIconURI:    allow_remote_icon_uri,

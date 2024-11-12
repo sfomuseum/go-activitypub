@@ -14,22 +14,30 @@ import (
 	"github.com/go-fed/httpsig"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/blocks"
 	"github.com/sfomuseum/go-activitypub/crypto"
+	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/followers"
+	"github.com/sfomuseum/go-activitypub/following"
+	"github.com/sfomuseum/go-activitypub/messages"
+	"github.com/sfomuseum/go-activitypub/notes"
+	"github.com/sfomuseum/go-activitypub/posts"
+	"github.com/sfomuseum/go-activitypub/queue"
 	"github.com/sfomuseum/go-activitypub/uris"
 	"github.com/tidwall/gjson"
 )
 
 type InboxPostHandlerOptions struct {
-	AccountsDatabase    activitypub.AccountsDatabase
-	FollowersDatabase   activitypub.FollowersDatabase
-	FollowingDatabase   activitypub.FollowingDatabase
-	MessagesDatabase    activitypub.MessagesDatabase
-	NotesDatabase       activitypub.NotesDatabase
-	PostsDatabase       activitypub.PostsDatabase
-	BlocksDatabase      activitypub.BlocksDatabase
-	LikesDatabase       activitypub.LikesDatabase
-	BoostsDatabase      activitypub.BoostsDatabase
-	ProcessMessageQueue activitypub.ProcessMessageQueue
+	AccountsDatabase    database.AccountsDatabase
+	FollowersDatabase   database.FollowersDatabase
+	FollowingDatabase   database.FollowingDatabase
+	MessagesDatabase    database.MessagesDatabase
+	NotesDatabase       database.NotesDatabase
+	PostsDatabase       database.PostsDatabase
+	BlocksDatabase      database.BlocksDatabase
+	LikesDatabase       database.LikesDatabase
+	BoostsDatabase      database.BoostsDatabase
+	ProcessMessageQueue queue.ProcessMessageQueue
 	URIs                *uris.URIs
 	AllowFollow         bool
 	AllowCreate         bool
@@ -60,8 +68,13 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		t1 := time.Now()
 
+		valid_activity := false
+
 		defer func() {
-			logger.Info("Time to serve request", "ms", time.Since(t1).Milliseconds())
+
+			if valid_activity {
+				logger.Debug("Time to serve request", "ms", time.Since(t1).Milliseconds())
+			}
 		}()
 
 		if req.Method != http.MethodPost {
@@ -239,14 +252,18 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			}
 
 		default:
-			logger.Error("Unsupported activity type")
+			logger.Debug("Unsupported activity type")
 			http.Error(rsp, "Not implemented", http.StatusNotImplemented)
 			return
 		}
 
+		valid_activity = true
+
+		logger.Info("Valid activity")
+
 		// Ensure the account being poked exists
 
-		account_name, host, err := activitypub.ParseAddressFromRequest(req)
+		account_name, host, err := ap.ParseAddressFromRequest(req)
 
 		if err != nil {
 			logger.Error("Failed to parse address from request", "error", err)
@@ -278,6 +295,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		}
 
 		logger = logger.With("account id", acct.Id)
+
+		logger.Info("Valid account")
 
 		// Figure out who is doing the poking
 
@@ -346,7 +365,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		} else {
 
-			requestor_name, requestor_host, err = activitypub.ParseAddress(requestor_address)
+			requestor_name, requestor_host, err = ap.ParseAddress(requestor_address)
 
 			if err != nil {
 				logger.Error("Failed to parse requestor address", "error", err)
@@ -363,9 +382,11 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("requestor_address", requestor_address, "requestor_name", requestor_name, "requestor_host", requestor_host)
 
+		logger.Info("Valid requestor")
+
 		// Check if the requestor is being blocked
 
-		is_blocked, err := activitypub.IsBlockedByAccount(ctx, opts.BlocksDatabase, acct.Id, requestor_host, requestor_name)
+		is_blocked, err := blocks.IsBlockedByAccount(ctx, opts.BlocksDatabase, acct.Id, requestor_host, requestor_name)
 
 		if err != nil {
 			logger.Error("Failed to determine if requestor is blocked", "error", err)
@@ -494,6 +515,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		// END OF verify request
 
+		logger.Info("Valid request")
+
 		// Actually do something
 
 		// So really, at this point we should simple have per actitivy type handlers that
@@ -505,6 +528,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		// replies are handled...
 
 		accept_obj := activity
+
+		logger.Info("Process activity", "type", activity.Type)
 
 		switch activity.Type {
 		case "Announce":
@@ -521,7 +546,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				// as the body (object) of the activity. This may or may not be incorrect.
 				// I am not sure.
 
-				logger.Info("DEBUG", "map", activity.Object)
+				//logger.Info("DEBUG", "map", activity.Object)
 
 				obj_map := activity.Object.(map[string]interface{})
 				v, exists := obj_map["url"]
@@ -541,7 +566,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 					return
 				}
 
-				logger.Info("DEBUG", "object_uri", object_uri)
+				// logger.Info("DEBUG", "object_uri", object_uri)
 
 			default:
 				logger.Error("Invalid or unsupport activity object type for announce activity", "type", fmt.Sprintf("%T", activity.Object))
@@ -549,7 +574,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
+			logger.Info("Get post from Announce URI", "uri", object_uri)
+
+			post, err := posts.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
 
 			if err != nil {
 
@@ -571,6 +598,8 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				http.Error(rsp, "Forbidden", http.StatusForbidden)
 				return
 			}
+
+			logger.Info("Get boost", "actor", activity.Actor)
 
 			boost, err := opts.BoostsDatabase.GetBoostWithPostIdAndActor(ctx, post.Id, activity.Actor)
 
@@ -616,7 +645,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
+			post, err := posts.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
 
 			if err != nil {
 
@@ -672,7 +701,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 		case "Follow":
 
-			is_following, _, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
+			is_following, _, err := followers.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)
@@ -686,7 +715,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			err = activitypub.AddFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
+			err = followers.AddFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
 			if err != nil {
 				logger.Error("Failed to create new follower", "error", err)
@@ -718,20 +747,13 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				logger = logger.With("accept", accept.Id)
 
-				post_opts := &activitypub.PostToInboxOptions{
-					From:     acct,
-					Inbox:    requestor_actor.Inbox,
-					Activity: accept,
-					URIs:     opts.URIs,
-				}
-
-				err = activitypub.PostToInbox(ctx, post_opts)
+				err = acct.SendActivity(ctx, opts.URIs, requestor_actor.Inbox, accept)
 
 				if err != nil {
 
 					logger.Error("Failed to post accept activity to requestor, remove follower", "to", requestor_actor.Inbox, "error", err)
 
-					f, err := activitypub.GetFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
+					f, err := followers.GetFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
 					if err != nil {
 						logger.Error("Failed to retrieve newly created follower to remove", "error", err)
@@ -777,7 +799,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				// Note: We have prevented Block Undo activities above so we're going to assume it's an undo follow request
 
-				is_following, f, err := activitypub.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
+				is_following, f, err := followers.IsFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
 				if err != nil {
 					logger.Error("Failed to determine if following", "error", err)
@@ -813,7 +835,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				logger = logger.With("object uri", object_uri)
 
-				post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
+				post, err := posts.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
 
 				if err != nil {
 
@@ -876,7 +898,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				logger = logger.With("object uri", object_uri)
 
-				post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
+				post, err := posts.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, object_uri)
 
 				if err != nil {
 
@@ -950,7 +972,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			logger = logger.With("note id", note.Id)
 
-			is_following, _, err := activitypub.IsFollowing(ctx, opts.FollowingDatabase, acct.Id, requestor_address)
+			is_following, _, err := following.IsFollowing(ctx, opts.FollowingDatabase, acct.Id, requestor_address)
 
 			if err != nil {
 				logger.Error("Failed to determine if following", "error", err)
@@ -1015,7 +1037,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 					is_own_post := false
 
-					post, err := activitypub.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, note.InReplyTo)
+					post, err := posts.GetPostFromObjectURI(ctx, opts.URIs, opts.PostsDatabase, note.InReplyTo)
 
 					if err != nil && err != activitypub.ErrNotFound {
 						logger.Error("Failed to determine if object URI references post", "error", err)
@@ -1067,7 +1089,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			} else {
 
-				new_note, err := activitypub.AddNote(ctx, opts.NotesDatabase, note_uuid, requestor_address, string(enc_obj))
+				new_note, err := notes.AddNote(ctx, opts.NotesDatabase, note_uuid, requestor_address, string(enc_obj))
 
 				if err != nil {
 					logger.Error("Failed to create new note", "error", err)
@@ -1082,7 +1104,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			// Now store a "message" which is a pointer to the note associated with the account the
 			// note is being delivered to
 
-			db_message, err := activitypub.GetMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id)
+			db_message, err := messages.GetMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id)
 
 			switch {
 			case err == activitypub.ErrNotFound:
@@ -1099,7 +1121,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				logger = logger.With("message id", db_message.Id)
 
-				db_message, err = activitypub.UpdateMessage(ctx, opts.MessagesDatabase, db_message)
+				db_message, err = messages.UpdateMessage(ctx, opts.MessagesDatabase, db_message)
 
 				if err != nil {
 					logger.Error("Failed to update message", "error", err)
@@ -1109,7 +1131,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 			} else {
 
-				new_message, err := activitypub.AddMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id, requestor_address)
+				new_message, err := messages.AddMessage(ctx, opts.MessagesDatabase, acct.Id, db_note.Id, requestor_address)
 
 				if err != nil {
 					logger.Error("Failed to add message", "error", err)
@@ -1121,11 +1143,11 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				logger = logger.With("message id", db_message.Id)
 			}
 
-			// Dispatch to handle message queue here... maybe?
-
 			logger.Info("Note has been added to messages")
 
 			wg.Add(1)
+
+			logger.Info("Schedule process message queue")
 
 			go func() {
 

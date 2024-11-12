@@ -10,7 +10,7 @@ import (
 // NewCreateActivity returns a new `Activity` instance of type "Follow".
 func NewFollowActivity(ctx context.Context, uris_table *uris.URIs, from string, to string) (*Activity, error) {
 
-	ap_id := NewId(uris_table)
+	ap_id := NewId(uris_table, "follow")
 
 	req := &Activity{
 		Id:     ap_id,
@@ -24,7 +24,7 @@ func NewFollowActivity(ctx context.Context, uris_table *uris.URIs, from string, 
 
 func NewUndoFollowActivity(ctx context.Context, uris_table *uris.URIs, from string, to string) (*Activity, error) {
 
-	ap_id := NewId(uris_table)
+	ap_id := NewId(uris_table, "undo-follow")
 
 	follow_activity, err := NewFollowActivity(ctx, uris_table, from, to)
 

@@ -7,30 +7,34 @@ import (
 	"flag"
 	"fmt"
 	"image"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
 	"io"
-	"log/slog"
 	"net/url"
 	"os"
 	"regexp"
 	"time"
 
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/accounts"
+	"github.com/sfomuseum/go-activitypub/aliases"
 	"github.com/sfomuseum/go-activitypub/crypto"
+	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/id"
+	"github.com/sfomuseum/go-activitypub/properties"
 )
 
 // Reconcile with www/icon.go
 var re_http_url = regexp.MustCompile(`^https?\:\/\/(.*)`)
 
-func Run(ctx context.Context, logger *slog.Logger) error {
+func Run(ctx context.Context) error {
 	fs := DefaultFlagSet()
-	return RunWithFlagSet(ctx, fs, logger)
+	return RunWithFlagSet(ctx, fs)
 }
 
-func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) error {
+func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 
 	opts, err := OptionsFromFlagSet(ctx, fs)
 
@@ -38,14 +42,12 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) 
 		return fmt.Errorf("Failed to derive options from flagset, %w", err)
 	}
 
-	return RunWithOptions(ctx, opts, logger)
+	return RunWithOptions(ctx, opts)
 }
 
-func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) error {
+func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
-	slog.SetDefault(logger)
-
-	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
+	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to instantiate accounts database, %w", err)
@@ -53,7 +55,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer accounts_db.Close(ctx)
 
-	aliases_db, err := activitypub.NewAliasesDatabase(ctx, opts.AliasesDatabaseURI)
+	aliases_db, err := database.NewAliasesDatabase(ctx, opts.AliasesDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to instantiate aliases database, %w", err)
@@ -61,7 +63,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer aliases_db.Close(ctx)
 
-	properties_db, err := activitypub.NewPropertiesDatabase(ctx, opts.PropertiesDatabaseURI)
+	properties_db, err := database.NewPropertiesDatabase(ctx, opts.PropertiesDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create properties database, %w", err)
@@ -71,7 +73,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	// START OF check for existing account name and aliases
 
-	acct_taken, err := activitypub.IsAccountNameTaken(ctx, accounts_db, opts.AccountName)
+	acct_taken, err := accounts.IsAccountNameTaken(ctx, accounts_db, opts.AccountName)
 
 	if err != nil {
 		return fmt.Errorf("Failed to determine if account name is taken, %w", err)
@@ -83,7 +85,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	for _, name := range opts.Aliases {
 
-		alias_taken, err := activitypub.IsAliasNameTaken(ctx, aliases_db, name)
+		alias_taken, err := aliases.IsAliasNameTaken(ctx, aliases_db, name)
 
 		if err != nil {
 			return fmt.Errorf("Failed to determine if alias name '%s' is taken, %w", name, err)
@@ -205,7 +207,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 		IconURI:       icon_uri,
 	}
 
-	a, err = activitypub.AddAccount(ctx, accounts_db, a)
+	a, err = accounts.AddAccount(ctx, accounts_db, a)
 
 	if err != nil {
 		return fmt.Errorf("Failed to add new account, %w", err)
@@ -213,7 +215,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	// Properties
 
-	_, _, err = activitypub.ApplyPropertiesUpdates(ctx, properties_db, a, opts.Properties)
+	_, _, err = properties.ApplyPropertiesUpdates(ctx, properties_db, a, opts.Properties)
 
 	if err != nil {
 		return fmt.Errorf("Account created (%d) but failed to apply properties, %w", a.Id, err)

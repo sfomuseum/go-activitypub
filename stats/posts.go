@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 )
 
-func CountPostsForDateRange(ctx context.Context, posts_db activitypub.PostsDatabase, start int64, end int64) (int64, error) {
+func CountPostsForDateRange(ctx context.Context, posts_db database.PostsDatabase, start int64, end int64) (int64, error) {
 
 	count := int64(0)
 

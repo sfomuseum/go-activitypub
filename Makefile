@@ -2,19 +2,31 @@ GOMOD=$(shell test -f "go.work" && echo "readonly" || echo "vendor")
 LDFLAGS=-s -w
 
 cli:
-	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/server cmd/server/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/add-account cmd/add-account/main.go
-	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/get-account cmd/get-account/main.go
-	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/create-post cmd/create-post/main.go
-	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-followers cmd/list-followers/main.go
-	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-addresses cmd/list-addresses/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/add-aliases cmd/add-aliases/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/block cmd/block/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/boost-note cmd/boost-note/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/counts-for-date cmd/counts-for-date/main.go
-	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/inbox cmd/inbox/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/create-dynamodb-tables cmd/create-dynamodb-tables/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/create-post cmd/create-post/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/deliver-activity cmd/deliver-activity/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/get-account cmd/get-account/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/follow cmd/follow/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-boosts cmd/list-boosts/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-followers cmd/list-followers/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-activities cmd/list-activities/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-addresses cmd/list-addresses/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-aliases cmd/list-aliases/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-deliveries cmd/list-deliveries/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/inbox cmd/inbox/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/retrieve-actor cmd/retrieve-actor/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/retrieve-delivery cmd/retrieve-delivery/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/retrieve-note cmd/retrieve-note/main.go
+	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/server cmd/server/main.go
 
 lambda:
 	@make lambda-server
-	@make lambda-deliver-post
+	@make lambda-deliver-activity
 
 lambda-server:
 	if test -f bootstrap; then rm -f bootstrap; fi
@@ -23,10 +35,10 @@ lambda-server:
 	zip server.zip bootstrap
 	rm -f bootstrap
 
-lambda-deliver-post:
+lambda-deliver-activity:
 	if test -f bootstrap; then rm -f bootstrap; fi
 	if test -f deliver.zip; then rm -f deliver.zip; fi
-	GOARCH=arm64 GOOS=linux go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -tags lambda.norpc -o bootstrap cmd/deliver-post/main.go
+	GOARCH=arm64 GOOS=linux go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -tags lambda.norpc -o bootstrap cmd/deliver-activity/main.go
 	zip deliver.zip bootstrap
 	rm -f bootstrap
 
@@ -35,20 +47,22 @@ lambda-deliver-post:
 SQLITE3=sqlite3
 TABLE_PREFIX=
 
-ACCOUNTS_DB=accounts.db
-FOLLOWERS_DB=followers.db
-FOLLOWING_DB=following.db
-POSTS_DB=posts.db
-POST_TAGS_DB=posts.db
-NOTES_DB=notes.db
-MESSAGES_DB=messages.db
-BLOCKS_DB=blocks.db
-DELIVERIES_DB=deliveries.db
-BOOSTS_DB=boosts.db
-LIKES_DB=likes.db
-PROPERTIES_DB=properties.db
+ACCOUNTS_DB=work/accounts.db
+ACTIVITIES_DB=work/activities.db
+FOLLOWERS_DB=work/followers.db
+FOLLOWING_DB=work/following.db
+POSTS_DB=work/posts.db
+POST_TAGS_DB=work/posts.db
+NOTES_DB=work/notes.db
+MESSAGES_DB=work/messages.db
+BLOCKS_DB=work/blocks.db
+DELIVERIES_DB=work/deliveries.db
+BOOSTS_DB=work/boosts.db
+LIKES_DB=work/likes.db
+PROPERTIES_DB=work/properties.db
 
 ACCOUNTS_DB_URI=sql://sqlite3?dsn=$(ACCOUNTS_DB)
+ACTIVITIES_DB_URI=sql://sqlite3?dsn=$(ACTIVITIES_DB)
 FOLLOWERS_DB_URI=sql://sqlite3?dsn=$(FOLLOWERS_DB)
 FOLLOWING_DB_URI=sql://sqlite3?dsn=$(FOLLOWING_DB)
 BLOCKS_DB_URI=sql://sqlite3?dsn=$(BLOCKS_DB)
@@ -62,6 +76,7 @@ LIKES_DB_URI=sql://sqlite3?dsn=$(LIKES_DB)
 PROPERTIES_DB_URI=sql://sqlite3?dsn=$(PROPERTIES_DB)
 
 ACCOUNTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+ACTIVITIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)activities?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
 ALIASES_DB_URI=awsdynamodb://$(TABLE_PREFIX)aliases?partition_key=Name&allow_scans=true&local=true&region=localhost&credentials=anon:
 BLOCKS_DB_URI=awsdynamodb://$(TABLE_PREFIX)blocks?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
 BOOSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)boosts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
@@ -85,12 +100,27 @@ db-sqlite:
 	$(SQLITE3) $(NOTES_DB) < schema/sqlite/notes.schema
 	$(SQLITE3) $(MESSAGES_DB) < schema/sqlite/messages.schema
 	$(SQLITE3) $(BLOCKS_DB) < schema/sqlite/blocks.schema
-	$(SQLITE3) $(DELIVERIES_DB) < schema/sqlite/deliveries.schema
 	$(SQLITE3) $(BOOSTS_DB) < schema/sqlite/boosts.schema
 	$(SQLITE3) $(LIKES_DB) < schema/sqlite/likes.schema
 	$(SQLITE3) $(PROPERTIES_DB) < schema/sqlite/properties.schema
+	$(SQLITE3) $(DELIVERIES_DB) < schema/sqlite/deliveries.schema
 
-accounts:
+DELIVERY_QUEUE_URI=synchronous://
+
+deliver-pubsub:
+	go run cmd/deliver-activity/main.go \
+		-mode pubsub \
+		-subscriber-uri 'redis://?channel=activitypub' \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-activities-database-uri '$(ACTIVITIES_DB_URI)' \
+		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
+		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
+		-posts-database-uri '$(POSTS_DB_URI)' \
+		-post-tags-database-uri '$(POST_TAGS_DB_URI)' \
+		-insecure \
+		-verbose
+
+setup-accounts:
 	go run cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
@@ -152,7 +182,8 @@ block:
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-account-name bob \
-		-block-host block.club
+		-block-host block.club \
+		-verbose
 
 unblock:
 	go run cmd/block/main.go \
@@ -160,32 +191,44 @@ unblock:
 		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-account-name bob \
 		-block-host block.club \
-		-undo
+		-undo \
+		-verbose
 
 # Alice wants to post something (to Bob, if Bob is following Alice)
 
 post:
 	go run cmd/create-post/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-activities-database-uri '$(ACTIVITIES_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
 		-posts-database-uri '$(POSTS_DB_URI)' \
 		-post-tags-database-uri '$(POST_TAGS_DB_URI)' \
 		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
+		-delivery-queue-uri '$(DELIVERY_QUEUE_URI)' \
 		-account-name alice \
 		-message "$(MESSAGE)" \
 		-hostname localhost:8080 \
 		-insecure \
 		-verbose
 
-boost:
-	go run cmd/create-post/main.go \
+boost-note:
+	go run cmd/boost-note/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-activities-database-uri '$(ACTIVITIES_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
-		-posts-database-uri '$(POSTS_DB_URI)' \
-		-post-tags-database-uri '$(POST_TAGS_DB_URI)' \
 		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
 		-account-name doug \
-		-message "$(MESSAGE)" \
+		-note "$(NOTE)" \
+		-hostname localhost:8080 \
+		-delivery-queue-uri '$(DELIVERY_QUEUE_URI)' \
+		-insecure \
+		-verbose
+
+list-boosts:
+	go run cmd/list-boosts/main.go \
+		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
+		-boosts-database-uri '$(BOOSTS_DB_URI)' \
+		-account-name $(ACCOUNT) \
 		-hostname localhost:8080 \
 		-insecure \
 		-verbose
@@ -212,12 +255,16 @@ delivery:
 		-delivery-id $(ID) \
 		-verbose
 
-inbox:
+list-inbox:
 	go run cmd/inbox/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-messages-database-uri '$(MESSAGES_DB_URI)' \
 		-notes-database-uri '$(NOTES_DB_URI)' \
-		-account-name $(ACCOUNT)
+		-account-name $(ACCOUNT) \
+		-verbose
+
+SERVER_DISABLED=false
+SERVER_VERBOSE=true
 
 server:
 	go run cmd/server/main.go \
@@ -236,21 +283,26 @@ server:
 		-process-message-queue-uri 'stdout://' \
 		-allow-remote-icon-uri \
 		-allow-create \
-		-verbose \
+		-verbose=$(SERVER_VERBOSE) \
+		-disabled=$(SERVER_DISABLED) \
 		-hostname localhost:8080 \
 		-insecure
+
+list-activities:
+	go run cmd/list-activities/main.go \
+		-activities-database-uri '$(ACTIVITIES_DB_URI)' \
+		-verbose
+
+list-deliveries:
+	go run cmd/list-deliveries/main.go \
+		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
+		-verbose
 
 retrieve:
 	go run cmd/retrieve-actor/main.go \
 		-address $(ADDRESS) \
 		-verbose \
 		-insecure
-
-# https://aws.amazon.com/about-aws/whats-new/2018/08/use-amazon-dynamodb-local-more-easily-with-the-new-docker-image/
-# https://hub.docker.com/r/amazon/dynamodb-local/
-
-dynamo-local:
-	docker run --rm -it -p 8000:8000 amazon/dynamodb-local
 
 dynamo-tables-local:
 	go run -mod vendor cmd/create-dynamodb-tables/main.go \

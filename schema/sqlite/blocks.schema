@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS blocks;
+
 CREATE TABLE blocks (
        id INTEGER PRIMARY KEY,
        account_id INTEGER,

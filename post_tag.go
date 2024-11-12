@@ -1,5 +1,9 @@
 package activitypub
 
+// This probably just needs to be renamed as "tag" and associated with an
+// activitypub.ActivityTypeStatus and activitypub.ActivityTypeId but right
+// now it is tightly coupled with "posts" (or "notes")
+
 type PostTag struct {
 	Id        int64  `json:"id"`
 	AccountId int64  `json:"account_id"`

@@ -7,12 +7,14 @@ import (
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/following"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type FollowingHandlerOptions struct {
-	AccountsDatabase  activitypub.AccountsDatabase
-	FollowingDatabase activitypub.FollowingDatabase
+	AccountsDatabase  database.AccountsDatabase
+	FollowingDatabase database.FollowingDatabase
 	URIs              *uris.URIs
 }
 
@@ -42,7 +44,7 @@ func FollowingHandler(opts *FollowingHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		account_name, host, err := activitypub.ParseAddressFromRequest(req)
+		account_name, host, err := ap.ParseAddressFromRequest(req)
 
 		if err != nil {
 			logger.Error("Failed to parse address from request", "error", err)
@@ -75,7 +77,7 @@ func FollowingHandler(opts *FollowingHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("account id", acct.Id)
 
-		resource, err := acct.FollowingResource(ctx, opts.URIs, opts.FollowingDatabase)
+		resource, err := following.FollowingResource(ctx, opts.URIs, opts.FollowingDatabase, acct)
 
 		if err != nil {
 			logger.Error("Failed to create following resource", "error", err)

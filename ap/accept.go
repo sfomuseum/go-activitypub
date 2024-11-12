@@ -12,7 +12,7 @@ import (
 // The Accept activity "indicates that the actor accepts the object. The target property can be used in certain circumstances to indicate the context into which the object has been accepted."
 func NewAcceptActivity(ctx context.Context, uris_table *uris.URIs, from string, object interface{}) (*Activity, error) {
 
-	ap_id := NewId(uris_table)
+	ap_id := NewId(uris_table, "accept")
 
 	req := &Activity{
 		Context: []interface{}{

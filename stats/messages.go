@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 )
 
-func CountMessagesForDateRange(ctx context.Context, messages_db activitypub.MessagesDatabase, start int64, end int64) (int64, error) {
+func CountMessagesForDateRange(ctx context.Context, messages_db database.MessagesDatabase, start int64, end int64) (int64, error) {
 
 	count := int64(0)
 

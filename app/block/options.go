@@ -15,6 +15,7 @@ type RunOptions struct {
 	BlockName           string
 	BlockHost           string
 	Undo                bool
+	Verbose             bool
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -34,6 +35,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		BlockName:           block_name,
 		BlockHost:           block_host,
 		Undo:                undo,
+		Verbose:             verbose,
 	}
 
 	return opts, nil

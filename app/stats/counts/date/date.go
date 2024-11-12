@@ -2,24 +2,21 @@ package date
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
-	"log/slog"
-
-	"encoding/json"
 	"os"
 
-	"github.com/sfomuseum/go-activitypub"
-	ap_slog "github.com/sfomuseum/go-activitypub/slog"
+	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/stats"
 )
 
-func Run(ctx context.Context, logger *slog.Logger) error {
+func Run(ctx context.Context) error {
 	fs := DefaultFlagSet()
-	return RunWithFlagSet(ctx, fs, logger)
+	return RunWithFlagSet(ctx, fs)
 }
 
-func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) error {
+func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 
 	opts, err := OptionsFromFlagSet(ctx, fs)
 
@@ -27,14 +24,12 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) 
 		return fmt.Errorf("Failed to derive options from flagset, %w", err)
 	}
 
-	return RunWithOptions(ctx, opts, logger)
+	return RunWithOptions(ctx, opts)
 }
 
-func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) error {
+func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
-	ap_slog.ConfigureLogger(logger, opts.Verbose)
-
-	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
+	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new database, %w", err)
@@ -42,7 +37,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer accounts_db.Close(ctx)
 
-	blocks_db, err := activitypub.NewBlocksDatabase(ctx, opts.BlocksDatabaseURI)
+	blocks_db, err := database.NewBlocksDatabase(ctx, opts.BlocksDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new database, %w", err)
@@ -50,7 +45,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer blocks_db.Close(ctx)
 
-	boosts_db, err := activitypub.NewBoostsDatabase(ctx, opts.BoostsDatabaseURI)
+	boosts_db, err := database.NewBoostsDatabase(ctx, opts.BoostsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new database, %w", err)
@@ -58,7 +53,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer boosts_db.Close(ctx)
 
-	deliveries_db, err := activitypub.NewDeliveriesDatabase(ctx, opts.DeliveriesDatabaseURI)
+	deliveries_db, err := database.NewDeliveriesDatabase(ctx, opts.DeliveriesDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create instantiate deliveries database, %w", err)
@@ -66,7 +61,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer deliveries_db.Close(ctx)
 
-	followers_db, err := activitypub.NewFollowersDatabase(ctx, opts.FollowersDatabaseURI)
+	followers_db, err := database.NewFollowersDatabase(ctx, opts.FollowersDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to instantiate followers database, %w", err)
@@ -74,7 +69,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer followers_db.Close(ctx)
 
-	following_db, err := activitypub.NewFollowingDatabase(ctx, opts.FollowingDatabaseURI)
+	following_db, err := database.NewFollowingDatabase(ctx, opts.FollowingDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create new database, %w", err)
@@ -82,7 +77,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer following_db.Close(ctx)
 
-	likes_db, err := activitypub.NewLikesDatabase(ctx, opts.LikesDatabaseURI)
+	likes_db, err := database.NewLikesDatabase(ctx, opts.LikesDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create instantiate likes database, %w", err)
@@ -90,7 +85,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer likes_db.Close(ctx)
 
-	messages_db, err := activitypub.NewMessagesDatabase(ctx, opts.MessagesDatabaseURI)
+	messages_db, err := database.NewMessagesDatabase(ctx, opts.MessagesDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create instantiate messages database, %w", err)
@@ -98,7 +93,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer messages_db.Close(ctx)
 
-	notes_db, err := activitypub.NewNotesDatabase(ctx, opts.NotesDatabaseURI)
+	notes_db, err := database.NewNotesDatabase(ctx, opts.NotesDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create instantiate notes database, %w", err)
@@ -106,7 +101,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) 
 
 	defer notes_db.Close(ctx)
 
-	posts_db, err := activitypub.NewPostsDatabase(ctx, opts.PostsDatabaseURI)
+	posts_db, err := database.NewPostsDatabase(ctx, opts.PostsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to create instantiate posts database, %w", err)

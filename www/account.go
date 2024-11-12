@@ -10,13 +10,15 @@ import (
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/properties"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type AccountHandlerOptions struct {
-	AccountsDatabase   activitypub.AccountsDatabase
-	AliasesDatabase    activitypub.AliasesDatabase
-	PropertiesDatabase activitypub.PropertiesDatabase
+	AccountsDatabase   database.AccountsDatabase
+	AliasesDatabase    database.AliasesDatabase
+	PropertiesDatabase database.PropertiesDatabase
 	URIs               *uris.URIs
 	Templates          *template.Template
 	RedirectOnAlias    bool
@@ -60,7 +62,7 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		account_name, host, err := activitypub.ParseAddressFromRequest(req)
+		account_name, host, err := ap.ParseAddressFromRequest(req)
 
 		if err != nil {
 			logger.Error("Failed to parse address from request", "error", err)
@@ -142,7 +144,7 @@ func AccountHandler(opts *AccountHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("account id", acct.Id)
 
-		props_map, err := activitypub.PropertiesMapForAccount(ctx, opts.PropertiesDatabase, acct)
+		props_map, err := properties.PropertiesMapForAccount(ctx, opts.PropertiesDatabase, acct)
 
 		if err != nil {
 			logger.Error("Failed to derive properties map for account", "error", err)

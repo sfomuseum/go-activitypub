@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 )
 
-func CountBoostsForDateRange(ctx context.Context, boosts_db activitypub.BoostsDatabase, start int64, end int64) (int64, error) {
+func CountBoostsForDateRange(ctx context.Context, boosts_db database.BoostsDatabase, start int64, end int64) (int64, error) {
 
 	count := int64(0)
 

@@ -5,19 +5,17 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log/slog"
 	"os"
 
-	"github.com/sfomuseum/go-activitypub"
-	ap_slog "github.com/sfomuseum/go-activitypub/slog"
+	"github.com/sfomuseum/go-activitypub/ap"
 )
 
-func Run(ctx context.Context, logger *slog.Logger) error {
+func Run(ctx context.Context) error {
 	fs := DefaultFlagSet()
-	return RunWithFlagSet(ctx, fs, logger)
+	return RunWithFlagSet(ctx, fs)
 }
 
-func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) error {
+func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 
 	opts, err := OptionsFromFlagSet(ctx, fs)
 
@@ -25,14 +23,14 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) 
 		return fmt.Errorf("Failed to derive options from flagset, %w", err)
 	}
 
-	return RunWithOptions(ctx, opts, logger)
+	return RunWithOptions(ctx, opts)
 }
 
-func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) error {
+func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
-	ap_slog.ConfigureLogger(logger, opts.Verbose)
+	// logger := slog.Default()
 
-	actor, err := activitypub.RetrieveActor(ctx, opts.Address, opts.Insecure)
+	actor, err := ap.RetrieveActor(ctx, opts.Address, opts.Insecure)
 
 	if err != nil {
 		return fmt.Errorf("Failed to retrieve actor, %w", err)

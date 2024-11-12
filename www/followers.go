@@ -7,12 +7,14 @@ import (
 
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
+	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/followers"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
 type FollowersHandlerOptions struct {
-	AccountsDatabase  activitypub.AccountsDatabase
-	FollowersDatabase activitypub.FollowersDatabase
+	AccountsDatabase  database.AccountsDatabase
+	FollowersDatabase database.FollowersDatabase
 	URIs              *uris.URIs
 }
 
@@ -42,7 +44,7 @@ func FollowersHandler(opts *FollowersHandlerOptions) (http.Handler, error) {
 			return
 		}
 
-		account_name, host, err := activitypub.ParseAddressFromRequest(req)
+		account_name, host, err := ap.ParseAddressFromRequest(req)
 
 		if err != nil {
 			logger.Error("Failed to parse address from request", "error", err)
@@ -75,7 +77,7 @@ func FollowersHandler(opts *FollowersHandlerOptions) (http.Handler, error) {
 
 		logger = logger.With("account id", acct.Id)
 
-		resource, err := acct.FollowersResource(ctx, opts.URIs, opts.FollowersDatabase)
+		resource, err := followers.FollowersResource(ctx, opts.URIs, opts.FollowersDatabase, acct)
 
 		if err != nil {
 			logger.Error("Failed to create followers resource", "error", err)

@@ -2,22 +2,19 @@ package main
 
 import (
 	"context"
-	"os"
+	"log"
 
 	_ "github.com/mattn/go-sqlite3"
+
 	"github.com/sfomuseum/go-activitypub/app/deliveries/retrieve"
-	"github.com/sfomuseum/go-activitypub/slog"
 )
 
 func main() {
 
 	ctx := context.Background()
-	logger := slog.Default()
-
-	err := retrieve.Run(ctx, logger)
+	err := retrieve.Run(ctx)
 
 	if err != nil {
-		logger.Error("Failed to retrieve deliveries, %v", err)
-		os.Exit(1)
+		log.Fatalf("Failed to retrieve delivery, %v", err)
 	}
 }

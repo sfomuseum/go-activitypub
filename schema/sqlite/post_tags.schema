@@ -1,0 +1,16 @@
+DROP TABLE IF EXISTS post_tags;
+
+CREATE TABLE post_tags (
+       id INTEGER PRIMARY KEY,
+       account_id INTEGER,
+       post_id INTEGER,
+       href TEXT,
+       name TEXT,
+       type TEXT,
+       created INTEGER
+);
+
+CREATE INDEX `post_tags_by_account` ON post_tags (`account_id`, `created`);
+CREATE INDEX `post_tags_by_post_id` ON post_tags (`post_id`, `created`);
+CREATE INDEX `post_tagss_by_created` ON post_tags (`created`);
+       

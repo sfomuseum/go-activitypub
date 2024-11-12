@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 )
 
-func CountFollowersForDateRange(ctx context.Context, followers_db activitypub.FollowersDatabase, start int64, end int64) (int64, error) {
+func CountFollowersForDateRange(ctx context.Context, followers_db database.FollowersDatabase, start int64, end int64) (int64, error) {
 
 	count := int64(0)
 

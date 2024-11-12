@@ -16,6 +16,8 @@ type CreateTablesOptions struct {
 	Tables map[string]*aws_dynamodb.CreateTableInput
 	// If true and the table already exists, delete and recreate the table
 	Refresh bool
+	// An optional string to append to each table name as it is created.
+	Prefix string
 }
 
 // Create one or more tables associated with the dynamodb.DynamoDB instance.
@@ -23,6 +25,11 @@ func CreateTables(ctx context.Context, client *aws_dynamodb.Client, opts *Create
 
 	for table_name, def := range opts.Tables {
 
+		if opts.Prefix != "" {
+			slog.Debug("Assign prefix to table name", "table", table_name, "prefix", opts.Prefix)
+			table_name = opts.Prefix + table_name
+		}
+			
 		// To do: Do this concurrently because of the delay waiting for table deletion to complete
 
 		has_table, err := HasTable(ctx, client, table_name)

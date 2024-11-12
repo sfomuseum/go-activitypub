@@ -17,7 +17,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/ap"
 )
 
 func main() {
@@ -43,7 +43,7 @@ func main() {
 		}
 	}
 
-	addrs, err := activitypub.ParseAddressesFromString(body)
+	addrs, err := ap.ParseAddressesFromString(body)
 
 	if err != nil {
 		log.Fatalf("Failed to parse addresses, %v", err)

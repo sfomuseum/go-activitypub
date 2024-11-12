@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 )
 
-func CountDeliveriesForDateRange(ctx context.Context, deliveries_db activitypub.DeliveriesDatabase, start int64, end int64) (int64, error) {
+func CountDeliveriesForDateRange(ctx context.Context, deliveries_db database.DeliveriesDatabase, start int64, end int64) (int64, error) {
 
 	count := int64(0)
 

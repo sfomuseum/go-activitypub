@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 )
 
-func CountBlocksForDateRange(ctx context.Context, blocks_db activitypub.BlocksDatabase, start int64, end int64) (int64, error) {
+func CountBlocksForDateRange(ctx context.Context, blocks_db database.BlocksDatabase, start int64, end int64) (int64, error) {
 
 	count := int64(0)
 

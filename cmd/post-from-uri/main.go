@@ -5,7 +5,8 @@ import (
 	"flag"
 	"log"
 
-	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
+	"github.com/sfomuseum/go-activitypub/posts"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
 
@@ -19,7 +20,7 @@ func main() {
 
 	ctx := context.Background()
 
-	posts_db, err := activitypub.NewPostsDatabase(ctx, posts_database_uri)
+	posts_db, err := database.NewPostsDatabase(ctx, posts_database_uri)
 
 	if err != nil {
 		log.Fatalf("Failed to create posts database, %v", err)
@@ -31,7 +32,7 @@ func main() {
 
 	for _, uri := range flag.Args() {
 
-		post, err := activitypub.GetPostFromObjectURI(ctx, uris_table, posts_db, uri)
+		post, err := posts.GetPostFromObjectURI(ctx, uris_table, posts_db, uri)
 
 		if err != nil {
 			log.Fatalf("Failed to get for post for '%s', %v", uri, err)

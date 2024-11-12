@@ -7,14 +7,15 @@ import (
 	"log/slog"
 
 	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 )
 
-func Run(ctx context.Context, logger *slog.Logger) error {
+func Run(ctx context.Context) error {
 	fs := DefaultFlagSet()
-	return RunWithFlagSet(ctx, fs, logger)
+	return RunWithFlagSet(ctx, fs)
 }
 
-func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) error {
+func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 
 	opts, err := OptionsFromFlagSet(ctx, fs)
 
@@ -22,24 +23,33 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet, logger *slog.Logger) 
 		return fmt.Errorf("Failed to derive options from flagset, %w", err)
 	}
 
-	return RunWithOptions(ctx, opts, logger)
+	return RunWithOptions(ctx, opts)
 }
 
-func RunWithOptions(ctx context.Context, opts *RunOptions, logger *slog.Logger) error {
+func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
-	slog.SetDefault(logger)
+	if opts.Verbose {
+		slog.SetLogLoggerLevel(slog.LevelDebug)
+		slog.Debug("Verbose logging enabled")
+	}
 
-	accounts_db, err := activitypub.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
+	logger := slog.Default()
+
+	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize accounts database, %w", err)
 	}
 
-	blocks_db, err := activitypub.NewBlocksDatabase(ctx, opts.BlocksDatabaseURI)
+	defer accounts_db.Close(ctx)
+
+	blocks_db, err := database.NewBlocksDatabase(ctx, opts.BlocksDatabaseURI)
 
 	if err != nil {
 		return fmt.Errorf("Failed to initialize following database, %w", err)
 	}
+
+	defer blocks_db.Close(ctx)
 
 	acct, err := accounts_db.GetAccountWithName(ctx, opts.AccountName)
 

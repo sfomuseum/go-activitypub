@@ -2,22 +2,18 @@ package main
 
 import (
 	"context"
-	"os"
+	"log"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/sfomuseum/go-activitypub/app/post/create"
-	"github.com/sfomuseum/go-activitypub/slog"
 )
 
 func main() {
 
 	ctx := context.Background()
-	logger := slog.Default()
-
-	err := create.Run(ctx, logger)
+	err := create.Run(ctx)
 
 	if err != nil {
-		logger.Error("Failed to post message", "error", err)
-		os.Exit(1)
+		log.Fatalf("Failed to create post, %v", err)
 	}
 }

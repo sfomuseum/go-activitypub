@@ -8,7 +8,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/sfomuseum/go-activitypub"
+	"github.com/sfomuseum/go-activitypub/database"
 )
 
 type Counts struct {
@@ -29,16 +29,16 @@ type Counts struct {
 type CountsForDateOptions struct {
 	Date               string
 	Location           string
-	AccountsDatabase   activitypub.AccountsDatabase
-	BlocksDatabase     activitypub.BlocksDatabase
-	BoostsDatabase     activitypub.BoostsDatabase
-	DeliveriesDatabase activitypub.DeliveriesDatabase
-	FollowersDatabase  activitypub.FollowersDatabase
-	FollowingDatabase  activitypub.FollowingDatabase
-	LikesDatabase      activitypub.LikesDatabase
-	MessagesDatabase   activitypub.MessagesDatabase
-	NotesDatabase      activitypub.NotesDatabase
-	PostsDatabase      activitypub.PostsDatabase
+	AccountsDatabase   database.AccountsDatabase
+	BlocksDatabase     database.BlocksDatabase
+	BoostsDatabase     database.BoostsDatabase
+	DeliveriesDatabase database.DeliveriesDatabase
+	FollowersDatabase  database.FollowersDatabase
+	FollowingDatabase  database.FollowingDatabase
+	LikesDatabase      database.LikesDatabase
+	MessagesDatabase   database.MessagesDatabase
+	NotesDatabase      database.NotesDatabase
+	PostsDatabase      database.PostsDatabase
 }
 
 func CountsForDate(ctx context.Context, opts *CountsForDateOptions) (*Counts, error) {
