@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"image"
 	"io"
+	"log/slog"
 	"net/url"
 	"os"
 	"regexp"
@@ -47,6 +48,8 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 
 func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
+	logger := slog.Default()
+
 	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
@@ -80,6 +83,15 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	}
 
 	if acct_taken {
+
+		other_acct, err := accounts_db.GetAccountWithName(ctx, opts.AccountName)
+
+		if err != nil {
+			logger.Error("Failed to retrieve record for account with taken name", "name", opts.AccountName)
+		} else {
+			logger.Warn("Account with name already exists", "name", opts.AccountName, "id", other_acct.Id)
+		}
+
 		return fmt.Errorf("Account name is not available")
 	}
 
@@ -254,5 +266,6 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		}
 	}
 
+	logger.Info("Account created", "id", a.Id)
 	return nil
 }
