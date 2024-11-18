@@ -38,6 +38,7 @@ type InboxPostHandlerOptions struct {
 	LikesDatabase       database.LikesDatabase
 	BoostsDatabase      database.BoostsDatabase
 	ProcessMessageQueue queue.ProcessMessageQueue
+	ProcessFollowQueue  queue.ProcessFollowQueue
 	URIs                *uris.URIs
 	AllowFollow         bool
 	AllowCreate         bool
@@ -770,6 +771,11 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 					return
 				}
 
+				err = opts.ProcessFollowQueue.ProcessFollow(ctx, acct.Id, requestor_address)
+
+				if err != nil {
+					logger.Error("Failed to queue process follow job", "error", err)
+				}
 			}()
 
 		case "Undo":

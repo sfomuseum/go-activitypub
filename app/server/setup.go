@@ -189,3 +189,17 @@ func setupProcessMessageQueue() {
 	}
 
 }
+
+func setupProcessFollowQueue() {
+
+	ctx := context.Background()
+	var err error
+
+	process_follow_queue, err = queue.NewProcessFollowQueue(ctx, run_opts.ProcessFollowQueueURI)
+
+	if err != nil {
+		setupProcessFollowQueueError = fmt.Errorf("Failed to create process message queue, %w", err)
+		return
+	}
+
+}

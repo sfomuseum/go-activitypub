@@ -117,6 +117,13 @@ func inboxPostHandlerFunc(ctx context.Context) (http.Handler, error) {
 		return nil, fmt.Errorf("Failed to set up process message queue, %w", setupProcessMessageQueueError)
 	}
 
+	setupProcessFollowQueueOnce.Do(setupProcessFollowQueue)
+
+	if setupProcessFollowQueueError != nil {
+		slog.Error("Failed to set up process follow queue", "error", setupProcessFollowQueueError)
+		return nil, fmt.Errorf("Failed to set up process follow queue, %w", setupProcessFollowQueueError)
+	}
+	
 	// END OF do this concurrently?
 
 	opts := &www.InboxPostHandlerOptions{
@@ -136,6 +143,7 @@ func inboxPostHandlerFunc(ctx context.Context) (http.Handler, error) {
 		AllowBoosts:         run_opts.AllowBoosts,
 		AllowMentions:       run_opts.AllowMentions,
 		ProcessMessageQueue: process_message_queue,
+		ProcessFollowQueue: process_follow_queue,		
 	}
 
 	return www.InboxPostHandler(opts)
