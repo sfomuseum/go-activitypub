@@ -23,7 +23,7 @@ func NewNullProcessFollowQueue(ctx context.Context, uri string) (ProcessFollowQu
 	return q, nil
 }
 
-func (q *NullProcessFollowQueue) ProcessFollow(ctx context.Context, account_id int64, follower string) error {
+func (q *NullProcessFollowQueue) ProcessFollow(ctx context.Context, follower_id int64) error {
 	return nil
 }
 

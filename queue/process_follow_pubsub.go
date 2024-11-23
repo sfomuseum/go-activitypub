@@ -10,11 +10,6 @@ import (
 	"github.com/sfomuseum/go-pubsub/publisher"
 )
 
-type PubSubProcessFollowMessage struct {
-	AccountId int64  `json:"account_id"`
-	Follower  string `json:"follower"`
-}
-
 type PubSubProcessFollowQueue struct {
 	ProcessFollowQueue
 	publisher publisher.Publisher
@@ -89,14 +84,9 @@ func NewPubSubProcessFollowQueue(ctx context.Context, uri string) (ProcessFollow
 	return q, nil
 }
 
-func (q *PubSubProcessFollowQueue) ProcessFollow(ctx context.Context, account_id int64, follower string) error {
+func (q *PubSubProcessFollowQueue) ProcessFollow(ctx context.Context, follower_id int64) error {
 
-	msg := PubSubProcessFollowMessage{
-		AccountId: account_id,
-		Follower:  follower,
-	}
-
-	enc_msg, err := json.Marshal(msg)
+	enc_msg, err := json.Marshal(follower_id)
 
 	if err != nil {
 		return fmt.Errorf("Failed to marshal message, %w", err)

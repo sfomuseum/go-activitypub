@@ -51,7 +51,7 @@ type RunOptions struct {
 	PostHandlerMiddleware    MiddlewareFunc
 	CustomHandlers           CustomHandlersFunc
 	ProcessMessageQueueURI   string
-	ProcessFollowQueueURI   string	
+	ProcessFollowQueueURI    string
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -110,7 +110,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		Disabled:               disabled,
 		Templates:              t,
 		ProcessMessageQueueURI: process_message_queue_uri,
-		ProcessFollowQueueURI: process_follow_queue_uri,		
+		ProcessFollowQueueURI:  process_follow_queue_uri,
 	}
 
 	return opts, nil

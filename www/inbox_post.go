@@ -716,13 +716,15 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			err = followers.AddFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
+			follower_id, err := followers.AddFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
 			if err != nil {
 				logger.Error("Failed to create new follower", "error", err)
 				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 				return
 			}
+
+			logger = logger.With("follower id", follower_id)
 
 			// It is unclear whether it is really necessary to send this request in a deferred
 			// function (or whether it can be sent inline before the HTTP 202 response is sent
@@ -771,7 +773,9 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 					return
 				}
 
-				err = opts.ProcessFollowQueue.ProcessFollow(ctx, acct.Id, requestor_address)
+				// Schedule any custom post-processing for the follow event
+
+				err = opts.ProcessFollowQueue.ProcessFollow(ctx, follower_id)
 
 				if err != nil {
 					logger.Error("Failed to queue process follow job", "error", err)

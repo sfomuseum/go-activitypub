@@ -69,7 +69,7 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.BoolVar(&insecure, "insecure", false, "A boolean flag indicating the ActivityPub server delivering activities is insecure (not using TLS).")
 
 	fs.StringVar(&process_message_queue_uri, "process-message-queue-uri", "null://", "A registered go-activitypub/queue.ProcessMessageQueue URI.")
-	fs.StringVar(&process_follow_queue_uri, "process-follow-queue-uri", "null://", "A registered go-activitypub/queue.ProcessFollowQueue URI.")	
+	fs.StringVar(&process_follow_queue_uri, "process-follow-queue-uri", "null://", "A registered go-activitypub/queue.ProcessFollowQueue URI.")
 
 	fs.BoolVar(&allow_remote_icon_uri, "allow-remote-icon-uri", false, "Allow account icons hosted on a remote host.")
 	fs.BoolVar(&verbose, "verbose", false, "Enable verbose (debug) logging.")

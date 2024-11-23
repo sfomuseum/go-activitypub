@@ -11,7 +11,7 @@ import (
 )
 
 type ProcessFollowQueue interface {
-	ProcessFollow(context.Context, int64, string) error
+	ProcessFollow(context.Context, int64) error
 	Close(context.Context) error
 }
 

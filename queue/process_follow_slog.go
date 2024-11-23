@@ -23,8 +23,8 @@ func NewSlogProcessFollowQueue(ctx context.Context, uri string) (ProcessFollowQu
 	return q, nil
 }
 
-func (q *SlogProcessFollowQueue) ProcessFollow(ctx context.Context, account_id int64, follower string) error {
-	slog.Info("Process follow", "account id", account_id, "follower", follower)
+func (q *SlogProcessFollowQueue) ProcessFollow(ctx context.Context, follower_id int64) error {
+	slog.Info("Process follow", "follower id", follower_id)
 	return nil
 }
 
