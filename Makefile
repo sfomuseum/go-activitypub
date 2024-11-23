@@ -120,7 +120,7 @@ deliver-pubsub:
 		-insecure \
 		-verbose
 
-setup-accounts:
+local-accounts:
 	go run cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
@@ -266,7 +266,7 @@ list-inbox:
 SERVER_DISABLED=false
 SERVER_VERBOSE=true
 
-server:
+local-server:
 	go run cmd/server/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
@@ -281,6 +281,7 @@ server:
 		-likes-database-uri '$(LIKES_DB_URI)' \
 		-properties-database-uri '$(PROPERTIES_DB_URI)' \
 		-process-message-queue-uri 'stdout://' \
+		-process-follow-queue-uri 'slog://' \
 		-allow-remote-icon-uri \
 		-allow-create \
 		-verbose=$(SERVER_VERBOSE) \
@@ -304,11 +305,16 @@ retrieve:
 		-verbose \
 		-insecure
 
-dynamo-tables-local:
+local-tables:
 	go run -mod vendor cmd/create-dynamodb-tables/main.go \
 		-refresh \
 		-table-prefix '$(TABLE_PREFIX)' \
 		-dynamodb-client-uri 'awsdynamodb://?region=localhost&credentials=anon:&local=true'
+
+local-setup:
+	@make local-tables
+	@make local-accounts
+	@make local-server
 
 # I haven't been able to get this to work yet...
 # https://dev.mysql.com/doc/mysql-installation-excerpt/8.3/en/docker-mysql-getting-started.html#docker-starting-mysql-server
