@@ -79,9 +79,7 @@ type ProcessFollowerQueue interface {
 }
 ```
 
-This queue is dispatched with the unique 64-bit ID of the [../follower.go](Follower) record created in the [FollowersDatabase](../database/followers_database.go) when a remote actor follows an account in the [AccountsDatabase](../database/accounts_database.go) 
-
-Messages are dispatched to a `ProcessFollowerQueue` as a final step processing "Follow" events in the [www.InboxPostHandler](../www/inbox_post.go) in the [server](../app/server) application.
+This queue is dispatched to with the unique 64-bit ID of the [Follower](../follower.go) record created in the [FollowersDatabase](../database/followers_database.go) when a remote actor follows an account hosted by the `server` application. Messages are dispatched to a `ProcessFollowerQueue` as a final step processing "Follow" events in the [www.InboxPostHandler](../www/inbox_post.go) in the [server](../app/server) application.
 
 There is no default endpoint, or code, for receiving or processing those messages after they have been dispatched. That is left up to individual users to implement, out of bounds, as their needs suit them. There is an [example application for processing messages](../app/follower/process/example) that you can use as "starter code" which can run from the command line or as a Lambda function. It does nothing more than validate the message, recipient account and associated note and logging those details.
 
@@ -89,11 +87,11 @@ There is no default endpoint, or code, for receiving or processing those message
 
 #### null://
 
-This implementation will receive a message (ID) but not do anything with it. It is akin to writing data to `/dev/null`.
+This implementation will receive a follower (ID) but not do anything with it. It is akin to writing data to `/dev/null`.
 
 #### pubsub://
 
-This implementation will dispatch a message ID to an underlying implementation of the `sfomuseum/go-pubsub/publisher.Publisher` interface. That ID is expected to have been recorded in the `FollowersDatabase` table and that it can be retrieved by whatever code receives the event.
+This implementation will dispatch a follower ID to an underlying implementation of the `sfomuseum/go-pubsub/publisher.Publisher` interface. That ID is expected to have been recorded in the `FollowersDatabase` table and that it can be retrieved by whatever code receives the event.
 
 See also:
 
@@ -101,4 +99,4 @@ See also:
 
 #### slog://
 
-The implementation will log the activity using the default `log/slog` logger.
+The implementation will log the follow(er) activity using the default `log/slog` logger.
