@@ -28,21 +28,22 @@ import (
 )
 
 type InboxPostHandlerOptions struct {
-	AccountsDatabase    database.AccountsDatabase
-	FollowersDatabase   database.FollowersDatabase
-	FollowingDatabase   database.FollowingDatabase
-	MessagesDatabase    database.MessagesDatabase
-	NotesDatabase       database.NotesDatabase
-	PostsDatabase       database.PostsDatabase
-	BlocksDatabase      database.BlocksDatabase
-	LikesDatabase       database.LikesDatabase
-	BoostsDatabase      database.BoostsDatabase
-	ProcessMessageQueue queue.ProcessMessageQueue
-	URIs                *uris.URIs
-	AllowFollow         bool
-	AllowCreate         bool
-	AllowLikes          bool
-	AllowBoosts         bool
+	AccountsDatabase     database.AccountsDatabase
+	FollowersDatabase    database.FollowersDatabase
+	FollowingDatabase    database.FollowingDatabase
+	MessagesDatabase     database.MessagesDatabase
+	NotesDatabase        database.NotesDatabase
+	PostsDatabase        database.PostsDatabase
+	BlocksDatabase       database.BlocksDatabase
+	LikesDatabase        database.LikesDatabase
+	BoostsDatabase       database.BoostsDatabase
+	ProcessMessageQueue  queue.ProcessMessageQueue
+	ProcessFollowerQueue queue.ProcessFollowerQueue
+	URIs                 *uris.URIs
+	AllowFollow          bool
+	AllowCreate          bool
+	AllowLikes           bool
+	AllowBoosts          bool
 	// Allows posts to accounts not followed by author but where account is mentioned in post
 	AllowMentions bool
 
@@ -715,13 +716,15 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 				return
 			}
 
-			err = followers.AddFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
+			follower_id, err := followers.AddFollower(ctx, opts.FollowersDatabase, acct.Id, requestor_address)
 
 			if err != nil {
 				logger.Error("Failed to create new follower", "error", err)
 				http.Error(rsp, "Internal server error", http.StatusInternalServerError)
 				return
 			}
+
+			logger = logger.With("follower id", follower_id)
 
 			// It is unclear whether it is really necessary to send this request in a deferred
 			// function (or whether it can be sent inline before the HTTP 202 response is sent
@@ -770,6 +773,13 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 					return
 				}
 
+				// Schedule any custom post-processing for the follow event
+
+				err = opts.ProcessFollowerQueue.ProcessFollower(ctx, follower_id)
+
+				if err != nil {
+					logger.Error("Failed to queue process follower job", "error", err)
+				}
 			}()
 
 		case "Undo":

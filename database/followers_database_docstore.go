@@ -93,6 +93,19 @@ func (db *DocstoreFollowersDatabase) GetFollower(ctx context.Context, account_id
 	q = q.Where("AccountId", "=", account_id)
 	q = q.Where("FollowerAddress", "=", follower_address)
 
+	return db.getFollowerWithQuery(ctx, q)
+}
+
+func (db *DocstoreFollowersDatabase) GetFollowerWithId(ctx context.Context, follower_id int64) (*activitypub.Follower, error) {
+
+	q := db.collection.Query()
+	q = q.Where("Id", "=", follower_id)
+
+	return db.getFollowerWithQuery(ctx, q)
+}
+
+func (db *DocstoreFollowersDatabase) getFollowerWithQuery(ctx context.Context, q *gc_docstore.Query) (*activitypub.Follower, error) {
+
 	iter := q.Get(ctx)
 	defer iter.Stop()
 

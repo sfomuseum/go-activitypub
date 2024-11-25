@@ -33,15 +33,21 @@ func GetFollower(ctx context.Context, db database.FollowersDatabase, account_id 
 	return db.GetFollower(ctx, account_id, follower_address)
 }
 
-func AddFollower(ctx context.Context, db database.FollowersDatabase, account_id int64, follower_address string) error {
+func AddFollower(ctx context.Context, db database.FollowersDatabase, account_id int64, follower_address string) (int64, error) {
 
 	f, err := activitypub.NewFollower(ctx, account_id, follower_address)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create new follower, %w", err)
+		return -1, fmt.Errorf("Failed to create new follower, %w", err)
 	}
 
-	return db.AddFollower(ctx, f)
+	err = db.AddFollower(ctx, f)
+
+	if err != nil {
+		return -1, fmt.Errorf("Failed to add follower, %w", err)
+	}
+
+	return f.Id, nil
 }
 
 // Is follower_address following account_id?

@@ -65,6 +65,14 @@ func NewSQLFollowersDatabase(ctx context.Context, uri string) (FollowersDatabase
 	return db, nil
 }
 
+func (db *SQLFollowersDatabase) GetFollowerWithId(ctx context.Context, follower_id int64) (*activitypub.Follower, error) {
+
+	where := "id = ?"
+	args := []interface{}{follower_id}
+
+	return db.getFollowerWhere(ctx, where, args)
+}
+
 func (db *SQLFollowersDatabase) GetFollowerIdsForDateRange(ctx context.Context, start int64, end int64, cb GetFollowerIdsCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
@@ -142,32 +150,43 @@ func (db *SQLFollowersDatabase) HasFollower(ctx context.Context, account_id int6
 
 func (db *SQLFollowersDatabase) GetFollower(ctx context.Context, account_id int64, follower_address string) (*activitypub.Follower, error) {
 
-	q := fmt.Sprintf("SELECT id, created FROM %s WHERE account_id = ? AND follower_address = ?", SQL_FOLLOWERS_TABLE_NAME)
+	where := "account_id = ? AND follower_address = ?"
 
-	row := db.database.QueryRowContext(ctx, q, account_id, follower_address)
-
-	var id int64
-	var created int64
-
-	err := row.Scan(&id, &created)
-
-	switch {
-	case err == sql.ErrNoRows:
-		return nil, activitypub.ErrNotFound
-	case err != nil:
-		return nil, fmt.Errorf("Failed to query database, %w", err)
-	default:
-
-		f := &activitypub.Follower{
-			Id:              id,
-			AccountId:       account_id,
-			FollowerAddress: follower_address,
-			Created:         created,
-		}
-
-		return f, nil
+	args := []interface{}{
+		account_id,
+		follower_address,
 	}
 
+	return db.getFollowerWhere(ctx, where, args)
+
+	/*
+		q := fmt.Sprintf("SELECT id, created FROM %s WHERE account_id = ? AND follower_address = ?", SQL_FOLLOWERS_TABLE_NAME)
+
+		row := db.database.QueryRowContext(ctx, q, account_id, follower_address)
+
+		var id int64
+		var created int64
+
+		err := row.Scan(&id, &created)
+
+		switch {
+		case err == sql.ErrNoRows:
+			return nil, activitypub.ErrNotFound
+		case err != nil:
+			return nil, fmt.Errorf("Failed to query database, %w", err)
+		default:
+
+			f := &activitypub.Follower{
+				Id:              id,
+				AccountId:       account_id,
+				FollowerAddress: follower_address,
+				Created:         created,
+			}
+
+			return f, nil
+		}
+
+	*/
 }
 
 func (db *SQLFollowersDatabase) AddFollower(ctx context.Context, f *activitypub.Follower) error {
@@ -266,4 +285,36 @@ func (db *SQLFollowersDatabase) getFollowerAddressesWithCallback(ctx context.Con
 
 func (db *SQLFollowersDatabase) Close(ctx context.Context) error {
 	return db.database.Close()
+}
+
+func (db *SQLFollowersDatabase) getFollowerWhere(ctx context.Context, where string, args []interface{}) (*activitypub.Follower, error) {
+
+	q := fmt.Sprintf("SELECT id, account_id, follower_address, created FROM %s WHERE %s", SQL_FOLLOWERS_TABLE_NAME, where)
+
+	row := db.database.QueryRowContext(ctx, q, args...)
+
+	var id int64
+	var account_id int64
+	var follower_address string
+	var created int64
+
+	err := row.Scan(&id, &account_id, &follower_address, &created)
+
+	switch {
+	case err == sql.ErrNoRows:
+		return nil, activitypub.ErrNotFound
+	case err != nil:
+		return nil, fmt.Errorf("Failed to query database, %w", err)
+	default:
+
+		f := &activitypub.Follower{
+			Id:              id,
+			AccountId:       account_id,
+			FollowerAddress: follower_address,
+			Created:         created,
+		}
+
+		return f, nil
+	}
+
 }
