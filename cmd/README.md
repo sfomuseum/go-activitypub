@@ -507,6 +507,8 @@ Valid options are:
     	A registered sfomuseum/go-activitypub/database.PostTagsDatabase URI.
   -posts-database-uri string
     	A registered sfomuseum/go-activitypub/database.PostsDatabase URI.
+  -process-follower-queue-uri string
+    	A registered go-activitypub/queue.ProcessFollowerQueue URI. (default "null://")	
   -process-message-queue-uri string
     	A registered go-activitypub/queue.ProcessMessageQueue URI. (default "null://")
   -properties-database-uri string

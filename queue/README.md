@@ -1,6 +1,13 @@
 # Queues
 
-There are two type of queues in the `go-activitypub` package. Delivery queues handle the details of delivery ActivityPub activities to one or more recipients (inboxes). Message processing queues handle additional, or custom, processing of a message (which resolves to an ActivityPub "note") after its been received and recorded an accounts inbox.
+There two type of queues in the `go-activitypub` package. "Delivery" queues handle the details of delivery ActivityPub activities to one or more recipients (inboxes). "Processing" queues handle additional, or custom, processing of events related to ActivityPub messages received by the `server` application.
+
+There are currently two "processing" queues:
+
+* A message processing queue with processes a message (which resolves to an ActivityPub "note") after its been received and recorded an account's inbox.
+* A follower processing queue with processes a follow event (as in a remote actor following an account) after its been received.
+
+It is an open question whether or not to support multiple processing queues which bring with it the hassle and complexity of managing an equal number of queue endpoints. On the other hand it's too soon to know what sort of information would need to be passed, and how, to a single user-defined processing endpoint. For now, the decision is to be explicit and configure each processing queue with its own dispatcher and receiver.
 
 ## Delivery queues
 
