@@ -24,7 +24,7 @@ func NewSlogProcessFollowerQueue(ctx context.Context, uri string) (ProcessFollow
 }
 
 func (q *SlogProcessFollowerQueue) ProcessFollower(ctx context.Context, follower_id int64) error {
-	slog.Info("Process follow", "follower id", follower_id)
+	slog.Info("Process follower", "follower id", follower_id)
 	return nil
 }
 
