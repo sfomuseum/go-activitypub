@@ -51,7 +51,7 @@ type RunOptions struct {
 	PostHandlerMiddleware    MiddlewareFunc
 	CustomHandlers           CustomHandlersFunc
 	ProcessMessageQueueURI   string
-	ProcessFollowQueueURI    string
+	ProcessFollowerQueueURI  string
 }
 
 func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, error) {
@@ -86,31 +86,31 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 	}
 
 	opts := &RunOptions{
-		AccountsDatabaseURI:    accounts_database_uri,
-		AliasesDatabaseURI:     aliases_database_uri,
-		FollowersDatabaseURI:   followers_database_uri,
-		FollowingDatabaseURI:   following_database_uri,
-		NotesDatabaseURI:       notes_database_uri,
-		MessagesDatabaseURI:    messages_database_uri,
-		PostsDatabaseURI:       posts_database_uri,
-		PostTagsDatabaseURI:    post_tags_database_uri,
-		BlocksDatabaseURI:      blocks_database_uri,
-		LikesDatabaseURI:       likes_database_uri,
-		BoostsDatabaseURI:      boosts_database_uri,
-		PropertiesDatabaseURI:  properties_database_uri,
-		ServerURI:              server_uri,
-		URIs:                   uris_table,
-		AllowFollow:            allow_follow,
-		AllowCreate:            allow_create,
-		AllowBoosts:            allow_boosts,
-		AllowMentions:          allow_mentions,
-		AllowLikes:             allow_likes,
-		AllowRemoteIconURI:     allow_remote_icon_uri,
-		Verbose:                verbose,
-		Disabled:               disabled,
-		Templates:              t,
-		ProcessMessageQueueURI: process_message_queue_uri,
-		ProcessFollowQueueURI:  process_follow_queue_uri,
+		AccountsDatabaseURI:     accounts_database_uri,
+		AliasesDatabaseURI:      aliases_database_uri,
+		FollowersDatabaseURI:    followers_database_uri,
+		FollowingDatabaseURI:    following_database_uri,
+		NotesDatabaseURI:        notes_database_uri,
+		MessagesDatabaseURI:     messages_database_uri,
+		PostsDatabaseURI:        posts_database_uri,
+		PostTagsDatabaseURI:     post_tags_database_uri,
+		BlocksDatabaseURI:       blocks_database_uri,
+		LikesDatabaseURI:        likes_database_uri,
+		BoostsDatabaseURI:       boosts_database_uri,
+		PropertiesDatabaseURI:   properties_database_uri,
+		ServerURI:               server_uri,
+		URIs:                    uris_table,
+		AllowFollow:             allow_follow,
+		AllowCreate:             allow_create,
+		AllowBoosts:             allow_boosts,
+		AllowMentions:           allow_mentions,
+		AllowLikes:              allow_likes,
+		AllowRemoteIconURI:      allow_remote_icon_uri,
+		Verbose:                 verbose,
+		Disabled:                disabled,
+		Templates:               t,
+		ProcessMessageQueueURI:  process_message_queue_uri,
+		ProcessFollowerQueueURI: process_follower_queue_uri,
 	}
 
 	return opts, nil

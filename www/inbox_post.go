@@ -28,22 +28,22 @@ import (
 )
 
 type InboxPostHandlerOptions struct {
-	AccountsDatabase    database.AccountsDatabase
-	FollowersDatabase   database.FollowersDatabase
-	FollowingDatabase   database.FollowingDatabase
-	MessagesDatabase    database.MessagesDatabase
-	NotesDatabase       database.NotesDatabase
-	PostsDatabase       database.PostsDatabase
-	BlocksDatabase      database.BlocksDatabase
-	LikesDatabase       database.LikesDatabase
-	BoostsDatabase      database.BoostsDatabase
-	ProcessMessageQueue queue.ProcessMessageQueue
-	ProcessFollowQueue  queue.ProcessFollowQueue
-	URIs                *uris.URIs
-	AllowFollow         bool
-	AllowCreate         bool
-	AllowLikes          bool
-	AllowBoosts         bool
+	AccountsDatabase     database.AccountsDatabase
+	FollowersDatabase    database.FollowersDatabase
+	FollowingDatabase    database.FollowingDatabase
+	MessagesDatabase     database.MessagesDatabase
+	NotesDatabase        database.NotesDatabase
+	PostsDatabase        database.PostsDatabase
+	BlocksDatabase       database.BlocksDatabase
+	LikesDatabase        database.LikesDatabase
+	BoostsDatabase       database.BoostsDatabase
+	ProcessMessageQueue  queue.ProcessMessageQueue
+	ProcessFollowerQueue queue.ProcessFollowerQueue
+	URIs                 *uris.URIs
+	AllowFollow          bool
+	AllowCreate          bool
+	AllowLikes           bool
+	AllowBoosts          bool
 	// Allows posts to accounts not followed by author but where account is mentioned in post
 	AllowMentions bool
 
@@ -775,10 +775,10 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				// Schedule any custom post-processing for the follow event
 
-				err = opts.ProcessFollowQueue.ProcessFollow(ctx, follower_id)
+				err = opts.ProcessFollowerQueue.ProcessFollower(ctx, follower_id)
 
 				if err != nil {
-					logger.Error("Failed to queue process follow job", "error", err)
+					logger.Error("Failed to queue process follower job", "error", err)
 				}
 			}()
 

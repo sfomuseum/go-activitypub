@@ -10,8 +10,8 @@ import (
 	"github.com/sfomuseum/go-pubsub/publisher"
 )
 
-type PubSubProcessFollowQueue struct {
-	ProcessFollowQueue
+type PubSubProcessFollowerQueue struct {
+	ProcessFollowerQueue
 	publisher publisher.Publisher
 }
 
@@ -22,14 +22,14 @@ func init() {
 
 	ctx := context.Background()
 
-	err := RegisterPubSubProcessFollowSchemes(ctx)
+	err := RegisterPubSubProcessFollowerSchemes(ctx)
 
 	if err != nil {
 		panic(err)
 	}
 }
 
-func RegisterPubSubProcessFollowSchemes(ctx context.Context) error {
+func RegisterPubSubProcessFollowerSchemes(ctx context.Context) error {
 
 	process_follow_mu.Lock()
 	defer process_follow_mu.Unlock()
@@ -57,7 +57,7 @@ func RegisterPubSubProcessFollowSchemes(ctx context.Context) error {
 			continue
 		}
 
-		err := RegisterProcessFollowQueue(ctx, scheme, NewPubSubProcessFollowQueue)
+		err := RegisterProcessFollowerQueue(ctx, scheme, NewPubSubProcessFollowerQueue)
 
 		if err != nil {
 			return fmt.Errorf("Failed to register delivery queue for '%s', %w", scheme, err)
@@ -69,7 +69,7 @@ func RegisterPubSubProcessFollowSchemes(ctx context.Context) error {
 	return nil
 }
 
-func NewPubSubProcessFollowQueue(ctx context.Context, uri string) (ProcessFollowQueue, error) {
+func NewPubSubProcessFollowerQueue(ctx context.Context, uri string) (ProcessFollowerQueue, error) {
 
 	pub, err := publisher.NewPublisher(ctx, uri)
 
@@ -77,14 +77,14 @@ func NewPubSubProcessFollowQueue(ctx context.Context, uri string) (ProcessFollow
 		return nil, fmt.Errorf("Failed to create publisher, %w", err)
 	}
 
-	q := &PubSubProcessFollowQueue{
+	q := &PubSubProcessFollowerQueue{
 		publisher: pub,
 	}
 
 	return q, nil
 }
 
-func (q *PubSubProcessFollowQueue) ProcessFollow(ctx context.Context, follower_id int64) error {
+func (q *PubSubProcessFollowerQueue) ProcessFollower(ctx context.Context, follower_id int64) error {
 
 	enc_msg, err := json.Marshal(follower_id)
 
@@ -101,6 +101,6 @@ func (q *PubSubProcessFollowQueue) ProcessFollow(ctx context.Context, follower_i
 	return nil
 }
 
-func (q *PubSubProcessFollowQueue) Close(ctx context.Context) error {
+func (q *PubSubProcessFollowerQueue) Close(ctx context.Context) error {
 	return q.publisher.Close()
 }

@@ -117,33 +117,33 @@ func inboxPostHandlerFunc(ctx context.Context) (http.Handler, error) {
 		return nil, fmt.Errorf("Failed to set up process message queue, %w", setupProcessMessageQueueError)
 	}
 
-	setupProcessFollowQueueOnce.Do(setupProcessFollowQueue)
+	setupProcessFollowerQueueOnce.Do(setupProcessFollowerQueue)
 
-	if setupProcessFollowQueueError != nil {
-		slog.Error("Failed to set up process follow queue", "error", setupProcessFollowQueueError)
-		return nil, fmt.Errorf("Failed to set up process follow queue, %w", setupProcessFollowQueueError)
+	if setupProcessFollowerQueueError != nil {
+		slog.Error("Failed to set up process follow queue", "error", setupProcessFollowerQueueError)
+		return nil, fmt.Errorf("Failed to set up process follow queue, %w", setupProcessFollowerQueueError)
 	}
 
 	// END OF do this concurrently?
 
 	opts := &www.InboxPostHandlerOptions{
-		AccountsDatabase:    accounts_db,
-		FollowersDatabase:   followers_db,
-		FollowingDatabase:   following_db,
-		NotesDatabase:       notes_db,
-		MessagesDatabase:    messages_db,
-		BlocksDatabase:      blocks_db,
-		PostsDatabase:       posts_db,
-		LikesDatabase:       likes_db,
-		BoostsDatabase:      boosts_db,
-		URIs:                run_opts.URIs,
-		AllowFollow:         run_opts.AllowFollow,
-		AllowCreate:         run_opts.AllowCreate,
-		AllowLikes:          run_opts.AllowLikes,
-		AllowBoosts:         run_opts.AllowBoosts,
-		AllowMentions:       run_opts.AllowMentions,
-		ProcessMessageQueue: process_message_queue,
-		ProcessFollowQueue:  process_follow_queue,
+		AccountsDatabase:     accounts_db,
+		FollowersDatabase:    followers_db,
+		FollowingDatabase:    following_db,
+		NotesDatabase:        notes_db,
+		MessagesDatabase:     messages_db,
+		BlocksDatabase:       blocks_db,
+		PostsDatabase:        posts_db,
+		LikesDatabase:        likes_db,
+		BoostsDatabase:       boosts_db,
+		URIs:                 run_opts.URIs,
+		AllowFollow:          run_opts.AllowFollow,
+		AllowCreate:          run_opts.AllowCreate,
+		AllowLikes:           run_opts.AllowLikes,
+		AllowBoosts:          run_opts.AllowBoosts,
+		AllowMentions:        run_opts.AllowMentions,
+		ProcessMessageQueue:  process_message_queue,
+		ProcessFollowerQueue: process_follower_queue,
 	}
 
 	return www.InboxPostHandler(opts)

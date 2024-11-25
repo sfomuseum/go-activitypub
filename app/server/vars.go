@@ -61,6 +61,6 @@ var process_message_queue queue.ProcessMessageQueue
 var setupProcessMessageQueueOnce sync.Once
 var setupProcessMessageQueueError error
 
-var process_follow_queue queue.ProcessFollowQueue
-var setupProcessFollowQueueOnce sync.Once
-var setupProcessFollowQueueError error
+var process_follower_queue queue.ProcessFollowerQueue
+var setupProcessFollowerQueueOnce sync.Once
+var setupProcessFollowerQueueError error
