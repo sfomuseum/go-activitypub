@@ -27,9 +27,13 @@ var hostname string
 var insecure bool
 var verbose bool
 
+var mode string
+
 func DefaultFlagSet() *flag.FlagSet {
 
 	fs := flagset.NewFlagSet("follow")
+
+	fs.StringVar(&mode, "mode", "cli", "Valid options are: cli, lambda.")
 
 	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "A registered sfomuseum/go-activitypub/database.AccountsDatabase URI.")
 	fs.StringVar(&activities_database_uri, "activities-database-uri", "", "A registered sfomuseum/go-activitypub/database.ActivitiesDatabase URI.")

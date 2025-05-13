@@ -22,6 +22,7 @@ type RunOptions struct {
 	InReplyTo             string
 	MaxAttempts           int
 	URIs                  *uris.URIs
+	Mode                  string
 	Verbose               bool
 }
 
@@ -52,6 +53,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		InReplyTo:             in_reply_to,
 		URIs:                  uris_table,
 		Verbose:               verbose,
+		Mode:                  mode,
 		MaxAttempts:           max_attempts,
 	}
 
