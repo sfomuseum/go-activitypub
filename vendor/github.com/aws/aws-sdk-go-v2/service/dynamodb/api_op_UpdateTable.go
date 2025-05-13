@@ -66,11 +66,12 @@ type UpdateTableInput struct {
 	// are estimated based on the consumed read and write capacity of your table and
 	// global secondary indexes over the past 30 minutes.
 	//
-	//   - PROVISIONED - We recommend using PROVISIONED for predictable workloads.
-	//   PROVISIONED sets the billing mode to [Provisioned capacity mode].
-	//
-	//   - PAY_PER_REQUEST - We recommend using PAY_PER_REQUEST for unpredictable
+	//   - PAY_PER_REQUEST - We recommend using PAY_PER_REQUEST for most DynamoDB
 	//   workloads. PAY_PER_REQUEST sets the billing mode to [On-demand capacity mode].
+	//
+	//   - PROVISIONED - We recommend using PROVISIONED for steady workloads with
+	//   predictable growth where capacity requirements can be reliably forecasted.
+	//   PROVISIONED sets the billing mode to [Provisioned capacity mode].
 	//
 	// [Provisioned capacity mode]: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/provisioned-capacity-mode.html
 	// [On-demand capacity mode]: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/on-demand-capacity-mode.html
@@ -97,6 +98,29 @@ type UpdateTableInput struct {
 	//
 	// [Managing Global Secondary Indexes]: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.OnlineOps.html
 	GlobalSecondaryIndexUpdates []types.GlobalSecondaryIndexUpdate
+
+	// Specifies the consistency mode for a new global table. This parameter is only
+	// valid when you create a global table by specifying one or more [Create]actions in the [ReplicaUpdates]
+	// action list.
+	//
+	// You can specify one of the following consistency modes:
+	//
+	//   - EVENTUAL : Configures a new global table for multi-Region eventual
+	//   consistency. This is the default consistency mode for global tables.
+	//
+	//   - STRONG : Configures a new global table for multi-Region strong consistency
+	//   (preview).
+	//
+	// Multi-Region strong consistency (MRSC) is a new DynamoDB global tables
+	//   capability currently available in preview mode. For more information, see [Global tables multi-Region strong consistency].
+	//
+	// If you don't specify this parameter, the global table consistency mode defaults
+	// to EVENTUAL .
+	//
+	// [ReplicaUpdates]: https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateTable.html#DDB-UpdateTable-request-ReplicaUpdates
+	// [Create]: https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_ReplicationGroupUpdate.html#DDB-Type-ReplicationGroupUpdate-Create
+	// [Global tables multi-Region strong consistency]: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/PreviewFeatures.html#multi-region-strong-consistency-gt
+	MultiRegionConsistency types.MultiRegionConsistency
 
 	// Updates the maximum number of read and write units for the specified table in
 	// on-demand capacity mode. If you use this parameter, you must specify
@@ -126,7 +150,17 @@ type UpdateTableInput struct {
 	// STANDARD_INFREQUENT_ACCESS .
 	TableClass types.TableClass
 
+	// Represents the warm throughput (in read units per second and write units per
+	// second) for updating a table.
+	WarmThroughput *types.WarmThroughput
+
 	noSmithyDocumentSerde
+}
+
+func (in *UpdateTableInput) bindEndpointParams(p *EndpointParameters) {
+
+	p.ResourceArn = in.TableName
+
 }
 
 // Represents the output of an UpdateTable operation.
@@ -206,6 +240,12 @@ func (c *Client) addOperationUpdateTableMiddlewares(stack *middleware.Stack, opt
 		return err
 	}
 	if err = addUserAgentRetryMode(stack, options); err != nil {
+		return err
+	}
+	if err = addUserAgentAccountIDEndpointMode(stack, options); err != nil {
+		return err
+	}
+	if err = addCredentialSource(stack, options); err != nil {
 		return err
 	}
 	if err = addOpUpdateTableValidationMiddleware(stack); err != nil {

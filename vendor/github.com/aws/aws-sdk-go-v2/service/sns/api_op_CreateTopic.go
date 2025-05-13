@@ -82,12 +82,8 @@ type CreateTopicInput struct {
 	//
 	// The following attributes apply only to [FIFO topics]:
 	//
-	//   - ArchivePolicy – Adds or updates an inline policy document to archive
-	//   messages stored in the specified Amazon SNS topic.
-	//
-	//   - BeginningArchiveTime – The earliest starting point at which a message in the
-	//   topic’s archive can be replayed from. This point in time is based on the
-	//   configured message retention period set by the topic’s message archiving policy.
+	//   - ArchivePolicy – The policy that sets the retention period for messages
+	//   stored in the message archive of an Amazon SNS FIFO topic.
 	//
 	//   - ContentBasedDeduplication – Enables content-based deduplication for FIFO
 	//   topics.
@@ -103,6 +99,19 @@ type CreateTopicInput struct {
 	// (Optional) To override the generated value, you can specify a value for the
 	//   MessageDeduplicationId parameter for the Publish action.
 	//
+	//   - FifoThroughputScope – Enables higher throughput for your FIFO topic by
+	//   adjusting the scope of deduplication. This attribute has two possible values:
+	//
+	//   - Topic – The scope of message deduplication is across the entire topic. This
+	//   is the default value and maintains existing behavior, with a maximum throughput
+	//   of 3000 messages per second or 20MB per second, whichever comes first.
+	//
+	//   - MessageGroup – The scope of deduplication is within each individual message
+	//   group, which enables higher throughput per topic subject to regional quotas. For
+	//   more information on quotas or to request an increase, see [Amazon SNS service quotas]in the Amazon Web
+	//   Services General Reference.
+	//
+	// [Amazon SNS service quotas]: https://docs.aws.amazon.com/general/latest/gr/sns.html
 	// [server-side encryption]: https://docs.aws.amazon.com/sns/latest/dg/sns-server-side-encryption.html
 	// [Key Terms]: https://docs.aws.amazon.com/sns/latest/dg/sns-server-side-encryption.html#sse-key-terms
 	// [KeyId]: https://docs.aws.amazon.com/kms/latest/APIReference/API_DescribeKey.html#API_DescribeKey_RequestParameters
@@ -183,6 +192,9 @@ func (c *Client) addOperationCreateTopicMiddlewares(stack *middleware.Stack, opt
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -199,6 +211,9 @@ func (c *Client) addOperationCreateTopicMiddlewares(stack *middleware.Stack, opt
 		return err
 	}
 	if err = addUserAgentRetryMode(stack, options); err != nil {
+		return err
+	}
+	if err = addCredentialSource(stack, options); err != nil {
 		return err
 	}
 	if err = addOpCreateTopicValidationMiddleware(stack); err != nil {
@@ -220,6 +235,18 @@ func (c *Client) addOperationCreateTopicMiddlewares(stack *middleware.Stack, opt
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

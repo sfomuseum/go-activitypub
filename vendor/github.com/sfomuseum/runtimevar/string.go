@@ -5,11 +5,18 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/aaronland/go-aws-auth"
-	gc "gocloud.dev/runtimevar"
-	"gocloud.dev/runtimevar/awsparamstore"
+	_ "github.com/aaronland/gocloud-blob/s3"
+	_ "gocloud.dev/blob/fileblob"
+	_ "gocloud.dev/blob/memblob"
+	_ "gocloud.dev/blob/s3blob"
 	_ "gocloud.dev/runtimevar/constantvar"
 	_ "gocloud.dev/runtimevar/filevar"
+
+	"github.com/aaronland/go-aws-auth"
+	"github.com/aaronland/gocloud-blob/bucket"
+	gc "gocloud.dev/runtimevar"
+	"gocloud.dev/runtimevar/awsparamstore"
+	"gocloud.dev/runtimevar/blobvar"
 )
 
 // StringVar returns the latest string value contained by 'uri', which is expected
@@ -55,6 +62,28 @@ func StringVar(ctx context.Context, uri string) (string, error) {
 
 			v, v_err = awsparamstore.OpenVariableV2(aws_auth, u.Host, gc.StringDecoder, nil)
 		}
+
+	case "blobvar":
+
+		if !q.Has("bucket-uri") {
+			return "", fmt.Errorf("Missing ?bucket-uri parameter")
+		}
+
+		b_uri, err := url.QueryUnescape(q.Get("bucket-uri"))
+
+		if err != nil {
+			return "", fmt.Errorf("Failed to unescape bucket URI, %w", err)
+		}
+
+		b, err := bucket.OpenBucket(ctx, b_uri)
+
+		if err != nil {
+			return "", fmt.Errorf("Failed to open bucket, %w", err)
+		}
+
+		defer b.Close()
+
+		v, v_err = blobvar.OpenVariable(b, u.Host, gc.StringDecoder, nil)
 
 	default:
 		// pass
