@@ -1,6 +1,7 @@
 module github.com/sfomuseum/go-activitypub
 
-go 1.23
+go 1.23.0
+
 toolchain go1.24.1
 
 replace github.com/hpcloud/tail v1.0.0 => github.com/sfomuseum/tail v1.0.2
@@ -33,7 +34,7 @@ require (
 	github.com/tidwall/gjson v1.18.0
 	gocloud.dev v0.40.0
 	golang.org/x/image v0.21.0
-	golang.org/x/net v0.36.0
+	golang.org/x/net v0.38.0
 )
 
 require (
@@ -84,10 +85,10 @@ require (
 	github.com/whosonfirst/go-ioutil v1.0.2 // indirect
 	github.com/whosonfirst/go-sanitize v0.1.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	golang.org/x/crypto v0.35.0 // indirect
-	golang.org/x/sync v0.11.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/sync v0.12.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
 	google.golang.org/api v0.191.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240812133136-8ffd90a71988 // indirect
