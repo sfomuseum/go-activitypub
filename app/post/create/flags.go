@@ -34,8 +34,8 @@ func DefaultFlagSet() *flag.FlagSet {
 
 	fs := flagset.NewFlagSet("follow")
 
-	fs.StringVar(&mode, "mode", "cli", "Valid options are: cli, lambda and invoke.")
-	fs.StringVar(&lambda_function_uri, "lambda-function-uri", "", "...")
+	fs.StringVar(&mode, "mode", "cli", "The operating mode for creating new posts. Valid options are: cli, lambda and invoke, where \"lambda\" means to run as an AWS Lambda function and \"invoke\" means to invoke this tool as a specific Lambda function.")
+	fs.StringVar(&lambda_function_uri, "lambda-function-uri", "", "A valid aaronland/go-aws-lambda.LambdaFunction URI in the form of \"lambda://FUNCTION_NAME}?region={AWS_REGION}&credentials={CREDENTIALS}\". This flag is required if the -mode flag is \"invoke\".")
 
 	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "null://", "A registered sfomuseum/go-activitypub/database.AccountsDatabase URI.")
 	fs.StringVar(&activities_database_uri, "activities-database-uri", "null://", "A registered sfomuseum/go-activitypub/database.ActivitiesDatabase URI.")
