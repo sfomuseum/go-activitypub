@@ -23,6 +23,7 @@ type RunOptions struct {
 	MaxAttempts           int
 	URIs                  *uris.URIs
 	Mode                  string
+	LambdaFunctionURI     string
 	Verbose               bool
 }
 
@@ -34,6 +35,10 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to derive flags from environment variables, %w", err)
+	}
+
+	if mode == "invoke" && lambda_function_uri == "" {
+		return nil, fmt.Errorf("Empty -lambda-function-uri flag")
 	}
 
 	uris_table := uris.DefaultURIs()
@@ -54,6 +59,7 @@ func OptionsFromFlagSet(ctx context.Context, fs *flag.FlagSet) (*RunOptions, err
 		URIs:                  uris_table,
 		Verbose:               verbose,
 		Mode:                  mode,
+		LambdaFunctionURI:     lambda_function_uri,
 		MaxAttempts:           max_attempts,
 	}
 

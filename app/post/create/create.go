@@ -8,12 +8,20 @@ import (
 	"log/slog"
 	"os"
 
+	"encoding/json"
+
+	aa_lambda "github.com/aaronland/go-aws-lambda"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/posts"
 	"github.com/sfomuseum/go-activitypub/queue"
 )
+
+type Post struct {
+	AccountName string `json:"account_name"`
+	Message     string `json:"message"`
+}
 
 func Run(ctx context.Context) error {
 	fs := DefaultFlagSet()
@@ -211,18 +219,38 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 	case "lambda":
 
-		type Post struct {
-			AccountName string
-			Message     string
-		}
-
 		handle := func(ctx context.Context, post *Post) (string, error) {
+
+			slog.Info("Process lambda post", "account", post.AccountName, "message", post.Message)
+
 			opts.AccountName = post.AccountName
 			opts.Message = post.Message
 			return run(ctx, opts)
 		}
 
 		lambda.Start(handle)
+
+	case "invoke":
+
+		post := &Post{
+			AccountName: opts.AccountName,
+			Message:     opts.Message,
+		}
+
+		fn, err := aa_lambda.NewLambdaFunction(ctx, opts.LambdaFunctionURI)
+
+		if err != nil {
+			return fmt.Errorf("Failed to create new lambda function, %w", err)
+		}
+
+		rsp, err := fn.Invoke(ctx, post)
+
+		if err != nil {
+			return fmt.Errorf("Failed to invoke Lambda function, %w", err)
+		}
+
+		enc := json.NewEncoder(os.Stdout)
+		enc.Encode(rsp)
 
 	default:
 

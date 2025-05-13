@@ -26,6 +26,7 @@ cli:
 
 lambda:
 	@make lambda-server
+	@make lambda-create-post
 	@make lambda-deliver-activity
 
 lambda-server:
@@ -33,6 +34,13 @@ lambda-server:
 	if test -f server.zip; then rm -f server.zip; fi
 	GOARCH=arm64 GOOS=linux go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -tags lambda.norpc -o bootstrap cmd/server/main.go
 	zip server.zip bootstrap
+	rm -f bootstrap
+
+lambda-create-post:
+	if test -f bootstrap; then rm -f bootstrap; fi
+	if test -f create-post.zip; then rm -f create-post.zip; fi
+	GOARCH=arm64 GOOS=linux go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -tags lambda.norpc -o bootstrap cmd/create-post/main.go
+	zip create-post.zip bootstrap
 	rm -f bootstrap
 
 lambda-deliver-activity:
