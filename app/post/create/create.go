@@ -243,9 +243,12 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 			return fmt.Errorf("Failed to create new lambda function, %w", err)
 		}
 
+		slog.Debug("Invoke lambda function")
+
 		rsp, err := fn.Invoke(ctx, post)
 
 		if err != nil {
+			slog.Error("Failed to invoke lambda function", "error", err)
 			return fmt.Errorf("Failed to invoke Lambda function, %w", err)
 		}
 

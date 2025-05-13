@@ -37,12 +37,12 @@ func DefaultFlagSet() *flag.FlagSet {
 	fs.StringVar(&mode, "mode", "cli", "Valid options are: cli, lambda and invoke.")
 	fs.StringVar(&lambda_function_uri, "lambda-function-uri", "", "...")
 
-	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "A registered sfomuseum/go-activitypub/database.AccountsDatabase URI.")
-	fs.StringVar(&activities_database_uri, "activities-database-uri", "", "A registered sfomuseum/go-activitypub/database.ActivitiesDatabase URI.")
-	fs.StringVar(&followers_database_uri, "followers-database-uri", "", "A registered sfomuseum/go-activitypub/database.FollowersDatabase URI.")
-	fs.StringVar(&posts_database_uri, "posts-database-uri", "", "A registered sfomuseum/go-activitypub/database.PostsDatabase URI.")
-	fs.StringVar(&post_tags_database_uri, "post-tags-database-uri", "", "A registered sfomuseum/go-activitypub/database.PostTagsDatabase URI.")
-	fs.StringVar(&deliveries_database_uri, "deliveries-database-uri", "", "A registered sfomuseum/go-activitypub/database.DeliveriesDatabase URI.")
+	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "null://", "A registered sfomuseum/go-activitypub/database.AccountsDatabase URI.")
+	fs.StringVar(&activities_database_uri, "activities-database-uri", "null://", "A registered sfomuseum/go-activitypub/database.ActivitiesDatabase URI.")
+	fs.StringVar(&followers_database_uri, "followers-database-uri", "null://", "A registered sfomuseum/go-activitypub/database.FollowersDatabase URI.")
+	fs.StringVar(&posts_database_uri, "posts-database-uri", "null://", "A registered sfomuseum/go-activitypub/database.PostsDatabase URI.")
+	fs.StringVar(&post_tags_database_uri, "post-tags-database-uri", "null://", "A registered sfomuseum/go-activitypub/database.PostTagsDatabase URI.")
+	fs.StringVar(&deliveries_database_uri, "deliveries-database-uri", "null://", "A registered sfomuseum/go-activitypub/database.DeliveriesDatabase URI.")
 
 	fs.StringVar(&delivery_queue_uri, "delivery-queue-uri", "synchronous://", "A registered sfomuseum/go-activitypub/queue/DeliveryQueue URI.")
 
