@@ -44,6 +44,12 @@ func RunWithFlagSet(ctx context.Context, fs *flag.FlagSet) error {
 
 func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
+	_, err := RunWithOptionsAndResponse(ctx, opts)
+	return err
+}
+
+func RunWithOptionsAndResponse(ctx context.Context, opts *RunOptions) (string, error) {
+	
 	if opts.Verbose {
 		slog.SetLogLoggerLevel(slog.LevelDebug)
 		slog.Debug("Verbose logging enabled")
@@ -52,7 +58,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	accounts_db, err := database.NewAccountsDatabase(ctx, opts.AccountsDatabaseURI)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create accounts database, %w", err)
+		return "", fmt.Errorf("Failed to create accounts database, %w", err)
 	}
 
 	defer accounts_db.Close(ctx)
@@ -60,7 +66,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	activities_db, err := database.NewActivitiesDatabase(ctx, opts.ActivitiesDatabaseURI)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create activities database, %w", err)
+		return "", fmt.Errorf("Failed to create activities database, %w", err)
 	}
 
 	defer activities_db.Close(ctx)
@@ -68,7 +74,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	followers_db, err := database.NewFollowersDatabase(ctx, opts.FollowersDatabaseURI)
 
 	if err != nil {
-		return fmt.Errorf("Failed to instantiate followers database, %w", err)
+		return "", fmt.Errorf("Failed to instantiate followers database, %w", err)
 	}
 
 	defer followers_db.Close(ctx)
@@ -76,7 +82,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	posts_db, err := database.NewPostsDatabase(ctx, opts.PostsDatabaseURI)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create instantiate posts database, %w", err)
+		return "", fmt.Errorf("Failed to create instantiate posts database, %w", err)
 	}
 
 	defer posts_db.Close(ctx)
@@ -84,7 +90,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	post_tags_db, err := database.NewPostTagsDatabase(ctx, opts.PostTagsDatabaseURI)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create instantiate post tags database, %w", err)
+		return "", fmt.Errorf("Failed to create instantiate post tags database, %w", err)
 	}
 
 	defer post_tags_db.Close(ctx)
@@ -92,7 +98,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	deliveries_db, err := database.NewDeliveriesDatabase(ctx, opts.DeliveriesDatabaseURI)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create instantiate deliveries database, %w", err)
+		return "", fmt.Errorf("Failed to create instantiate deliveries database, %w", err)
 	}
 
 	defer deliveries_db.Close(ctx)
@@ -100,7 +106,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	delivery_q, err := queue.NewDeliveryQueue(ctx, opts.DeliveryQueueURI)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create new delivery queue, %w", err)
+		return "", fmt.Errorf("Failed to create new delivery queue, %w", err)
 	}
 
 	run := func(ctx context.Context, opts *RunOptions) (string, error) {
@@ -206,7 +212,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 			}
 
 			if scanner.Err() != nil {
-				return fmt.Errorf("Failed to scan input, %w", err)
+				return "", fmt.Errorf("Failed to scan input, %w", err)
 			}
 
 			opts.Message = message
@@ -215,11 +221,12 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		post_url, err := run(ctx, opts)
 
 		if err != nil {
-			return fmt.Errorf("Failed to post message, %w", err)
+			return "", fmt.Errorf("Failed to post message, %w", err)
 		}
 
 		slog.Info("Delivered post", "post url", post_url)
-
+		return post_url, err
+		
 	case "lambda":
 
 		handle := func(ctx context.Context, post *Post) (string, error) {
@@ -232,7 +239,8 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		}
 
 		lambda.Start(handle)
-
+		return "", nil
+		
 	case "invoke":
 
 		post := &Post{
@@ -247,14 +255,14 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		fn, err := aa_lambda.NewLambdaFunction(ctx, opts.LambdaFunctionURI)
 
 		if err != nil {
-			return fmt.Errorf("Failed to create new lambda function, %w", err)
+			return "", fmt.Errorf("Failed to create new lambda function, %w", err)
 		}
 
 		rsp, err := fn.Invoke(ctx, post)
 
 		if err != nil {
 			slog.Error("Failed to invoke lambda function", "error", err)
-			return fmt.Errorf("Failed to invoke Lambda function, %w", err)
+			return "", fmt.Errorf("Failed to invoke Lambda function, %w", err)
 		}
 
 		post_url := string(rsp.Payload)
@@ -262,10 +270,11 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		post_url = strings.TrimRight(post_url, `"`)
 
 		slog.Info("Delivered post", "post url", post_url)
-
+		return post_url, nil
+		
 	default:
-		return fmt.Errorf("Invalid or unsupported mode")
+		return "", fmt.Errorf("Invalid or unsupported mode")
 	}
 
-	return nil
+	return "", nil
 }
