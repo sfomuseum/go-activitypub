@@ -60,6 +60,8 @@ $> ./bin/create-post \
 	-verbose
 ```
 
+_Note: It is acknowledged that it's kind of annoying to have to pass all those `*-database-uri` flags. There is not an immediate solution for this inconvenience but I am thinking about it._
+
 ## AWS
 
 ### Running as a Lambda function
@@ -76,7 +78,7 @@ zip create-post.zip bootstrap
 rm -f bootstrap
 ```
 
-Installing and configuring the Lambda function is outside the scope of this documentation. At a minimum you will need to assign the following environment variables:
+Installing and configuring the Lambda function is outside the scope of this documentation. At a minimum you will need to assign, at a minimu, the following environment variables:
 
 | Key | Value |
 | --- | --- |
@@ -90,9 +92,19 @@ Installing and configuring the Lambda function is outside the scope of this docu
 | ACTIVITYPUB_POSTS_DATABASE_URI      | awsdynamodb://{POSTS_TABLE}?partition_key=Id&allow_scans=true&region={REGION}&credentials=iam: |
 | ACTIVITYPUB_VERBOSE                 | {BOOLEAN} |
 
-Note: This example assumes an Amazon DynamoDB (Docstore) database implementation and an Amazon SQS backed delivery queue since they are both easy to integrate with Lambda functions but they are just examples. Adjust according to your needs and circumstances.
+Enviromment variables map to regular command line flags using the following rules:
+
+* Replace all instances of `-` with `_`
+* Upper-case the flag string
+* Prepend the string with `SFOMUSEUM_`
+
+For example the flag `-accounts-database-uri` becomes the `SFOMUSEUM_ACCOUNTS_DATABASE_URI` environment variable.
+
+_Note: This example assumes an Amazon DynamoDB (Docstore) database implementation and an Amazon SQS backed delivery queue since they are both easy to integrate with Lambda functions but they are just examples. Adjust according to your needs and circumstances._
 
 ### Invoking (running from) a Lambda function
+
+To invoke the `create-post` tool running as a Lambda function (like the one installed above) you do the following:
 
 ```
 $> ./bin/create-post \

@@ -7,8 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-
-	"encoding/json"
+	"strings"
 
 	aa_lambda "github.com/aaronland/go-aws-lambda"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -19,8 +18,12 @@ import (
 )
 
 type Post struct {
+	// The name of the go-activitypub account creating the post.
 	AccountName string `json:"account_name"`
-	Message     string `json:"message"`
+	// The body (content) of the message to post.
+	Message string `json:"message"`
+	// The URI of that the post is in reply to (optional).
+	InReplyTo string `json:"in_reply_to,omitempty"`
 }
 
 func Run(ctx context.Context) error {
@@ -221,10 +224,10 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 
 		handle := func(ctx context.Context, post *Post) (string, error) {
 
-			slog.Info("Process lambda post", "account", post.AccountName, "message", post.Message)
-
 			opts.AccountName = post.AccountName
 			opts.Message = post.Message
+			opts.InReplyTo = post.InReplyTo
+
 			return run(ctx, opts)
 		}
 
@@ -237,13 +240,15 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 			Message:     opts.Message,
 		}
 
+		if opts.InReplyTo != "" {
+			post.InReplyTo = opts.InReplyTo
+		}
+
 		fn, err := aa_lambda.NewLambdaFunction(ctx, opts.LambdaFunctionURI)
 
 		if err != nil {
 			return fmt.Errorf("Failed to create new lambda function, %w", err)
 		}
-
-		slog.Debug("Invoke lambda function")
 
 		rsp, err := fn.Invoke(ctx, post)
 
@@ -252,11 +257,13 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 			return fmt.Errorf("Failed to invoke Lambda function, %w", err)
 		}
 
-		enc := json.NewEncoder(os.Stdout)
-		enc.Encode(rsp)
+		post_url := string(rsp.Payload)
+		post_url = strings.TrimLeft(post_url, `"`)
+		post_url = strings.TrimRight(post_url, `"`)
+
+		slog.Info("Delivered post", "post url", post_url)
 
 	default:
-
 		return fmt.Errorf("Invalid or unsupported mode")
 	}
 
