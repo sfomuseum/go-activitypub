@@ -1,3 +1,146 @@
+# v1.34.2 (2025-03-10)
+
+* No change notes available for this release.
+
+# v1.34.1 (2025-03-04.2)
+
+* **Bug Fix**: Add assurance test for operation order.
+
+# v1.34.0 (2025-02-27)
+
+* **Feature**: Track credential providers via User-Agent Feature ids
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.20 (2025-02-18)
+
+* **Bug Fix**: Bump go version to 1.22
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.19 (2025-02-05)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.18 (2025-02-04)
+
+* No change notes available for this release.
+
+# v1.33.17 (2025-01-31)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.16 (2025-01-30)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.15 (2025-01-24)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+* **Dependency Update**: Upgrade to smithy-go v1.22.2.
+
+# v1.33.14 (2025-01-21)
+
+* **Documentation**: This release adds support for the topic attribute FifoThroughputScope for SNS FIFO topics. For details, see the documentation history in the Amazon Simple Notification Service Developer Guide.
+
+# v1.33.13 (2025-01-17)
+
+* **Bug Fix**: Fix bug where credentials weren't refreshed during retry loop.
+
+# v1.33.12 (2025-01-15)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.11 (2025-01-14)
+
+* No change notes available for this release.
+
+# v1.33.10 (2025-01-09)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.9 (2025-01-08)
+
+* No change notes available for this release.
+
+# v1.33.8 (2024-12-19)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.7 (2024-12-02)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.6 (2024-11-22)
+
+* **Documentation**: ArchivePolicy attribute added to Archive and Replay feature
+
+# v1.33.5 (2024-11-18)
+
+* **Dependency Update**: Update to smithy-go v1.22.1.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.4 (2024-11-06)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.3 (2024-10-28)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.2 (2024-10-08)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.1 (2024-10-07)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.33.0 (2024-10-04)
+
+* **Feature**: Add support for HTTP client metrics.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.32.4 (2024-10-03)
+
+* No change notes available for this release.
+
+# v1.32.3 (2024-09-27)
+
+* No change notes available for this release.
+
+# v1.32.2 (2024-09-25)
+
+* No change notes available for this release.
+
+# v1.32.1 (2024-09-23)
+
+* No change notes available for this release.
+
+# v1.32.0 (2024-09-20)
+
+* **Feature**: Add tracing and metrics support to service clients.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.31.8 (2024-09-17)
+
+* **Bug Fix**: **BREAKFIX**: Only generate AccountIDEndpointMode config for services that use it. This is a compiler break, but removes no actual functionality, as no services currently use the account ID in endpoint resolution.
+
+# v1.31.7 (2024-09-04)
+
+* No change notes available for this release.
+
+# v1.31.6 (2024-09-03)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.31.5 (2024-08-22)
+
+* No change notes available for this release.
+
+# v1.31.4 (2024-08-15)
+
+* **Dependency Update**: Bump minimum Go version to 1.21.
+* **Dependency Update**: Updated to the latest SDK module versions
+
 # v1.31.3 (2024-07-10.2)
 
 * **Dependency Update**: Updated to the latest SDK module versions

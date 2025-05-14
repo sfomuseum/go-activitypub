@@ -16,7 +16,7 @@ const Scheme = "s3blob"
 
 func init() {
 	is_registered := false
-	
+
 	for _, scheme := range blob.DefaultURLMux().BucketSchemes() {
 
 		if scheme == Scheme {

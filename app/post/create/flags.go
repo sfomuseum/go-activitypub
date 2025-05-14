@@ -27,16 +27,22 @@ var hostname string
 var insecure bool
 var verbose bool
 
+var mode string
+var lambda_function_uri string
+
 func DefaultFlagSet() *flag.FlagSet {
 
 	fs := flagset.NewFlagSet("follow")
 
-	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "", "A registered sfomuseum/go-activitypub/database.AccountsDatabase URI.")
-	fs.StringVar(&activities_database_uri, "activities-database-uri", "", "A registered sfomuseum/go-activitypub/database.ActivitiesDatabase URI.")
-	fs.StringVar(&followers_database_uri, "followers-database-uri", "", "A registered sfomuseum/go-activitypub/database.FollowersDatabase URI.")
-	fs.StringVar(&posts_database_uri, "posts-database-uri", "", "A registered sfomuseum/go-activitypub/database.PostsDatabase URI.")
-	fs.StringVar(&post_tags_database_uri, "post-tags-database-uri", "", "A registered sfomuseum/go-activitypub/database.PostTagsDatabase URI.")
-	fs.StringVar(&deliveries_database_uri, "deliveries-database-uri", "", "A registered sfomuseum/go-activitypub/database.DeliveriesDatabase URI.")
+	fs.StringVar(&mode, "mode", "cli", "The operating mode for creating new posts. Valid options are: cli, lambda and invoke, where \"lambda\" means to run as an AWS Lambda function and \"invoke\" means to invoke this tool as a specific Lambda function.")
+	fs.StringVar(&lambda_function_uri, "lambda-function-uri", "", "A valid aaronland/go-aws-lambda.LambdaFunction URI in the form of \"lambda://FUNCTION_NAME}?region={AWS_REGION}&credentials={CREDENTIALS}\". This flag is required if the -mode flag is \"invoke\".")
+
+	fs.StringVar(&accounts_database_uri, "accounts-database-uri", "null://", "A registered sfomuseum/go-activitypub/database.AccountsDatabase URI.")
+	fs.StringVar(&activities_database_uri, "activities-database-uri", "null://", "A registered sfomuseum/go-activitypub/database.ActivitiesDatabase URI.")
+	fs.StringVar(&followers_database_uri, "followers-database-uri", "null://", "A registered sfomuseum/go-activitypub/database.FollowersDatabase URI.")
+	fs.StringVar(&posts_database_uri, "posts-database-uri", "null://", "A registered sfomuseum/go-activitypub/database.PostsDatabase URI.")
+	fs.StringVar(&post_tags_database_uri, "post-tags-database-uri", "null://", "A registered sfomuseum/go-activitypub/database.PostTagsDatabase URI.")
+	fs.StringVar(&deliveries_database_uri, "deliveries-database-uri", "null://", "A registered sfomuseum/go-activitypub/database.DeliveriesDatabase URI.")
 
 	fs.StringVar(&delivery_queue_uri, "delivery-queue-uri", "synchronous://", "A registered sfomuseum/go-activitypub/queue/DeliveryQueue URI.")
 
