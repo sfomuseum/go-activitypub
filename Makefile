@@ -289,7 +289,6 @@ local-server:
 		-likes-database-uri '$(LIKES_DB_URI)' \
 		-properties-database-uri '$(PROPERTIES_DB_URI)' \
 		-process-message-queue-uri 'stdout://' \
-		-process-follow-queue-uri 'slog://' \
 		-allow-remote-icon-uri \
 		-allow-create \
 		-verbose=$(SERVER_VERBOSE) \
