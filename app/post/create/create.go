@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	aa_lambda "github.com/aaronland/go-aws-lambda"
+	aa_lambda "github.com/aaronland/go-aws/v3/lambda"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/database"
