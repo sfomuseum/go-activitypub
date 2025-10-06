@@ -162,7 +162,7 @@ func DeliverActivity(ctx context.Context, opts *DeliverActivityOptions) error {
 		logger.Error("Failed to post activity to inbox", "error", err)
 
 		d.Error = err.Error()
-		return fmt.Errorf("Failed to post to inbox '%s', %w", recipient, err)
+		return fmt.Errorf("Failed to post to inbox '%v', %w", recipient, err)
 	}
 
 	d.Success = true

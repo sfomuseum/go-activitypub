@@ -49,7 +49,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 }
 
 func RunWithOptionsAndResponse(ctx context.Context, opts *RunOptions) (string, error) {
-	
+
 	if opts.Verbose {
 		slog.SetLogLoggerLevel(slog.LevelDebug)
 		slog.Debug("Verbose logging enabled")
@@ -226,7 +226,7 @@ func RunWithOptionsAndResponse(ctx context.Context, opts *RunOptions) (string, e
 
 		slog.Info("Delivered post", "post url", post_url)
 		return post_url, err
-		
+
 	case "lambda":
 
 		handle := func(ctx context.Context, post *Post) (string, error) {
@@ -240,7 +240,7 @@ func RunWithOptionsAndResponse(ctx context.Context, opts *RunOptions) (string, e
 
 		lambda.Start(handle)
 		return "", nil
-		
+
 	case "invoke":
 
 		post := &Post{
@@ -271,7 +271,7 @@ func RunWithOptionsAndResponse(ctx context.Context, opts *RunOptions) (string, e
 
 		slog.Info("Delivered post", "post url", post_url)
 		return post_url, nil
-		
+
 	default:
 		return "", fmt.Errorf("Invalid or unsupported mode")
 	}
