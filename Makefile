@@ -278,7 +278,7 @@ SERVER_DISABLED=false
 SERVER_VERBOSE=true
 
 local-server:
-	go run cmd/server/main.go \
+	go run -tags sqlite cmd/server/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
