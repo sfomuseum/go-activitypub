@@ -7,7 +7,7 @@ import (
 	_ "github.com/aaronland/gocloud/blob/s3"
 	_ "github.com/sfomuseum/go-pubsub/publisher"
 	_ "gocloud.dev/blob/fileblob"
-	
+
 	"github.com/sfomuseum/go-activitypub/app/server"
 )
 

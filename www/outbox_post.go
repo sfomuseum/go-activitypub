@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/aaronland/go-http/v3/slog"
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/uris"
 )
@@ -18,7 +19,7 @@ func OutboxPostHandler(opts *OutboxPostHandlerOptions) (http.Handler, error) {
 
 	fn := func(rsp http.ResponseWriter, req *http.Request) {
 
-		logger := LoggerWithRequest(req, nil)
+		logger := slog.LoggerWithRequest(req, nil)
 
 		t1 := time.Now()
 

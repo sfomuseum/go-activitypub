@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/aaronland/go-http/v3/slog"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
@@ -24,7 +25,7 @@ func FollowingHandler(opts *FollowingHandlerOptions) (http.Handler, error) {
 
 		ctx := req.Context()
 
-		logger := LoggerWithRequest(req, nil)
+		logger := slog.LoggerWithRequest(req, nil)
 
 		t1 := time.Now()
 

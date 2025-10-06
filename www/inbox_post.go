@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aaronland/go-http/v3/slog"
 	"github.com/go-fed/httpsig"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
@@ -65,7 +66,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 		ctx := req.Context()
 		wg := new(sync.WaitGroup)
 
-		logger := LoggerWithRequest(req, nil)
+		logger := slog.LoggerWithRequest(req, nil)
 
 		t1 := time.Now()
 
