@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	_ "github.com/aaronland/gocloud-blob/s3"
+	_ "github.com/aaronland/gocloud/blob/s3"
 	_ "github.com/sfomuseum/go-pubsub/publisher"
 	_ "gocloud.dev/blob/fileblob"
 

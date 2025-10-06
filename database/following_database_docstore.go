@@ -7,7 +7,7 @@ import (
 
 	_ "log/slog"
 
-	aa_docstore "github.com/aaronland/gocloud-docstore"
+	aa_docstore "github.com/aaronland/gocloud/docstore"
 	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
 )
