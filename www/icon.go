@@ -18,6 +18,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aaronland/go-http/v3/slog"
 	"github.com/aaronland/gocloud/blob/bucket"
 	"github.com/fogleman/gg"
 	"github.com/golang/freetype/truetype"
@@ -60,7 +61,7 @@ func IconHandler(opts *IconHandlerOptions) (http.Handler, error) {
 
 		ctx := req.Context()
 
-		logger := LoggerWithRequest(req, nil)
+		logger := slog.LoggerWithRequest(req, nil)
 
 		t1 := time.Now()
 

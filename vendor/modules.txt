@@ -8,6 +8,7 @@ github.com/aaronland/go-aws/v3/lambda
 github.com/aaronland/go-http/v3/handlers
 github.com/aaronland/go-http/v3/sanitize
 github.com/aaronland/go-http/v3/server
+github.com/aaronland/go-http/v3/slog
 # github.com/aaronland/go-pagination v0.3.0
 ## explicit; go 1.16
 github.com/aaronland/go-pagination
