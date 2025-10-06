@@ -55,21 +55,23 @@ lambda-deliver-activity:
 SQLITE3=sqlite3
 TABLE_PREFIX=
 
-ACCOUNTS_DB=work/accounts.db
-ACTIVITIES_DB=work/activities.db
-FOLLOWERS_DB=work/followers.db
-FOLLOWING_DB=work/following.db
-POSTS_DB=work/posts.db
-POST_TAGS_DB=work/posts.db
-NOTES_DB=work/notes.db
-MESSAGES_DB=work/messages.db
-BLOCKS_DB=work/blocks.db
-DELIVERIES_DB=work/deliveries.db
-BOOSTS_DB=work/boosts.db
-LIKES_DB=work/likes.db
-PROPERTIES_DB=work/properties.db
+ACCOUNTS_DB=work/activitypub.db
+ALIASES_DB=work/activitypub.db
+ACTIVITIES_DB=work/activitypub.db
+FOLLOWERS_DB=work/activitypub.db
+FOLLOWING_DB=work/activitypub.db
+POSTS_DB=work/activitypub.db
+POST_TAGS_DB=work/activitypub.db
+NOTES_DB=work/activitypub.db
+MESSAGES_DB=work/activitypub.db
+BLOCKS_DB=work/activitypub.db
+DELIVERIES_DB=work/activitypub.db
+BOOSTS_DB=work/activitypub.db
+LIKES_DB=work/activitypub.db
+PROPERTIES_DB=work/activitypub.db
 
 ACCOUNTS_DB_URI=sql://sqlite3?dsn=$(ACCOUNTS_DB)
+ALIASES_DB_URI=sql://sqlite3?dsn=$(ALIASES_DB)
 ACTIVITIES_DB_URI=sql://sqlite3?dsn=$(ACTIVITIES_DB)
 FOLLOWERS_DB_URI=sql://sqlite3?dsn=$(FOLLOWERS_DB)
 FOLLOWING_DB_URI=sql://sqlite3?dsn=$(FOLLOWING_DB)
@@ -83,24 +85,25 @@ BOOSTS_DB_URI=sql://sqlite3?dsn=$(BOOSTS_DB)
 LIKES_DB_URI=sql://sqlite3?dsn=$(LIKES_DB)
 PROPERTIES_DB_URI=sql://sqlite3?dsn=$(PROPERTIES_DB)
 
-ACCOUNTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-ACTIVITIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)activities?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-ALIASES_DB_URI=awsdynamodb://$(TABLE_PREFIX)aliases?partition_key=Name&allow_scans=true&local=true&region=localhost&credentials=anon:
-BLOCKS_DB_URI=awsdynamodb://$(TABLE_PREFIX)blocks?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-BOOSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)boosts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-DELIVERIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)deliveries?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-FOLLOWING_DB_URI=awsdynamodb://$(TABLE_PREFIX)following?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-FOLLOWERS_DB_URI=awsdynamodb://$(TABLE_PREFIX)followers?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-LIKES_DB_URI=awsdynamodb://$(TABLE_PREFIX)likes?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-NOTES_DB_URI=awsdynamodb://$(TABLE_PREFIX)notes?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-MESSAGES_DB_URI=awsdynamodb://$(TABLE_PREFIX)messages?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-POST_TAGS_DB_URI=awsdynamodb://$(TABLE_PREFIX)post_tags?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-POSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)posts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-PROPERTIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)properties?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+# ACCOUNTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+# ACTIVITIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)activities?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+# ALIASES_DB_URI=awsdynamodb://$(TABLE_PREFIX)aliases?partition_key=Name&allow_scans=true&local=true&region=localhost&credentials=anon:
+# BLOCKS_DB_URI=awsdynamodb://$(TABLE_PREFIX)blocks?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+# BOOSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)boosts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+# DELIVERIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)deliveries?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+# FOLLOWING_DB_URI=awsdynamodb://$(TABLE_PREFIX)following?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+# FOLLOWERS_DB_URI=awsdynamodb://$(TABLE_PREFIX)followers?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+# LIKES_DB_URI=awsdynamodb://$(TABLE_PREFIX)likes?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+# NOTES_DB_URI=awsdynamodb://$(TABLE_PREFIX)notes?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+# MESSAGES_DB_URI=awsdynamodb://$(TABLE_PREFIX)messages?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+# POST_TAGS_DB_URI=awsdynamodb://$(TABLE_PREFIX)post_tags?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+# POSTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)posts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+# PROPERTIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)properties?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
 
 db-sqlite:
 	rm -f *.db
 	$(SQLITE3) $(ACCOUNTS_DB) < schema/sqlite/accounts.schema
+	$(SQLITE3) $(ALIASES_DB) < schema/sqlite/aliases.schema
 	$(SQLITE3) $(FOLLOWERS_DB) < schema/sqlite/followers.schema
 	$(SQLITE3) $(FOLLOWING_DB) < schema/sqlite/following.schema
 	$(SQLITE3) $(POSTS_DB) < schema/sqlite/posts.schema
