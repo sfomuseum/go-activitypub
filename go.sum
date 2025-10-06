@@ -188,6 +188,8 @@ github.com/redis/go-redis/v9 v9.14.0 h1:u4tNCjXOyzfgeLN+vAZaW1xUooqWDqVEsZN0U01j
 github.com/redis/go-redis/v9 v9.14.0/go.mod h1:huWgSWd8mW6+m0VPhJjSSQ+d6Nh1VICQ6Q5lHuCH/Iw=
 github.com/rs/cors v1.11.1 h1:eU3gRzXLRK57F5rKMGMZURNdIG4EoAmX8k94r9wXWHA=
 github.com/rs/cors v1.11.1/go.mod h1:XyqrcTp5zjWr1wsJ8PIRZssZ8b/WMcMf71DJnit4EMU=
+github.com/sfomuseum/go-database v0.0.16 h1:G5x50Gum5nt3ZNMgceAU2n10kdYbITQhJFTkGpaGJqU=
+github.com/sfomuseum/go-database v0.0.16/go.mod h1:rc7eTssSpED7hxJftyhSDLGD8007Nxhzwj8/KHa5LyQ=
 github.com/sfomuseum/go-flags v0.11.0 h1:HmMm5DgLxgz8iaNsvJ79dyRXjuAyX/fruqkBeHmopL0=
 github.com/sfomuseum/go-flags v0.11.0/go.mod h1:cUTByyudaM9d+iHwxsEpyYHemWVOGL/bqTRPIvydiC8=
 github.com/sfomuseum/go-pubsub v0.0.23 h1:UxMiddDHqgA6Uo7LS73EDbsBoBU2xfx3Eu9qxE+38vs=

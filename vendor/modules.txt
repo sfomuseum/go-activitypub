@@ -339,6 +339,9 @@ github.com/redis/go-redis/v9/internal/util
 ## explicit; go 1.13
 github.com/rs/cors
 github.com/rs/cors/internal
+# github.com/sfomuseum/go-database v0.0.16
+## explicit; go 1.24.0
+github.com/sfomuseum/go-database/sql
 # github.com/sfomuseum/go-flags v0.11.0
 ## explicit; go 1.22
 github.com/sfomuseum/go-flags/flagset

@@ -22,6 +22,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.32
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/rs/cors v1.11.1
+	github.com/sfomuseum/go-database v0.0.16
 	github.com/sfomuseum/go-flags v0.11.0
 	github.com/sfomuseum/go-pubsub v0.0.23
 	github.com/sfomuseum/go-template v1.10.1
