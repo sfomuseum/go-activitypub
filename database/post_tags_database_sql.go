@@ -8,7 +8,7 @@ import (
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
 	"github.com/sfomuseum/go-activitypub"
-	sfom_sql "github.com/sfomuseum/go-database/sql"	
+	sfom_sql "github.com/sfomuseum/go-database/sql"
 )
 
 const SQL_POST_TAGS_TABLE_NAME string = "posts_tags"
