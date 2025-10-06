@@ -56,32 +56,34 @@ SQLITE3=sqlite3
 TABLE_PREFIX=
 
 ACCOUNTS_DB=work/accounts.db
+ALIASES_DB=work/aliases.db
 ACTIVITIES_DB=work/activities.db
 FOLLOWERS_DB=work/followers.db
 FOLLOWING_DB=work/following.db
 POSTS_DB=work/posts.db
-POST_TAGS_DB=work/posts.db
+POST_TAGS_DB=work/posts_tags.db
 NOTES_DB=work/notes.db
 MESSAGES_DB=work/messages.db
 BLOCKS_DB=work/blocks.db
 DELIVERIES_DB=work/deliveries.db
 BOOSTS_DB=work/boosts.db
-LIKES_DB=work/likes.db
+LIKES_DB=work/liks.db
 PROPERTIES_DB=work/properties.db
 
-ACCOUNTS_DB_URI=sql://sqlite3?dsn=$(ACCOUNTS_DB)
-ACTIVITIES_DB_URI=sql://sqlite3?dsn=$(ACTIVITIES_DB)
-FOLLOWERS_DB_URI=sql://sqlite3?dsn=$(FOLLOWERS_DB)
-FOLLOWING_DB_URI=sql://sqlite3?dsn=$(FOLLOWING_DB)
-BLOCKS_DB_URI=sql://sqlite3?dsn=$(BLOCKS_DB)
-POSTS_DB_URI=sql://sqlite3?dsn=$(POSTS_DB)
-POST_TAGS_DB_URI=sql://sqlite3?dsn=$(POST_TAGS_DB)
-NOTES_DB_URI=sql://sqlite3?dsn=$(NOTES_DB)
-MESSAGES_DB_URI=sql://sqlite3?dsn=$(MESSAGES_DB)
-DELIVERIES_DB_URI=sql://sqlite3?dsn=$(DELIVERIES_DB)
-BOOSTS_DB_URI=sql://sqlite3?dsn=$(BOOSTS_DB)
-LIKES_DB_URI=sql://sqlite3?dsn=$(LIKES_DB)
-PROPERTIES_DB_URI=sql://sqlite3?dsn=$(PROPERTIES_DB)
+ACCOUNTS_DB_URI=sql://sqlite3?dsn=file:$(ACCOUNTS_DB)%3Fcache%3Dshared
+ALIASES_DB_URI=sql://sqlite3?dsn=file:$(ALIASES_DB)%3Fcache%3Dshared
+ACTIVITIES_DB_URI=sql://sqlite3?dsn=file:$(ACTIVITIES_DB)%3Fcache%3Dshared
+FOLLOWERS_DB_URI=sql://sqlite3?dsn=file:$(FOLLOWERS_DB)%3Fcache%3Dshared
+FOLLOWING_DB_URI=sql://sqlite3?dsn=file:$(FOLLOWING_DB)%3Fcache%3Dshared
+BLOCKS_DB_URI=sql://sqlite3?dsn=file:$(BLOCKS_DB)%3Fcache%3Dshared
+POSTS_DB_URI=sql://sqlite3?dsn=file:$(POSTS_DB)%3Fcache%3Dshared
+POST_TAGS_DB_URI=sql://sqlite3?dsn=file:$(POST_TAGS_DB)%3Fcache%3Dshared
+NOTES_DB_URI=sql://sqlite3?dsn=file:$(NOTES_DB)%3Fcache%3Dshared
+MESSAGES_DB_URI=sql://sqlite3?dsn=file:$(MESSAGES_DB)%3Fcache%3Dshared
+DELIVERIES_DB_URI=sql://sqlite3?dsn=file:$(DELIVERIES_DB)%3Fcache%3Dshared
+BOOSTS_DB_URI=sql://sqlite3?dsn=file:$(BOOSTS_DB)%3Fcache%3Dshared
+LIKES_DB_URI=sql://sqlite3?dsn=file:$(LIKES_DB)%3Fcache%3Dshared
+PROPERTIES_DB_URI=sql://sqlite3?dsn=file:$(PROPERTIES_DB)%3Fcache%3Dshared
 
 ACCOUNTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
 ACTIVITIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)activities?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
@@ -101,6 +103,7 @@ PROPERTIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)properties?partition_key=Id&allow
 db-sqlite:
 	rm -f *.db
 	$(SQLITE3) $(ACCOUNTS_DB) < schema/sqlite/accounts.schema
+	$(SQLITE3) $(ALIASES_DB) < schema/sqlite/aliases.schema
 	$(SQLITE3) $(FOLLOWERS_DB) < schema/sqlite/followers.schema
 	$(SQLITE3) $(FOLLOWING_DB) < schema/sqlite/following.schema
 	$(SQLITE3) $(POSTS_DB) < schema/sqlite/posts.schema
@@ -275,7 +278,7 @@ SERVER_DISABLED=false
 SERVER_VERBOSE=true
 
 local-server:
-	go run cmd/server/main.go \
+	go run -mod $(GOMOD) -tags sqlite cmd/server/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \

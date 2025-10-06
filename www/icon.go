@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aaronland/gocloud-blob/bucket"
+	"github.com/aaronland/gocloud/blob/bucket"
 	"github.com/fogleman/gg"
 	"github.com/golang/freetype/truetype"
 	"github.com/sfomuseum/go-activitypub"

@@ -4,12 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"net/url"
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
 	"github.com/sfomuseum/go-activitypub"
-	"github.com/sfomuseum/go-activitypub/sqlite"
+	sfom_sql "github.com/sfomuseum/go-database/sql"
 )
 
 const SQL_ALIASES_TABLE_NAME string = "aliases"
@@ -31,30 +30,10 @@ func init() {
 
 func NewSQLAliasesDatabase(ctx context.Context, uri string) (AliasesDatabase, error) {
 
-	u, err := url.Parse(uri)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to parse URI, %w", err)
-	}
-
-	engine := u.Host
-
-	q := u.Query()
-	dsn := q.Get("dsn")
-
-	conn, err := sql.Open(engine, dsn)
+	conn, err := sfom_sql.OpenWithURI(ctx, uri)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to open database connection, %w", err)
-	}
-
-	if engine == "sqlite3" {
-
-		err := sqlite.SetupConnection(ctx, conn)
-
-		if err != nil {
-			return nil, fmt.Errorf("Failed to set up SQLite, %w", err)
-		}
 	}
 
 	db := &SQLAliasesDatabase{

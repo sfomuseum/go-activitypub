@@ -15,7 +15,7 @@ CREATE TABLE deliveries (
 
 CREATE INDEX `deliveries_by_account` ON deliveries (`account_id`, `created`);
 CREATE INDEX `deliveries_by_activity_id` ON deliveries (`activity_id`, `created`);
-CREATE INDEX `deliveries_by_activity_pub_id` ON deliveries (`activity_pub_id`, `created`);
+CREATE INDEX `deliveries_by_activity_pub_id` ON deliveries (`activitypub_id`, `created`);
 CREATE INDEX `deliveries_by_recipient` ON deliveries (`recipient`, `created`);
 CREATE INDEX `deliveries_by_created` ON deliveries (`created`);
        

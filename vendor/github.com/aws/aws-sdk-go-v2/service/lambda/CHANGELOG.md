@@ -1,3 +1,77 @@
+# v1.77.4 (2025-09-10)
+
+* No change notes available for this release.
+
+# v1.77.3 (2025-09-08)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.77.2 (2025-08-29)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.77.1 (2025-08-27)
+
+* **Dependency Update**: Update to smithy-go v1.23.0.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.77.0 (2025-08-25)
+
+* **Feature**: Remove incorrect endpoint tests
+
+# v1.76.2 (2025-08-21)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.76.1 (2025-08-20)
+
+* **Bug Fix**: Remove unused deserialization code.
+
+# v1.76.0 (2025-08-11)
+
+* **Feature**: Add support for configuring per-service Options via callback on global config.
+* **Documentation**: Doc-only update for Lambda that updates the maximum payload size for response streaming invocations to 200 MB.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.75.0 (2025-08-04)
+
+* **Feature**: Support configurable auth scheme preferences in service clients via AWS_AUTH_SCHEME_PREFERENCE in the environment, auth_scheme_preference in the config file, and through in-code settings on LoadDefaultConfig and client constructor methods.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.74.1 (2025-07-30)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.74.0 (2025-07-28)
+
+* **Feature**: Add support for HTTP interceptors.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.73.0 (2025-07-22)
+
+* **Feature**: This release migrated the model to Smithy keeping all features unchanged.
+
+# v1.72.1 (2025-07-19)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.72.0 (2025-06-19)
+
+* **Feature**: Support Schema Registry feature for Kafka Event Source Mapping. Customers can now configure a Schema Registry to enable schema validation and filtering for Avro, Protobuf, and JSON-formatted events in Lambda for Kafka Event Source.
+
+# v1.71.5 (2025-06-17)
+
+* **Dependency Update**: Update to smithy-go v1.22.4.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.71.4 (2025-06-10)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.71.3 (2025-06-06)
+
+* No change notes available for this release.
+
 # v1.71.2 (2025-04-10)
 
 * No change notes available for this release.

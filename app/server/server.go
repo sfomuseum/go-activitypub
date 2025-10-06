@@ -7,8 +7,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/aaronland/go-http-server"
-	"github.com/aaronland/go-http-server/handler"
+	"github.com/aaronland/go-http/v3/handlers"
+	"github.com/aaronland/go-http/v3/server"
 	"github.com/sfomuseum/go-activitypub/webfinger"
 )
 
@@ -49,7 +49,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	outbox_get := fmt.Sprintf("GET %s", run_opts.URIs.Outbox)
 	post_get := fmt.Sprintf("GET %s", run_opts.URIs.Post)
 
-	handlers := map[string]handler.RouteHandlerFunc{
+	route_handlers := map[string]handlers.RouteHandlerFunc{
 
 		// HTML (human-facing) pages that may need or want custom chrome
 		account_get: accountHandlerFunc,
@@ -65,20 +65,17 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		outbox_get:              outboxGetHandlerFunc,
 	}
 
-	log_logger := slog.NewLogLogger(logger.Handler(), slog.LevelInfo)
-
-	route_handler_opts := &handler.RouteHandlerOptions{
-		Handlers: handlers,
-		Logger:   log_logger,
+	route_handler_opts := &handlers.RouteHandlerOptions{
+		Handlers: route_handlers,
 	}
 
-	route_handler, err := handler.RouteHandlerWithOptions(route_handler_opts)
+	route_handler, err := handlers.RouteHandlerWithOptions(route_handler_opts)
 
 	if err != nil {
 		return fmt.Errorf("Failed to configure route handler, %w", err)
 	}
 
-	route_handler = handler.DisabledHandler(run_opts.Disabled, route_handler)
+	route_handler = handlers.DisabledHandler(run_opts.Disabled, route_handler)
 
 	mux := http.NewServeMux()
 	mux.Handle("/", route_handler)

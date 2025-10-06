@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	aa_docstore "github.com/aaronland/gocloud-docstore"
+	aa_docstore "github.com/aaronland/gocloud/docstore"
 	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
 )
@@ -142,7 +142,7 @@ func (db *DocstoreActivitiesDatabase) getActivitiesWithQuery(ctx context.Context
 			err := cb(ctx, &a)
 
 			if err != nil {
-				return fmt.Errorf("Failed to execute activities callback for '%s', %w", a.Id, err)
+				return fmt.Errorf("Failed to execute activities callback for '%d', %w", a.Id, err)
 			}
 		}
 	}
