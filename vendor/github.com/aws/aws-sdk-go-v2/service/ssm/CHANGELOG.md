@@ -1,3 +1,12 @@
+# v1.65.1 (2025-09-26)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.65.0 (2025-09-23)
+
+* **Feature**: Added Dualstack support to GetDeployablePatchSnapshotForInstance
+* **Dependency Update**: Updated to the latest SDK module versions
+
 # v1.64.4 (2025-09-10)
 
 * No change notes available for this release.
