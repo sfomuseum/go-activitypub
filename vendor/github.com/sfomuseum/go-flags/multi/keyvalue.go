@@ -23,8 +23,31 @@ func (e *KeyValueStringFlag) Key() string {
 	return e.key
 }
 
+func (e *KeyValueStringFlag) Set(value string) error {
+
+	value = strings.Trim(value, " ")
+	kv := strings.Split(value, SEP)
+
+	if len(kv) != 2 {
+		return errors.New("Invalid key=value argument")
+	}
+
+	e.key = kv[0]
+	e.value = kv[1]
+	return nil
+}
+
 func (e *KeyValueStringFlag) Value() interface{} {
 	return e.value
+}
+
+func (e *KeyValueStringFlag) String() string {
+
+	if e.key == "" {
+		return ""
+	}
+
+	return fmt.Sprintf("%s=%s", e.key, e.value)
 }
 
 type KeyValueCSVString []*KeyValueStringFlag
@@ -45,18 +68,15 @@ func (e *KeyValueCSVString) Set(value string) error {
 	for _, v := range strings.Split(value, ",") {
 
 		value = strings.Trim(v, " ")
-		kv := strings.Split(v, SEP)
 
-		if len(kv) != 2 {
-			return errors.New("Invalid key=value argument")
+		a := new(KeyValueStringFlag)
+		err := a.Set(value)
+
+		if err != nil {
+			return err
 		}
 
-		a := KeyValueStringFlag{
-			key:   kv[0],
-			value: kv[1],
-		}
-
-		*e = append(*e, &a)
+		*e = append(*e, a)
 	}
 
 	return nil
@@ -70,19 +90,14 @@ func (e *KeyValueString) String() string {
 
 func (e *KeyValueString) Set(value string) error {
 
-	value = strings.Trim(value, " ")
-	kv := strings.Split(value, SEP)
+	a := new(KeyValueStringFlag)
+	err := a.Set(value)
 
-	if len(kv) != 2 {
-		return errors.New("Invalid key=value argument")
+	if err != nil {
+		return err
 	}
 
-	a := KeyValueStringFlag{
-		key:   kv[0],
-		value: kv[1],
-	}
-
-	*e = append(*e, &a)
+	*e = append(*e, a)
 	return nil
 }
 

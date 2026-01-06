@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aaronland/go-http/v3/slog"
+	"github.com/aaronland/go-http/v4/slog"
 	"github.com/aaronland/gocloud/blob/bucket"
 	"github.com/fogleman/gg"
 	"github.com/golang/freetype/truetype"

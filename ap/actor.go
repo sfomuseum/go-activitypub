@@ -10,7 +10,7 @@ import (
 	"net/url"
 
 	"github.com/sfomuseum/go-activitypub/crypto"
-	"github.com/sfomuseum/go-activitypub/webfinger"
+	"github.com/aaronland/go-http/v4/wellknown/webfinger"
 )
 
 // https://www.w3.org/TR/activitystreams-vocabulary/#actor-types

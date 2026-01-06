@@ -28,6 +28,8 @@ func ConfigureDatabase(ctx context.Context, db *sql.DB, opts *ConfigureDatabaseO
 		return ConfigurePostgresDatabase(ctx, db, opts)
 	case DUCKDB_DRIVER:
 		return ConfigureDuckDBDatabase(ctx, db, opts)
+	case MYSQL_DRIVER:
+		return ConfigureMySQLDatabase(ctx, db, opts)
 	default:
 		return fmt.Errorf("Unhandled or unsupported database driver %s", DriverTypeOf(db))
 	}

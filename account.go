@@ -13,7 +13,7 @@ import (
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/crypto"
 	"github.com/sfomuseum/go-activitypub/uris"
-	"github.com/sfomuseum/go-activitypub/webfinger"
+	"github.com/aaronland/go-http/v4/wellknown/webfinger"
 )
 
 // AccountType denotes the ActivityPub account type

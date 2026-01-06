@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/aaronland/go-http/v3/slog"
+	"github.com/aaronland/go-http/v4/slog"
 	"github.com/go-fed/httpsig"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"

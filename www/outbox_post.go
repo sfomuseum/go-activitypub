@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/aaronland/go-http/v3/slog"
+	"github.com/aaronland/go-http/v4/slog"
 	"github.com/sfomuseum/go-activitypub/database"
 	"github.com/sfomuseum/go-activitypub/uris"
 )

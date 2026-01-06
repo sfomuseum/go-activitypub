@@ -14,6 +14,9 @@ import (
 // Qualifier parameter. Otherwise, all versions and aliases are deleted. This
 // doesn't require the user to have explicit permissions for DeleteAlias.
 //
+// A deleted Lambda function cannot be recovered. Ensure that you specify the
+// correct function name and version before deleting.
+//
 // To delete Lambda event source mappings that invoke a function, use DeleteEventSourceMapping. For Amazon
 // Web Services services and resources that invoke your function directly, delete
 // the trigger in the service where you originally configured it.
@@ -59,6 +62,10 @@ type DeleteFunctionInput struct {
 }
 
 type DeleteFunctionOutput struct {
+
+	// The HTTP status code returned by the operation.
+	StatusCode int32
+
 	// Metadata pertaining to the operation's result.
 	ResultMetadata middleware.Metadata
 
@@ -159,40 +166,7 @@ func (c *Client) addOperationDeleteFunctionMiddlewares(stack *middleware.Stack, 
 	if err = addInterceptAttempt(stack, options); err != nil {
 		return err
 	}
-	if err = addInterceptExecution(stack, options); err != nil {
-		return err
-	}
-	if err = addInterceptBeforeSerialization(stack, options); err != nil {
-		return err
-	}
-	if err = addInterceptAfterSerialization(stack, options); err != nil {
-		return err
-	}
-	if err = addInterceptBeforeSigning(stack, options); err != nil {
-		return err
-	}
-	if err = addInterceptAfterSigning(stack, options); err != nil {
-		return err
-	}
-	if err = addInterceptTransmit(stack, options); err != nil {
-		return err
-	}
-	if err = addInterceptBeforeDeserialization(stack, options); err != nil {
-		return err
-	}
-	if err = addInterceptAfterDeserialization(stack, options); err != nil {
-		return err
-	}
-	if err = addSpanInitializeStart(stack); err != nil {
-		return err
-	}
-	if err = addSpanInitializeEnd(stack); err != nil {
-		return err
-	}
-	if err = addSpanBuildRequestStart(stack); err != nil {
-		return err
-	}
-	if err = addSpanBuildRequestEnd(stack); err != nil {
+	if err = addInterceptors(stack, options); err != nil {
 		return err
 	}
 	return nil

@@ -1,3 +1,90 @@
+# v1.87.0 (2025-12-11)
+
+* **Feature**: Add Dotnet 10 (dotnet10) support to AWS Lambda.
+
+# v1.86.2 (2025-12-09)
+
+* No change notes available for this release.
+
+# v1.86.1 (2025-12-08)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.86.0 (2025-12-04)
+
+* **Feature**: Add DisallowedByVpcEncryptionControl to the LastUpdateStatusReasonCode and StateReasonCode enums to represent failures caused by VPC Encryption Controls.
+
+# v1.85.0 (2025-12-02)
+
+* **Feature**: Launching Lambda durable functions - a new feature to build reliable multi-step applications and AI workflows natively within the Lambda developer experience.
+* **Dependency Update**: Updated to the latest SDK module versions
+* **Dependency Update**: Upgrade to smithy-go v1.24.0. Notably this version of the library reduces the allocation footprint of the middleware system. We observe a ~10% reduction in allocations per SDK call with this change.
+
+# v1.84.0 (2025-12-01)
+
+* **Feature**: Launching Lambda Managed Instances - a new feature to run Lambda on EC2.
+
+# v1.83.1 (2025-11-25)
+
+* **Bug Fix**: Add error check for endpoint param binding during auth scheme resolution to fix panic reported in #3234
+
+# v1.83.0 (2025-11-21)
+
+* **Feature**: Launching Enhanced Error Handling and ESM Grouping capabilities for Kafka ESMs
+
+# v1.82.1 (2025-11-19.2)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.82.0 (2025-11-19)
+
+* **Feature**: Added support for creating and invoking Tenant Isolated functions in AWS Lambda APIs.
+
+# v1.81.3 (2025-11-12)
+
+* **Bug Fix**: Further reduce allocation overhead when the metrics system isn't in-use.
+* **Bug Fix**: Reduce allocation overhead when the client doesn't have any HTTP interceptors configured.
+* **Bug Fix**: Remove blank trace spans towards the beginning of the request that added no additional information. This conveys a slight reduction in overall allocations.
+
+# v1.81.2 (2025-11-11)
+
+* **Bug Fix**: Return validation error if input region is not a valid host label.
+
+# v1.81.1 (2025-11-04)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+* **Dependency Update**: Upgrade to smithy-go v1.23.2 which should convey some passive reduction of overall allocations, especially when not using the metrics system.
+
+# v1.81.0 (2025-10-31)
+
+* **Feature**: Add Python3.14 (python3.14) and Java 25 (java25) support to AWS Lambda
+
+# v1.80.1 (2025-10-30)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.80.0 (2025-10-28)
+
+* **Feature**: Added SerializedRequestEntityTooLargeException to Lambda Invoke API
+
+# v1.79.0 (2025-10-23)
+
+* **Feature**: Add NodeJs 24 (nodejs24.x) support to AWS Lambda.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.78.2 (2025-10-22)
+
+* No change notes available for this release.
+
+# v1.78.1 (2025-10-16)
+
+* **Dependency Update**: Bump minimum Go version to 1.23.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.78.0 (2025-10-10)
+
+* **Feature**: Add InvokedViaFunctionUrl context key to limit invocations to only FURL invokes.
+
 # v1.77.6 (2025-09-26)
 
 * **Dependency Update**: Updated to the latest SDK module versions

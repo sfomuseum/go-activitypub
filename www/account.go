@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aaronland/go-http/v3/slog"
+	"github.com/aaronland/go-http/v4/slog"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"
