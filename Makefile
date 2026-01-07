@@ -85,6 +85,21 @@ BOOSTS_DB_URI=sql://sqlite3?dsn=file:$(BOOSTS_DB)%3Fcache%3Dshared
 LIKES_DB_URI=sql://sqlite3?dsn=file:$(LIKES_DB)%3Fcache%3Dshared
 PROPERTIES_DB_URI=sql://sqlite3?dsn=file:$(PROPERTIES_DB)%3Fcache%3Dshared
 
+ACCOUNTS_MYSQL_URI=sql://mysql?dsn=
+ALIASES_MYSQL_URI=sql://mysql?dsn=
+ACTIVITIES_MYSQL_URI=sql://mysql?dsn=
+FOLLOWERS_MYSQL_URI=sql://mysql?dsn=
+FOLLOWING_MYSQL_URI=sql://mysql?dsn=
+BLOCKS_MYSQL_URI=sql://mysql?dsn=
+POSTS_MYSQL_URI=sql://mysql?dsn=
+POST_TAGS_MYSQL_URI=sql://mysql?dsn=
+NOTES_MYSQL_URI=sql://mysql?dsn=
+MESSAGES_MYSQL_URI=sql://mysql?dsn=
+DELIVERIES_MYSQL_URI=sql://mysql?dsn=
+BOOSTS_MYSQL_URI=sql://mysql?dsn=
+LIKES_MYSQL_URI=sql://mysql?dsn=
+PROPERTIES_MYSQL_URI=sql://mysql?dsn=
+
 ACCOUNTS_DB_URI=awsdynamodb://$(TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
 ACTIVITIES_DB_URI=awsdynamodb://$(TABLE_PREFIX)activities?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
 ALIASES_DB_URI=awsdynamodb://$(TABLE_PREFIX)aliases?partition_key=Name&allow_scans=true&local=true&region=localhost&credentials=anon:

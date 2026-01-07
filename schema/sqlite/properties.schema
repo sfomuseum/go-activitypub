@@ -3,11 +3,11 @@ DROP TABLE IF EXISTS properties;
 CREATE TABLE properties (
        id INTEGER PRIMARY KEY,
        account_id INTEGER,
-       key TEXT,
-       value TEXT,
+       property_key TEXT,
+       property_value TEXT,
        created INTEGER
 );
 
-CREATE UNIQUE INDEX `properties_by_key` ON properties (`account_id`, `key`);
+CREATE UNIQUE INDEX `properties_by_key` ON properties (`account_id`, `property_key`);
 CREATE INDEX `properties_by_account` ON properties (`account_id`, `created`);
 CREATE INDEX `properties_by_created` ON properties (`created`);

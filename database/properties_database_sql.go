@@ -44,19 +44,19 @@ func NewSQLPropertiesDatabase(ctx context.Context, uri string) (PropertiesDataba
 
 func (db *SQLPropertiesDatabase) GetProperties(ctx context.Context, cb GetPropertiesCallbackFunc) error {
 
-	q := fmt.Sprintf("SELECT id, account_id, key, value, created FROM %s", SQL_PROPERTIES_TABLE_NAME)
+	q := fmt.Sprintf("SELECT id, account_id, property_key, property_value, created FROM %s", SQL_PROPERTIES_TABLE_NAME)
 	return db.getProperties(ctx, cb, q)
 }
 
 func (db *SQLPropertiesDatabase) GetPropertiesForAccount(ctx context.Context, account_id int64, cb GetPropertiesCallbackFunc) error {
 
-	q := fmt.Sprintf("SELECT id, account_id, key, value, created FROM %s WHERE account_id=?", SQL_PROPERTIES_TABLE_NAME)
+	q := fmt.Sprintf("SELECT id, account_id, property_key, property_value, created FROM %s WHERE account_id=?", SQL_PROPERTIES_TABLE_NAME)
 	return db.getProperties(ctx, cb, q, account_id)
 }
 
 func (db *SQLPropertiesDatabase) AddProperty(ctx context.Context, p *activitypub.Property) error {
 
-	q := fmt.Sprintf("INSERT INTO %s (id, account_id, key, value, created) VALUES (?, ?, ?, ?, ?)", SQL_PROPERTIES_TABLE_NAME)
+	q := fmt.Sprintf("INSERT INTO %s (id, account_id, property_key, property_value, created) VALUES (?, ?, ?, ?, ?)", SQL_PROPERTIES_TABLE_NAME)
 
 	_, err := db.database.ExecContext(ctx, q, p.Id, p.AccountId, p.Key, p.Value, p.Created)
 
@@ -69,7 +69,7 @@ func (db *SQLPropertiesDatabase) AddProperty(ctx context.Context, p *activitypub
 
 func (db *SQLPropertiesDatabase) UpdateProperty(ctx context.Context, p *activitypub.Property) error {
 
-	q := fmt.Sprintf("UPDATE %s SET account_id=?, key=?, value=?, created=? WHERE id=?", SQL_PROPERTIES_TABLE_NAME)
+	q := fmt.Sprintf("UPDATE %s SET account_id=?, property_key=?, property_value=?, created=? WHERE id=?", SQL_PROPERTIES_TABLE_NAME)
 
 	_, err := db.database.ExecContext(ctx, q, p.AccountId, p.Key, p.Value, p.Created, p.Id)
 

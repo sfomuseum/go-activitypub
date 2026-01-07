@@ -15,7 +15,7 @@ CREATE TABLE accounts (
        created BIGINT(20) UNSIGNED NOT NULL,
        lastmodified BIGINT(20) UNSIGNED NOT NULL,
        UNIQUE KEY `accounts_by_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE INDEX `accounts_by_created` ON accounts (`created`);
 
@@ -25,7 +25,7 @@ CREATE TABLE aliases (
        name VARCHAR(255) NOT NULL PRIMARY KEY,
        account_id BIGINT(20) UNSIGNED NOT NULL,
        created BIGINT(20) UNSIGNED NOT NULL
-)  ENGINE=InnoDB DEFAULT CHARSET=utf8;
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE INDEX `aliases_by_account` ON aliases (`account_id`, `created`);
 CREATE INDEX `aliases_by_created` ON aliases (`created`);
@@ -38,7 +38,7 @@ CREATE TABLE followers (
        follower_address VARCHAR(255),
        created BIGINT(20) UNSIGNED NOT NULL,
        UNIQUE KEY `followers_by_account` (`account_id`, `follower_address`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE INDEX `followers_by_created` ON followers (`created`);
 
@@ -50,7 +50,7 @@ CREATE TABLE following (
        following_address VARCHAR(255),
        created BIGINT(20) UNSIGNED NOT NULL,
        UNIQUE KEY `following_by_account` (`account_id`, `following_address`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE INDEX `following_by_following` ON following (`following_address`, `created`);
 CREATE INDEX `following_by_created` ON following (`created`);
@@ -65,7 +65,7 @@ CREATE TABLE messages (
        created BIGINT(20) UNSIGNED NOT NULL,
        lastmodified BIGINT(20) UNSIGNED NOT NULL,
        UNIQUE KEY `messages_by_account_note_id` (`account_id`, `note_id`)
-)  ENGINE=InnoDB DEFAULT CHARSET=utf8;
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE INDEX `messages_by_account` ON messages (`account_id`, `created`);
 CREATE INDEX `messages_by_author` ON messages (`author_address`, `created`);
@@ -82,7 +82,7 @@ CREATE TABLE notes (
        created BIGINT(20) UNSIGNED NOT NULL,
        lastmodified BIGINT(20) UNSIGNED NOT NULL,
        UNIQUE KEY `notes_by_author_address` (`author_address`, `uuid`)
-)  ENGINE=InnoDB DEFAULT CHARSET=utf8;
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE INDEX `notes_by_created` ON notes (`created`);
 
@@ -95,9 +95,56 @@ CREATE TABLE posts (
        in_reply_to VARCHAR(255),       	    
        created BIGINT(20) UNSIGNED NOT NULL,
        lastmodified BIGINT(20) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE INDEX `posts_by_account` ON posts (`account_id`, `created`);
 CREATE INDEX `posts_by_reply_to` ON posts (`in_reply_to`, `created`);
 CREATE INDEX `posts_by_created` ON posts (`created`);
 
+DROP TABLE IF EXISTS `properties`;
+
+CREATE TABLE `properties` (
+    `id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `account_id`  BIGINT UNSIGNED NOT NULL,
+    `property_key`  VARCHAR(255) NOT NULL,
+    `property_value` VARCHAR(255) NOT NULL,
+    `created`     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `properties_by_key` (`account_id`, `property_key`),
+    INDEX `properties_by_account` (`account_id`, `created`),
+    INDEX `properties_by_created` (`created`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS `blocks`;
+
+CREATE TABLE `blocks` (
+    `id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `account_id`  BIGINT UNSIGNED NOT NULL,
+    `name`        VARCHAR(255) NOT NULL,
+    `host`        VARCHAR(255) NOT NULL,
+    `created`     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `lastmodified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `blocks_by_triple` (`account_id`, `host`, `name`),
+    INDEX `blocks_by_account` (`account_id`, `created`),
+    INDEX `blocks_by_host` (`host`, `created`),
+    INDEX `blocks_by_created` (`created`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS `deliveries`;
+
+CREATE TABLE `deliveries` (
+    `id`          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `activity_id` BIGINT UNSIGNED,
+    `account_id`  BIGINT UNSIGNED NOT NULL,
+    `recipient`   VARCHAR(255) NOT NULL,
+    `inbox`       VARCHAR(255) NOT NULL,
+    `created`     TIMESTAMP NOT NULL,
+    `completed`   TIMESTAMP NOT NULL,
+    `success`     TINYINT(1) NOT NULL,
+    `error`       VARCHAR(255) NOT NULL,
+    PRIMARY KEY (`id`),
+    INDEX `deliveries_by_account` (`account_id`, `created`),
+    INDEX `deliveries_by_recipient` (`recipient`, `created`),
+    INDEX `deliveries_by_created` (`created`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
