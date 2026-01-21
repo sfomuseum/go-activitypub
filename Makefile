@@ -1,7 +1,24 @@
 GOMOD=$(shell test -f "go.work" && echo "readonly" || echo "vendor")
 LDFLAGS=-s -w
 
+MYSQL=mysql
+SQLITE3=sqlite3
+
+DYNAMODB_TABLE_PREFIX=
+
 TAGS=null
+
+SUPPORTED_DATABASES=dynamodb sqlite mysql
+
+DATABASE=mysql
+DATABASE_LOWER=$(shell echo $(DATABASE) | tr '[:upper:]' '[:lower:]')
+DATABASE_UPPER=$(shell echo $(DATABASE) | tr '[:lower:]' '[:upper:]')
+
+ifeq ($(filter $(DATABASE_LOWER),$(SUPPORTED_DATABASES)),)
+$(error "DATABASE is undefined or not one of $(SUPPORTED_DATABASES).  Set DATABASE=…")
+endif
+
+DELIVERY_QUEUE_URI=synchronous://
 
 cli:
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/add-account cmd/add-account/main.go
@@ -54,9 +71,6 @@ lambda-deliver-activity:
 
 # The rest of these Makefile targets are for local testing
 
-SQLITE3=sqlite3
-TABLE_PREFIX=
-
 ACCOUNTS_SQLITE_DB=work/accounts.db
 ALIASES_SQLITE_DB=work/aliases.db
 ACTIVITIES_SQLITE_DB=work/activities.db
@@ -107,23 +121,20 @@ BOOSTS_MYSQL_URI=$(MYSQL_URI)
 LIKES_MYSQL_URI=$(MYSQL_URI)
 PROPERTIES_MYSQL_URI=$(MYSQL_URI)
 
-ACCOUNTS_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-ACTIVITIES_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)activities?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-ALIASES_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)aliases?partition_key=Name&allow_scans=true&local=true&region=localhost&credentials=anon:
-BLOCKS_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)blocks?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-BOOSTS_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)boosts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-DELIVERIES_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)deliveries?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-FOLLOWING_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)following?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-FOLLOWERS_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)followers?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-LIKES_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)likes?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-NOTES_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)notes?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-MESSAGES_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)messages?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-POST_TAGS_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)post_tags?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-POSTS_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)posts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-PROPERTIES_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)properties?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
-
-DATABASE=mysql
-DATABASE_UPPER=$(shell echo $(DATABASE) | tr '[:lower:]' '[:upper:]')
+ACCOUNTS_DYNAMODB_URI=awsdynamodb://$(DYNAMODB_TABLE_PREFIX)accounts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+ACTIVITIES_DYNAMODB_URI=awsdynamodb://$(DYNAMODB_TABLE_PREFIX)activities?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+ALIASES_DYNAMODB_URI=awsdynamodb://$(DYNAMODB_TABLE_PREFIX)aliases?partition_key=Name&allow_scans=true&local=true&region=localhost&credentials=anon:
+BLOCKS_DYNAMODB_URI=awsdynamodb://$(DYNAMODB_TABLE_PREFIX)blocks?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+BOOSTS_DYNAMODB_URI=awsdynamodb://$(DYNAMODB_TABLE_PREFIX)boosts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+DELIVERIES_DYNAMODB_URI=awsdynamodb://$(DYNAMODB_TABLE_PREFIX)deliveries?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+FOLLOWING_DYNAMODB_URI=awsdynamodb://$(DYNAMODB_TABLE_PREFIX)following?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+FOLLOWERS_DYNAMODB_URI=awsdynamodb://$(DYNAMODB_TABLE_PREFIX)followers?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+LIKES_DYNAMODB_URI=awsdynamodb://$(DYNAMODB_TABLE_PREFIX)likes?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+NOTES_DYNAMODB_URI=awsdynamodb://$(DYNAMODB_TABLE_PREFIX)notes?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+MESSAGES_DYNAMODB_URI=awsdynamodb://$(DYNAMODB_TABLE_PREFIX)messages?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+POST_TAGS_DYNAMODB_URI=awsdynamodb://$(DYNAMODB_TABLE_PREFIX)post_tags?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+POSTS_DYNAMODB_URI=awsdynamodb://$(DYNAMODB_TABLE_PREFIX)posts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
+PROPERTIES_DYNAMODB_URI=awsdynamodb://$(DYNAMODB_TABLE_PREFIX)properties?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
 
 ACCOUNTS_DB_URI=$(ACCOUNTS_$(DATABASE_UPPER)_URI)
 ACTIVITIES_DB_URI=$(ACTIVITIES_$(DATABASE_UPPER)_URI)
@@ -140,7 +151,16 @@ POST_TAGS_DB_URI=$(POST_TAGS_$(DATABASE_UPPER)_URI)
 POSTS_DB_URI=$(POSTS_$(DATABASE_UPPER)_URI)
 PROPERTIES_DB_URI=$(PROPERTIES_$(DATABASE_UPPER)_URI)
 
-db-sqlite:
+local-tables-dynamodb:
+	go run -mod $(GOMOD) cmd/create-dynamodb-tables/main.go \
+		-refresh \
+		-table-prefix '$(DYNAMODB_TABLE_PREFIX)' \
+		-dynamodb-client-uri 'awsdynamodb://?region=localhost&credentials=anon:&local=true'
+
+local-tables-mysql:
+	$(MYSQL) -u$(MYSQL_USER) -p activitypub < schema/mysql/activitypub.schema
+
+local-tables-sqlite:
 	rm -f *.db
 	$(SQLITE3) $(ACCOUNTS_DB) < schema/sqlite/accounts.schema
 	$(SQLITE3) $(ALIASES_DB) < schema/sqlite/aliases.schema
@@ -156,10 +176,13 @@ db-sqlite:
 	$(SQLITE3) $(PROPERTIES_DB) < schema/sqlite/properties.schema
 	$(SQLITE3) $(DELIVERIES_DB) < schema/sqlite/deliveries.schema
 
-db-mysql:
-	mysql -u$(MYSQL_USER) -p activitypub < schema/mysql/activitypub.schema
+local-tables:
+	@make local-tables-$(DATABASE)
 
-DELIVERY_QUEUE_URI=synchronous://
+local-setup:
+	@make local-tables
+	@make local-accounts
+	@make local-server
 
 deliver-pubsub:
 	go run cmd/deliver-activity/main.go \
@@ -343,35 +366,17 @@ local-server:
 		-insecure
 
 list-activities:
-	go run cmd/list-activities/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/list-activities/main.go \
 		-activities-database-uri '$(ACTIVITIES_DB_URI)' \
 		-verbose
 
 list-deliveries:
-	go run cmd/list-deliveries/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/list-deliveries/main.go \
 		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
 		-verbose
 
 retrieve:
-	go run cmd/retrieve-actor/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/retrieve-actor/main.go \
 		-address $(ADDRESS) \
 		-verbose \
 		-insecure
-
-# TO DO: CONFIGURE BASED ON $(DATABASE)
-local-tables:
-	go run -mod vendor cmd/create-dynamodb-tables/main.go \
-		-refresh \
-		-table-prefix '$(TABLE_PREFIX)' \
-		-dynamodb-client-uri 'awsdynamodb://?region=localhost&credentials=anon:&local=true'
-
-local-setup:
-	@make local-tables
-	@make local-accounts
-	@make local-server
-
-# I haven't been able to get this to work yet...
-# https://dev.mysql.com/doc/mysql-installation-excerpt/8.3/en/docker-mysql-getting-started.html#docker-starting-mysql-server
-
-mysql-local:
-	docker run --rm -it -p3306:3306 container-registry.oracle.com/mysql/community-server:latest
