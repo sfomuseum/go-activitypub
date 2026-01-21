@@ -6,7 +6,12 @@ import (
 	"fmt"
 	_ "log/slog"
 	"net/url"
+	"strings"
+
+	"github.com/aaronland/gocloud/runtimevar"
 )
+
+const CREDENTIALS string = "{credentials}"
 
 type ConfigureDatabaseOptions struct {
 	CreateTablesIfNecessary bool
@@ -56,6 +61,22 @@ func OpenWithURI(ctx context.Context, db_uri string) (*sql.DB, error) {
 		return nil, fmt.Errorf("Missing DSN string")
 	}
 
+	if strings.Contains(dsn, CREDENTIALS){
+
+		if !q.Has("credentials-uri"){
+			return nil, fmt.Errorf("URI is missing ?credentials-uri= parameter")
+		}
+		
+		creds_uri := q.Get("credentials-uri")
+		creds, err := runtimevar.StringVar(ctx, creds_uri)
+
+		if err != nil {
+			return nil, fmt.Errorf("Failed to derive credentials from URI, %w", err)
+		}
+
+		dsn = strings.Replace(dsn, CREDENTIALS, creds, 1)
+	}
+	
 	db, err := sql.Open(engine, dsn)
 
 	if err != nil {
