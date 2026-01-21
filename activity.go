@@ -26,7 +26,7 @@ type Activity struct {
 	// A unique 64-bit ID for the activity
 	Id int64 `json:"id"`
 	// The unique ID associated with the ActivityPub Activity (Body)
-	ActivityPubId string `json:"activity_id"`
+	ActivityPubId string `json:"activitypub_id"`
 	// The unique 64-bit ID for account associated with the activity
 	AccountId int64 `json:"id"`
 	// A valid object type (as in an ActivityPub object) supported by this package
