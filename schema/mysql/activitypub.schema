@@ -108,7 +108,7 @@ CREATE TABLE `properties` (
     `account_id`  BIGINT UNSIGNED NOT NULL,
     `property_key`  VARCHAR(255) NOT NULL,
     `property_value` VARCHAR(255) NOT NULL,
-    `created`     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created`     BIGINT(20) NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `properties_by_key` (`account_id`, `property_key`),
     INDEX `properties_by_account` (`account_id`, `created`),
