@@ -148,3 +148,19 @@ CREATE TABLE `deliveries` (
     INDEX `deliveries_by_recipient` (`recipient`, `created`),
     INDEX `deliveries_by_created` (`created`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS `activities`;
+
+CREATE TABLE activities (
+       `id` BIGINT(20) UNSIGNED NOT NULL PRIMARY KEY,
+       `account_id` BIGINT(20) UNSIGNED NOT NULL,
+       `activitypub_id` VARCHAR(255) NOT NULL,
+       `activity_type` TINYINT UNSIGNED NOT NULL,
+       `activity_type_id` BIGINT(20) UNSIGNED NOT NULL,       
+       `body` JSON,
+       `created` BIGINT(20) UNSIGNED NOT NULL,
+       UNIQUE KEY `activities_by_activitypub_id` (`activitypub_id`),
+       UNIQUE KEY `activities_by_account_id` (`account_id`),
+       UNIQUE KEY `activities_by_activity_type_and_id` (`activity_type`,`activity_type_id`),
+       INDEX `activities_by_created` (`created`)
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
