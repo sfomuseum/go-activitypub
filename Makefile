@@ -1,6 +1,8 @@
 GOMOD=$(shell test -f "go.work" && echo "readonly" || echo "vendor")
 LDFLAGS=-s -w
 
+TAGS=null
+
 cli:
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/add-account cmd/add-account/main.go
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/add-aliases cmd/add-aliases/main.go
@@ -83,12 +85,12 @@ MESSAGES_SQLITE_URI=sql://sqlite3?dsn=file:$(MESSAGES_SQLITE_DB)%3Fcache%3Dshare
 DELIVERIES_SQLITE_URI=sql://sqlite3?dsn=file:$(DELIVERIES_SQLITE_DB)%3Fcache%3Dshared
 BOOSTS_SQLITE_URI=sql://sqlite3?dsn=file:$(BOOSTS_SQLITE_DB)%3Fcache%3Dshared
 LIKES_SQLITE_URI=sql://sqlite3?dsn=file:$(LIKES_SQLITE_DB)%3Fcache%3Dshared
-PROPERTIES_SQLITE_URI=sql://sqlite3?dsn=file:$(PROPERTIES_SQLITE_DB)%3Fcache%3Dshared
+PROPERTIES_SQLITE_URI=sql://sqlite3?dsn=file:$(PROPERTIES_SQLITE_DB)cache%3Dshared
 
 # constant://?val=user:password
 MYSQL_CREDENTIALS=constant%3A%2F%2F%3Fval%3Duser%3Apassword
 MYSQL_DSN={credentials}@/activitypub
-MYSQL_URI="sql://mysql?dsn=$(MYSQL_DSN)&credentials=$(MYSQL_CREDENTIALS)"
+MYSQL_URI=sql://mysql?dsn=$(MYSQL_DSN)&credentials-uri=$(MYSQL_CREDENTIALS)
 
 ACCOUNTS_MYSQL_URI=$(MYSQL_URI)
 ALIASES_MYSQL_URI=$(MYSQL_URI)
@@ -120,22 +122,23 @@ POST_TAGS_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)post_tags?partition_key=Id&a
 POSTS_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)posts?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
 PROPERTIES_DYNAMODB_URI=awsdynamodb://$(TABLE_PREFIX)properties?partition_key=Id&allow_scans=true&local=true&region=localhost&credentials=anon:
 
-DATABASE=DYNAMODB
+DATABASE=mysql
+DATABASE_UPPER=$(shell echo $(DATABASE) | tr '[:lower:]' '[:upper:]')
 
-ACCOUNTS_DB_URI=$(ACCOUNTS_$(DATABASE)_URI)
-ACTIVITIES_DB_URI=$(ACTIVITIES_$(DATABASE)_URI)
-ALIASES_DB_URI=$(ALIASES_$(DATABASE)_URI)
-BLOCKS_DB_URI=$(BLOCKS_$(DATABASE)_URI)
-BOOSTS_DB_URI=$(BOOSTS_$(DATABASE)_URI)
-DELIVERIES_DB_URI=$(DELIVERIES_$(DATABASE)_URI)
-FOLLOWING_DB_URI=$(FOLLOWING_$(DATABASE)_URI)
-FOLLOWERS_DB_URI=$(FOLLOWERS_$(DATABASE)_URI)
-LIKES_DB_URI=$(LIKES_$(DATABASE)_URI)
-NOTES_DB_URI=$(NOTES_$(DATABASE)_URI)
-MESSAGES_DB_URI=$(MESSAGES_$(DATABASE)_URI)
-POST_TAGS_DB_URI=$(POST_TAGS_$(DATABASE)_URI)
-POSTS_DB_URI=$(POSTS_$(DATABASE)_URI)
-PROPERTIES_DB_URI=$(PROPERTIES_$(DATABASE)_URI)
+ACCOUNTS_DB_URI=$(ACCOUNTS_$(DATABASE_UPPER)_URI)
+ACTIVITIES_DB_URI=$(ACTIVITIES_$(DATABASE_UPPER)_URI)
+ALIASES_DB_URI=$(ALIASES_$(DATABASE_UPPER)_URI)
+BLOCKS_DB_URI=$(BLOCKS_$(DATABASE_UPPER)_URI)
+BOOSTS_DB_URI=$(BOOSTS_$(DATABASE_UPPER)_URI)
+DELIVERIES_DB_URI=$(DELIVERIES_$(DATABASE_UPPER)_URI)
+FOLLOWING_DB_URI=$(FOLLOWING_$(DATABASE_UPPER)_URI)
+FOLLOWERS_DB_URI=$(FOLLOWERS_$(DATABASE_UPPER)_URI)
+LIKES_DB_URI=$(LIKES_$(DATABASE_UPPER)_URI)
+NOTES_DB_URI=$(NOTES_$(DATABASE_UPPER)_URI)
+MESSAGES_DB_URI=$(MESSAGES_$(DATABASE_UPPER)_URI)
+POST_TAGS_DB_URI=$(POST_TAGS_$(DATABASE_UPPER)_URI)
+POSTS_DB_URI=$(POSTS_$(DATABASE_UPPER)_URI)
+PROPERTIES_DB_URI=$(PROPERTIES_$(DATABASE_UPPER)_URI)
 
 db-sqlite:
 	rm -f *.db
@@ -153,6 +156,9 @@ db-sqlite:
 	$(SQLITE3) $(PROPERTIES_DB) < schema/sqlite/properties.schema
 	$(SQLITE3) $(DELIVERIES_DB) < schema/sqlite/deliveries.schema
 
+db-mysql:
+	mysql -u$(MYSQL_USER) -p activitypub < schema/mysql/activitypub.schema
+
 DELIVERY_QUEUE_URI=synchronous://
 
 deliver-pubsub:
@@ -169,7 +175,7 @@ deliver-pubsub:
 		-verbose
 
 local-accounts:
-	go run cmd/add-account/main.go \
+	go run -tags $(TAGS) cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
 		-properties-database-uri '$(PROPERTIES_DB_URI)' \
@@ -179,7 +185,7 @@ local-accounts:
 		-account-icon-uri fixtures/icons/bob.jpg \
 		-property 'url:www=https://bob.com' \
 		-embed-icon-uri
-	go run cmd/add-account/main.go \
+	go run -tags $(TAGS) cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
 		-properties-database-uri '$(PROPERTIES_DB_URI)' \
@@ -187,7 +193,7 @@ local-accounts:
 		-alias doug \
 		-property 'url:www=https://bob.com/doug' \
 		-account-type Service
-	go run cmd/add-account/main.go \
+	go run -tags $(TAGS) cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
 		-properties-database-uri '$(PROPERTIES_DB_URI)' \
@@ -201,7 +207,7 @@ local-accounts:
 # Bob wants to follow Alice
 
 follow:
-	go run cmd/follow/main.go \
+	go run -tags $(TAGS) cmd/follow/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-following-database-uri '$(FOLLOWING_DB_URI)' \
 		-messages-database-uri '$(MESSAGES_DB_URI)' \
@@ -214,7 +220,7 @@ follow:
 # Bob wants to unfollow Alice
 
 unfollow:
-	go run cmd/follow/main.go \
+	go run -tags $(TAGS) cmd/follow/main.go  \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-following-database-uri '$(FOLLOWING_DB_URI)' \
 		-messages-database-uri '$(MESSAGES_DB_URI)' \
