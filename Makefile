@@ -175,7 +175,7 @@ deliver-pubsub:
 		-verbose
 
 local-accounts:
-	go run -tags $(TAGS) cmd/add-account/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
 		-properties-database-uri '$(PROPERTIES_DB_URI)' \
@@ -185,7 +185,7 @@ local-accounts:
 		-account-icon-uri fixtures/icons/bob.jpg \
 		-property 'url:www=https://bob.com' \
 		-embed-icon-uri
-	go run -tags $(TAGS) cmd/add-account/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
 		-properties-database-uri '$(PROPERTIES_DB_URI)' \
@@ -193,7 +193,7 @@ local-accounts:
 		-alias doug \
 		-property 'url:www=https://bob.com/doug' \
 		-account-type Service
-	go run -tags $(TAGS) cmd/add-account/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/add-account/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
 		-properties-database-uri '$(PROPERTIES_DB_URI)' \
@@ -207,7 +207,7 @@ local-accounts:
 # Bob wants to follow Alice
 
 follow:
-	go run -tags $(TAGS) cmd/follow/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/follow/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-following-database-uri '$(FOLLOWING_DB_URI)' \
 		-messages-database-uri '$(MESSAGES_DB_URI)' \
@@ -220,7 +220,7 @@ follow:
 # Bob wants to unfollow Alice
 
 unfollow:
-	go run -tags $(TAGS) cmd/follow/main.go  \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/follow/main.go  \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-following-database-uri '$(FOLLOWING_DB_URI)' \
 		-messages-database-uri '$(MESSAGES_DB_URI)' \
@@ -232,7 +232,7 @@ unfollow:
 		-undo
 
 block:
-	go run cmd/block/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/block/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-account-name bob \
@@ -240,7 +240,7 @@ block:
 		-verbose
 
 unblock:
-	go run cmd/block/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/block/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-blocks-database-uri '$(BLOCKS_DB_URI)' \
 		-account-name bob \
@@ -251,7 +251,7 @@ unblock:
 # Alice wants to post something (to Bob, if Bob is following Alice)
 
 post:
-	go run cmd/create-post/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/create-post/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-activities-database-uri '$(ACTIVITIES_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
@@ -266,7 +266,7 @@ post:
 		-verbose
 
 boost-note:
-	go run cmd/boost-note/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/boost-note/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-activities-database-uri '$(ACTIVITIES_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
@@ -279,7 +279,7 @@ boost-note:
 		-verbose
 
 list-boosts:
-	go run cmd/list-boosts/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/list-boosts/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-boosts-database-uri '$(BOOSTS_DB_URI)' \
 		-account-name $(ACCOUNT) \
@@ -290,7 +290,7 @@ list-boosts:
 # -mention $(MENTION) \
 
 reply:
-	go run cmd/create-post/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/create-post/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
 		-posts-database-uri '$(POSTS_DB_URI)' \
@@ -304,13 +304,13 @@ reply:
 		-verbose
 
 delivery:
-	go run cmd/retrieve-delivery/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/retrieve-delivery/main.go \
 		-deliveries-database-uri '$(DELIVERIES_DB_URI)' \
 		-delivery-id $(ID) \
 		-verbose
 
 list-inbox:
-	go run cmd/inbox/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/inbox/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-messages-database-uri '$(MESSAGES_DB_URI)' \
 		-notes-database-uri '$(NOTES_DB_URI)' \
@@ -321,7 +321,7 @@ SERVER_DISABLED=false
 SERVER_VERBOSE=true
 
 local-server:
-	go run -mod $(GOMOD) -tags sqlite cmd/server/main.go \
+	go run -mod $(GOMOD) -tags $(TAGS) cmd/server/main.go \
 		-accounts-database-uri '$(ACCOUNTS_DB_URI)' \
 		-aliases-database-uri '$(ALIASES_DB_URI)' \
 		-followers-database-uri '$(FOLLOWERS_DB_URI)' \
@@ -358,6 +358,7 @@ retrieve:
 		-verbose \
 		-insecure
 
+# TO DO: CONFIGURE BASED ON $(DATABASE)
 local-tables:
 	go run -mod vendor cmd/create-dynamodb-tables/main.go \
 		-refresh \
