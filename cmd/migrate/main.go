@@ -26,7 +26,7 @@ func main() {
 		log.Fatalf("Failed to create from database, %v", err)
 	}
 
-	defer from_db.Close()
+	defer from_db.Close(ctx)
 
 	to_db, err := database.NewAccountsDatabase(ctx, to_database_uri)
 
@@ -34,9 +34,9 @@ func main() {
 		log.Fatalf("Failed to create to database, %v", err)
 	}
 
-	defer to_db.Close()
+	defer to_db.Close(ctx)
 
-	cb := func(ctx context.Background, acct *activitypub.Account) {
+	cb := func(ctx context.Context, acct *activitypub.Account) error {
 		return to_db.AddAccount(ctx, acct)
 	}
 
