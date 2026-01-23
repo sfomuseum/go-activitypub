@@ -9,11 +9,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aaronland/go-http/v4/wellknown/webfinger"
 	"github.com/aaronland/gocloud/runtimevar"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/crypto"
 	"github.com/sfomuseum/go-activitypub/uris"
-	"github.com/aaronland/go-http/v4/wellknown/webfinger"
 )
 
 // AccountType denotes the ActivityPub account type

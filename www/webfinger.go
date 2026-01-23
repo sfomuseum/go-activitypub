@@ -7,7 +7,7 @@ import (
 
 	"github.com/aaronland/go-http/v4/sanitize"
 	"github.com/aaronland/go-http/v4/slog"
-	"github.com/aaronland/go-http/v4/wellknown/webfinger"	
+	"github.com/aaronland/go-http/v4/wellknown/webfinger"
 	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/ap"
 	"github.com/sfomuseum/go-activitypub/database"

@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/sfomuseum/go-activitypub/crypto"
 	"github.com/aaronland/go-http/v4/wellknown/webfinger"
+	"github.com/sfomuseum/go-activitypub/crypto"
 )
 
 // https://www.w3.org/TR/activitystreams-vocabulary/#actor-types
