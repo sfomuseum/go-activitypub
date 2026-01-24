@@ -36,7 +36,7 @@ func main() {
 	from_ctx, from_cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer from_cancel()
 
-	from_db, err := database.NewAccountsDatabase(from_ctx, from_database_uri)
+	from_db, err := database.NewPostsDatabase(from_ctx, from_database_uri)
 
 	if err != nil {
 		log.Fatalf("Failed to create from database, %v", err)
@@ -49,7 +49,7 @@ func main() {
 	to_ctx, to_cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer to_cancel()
 
-	to_db, err := database.NewAccountsDatabase(to_ctx, to_database_uri)
+	to_db, err := database.NewPostsDatabase(to_ctx, to_database_uri)
 
 	if err != nil {
 		log.Fatalf("Failed to create to database, %v", err)
@@ -77,15 +77,15 @@ func main() {
 		}
 	}()
 
-	cb := func(ctx context.Context, acct *activitypub.Account) error {
+	cb := func(ctx context.Context, acct *activitypub.Post) error {
 
 		defer atomic.AddInt64(&count, 1)
 
-		slog.Debug("Add", "account", acct.Id)
-		err := to_db.AddAccount(ctx, acct)
+		slog.Debug("Add", "Post", acct.Id)
+		err := to_db.AddPost(ctx, acct)
 
 		if err != nil {
-			slog.Error("Failed to add account", "account", acct.Id, "error", err)
+			slog.Error("Failed to add Post", "Post", acct.Id, "error", err)
 			atomic.AddInt64(&errors, 1)
 		} else {
 			atomic.AddInt64(&success, 1)			
@@ -94,11 +94,11 @@ func main() {
 		return nil
 	}
 
-	slog.Debug("Retrieve accounts")
-	err = from_db.GetAccounts(ctx, cb)
+	slog.Debug("Retrieve post")
+	err = from_db.GetPosts(ctx, cb)
 
 	if err != nil {
-		log.Fatalf("Failed to get accounts, %v", err)
+		log.Fatalf("Failed to get posts, %v", err)
 	}
 
 	done_ch <- true
