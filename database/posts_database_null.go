@@ -42,6 +42,10 @@ func (db *NullPostsDatabase) GetPostWithId(ctx context.Context, id int64) (*acti
 	return nil, activitypub.ErrNotFound
 }
 
+func (db *NullPostsDatabase) GetPosts(ctx context.Context, cb GetPostsCallbackFunc) error {
+	return nil
+}
+
 func (db *NullPostsDatabase) Close(ctx context.Context) error {
 	return nil
 }

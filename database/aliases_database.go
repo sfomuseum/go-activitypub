@@ -3,9 +3,12 @@ package database
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"sort"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"github.com/aaronland/go-roster"
 	"github.com/sfomuseum/go-activitypub"
@@ -18,6 +21,7 @@ type AliasesDatabase interface {
 	GetAliasWithName(context.Context, string) (*activitypub.Alias, error)
 	AddAlias(context.Context, *activitypub.Alias) error
 	RemoveAlias(context.Context, *activitypub.Alias) error
+	GetAliases(context.Context, GetAliasesCallbackFunc) error
 	Close(context.Context) error
 }
 
@@ -99,4 +103,56 @@ func AliasesDatabaseSchemes() []string {
 
 	sort.Strings(schemes)
 	return schemes
+}
+
+func MigrateAliasesDatabaseFromURIs(ctx context.Context, from_uri string, to_uri string, count *int64, success *int64, errors *int64) error {
+
+	from_ctx, from_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer from_cancel()
+
+	from_db, err := NewAliasesDatabase(from_ctx, from_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create from database, %w", err)
+	}
+
+	defer from_db.Close(ctx)
+
+	slog.Debug("Set up to database")
+
+	to_ctx, to_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer to_cancel()
+
+	to_db, err := NewAliasesDatabase(to_ctx, to_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create to database, %w", err)
+	}
+
+	defer to_db.Close(ctx)
+
+	return MigrateAliasesDatabase(ctx, from_db, to_db, count, success, errors)
+}
+
+func MigrateAliasesDatabase(ctx context.Context, from_db AliasesDatabase, to_db AliasesDatabase, count *int64, success *int64, errors *int64) error {
+
+	cb := func(ctx context.Context, a *activitypub.Alias) error {
+
+		defer atomic.AddInt64(count, 1)
+
+		slog.Debug("Add", "alias", a.Name)
+		err := to_db.AddAlias(ctx, a)
+
+		if err != nil {
+			slog.Error("Failed to add alias", "alias", a.Name, "error", err)
+			atomic.AddInt64(errors, 1)
+		} else {
+			atomic.AddInt64(success, 1)
+		}
+
+		return nil
+	}
+
+	slog.Debug("Retrieve aliases")
+	return from_db.GetAliases(ctx, cb)
 }

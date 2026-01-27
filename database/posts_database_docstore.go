@@ -87,6 +87,35 @@ func (db *DocstorePostsDatabase) UpdatePost(ctx context.Context, p *activitypub.
 	return db.collection.Replace(ctx, p)
 }
 
+func (db *DocstorePostsDatabase) GetPosts(ctx context.Context, cb GetPostsCallbackFunc) error {
+
+	q := db.collection.Query()
+
+	iter := q.Get(ctx)
+	defer iter.Stop()
+
+	for {
+
+		var p activitypub.Post
+		err := iter.Next(ctx, &p)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+
+			err := cb(ctx, &p)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for post %d, %w", p.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstorePostsDatabase) GetPostWithId(ctx context.Context, id int64) (*activitypub.Post, error) {
 
 	q := db.collection.Query()

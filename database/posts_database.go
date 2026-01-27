@@ -3,14 +3,18 @@ package database
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"sort"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"github.com/aaronland/go-roster"
 	"github.com/sfomuseum/go-activitypub"
 )
 
+type GetPostsCallbackFunc func(context.Context, *activitypub.Post) error
 type GetPostIdsCallbackFunc func(context.Context, int64) error
 
 type PostsDatabase interface {
@@ -19,6 +23,7 @@ type PostsDatabase interface {
 	AddPost(context.Context, *activitypub.Post) error
 	RemovePost(context.Context, *activitypub.Post) error
 	UpdatePost(context.Context, *activitypub.Post) error
+	GetPosts(context.Context, GetPostsCallbackFunc) error
 	Close(context.Context) error
 }
 
@@ -100,4 +105,56 @@ func PostsDatabaseSchemes() []string {
 
 	sort.Strings(schemes)
 	return schemes
+}
+
+func MigratePostsDatabaseFromURIs(ctx context.Context, from_uri string, to_uri string, count *int64, success *int64, errors *int64) error {
+
+	from_ctx, from_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer from_cancel()
+
+	from_db, err := NewPostsDatabase(from_ctx, from_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create from database, %w", err)
+	}
+
+	defer from_db.Close(ctx)
+
+	slog.Debug("Set up to database")
+
+	to_ctx, to_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer to_cancel()
+
+	to_db, err := NewPostsDatabase(to_ctx, to_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create to database, %w", err)
+	}
+
+	defer to_db.Close(ctx)
+
+	return MigratePostsDatabase(ctx, from_db, to_db, count, success, errors)
+}
+
+func MigratePostsDatabase(ctx context.Context, from_db PostsDatabase, to_db PostsDatabase, count *int64, success *int64, errors *int64) error {
+
+	cb := func(ctx context.Context, a *activitypub.Post) error {
+
+		defer atomic.AddInt64(count, 1)
+
+		slog.Debug("Add", "post", a.Id)
+		err := to_db.AddPost(ctx, a)
+
+		if err != nil {
+			slog.Error("Failed to add post", "post", a.Id, "error", err)
+			atomic.AddInt64(errors, 1)
+		} else {
+			atomic.AddInt64(success, 1)
+		}
+
+		return nil
+	}
+
+	slog.Debug("Retrieve posts")
+	return from_db.GetPosts(ctx, cb)
 }
