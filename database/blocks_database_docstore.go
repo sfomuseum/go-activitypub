@@ -49,6 +49,34 @@ func NewDocstoreBlocksDatabase(ctx context.Context, uri string) (BlocksDatabase,
 	return db, nil
 }
 
+func (db *DocstoreBlocksDatabase) GetBlocks(ctx context.Context, cb GetBlocksCallbackFunc) error {
+
+	q := db.collection.Query()
+	iter := q.Get(ctx)
+
+	defer iter.Stop()
+
+	for {
+
+		var b activitypub.Block
+		err := iter.Next(ctx, &b)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			err := cb(ctx, &b)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for block %d, %w", b.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreBlocksDatabase) GetBlockIdsForDateRange(ctx context.Context, start int64, end int64, cb GetBlockIdsCallbackFunc) error {
 
 	q := db.collection.Query()

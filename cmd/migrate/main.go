@@ -77,6 +77,14 @@ func main() {
 			log.Fatalf("Failed to migrate database, %v", err)
 		}
 
+	case "blocks":
+
+		err := database.MigrateBlocksDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
+
+		if err != nil {
+			log.Fatalf("Failed to migrate blocks database, %v", err)
+		}
+		
 	case "post":
 
 		err := database.MigratePostsDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)

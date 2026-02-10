@@ -42,6 +42,71 @@ func NewSQLBlocksDatabase(ctx context.Context, uri string) (BlocksDatabase, erro
 	return db, nil
 }
 
+func (db *SQLBlocksDatabase) GetBlocks(ctx context.Context, cb GetBlocksCallbackFunc) error {
+
+	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
+
+		rows := pg_rsp.Rows()
+
+		for rows.Next() {
+
+			var id int64
+			var account_id int64
+			var name string
+			var host string
+			var created int64
+			var lastmod int64
+
+			err := rows.Scan(&id, &account_id, &name, &host, &created, &lastmod)
+
+			if err != nil {
+				return fmt.Errorf("Failed to query database, %w", err)
+			}
+
+			b := &activitypub.Block{
+				Id:           id,
+				AccountId:    account_id,
+				Name:         name,
+				Host:         host,
+				Created:      created,
+				LastModified: lastmod,
+			}
+
+			err = cb(ctx, b)
+
+			if err != nil {
+				return fmt.Errorf("Failed to execute following callback for block %d, %w", id, err)
+			}
+
+			return nil
+		}
+
+		err := rows.Close()
+
+		if err != nil {
+			return fmt.Errorf("Failed to iterate through database rows, %w", err)
+		}
+
+		return nil
+	}
+
+	pg_opts, err := countable.NewCountableOptions()
+
+	if err != nil {
+		return fmt.Errorf("Failed to create pagination options, %w", err)
+	}
+
+	q := fmt.Sprintf("SELECT id, account_id, name, host, created, lastmodified FROM %s", SQL_BLOCKS_TABLE_NAME)
+
+	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q)
+
+	if err != nil {
+		return fmt.Errorf("Failed to execute paginated query, %w", err)
+	}
+
+	return nil
+}
+
 func (db *SQLBlocksDatabase) GetBlockIdsForDateRange(ctx context.Context, start int64, end int64, cb GetBlockIdsCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {

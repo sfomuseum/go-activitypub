@@ -3,9 +3,12 @@ package database
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"sort"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"github.com/aaronland/go-roster"
 	"github.com/sfomuseum/go-activitypub"
@@ -15,6 +18,7 @@ type GetBlockIdsCallbackFunc func(context.Context, int64) error
 type GetBlocksCallbackFunc func(context.Context, *activitypub.Block) error
 
 type BlocksDatabase interface {
+	GetBlocks(context.Context, GetBlocksCallbackFunc) error
 	GetBlockIdsForDateRange(context.Context, int64, int64, GetBlockIdsCallbackFunc) error
 	GetBlockWithAccountIdAndAddress(context.Context, int64, string, string) (*activitypub.Block, error)
 	GetBlockWithId(context.Context, int64) (*activitypub.Block, error)
@@ -101,4 +105,56 @@ func BlocksDatabaseSchemes() []string {
 
 	sort.Strings(schemes)
 	return schemes
+}
+
+func MigrateBlocksDatabaseFromURIs(ctx context.Context, from_uri string, to_uri string, count *int64, success *int64, errors *int64) error {
+
+	from_ctx, from_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer from_cancel()
+
+	from_db, err := NewBlocksDatabase(from_ctx, from_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create from database, %w", err)
+	}
+
+	defer from_db.Close(ctx)
+
+	slog.Debug("Set up to database")
+
+	to_ctx, to_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer to_cancel()
+
+	to_db, err := NewBlocksDatabase(to_ctx, to_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create to database, %w", err)
+	}
+
+	defer to_db.Close(ctx)
+
+	return MigrateBlocksDatabase(ctx, from_db, to_db, count, success, errors)
+}
+
+func MigrateBlocksDatabase(ctx context.Context, from_db BlocksDatabase, to_db BlocksDatabase, count *int64, success *int64, errors *int64) error {
+
+	cb := func(ctx context.Context, b *activitypub.Block) error {
+
+		defer atomic.AddInt64(count, 1)
+
+		slog.Debug("Add", "block", b.Id)
+		err := to_db.AddBlock(ctx, b)
+
+		if err != nil {
+			slog.Error("Failed to add block", "block", b.Id, "error", err)
+			atomic.AddInt64(errors, 1)
+		} else {
+			atomic.AddInt64(success, 1)
+		}
+
+		return nil
+	}
+
+	slog.Debug("Retrieve blocks")
+	return from_db.GetBlocks(ctx, cb)
 }
