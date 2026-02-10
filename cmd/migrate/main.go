@@ -117,7 +117,7 @@ func main() {
 			log.Fatalf("Failed to migrate following database, %v", err)
 		}
 
-	case "like":
+	case "likes":
 
 		err := database.MigrateLikesDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
 
@@ -125,7 +125,15 @@ func main() {
 			log.Fatalf("Failed to migrate likes database, %v", err)
 		}
 
-	case "post":
+	case "messages":
+
+		err := database.MigrateMessagesDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
+
+		if err != nil {
+			log.Fatalf("Failed to migrate messages database, %v", err)
+		}
+
+	case "posts":
 
 		err := database.MigratePostsDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
 

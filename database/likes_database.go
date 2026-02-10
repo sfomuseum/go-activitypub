@@ -3,13 +3,13 @@ package database
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"sort"
 	"strings"
-	"time"
-	"log/slog"
 	"sync/atomic"
-	
+	"time"
+
 	"github.com/aaronland/go-roster"
 	"github.com/sfomuseum/go-activitypub"
 )

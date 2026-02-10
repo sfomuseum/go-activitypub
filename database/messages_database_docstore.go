@@ -49,6 +49,33 @@ func NewDocstoreMessagesDatabase(ctx context.Context, uri string) (MessagesDatab
 	return db, nil
 }
 
+func (db *DocstoreMessagesDatabase) GetMessagesAll(ctx context.Context, cb GetMessagesCallbackFunc) error {
+
+	q := db.collection.Query()
+	iter := q.Get(ctx)
+	defer iter.Stop()
+
+	for {
+
+		var m activitypub.Message
+		err := iter.Next(ctx, &m)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			err := cb(ctx, &m)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for message %d, %w", m.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreMessagesDatabase) GetMessageIdsForDateRange(ctx context.Context, start int64, end int64, cb GetMessageIdsCallbackFunc) error {
 
 	q := db.collection.Query()

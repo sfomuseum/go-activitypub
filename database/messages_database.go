@@ -3,9 +3,12 @@ package database
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"sort"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"github.com/aaronland/go-roster"
 	"github.com/sfomuseum/go-activitypub"
@@ -15,6 +18,7 @@ type GetMessageIdsCallbackFunc func(context.Context, int64) error
 type GetMessagesCallbackFunc func(context.Context, *activitypub.Message) error
 
 type MessagesDatabase interface {
+	GetMessagesAll(context.Context, GetMessagesCallbackFunc) error
 	GetMessageIdsForDateRange(context.Context, int64, int64, GetMessageIdsCallbackFunc) error
 	GetMessagesForAccount(context.Context, int64, GetMessagesCallbackFunc) error
 	GetMessagesForAccountAndAuthor(context.Context, int64, string, GetMessagesCallbackFunc) error
@@ -104,4 +108,56 @@ func MessagesDatabaseSchemes() []string {
 
 	sort.Strings(schemes)
 	return schemes
+}
+
+func MigrateMessagesDatabaseFromURIs(ctx context.Context, from_uri string, to_uri string, count *int64, success *int64, errors *int64) error {
+
+	from_ctx, from_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer from_cancel()
+
+	from_db, err := NewMessagesDatabase(from_ctx, from_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create from database, %w", err)
+	}
+
+	defer from_db.Close(ctx)
+
+	slog.Debug("Set up to database")
+
+	to_ctx, to_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer to_cancel()
+
+	to_db, err := NewMessagesDatabase(to_ctx, to_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create to database, %w", err)
+	}
+
+	defer to_db.Close(ctx)
+
+	return MigrateMessagesDatabase(ctx, from_db, to_db, count, success, errors)
+}
+
+func MigrateMessagesDatabase(ctx context.Context, from_db MessagesDatabase, to_db MessagesDatabase, count *int64, success *int64, errors *int64) error {
+
+	cb := func(ctx context.Context, l *activitypub.Message) error {
+
+		defer atomic.AddInt64(count, 1)
+
+		slog.Debug("Add", "message", l.Id)
+		err := to_db.AddMessage(ctx, l)
+
+		if err != nil {
+			slog.Error("Failed to add messages", "message", l.Id, "error", err)
+			atomic.AddInt64(errors, 1)
+		} else {
+			atomic.AddInt64(success, 1)
+		}
+
+		return nil
+	}
+
+	slog.Debug("Retrieve messages")
+	return from_db.GetMessagesAll(ctx, cb)
 }

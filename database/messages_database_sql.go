@@ -42,6 +42,71 @@ func NewSQLMessagesDatabase(ctx context.Context, uri string) (MessagesDatabase, 
 	return db, nil
 }
 
+func (db *SQLMessagesDatabase) GetMessagesAll(ctx context.Context, cb GetMessagesCallbackFunc) error {
+
+	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
+
+		rows := pg_rsp.Rows()
+
+		for rows.Next() {
+
+			var id int64
+			var note_id int64
+			var author_uri string
+			var account_id int64
+			var created int64
+			var lastmodified int64
+
+			err := rows.Scan(&id, &note_id, &author_uri, &account_id, &created, &lastmodified)
+
+			if err != nil {
+				return fmt.Errorf("Failed to query database, %w", err)
+			}
+
+			m := &activitypub.Message{
+				Id:            id,
+				NoteId:        note_id,
+				AuthorAddress: author_uri,
+				AccountId:     account_id,
+				Created:       created,
+				LastModified:  lastmodified,
+			}
+
+			err = cb(ctx, m)
+
+			if err != nil {
+				return fmt.Errorf("Failed to execute following callback for message %d, %w", id, err)
+			}
+
+			return nil
+		}
+
+		err := rows.Close()
+
+		if err != nil {
+			return fmt.Errorf("Failed to iterate through database rows, %w", err)
+		}
+
+		return nil
+	}
+
+	pg_opts, err := countable.NewCountableOptions()
+
+	if err != nil {
+		return fmt.Errorf("Failed to create pagination options, %w", err)
+	}
+
+	q := fmt.Sprintf("SELECT id, note_id, author_address, account_id, created, lastmodified FROM %s", SQL_MESSAGES_TABLE_NAME)
+
+	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q)
+
+	if err != nil {
+		return fmt.Errorf("Failed to execute paginated query, %w", err)
+	}
+
+	return nil
+}
+
 func (db *SQLMessagesDatabase) GetMessageIdsForDateRange(ctx context.Context, start int64, end int64, cb GetMessageIdsCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {

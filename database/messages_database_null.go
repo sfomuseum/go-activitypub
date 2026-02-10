@@ -27,6 +27,10 @@ func NewNullMessagesDatabase(ctx context.Context, uri string) (MessagesDatabase,
 	return db, nil
 }
 
+func (db *NullMessagesDatabase) GetMessagesAll(ctx context.Context, cb GetMessagesCallbackFunc) error {
+	return nil
+}
+
 func (db *NullMessagesDatabase) GetMessageIdsForDateRange(ctx context.Context, start int64, end int64, cb GetMessageIdsCallbackFunc) error {
 	return nil
 }
