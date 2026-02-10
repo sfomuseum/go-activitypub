@@ -13,6 +13,8 @@ import (
 type Database[T any] interface {
 	Iterate(context.Context) iter.Seq2[T, error]
 	Add(context.Context, T) error
+	Remove(context.Context, T) error
+	Update(context.Context, T) error
 }
 
 func Migrate[T any](ctx context.Context, src Database[T], dst Database[T]) error {

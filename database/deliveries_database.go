@@ -3,9 +3,12 @@ package database
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"sort"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"github.com/aaronland/go-roster"
 	"github.com/sfomuseum/go-activitypub"
@@ -102,4 +105,56 @@ func DeliveriesDatabaseSchemes() []string {
 
 	sort.Strings(schemes)
 	return schemes
+}
+
+func MigrateDeliveriesDatabaseFromURIs(ctx context.Context, from_uri string, to_uri string, count *int64, success *int64, errors *int64) error {
+
+	from_ctx, from_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer from_cancel()
+
+	from_db, err := NewDeliveriesDatabase(from_ctx, from_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create from database, %w", err)
+	}
+
+	defer from_db.Close(ctx)
+
+	slog.Debug("Set up to database")
+
+	to_ctx, to_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer to_cancel()
+
+	to_db, err := NewDeliveriesDatabase(to_ctx, to_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create to database, %w", err)
+	}
+
+	defer to_db.Close(ctx)
+
+	return MigrateDeliveriesDatabase(ctx, from_db, to_db, count, success, errors)
+}
+
+func MigrateDeliveriesDatabase(ctx context.Context, from_db DeliveriesDatabase, to_db DeliveriesDatabase, count *int64, success *int64, errors *int64) error {
+
+	cb := func(ctx context.Context, d *activitypub.Delivery) error {
+
+		defer atomic.AddInt64(count, 1)
+
+		slog.Debug("Add", "delivery", d.Id)
+		err := to_db.AddDelivery(ctx, d)
+
+		if err != nil {
+			slog.Error("Failed to add delivery", "delivery", d.Id, "error", err)
+			atomic.AddInt64(errors, 1)
+		} else {
+			atomic.AddInt64(success, 1)
+		}
+
+		return nil
+	}
+
+	slog.Debug("Retrieve deliveries")
+	return from_db.GetDeliveries(ctx, cb)
 }

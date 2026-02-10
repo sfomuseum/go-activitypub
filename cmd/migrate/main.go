@@ -93,6 +93,22 @@ func main() {
 			log.Fatalf("Failed to migrate boosts database, %v", err)
 		}
 
+	case "deliveries":
+
+		err := database.MigrateDeliveriesDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
+
+		if err != nil {
+			log.Fatalf("Failed to migrate deliveries database, %v", err)
+		}
+
+	case "followers":
+
+		err := database.MigrateFollowersDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
+
+		if err != nil {
+			log.Fatalf("Failed to migrate followers database, %v", err)
+		}
+
 	case "post":
 
 		err := database.MigratePostsDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
