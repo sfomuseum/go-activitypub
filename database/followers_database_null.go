@@ -25,6 +25,10 @@ func NewNullFollowersDatabase(ctx context.Context, uri string) (FollowersDatabas
 	return db, nil
 }
 
+func (db *NullFollowersDatabase) GetFollowers(ctx context.Context, cb GetFollowersCallbackFunc2) error {
+	return nil
+}
+
 func (db *NullFollowersDatabase) GetFollowerIdsForDateRange(ctx context.Context, start int64, end int64, cb GetFollowerIdsCallbackFunc) error {
 	return nil
 }

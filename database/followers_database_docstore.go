@@ -50,6 +50,34 @@ func NewDocstoreFollowersDatabase(ctx context.Context, uri string) (FollowersDat
 	return db, nil
 }
 
+func (db *DocstoreFollowersDatabase) GetFollowers(ctx context.Context, cb GetFollowersCallbackFunc2) error {
+
+	q := db.collection.Query()
+	iter := q.Get(ctx)
+	defer iter.Stop()
+
+	for {
+
+		var f activitypub.Follower
+		err := iter.Next(ctx, &f)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+
+			err := cb(ctx, &f)
+
+			if err != nil {
+				return fmt.Errorf("Failed to execute followers callback for '%s', %w", f.FollowerAddress, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreFollowersDatabase) GetFollowerIdsForDateRange(ctx context.Context, start int64, end int64, cb GetFollowerIdsCallbackFunc) error {
 
 	q := db.collection.Query()

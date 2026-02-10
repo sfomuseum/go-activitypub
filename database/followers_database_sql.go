@@ -42,6 +42,69 @@ func NewSQLFollowersDatabase(ctx context.Context, uri string) (FollowersDatabase
 	return db, nil
 }
 
+func (db *SQLFollowersDatabase) GetFollowers(ctx context.Context, cb GetFollowersCallbackFunc2) error {
+
+	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
+
+		rows := pg_rsp.Rows()
+
+		for rows.Next() {
+
+			var id int64
+			var account_id int64
+			var follower_address string
+			var created int64
+
+			err := rows.Scan(&id, &account_id, &follower_address, &created)
+
+			switch {
+			case err == sql.ErrNoRows:
+				return activitypub.ErrNotFound
+			case err != nil:
+				return fmt.Errorf("Failed to query database, %w", err)
+			default:
+
+				f := &activitypub.Follower{
+					Id:              id,
+					AccountId:       account_id,
+					FollowerAddress: follower_address,
+					Created:         created,
+				}
+
+				err = cb(ctx, f)
+
+				if err != nil {
+					return fmt.Errorf("Failed to execute following callback for follower %d, %w", id, err)
+				}
+			}
+		}
+
+		err := rows.Close()
+
+		if err != nil {
+			return fmt.Errorf("Failed to iterate through database rows, %w", err)
+		}
+
+		return nil
+	}
+
+	pg_opts, err := countable.NewCountableOptions()
+
+	if err != nil {
+		return fmt.Errorf("Failed to create pagination options, %w", err)
+	}
+
+	q := fmt.Sprintf("SELECT id, account_id, follower_address, created FROM %s", SQL_FOLLOWERS_TABLE_NAME)
+
+	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q)
+
+	if err != nil {
+		return fmt.Errorf("Failed to execute paginated query, %w", err)
+	}
+
+	return nil
+}
+
 func (db *SQLFollowersDatabase) GetFollowerWithId(ctx context.Context, follower_id int64) (*activitypub.Follower, error) {
 
 	where := "id = ?"

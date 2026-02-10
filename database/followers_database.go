@@ -16,16 +16,18 @@ import (
 
 type GetFollowerIdsCallbackFunc func(context.Context, int64) error
 type GetFollowersCallbackFunc func(context.Context, string) error
+type GetFollowersCallbackFunc2 func(context.Context, *activitypub.Follower) error
 
 type FollowersDatabase interface {
-	GetFollowerWithId(context.Context, int64) (*activitypub.Follower, error)
-	GetFollowerIdsForDateRange(context.Context, int64, int64, GetFollowerIdsCallbackFunc) error
-	GetAllFollowers(context.Context, GetFollowersCallbackFunc) error
-	GetFollowersForAccount(context.Context, int64, GetFollowersCallbackFunc) error
-	HasFollowers(context.Context, int64) (bool, error)
 	GetFollower(context.Context, int64, string) (*activitypub.Follower, error)
 	AddFollower(context.Context, *activitypub.Follower) error
 	RemoveFollower(context.Context, *activitypub.Follower) error
+	GetFollowers(context.Context, GetFollowersCallbackFunc2) error	// Get all the follower rows
+	GetFollowerWithId(context.Context, int64) (*activitypub.Follower, error)
+	GetFollowerIdsForDateRange(context.Context, int64, int64, GetFollowerIdsCallbackFunc) error
+	GetAllFollowers(context.Context, GetFollowersCallbackFunc) error	// Get all follower addresses (probably deprecated)
+	GetFollowersForAccount(context.Context, int64, GetFollowersCallbackFunc) error
+	HasFollowers(context.Context, int64) (bool, error)
 	Close(context.Context) error
 }
 
@@ -158,5 +160,5 @@ func MigrateFollowersDatabase(ctx context.Context, from_db FollowersDatabase, to
 	}
 
 	slog.Debug("Retrieve followers")
-	return from_db.GetAllFollowers(ctx, cb)
+	return from_db.GetFollowers(ctx, cb)
 }
