@@ -3,9 +3,12 @@ package database
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"sort"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"github.com/aaronland/go-roster"
 	"github.com/sfomuseum/go-activitypub"
@@ -103,4 +106,54 @@ func ActivitiesDatabaseSchemes() []string {
 	return schemes
 }
 
-//  LocalWords:  ActivitiesDatabase
+func MigrateActivitiesDatabaseFromURIs(ctx context.Context, from_uri string, to_uri string, count *int64, success *int64, errors *int64) error {
+
+	from_ctx, from_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer from_cancel()
+
+	from_db, err := NewActivitiesDatabase(from_ctx, from_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create from database, %w", err)
+	}
+
+	defer from_db.Close(ctx)
+
+	slog.Debug("Set up to database")
+
+	to_ctx, to_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer to_cancel()
+
+	to_db, err := NewActivitiesDatabase(to_ctx, to_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create to database, %w", err)
+	}
+
+	defer to_db.Close(ctx)
+
+	return MigrateActivitiesDatabase(ctx, from_db, to_db, count, success, errors)
+}
+
+func MigrateActivitiesDatabase(ctx context.Context, from_db ActivitiesDatabase, to_db ActivitiesDatabase, count *int64, success *int64, errors *int64) error {
+
+	cb := func(ctx context.Context, a *activitypub.Activity) error {
+
+		defer atomic.AddInt64(count, 1)
+
+		slog.Debug("Add", "activity", a.Id)
+		err := to_db.AddActivity(ctx, a)
+
+		if err != nil {
+			slog.Error("Failed to add activity", "activity", a.Id, "error", err)
+			atomic.AddInt64(errors, 1)
+		} else {
+			atomic.AddInt64(success, 1)
+		}
+
+		return nil
+	}
+
+	slog.Debug("Retrieve activitys")
+	return from_db.GetActivities(ctx, cb)
+}

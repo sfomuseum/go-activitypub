@@ -58,10 +58,18 @@ func main() {
 		err := database.MigrateAccountsDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
 
 		if err != nil {
-			log.Fatalf("Failed to migrate database, %v", err)
+			log.Fatalf("Failed to migrate accounts database, %v", err)
 		}
 
 	case "activities":
+
+		err := database.MigrateActivitiesDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
+
+		if err != nil {
+			log.Fatalf("Failed to migrate activities database, %v", err)
+		}
+
+	case "aliases":
 
 		err := database.MigrateAliasesDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
 
