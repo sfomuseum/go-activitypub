@@ -3,9 +3,12 @@ package database
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"sort"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"github.com/aaronland/go-roster"
 	"github.com/sfomuseum/go-activitypub"
@@ -18,6 +21,7 @@ type BoostsDatabase interface {
 	GetBoostIdsForDateRange(context.Context, int64, int64, GetBoostIdsCallbackFunc) error
 	GetBoostsForPost(context.Context, int64, GetBoostsCallbackFunc) error
 	GetBoostsForAccount(context.Context, int64, GetBoostsCallbackFunc) error
+	GetBoosts(context.Context, GetBoostsCallbackFunc) error
 	// GetBoostsForActor(context.Context, string, GetBoostsCallbackFunc) error
 	GetBoostWithPostIdAndActor(context.Context, int64, string) (*activitypub.Boost, error)
 	GetBoostWithId(context.Context, int64) (*activitypub.Boost, error)
@@ -104,4 +108,56 @@ func BoostsDatabaseSchemes() []string {
 
 	sort.Strings(schemes)
 	return schemes
+}
+
+func MigrateBoostsDatabaseFromURIs(ctx context.Context, from_uri string, to_uri string, count *int64, success *int64, errors *int64) error {
+
+	from_ctx, from_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer from_cancel()
+
+	from_db, err := NewBoostsDatabase(from_ctx, from_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create from database, %w", err)
+	}
+
+	defer from_db.Close(ctx)
+
+	slog.Debug("Set up to database")
+
+	to_ctx, to_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer to_cancel()
+
+	to_db, err := NewBoostsDatabase(to_ctx, to_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create to database, %w", err)
+	}
+
+	defer to_db.Close(ctx)
+
+	return MigrateBoostsDatabase(ctx, from_db, to_db, count, success, errors)
+}
+
+func MigrateBoostsDatabase(ctx context.Context, from_db BoostsDatabase, to_db BoostsDatabase, count *int64, success *int64, errors *int64) error {
+
+	cb := func(ctx context.Context, b *activitypub.Boost) error {
+
+		defer atomic.AddInt64(count, 1)
+
+		slog.Debug("Add", "boost", b.Id)
+		err := to_db.AddBoost(ctx, b)
+
+		if err != nil {
+			slog.Error("Failed to add boost", "boost", b.Id, "error", err)
+			atomic.AddInt64(errors, 1)
+		} else {
+			atomic.AddInt64(success, 1)
+		}
+
+		return nil
+	}
+
+	slog.Debug("Retrieve boosts")
+	return from_db.GetBoosts(ctx, cb)
 }

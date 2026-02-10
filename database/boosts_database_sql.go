@@ -14,6 +14,7 @@ import (
 const SQL_BOOSTS_TABLE_NAME string = "boosts"
 
 type SQLBoostsDatabase struct {
+	Database[*activitypub.Boost]
 	BoostsDatabase
 	database *sql.DB
 }
@@ -41,6 +42,14 @@ func NewSQLBoostsDatabase(ctx context.Context, uri string) (BoostsDatabase, erro
 	}
 
 	return db, nil
+}
+
+func (db *SQLBoostsDatabase) GetBoosts(ctx context.Context, cb GetBoostsCallbackFunc) error {
+
+	where := ""
+	args := make([]interface{}, 0)
+
+	return db.getBoostsForQuery(ctx, where, args, cb)
 }
 
 func (db *SQLBoostsDatabase) GetBoostWithId(ctx context.Context, id int64) (*activitypub.Boost, error) {

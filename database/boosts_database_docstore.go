@@ -49,6 +49,12 @@ func NewDocstoreBoostsDatabase(ctx context.Context, uri string) (BoostsDatabase,
 	return db, nil
 }
 
+func (db *DocstoreBoostsDatabase) GetBoosts(ctx context.Context, cb GetBoostsCallbackFunc) error {
+
+	q := db.collection.Query()
+	return db.getBoostsForQuery(ctx, q, cb)
+}
+
 func (db *DocstoreBoostsDatabase) GetBoostIdsForDateRange(ctx context.Context, start int64, end int64, cb GetBoostIdsCallbackFunc) error {
 
 	q := db.collection.Query()
