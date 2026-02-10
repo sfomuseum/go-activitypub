@@ -8,25 +8,28 @@ import (
 	_ "net/url"
 )
 
-// @sql://boosts:@foo...
+// This is work in progress. Eventually things will be updated
+// to use this and {FOO}_{BAR}Database to implement the {FOO}
+// interface.
 
 type Database[T any] interface {
-	Add(context.Context, T) error
-	Remove(context.Context, T) error
-	Update(context.Context, T) error
-	Get(context.Context, int64) (T, error)
-	List(context.Context) iter.Seq2[T, error]
+	AddRecord(context.Context, T) error
+	RemoveRecord(context.Context, T) error
+	UpdateRecord(context.Context, T) error
+	GetRecord(context.Context, int64) (T, error)
+	ListRecords(context.Context) iter.Seq2[T, error]
+	Close() error
 }
 
 func Migrate[T any](ctx context.Context, src Database[T], dst Database[T]) error {
 
-	for v, err := range src.List(ctx) {
+	for v, err := range src.ListRecords(ctx) {
 
 		if err != nil {
 			return err
 		}
 
-		err = dst.Add(ctx, v)
+		err = dst.AddRecord(ctx, v)
 
 		if err != nil {
 			return err

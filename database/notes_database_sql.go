@@ -42,6 +42,71 @@ func NewSQLNotesDatabase(ctx context.Context, uri string) (NotesDatabase, error)
 	return db, nil
 }
 
+func (db *SQLNotesDatabase) GetNotesAll(ctx context.Context, cb GetNotesCallbackFunc) error {
+
+	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
+
+		rows := pg_rsp.Rows()
+
+		for rows.Next() {
+
+			var id int64
+			var uuid string
+			var author_address string
+			var body string
+			var created int64
+			var lastmodified int64
+
+			err := rows.Scan(&id, &uuid, &author_address, &body, &created, &lastmodified)
+
+			if err != nil {
+				return fmt.Errorf("Failed to query database, %w", err)
+			}
+
+			n := &activitypub.Note{
+				Id:            id,
+				UUID:          uuid,
+				AuthorAddress: author_address,
+				Body:          body,
+				Created:       created,
+				LastModified:  lastmodified,
+			}
+
+			err = cb(ctx, n)
+
+			if err != nil {
+				return fmt.Errorf("Failed to execute following callback for note %d, %w", id, err)
+			}
+
+			return nil
+		}
+
+		err := rows.Close()
+
+		if err != nil {
+			return fmt.Errorf("Failed to iterate through database rows, %w", err)
+		}
+
+		return nil
+	}
+
+	pg_opts, err := countable.NewCountableOptions()
+
+	if err != nil {
+		return fmt.Errorf("Failed to create pagination options, %w", err)
+	}
+
+	q := fmt.Sprintf("SELECT id, uuid, author_address, body, created, lastmodified FROM %s", SQL_NOTES_TABLE_NAME)
+
+	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q)
+
+	if err != nil {
+		return fmt.Errorf("Failed to execute paginated query, %w", err)
+	}
+
+	return nil
+}
+
 func (db *SQLNotesDatabase) GetNoteIdsForDateRange(ctx context.Context, start int64, end int64, cb GetNoteIdsCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {

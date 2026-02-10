@@ -3,9 +3,12 @@ package database
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"sort"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"github.com/aaronland/go-roster"
 	"github.com/sfomuseum/go-activitypub"
@@ -21,6 +24,7 @@ type NotesDatabase interface {
 	AddNote(context.Context, *activitypub.Note) error
 	UpdateNote(context.Context, *activitypub.Note) error
 	RemoveNote(context.Context, *activitypub.Note) error
+	GetNotesAll(context.Context, GetNotesCallbackFunc) error
 	Close(context.Context) error
 }
 
@@ -102,4 +106,56 @@ func NotesDatabaseSchemes() []string {
 
 	sort.Strings(schemes)
 	return schemes
+}
+
+func MigrateNotesDatabaseFromURIs(ctx context.Context, from_uri string, to_uri string, count *int64, success *int64, errors *int64) error {
+
+	from_ctx, from_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer from_cancel()
+
+	from_db, err := NewNotesDatabase(from_ctx, from_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create from database, %w", err)
+	}
+
+	defer from_db.Close(ctx)
+
+	slog.Debug("Set up to database")
+
+	to_ctx, to_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer to_cancel()
+
+	to_db, err := NewNotesDatabase(to_ctx, to_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create to database, %w", err)
+	}
+
+	defer to_db.Close(ctx)
+
+	return MigrateNotesDatabase(ctx, from_db, to_db, count, success, errors)
+}
+
+func MigrateNotesDatabase(ctx context.Context, from_db NotesDatabase, to_db NotesDatabase, count *int64, success *int64, errors *int64) error {
+
+	cb := func(ctx context.Context, n *activitypub.Note) error {
+
+		defer atomic.AddInt64(count, 1)
+
+		slog.Debug("Add", "note", n.Id)
+		err := to_db.AddNote(ctx, n)
+
+		if err != nil {
+			slog.Error("Failed to add notes", "note", n.Id, "error", err)
+			atomic.AddInt64(errors, 1)
+		} else {
+			atomic.AddInt64(success, 1)
+		}
+
+		return nil
+	}
+
+	slog.Debug("Retrieve notes")
+	return from_db.GetNotesAll(ctx, cb)
 }

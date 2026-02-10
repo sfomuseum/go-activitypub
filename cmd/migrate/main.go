@@ -133,6 +133,14 @@ func main() {
 			log.Fatalf("Failed to migrate messages database, %v", err)
 		}
 
+	case "notes":
+
+		err := database.MigrateNotesDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
+
+		if err != nil {
+			log.Fatalf("Failed to migrate notes database, %v", err)
+		}
+
 	case "posts":
 
 		err := database.MigratePostsDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)

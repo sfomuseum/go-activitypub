@@ -26,6 +26,10 @@ func NewNullNotesDatabase(ctx context.Context, uri string) (NotesDatabase, error
 	return db, nil
 }
 
+func (db *NullNotesDatabase) GetNotesAll(ctx context.Context, cb GetNotesCallbackFunc) error {
+	return nil
+}
+
 func (db *NullNotesDatabase) GetNoteIdsForDateRange(ctx context.Context, start int64, end int64, cb GetNoteIdsCallbackFunc) error {
 	return nil
 }
