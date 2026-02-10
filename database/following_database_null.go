@@ -24,6 +24,10 @@ func NewNullFollowingDatabase(ctx context.Context, uri string) (FollowingDatabas
 	return db, nil
 }
 
+func (db *NullFollowingDatabase) GetFollowingAll(ctx context.Context, cb GetFollowingAllCallbackFunc) error {
+	return nil
+}
+
 func (db *NullFollowingDatabase) GetFollowingIdsForDateRange(ctx context.Context, start int64, end int64, cb GetFollowingIdsCallbackFunc) error {
 	return nil
 }

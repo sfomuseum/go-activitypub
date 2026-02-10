@@ -109,6 +109,14 @@ func main() {
 			log.Fatalf("Failed to migrate followers database, %v", err)
 		}
 
+	case "following":
+
+		err := database.MigrateFollowingDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
+
+		if err != nil {
+			log.Fatalf("Failed to migrate followings database, %v", err)
+		}
+
 	case "post":
 
 		err := database.MigratePostsDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)

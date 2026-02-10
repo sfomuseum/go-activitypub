@@ -22,10 +22,10 @@ type FollowersDatabase interface {
 	GetFollower(context.Context, int64, string) (*activitypub.Follower, error)
 	AddFollower(context.Context, *activitypub.Follower) error
 	RemoveFollower(context.Context, *activitypub.Follower) error
-	GetFollowers(context.Context, GetFollowersCallbackFunc2) error	// Get all the follower rows
+	GetFollowers(context.Context, GetFollowersCallbackFunc2) error // Get all the follower rows
 	GetFollowerWithId(context.Context, int64) (*activitypub.Follower, error)
 	GetFollowerIdsForDateRange(context.Context, int64, int64, GetFollowerIdsCallbackFunc) error
-	GetAllFollowers(context.Context, GetFollowersCallbackFunc) error	// Get all follower addresses (probably deprecated)
+	GetAllFollowers(context.Context, GetFollowersCallbackFunc) error // Get all follower addresses (probably deprecated)
 	GetFollowersForAccount(context.Context, int64, GetFollowersCallbackFunc) error
 	HasFollowers(context.Context, int64) (bool, error)
 	Close(context.Context) error

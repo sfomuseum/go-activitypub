@@ -52,6 +52,33 @@ func NewDocstoreFollowingDatabase(ctx context.Context, uri string) (FollowingDat
 	return db, nil
 }
 
+func (db *DocstoreFollowingDatabase) GetFollowingAll(ctx context.Context, cb GetFollowingAllCallbackFunc) error {
+
+	q := db.collection.Query()
+	iter := q.Get(ctx)
+	defer iter.Stop()
+
+	for {
+
+		var f activitypub.Following
+		err := iter.Next(ctx, &f)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+			err := cb(ctx, &f)
+
+			if err != nil {
+				return fmt.Errorf("Failed to invoke callback for following %d, %w", f.Id, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreFollowingDatabase) GetFollowingIdsForDateRange(ctx context.Context, start int64, end int64, cb GetFollowingIdsCallbackFunc) error {
 
 	q := db.collection.Query()
