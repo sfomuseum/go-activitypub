@@ -6,7 +6,10 @@ import (
 	"net/url"
 	"sort"
 	"strings"
-
+	"time"
+	"log/slog"
+	"sync/atomic"
+	
 	"github.com/aaronland/go-roster"
 	"github.com/sfomuseum/go-activitypub"
 )
@@ -19,6 +22,7 @@ type LikesDatabase interface {
 	GetLikesForPost(context.Context, int64, GetLikesCallbackFunc) error
 	GetLikeWithPostIdAndActor(context.Context, int64, string) (*activitypub.Like, error)
 	GetLikeWithId(context.Context, int64) (*activitypub.Like, error)
+	GetLikesAll(context.Context, GetLikesCallbackFunc) error
 	AddLike(context.Context, *activitypub.Like) error
 	RemoveLike(context.Context, *activitypub.Like) error
 	Close(context.Context) error
@@ -102,4 +106,56 @@ func LikesDatabaseSchemes() []string {
 
 	sort.Strings(schemes)
 	return schemes
+}
+
+func MigrateLikesDatabaseFromURIs(ctx context.Context, from_uri string, to_uri string, count *int64, success *int64, errors *int64) error {
+
+	from_ctx, from_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer from_cancel()
+
+	from_db, err := NewLikesDatabase(from_ctx, from_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create from database, %w", err)
+	}
+
+	defer from_db.Close(ctx)
+
+	slog.Debug("Set up to database")
+
+	to_ctx, to_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer to_cancel()
+
+	to_db, err := NewLikesDatabase(to_ctx, to_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create to database, %w", err)
+	}
+
+	defer to_db.Close(ctx)
+
+	return MigrateLikesDatabase(ctx, from_db, to_db, count, success, errors)
+}
+
+func MigrateLikesDatabase(ctx context.Context, from_db LikesDatabase, to_db LikesDatabase, count *int64, success *int64, errors *int64) error {
+
+	cb := func(ctx context.Context, l *activitypub.Like) error {
+
+		defer atomic.AddInt64(count, 1)
+
+		slog.Debug("Add", "like", l.Id)
+		err := to_db.AddLike(ctx, l)
+
+		if err != nil {
+			slog.Error("Failed to add likes", "like", l.Id, "error", err)
+			atomic.AddInt64(errors, 1)
+		} else {
+			atomic.AddInt64(success, 1)
+		}
+
+		return nil
+	}
+
+	slog.Debug("Retrieve likes")
+	return from_db.GetLikesAll(ctx, cb)
 }

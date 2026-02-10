@@ -114,7 +114,15 @@ func main() {
 		err := database.MigrateFollowingDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
 
 		if err != nil {
-			log.Fatalf("Failed to migrate followings database, %v", err)
+			log.Fatalf("Failed to migrate following database, %v", err)
+		}
+
+	case "like":
+
+		err := database.MigrateLikesDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
+
+		if err != nil {
+			log.Fatalf("Failed to migrate likes database, %v", err)
 		}
 
 	case "post":
