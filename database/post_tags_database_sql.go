@@ -42,6 +42,73 @@ func NewSQLPostTagsDatabase(ctx context.Context, uri string) (PostTagsDatabase, 
 	return db, nil
 }
 
+func (db *SQLPostTagsDatabase) GetPostTagsAll(ctx context.Context, cb GetPostTagsCallbackFunc) error {
+
+	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
+
+		rows := pg_rsp.Rows()
+
+		for rows.Next() {
+
+			var id int64
+			var account_id int64
+			var post_id int64
+			var href string
+			var name string
+			var tag_type string
+			var created int64
+
+			err := rows.Scan(&id, &account_id, &post_id, &href, &name, &tag_type, &created)
+
+			if err != nil {
+				return fmt.Errorf("Failed to query database, %w", err)
+			}
+
+			t := &activitypub.PostTag{
+				Id:        id,
+				AccountId: account_id,
+				PostId:    post_id,
+				Href:      href,
+				Name:      name,
+				Type:      tag_type,
+				Created:   created,
+			}
+
+			err = cb(ctx, t)
+
+			if err != nil {
+				return fmt.Errorf("Failed to execute following callback for post tag %d, %w", id, err)
+			}
+
+			return nil
+		}
+
+		err := rows.Close()
+
+		if err != nil {
+			return fmt.Errorf("Failed to iterate through database rows, %w", err)
+		}
+
+		return nil
+	}
+
+	pg_opts, err := countable.NewCountableOptions()
+
+	if err != nil {
+		return fmt.Errorf("Failed to create pagination options, %w", err)
+	}
+
+	q := fmt.Sprintf("SELECT id, account_id, post_id, href, name, type, created FROM %s", SQL_POST_TAGS_TABLE_NAME)
+
+	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q)
+
+	if err != nil {
+		return fmt.Errorf("Failed to execute paginated query, %w", err)
+	}
+
+	return nil
+}
+
 func (db *SQLPostTagsDatabase) GetPostTagIdsForDateRange(ctx context.Context, start int64, end int64, cb GetPostTagIdsCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {

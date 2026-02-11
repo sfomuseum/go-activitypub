@@ -6,6 +6,7 @@ import (
 	_ "fmt"
 	"iter"
 	_ "net/url"
+	"sync/atomic"
 )
 
 // This is work in progress. Eventually things will be updated
@@ -21,20 +22,30 @@ type Database[T any] interface {
 	Close() error
 }
 
-func Migrate[T any](ctx context.Context, src Database[T], dst Database[T]) error {
+func Migrate[T any](ctx context.Context, src Database[T], dst Database[T]) (int64, int64, int64, error) {
+
+	count := int64(0)
+	success := int64(0)
+	errors := int64(0)
 
 	for v, err := range src.ListRecords(ctx) {
 
+		defer atomic.AddInt64(&count, 1)
+
 		if err != nil {
-			return err
+			atomic.AddInt64(&errors, 1)
+			return count, success, errors, err
 		}
 
 		err = dst.AddRecord(ctx, v)
 
 		if err != nil {
-			return err
+			atomic.AddInt64(&errors, 1)
+			return count, success, errors, err
 		}
+
+		atomic.AddInt64(&success, 1)
 	}
 
-	return nil
+	return count, success, errors, nil
 }

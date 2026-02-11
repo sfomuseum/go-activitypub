@@ -24,6 +24,10 @@ func NewNullPostTagsDatabase(ctx context.Context, uri string) (PostTagsDatabase,
 	return db, nil
 }
 
+func (db *NullPostTagsDatabase) GetPostTagsAll(ctx context.Context, cb GetPostTagsCallbackFunc) error {
+	return nil
+}
+
 func (db *NullPostTagsDatabase) GetLikeIdsForDateRange(ctx context.Context, start int64, end int64, cb GetPostTagIdsCallbackFunc) error {
 	return nil
 }
