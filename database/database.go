@@ -15,7 +15,7 @@ import (
 
 type Condition struct {
 	Field     string `json:"field"`
-	Operation string `json:"operation"`
+	Operator string `json:"operator"`
 	Value     any    `json:"value"`
 }
 
@@ -31,8 +31,8 @@ type OrderBy struct {
 
 type Query struct {
 	Where   *Where   `json:"where"`
-	Offset  int      `json:"offset"`
-	Limit   int      `json:"limit"`
+	Offset  *int      `json:"offset"`
+	Limit   *int      `json:"limit"`
 	OrderBy *OrderBy `json:"order_by"`
 }
 
