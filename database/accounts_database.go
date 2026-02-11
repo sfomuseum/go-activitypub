@@ -9,7 +9,8 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
-
+	"iter"
+	
 	"github.com/aaronland/go-roster"
 	"github.com/sfomuseum/go-activitypub"
 )
@@ -25,7 +26,7 @@ type AccountsDatabase interface {
 	// GetAccounts iterates through all the account records and dispatches each to an instance of `GetAccountsCallbackFunc`.
 	// GetAccounts(context.Context, GetAccountsCallbackFunc) error
 	// GetAccountsForDateRange iterates through all the account records created between two dates and dispatches each to an instance of `GetAccountIdsCallbackFunc`.
-	GetAccountIdsForDateRange(context.Context, int64, int64, GetAccountIdsCallbackFunc) error
+	GetAccountIdsForDateRange(context.Context, int64, int64) iter.Seq2[*activitypub.Account, error]
 	// GetAccountWithId returns the account matching a specific 64-bit ID.
 	GetAccountWithId(context.Context, int64) (*activitypub.Account, error)
 	// GetAccountWithId returns the account matching a specific name.

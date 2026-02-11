@@ -17,7 +17,7 @@ func populateDocstoreQuery(docstore_q *gc_docstore.Query, database_q *Query) *gc
 		if database_q.Where != nil {
 			
 			for _, c := range database_q.Where.Conditions {
-				docstore_q = docstore_q.Where(c.Field, c.Operator, c.Value)
+				docstore_q = docstore_q.Where(gc_docstore.FieldPath(c.Field), c.Operator, c.Value)
 			}
 		}
 		

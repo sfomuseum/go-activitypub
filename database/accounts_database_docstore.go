@@ -51,55 +51,6 @@ func NewDocstoreAccountsDatabase(ctx context.Context, uri string) (AccountsDatab
 	return db, nil
 }
 
-func (db *DocstoreAccountsDatabase) GetAccountIdsForDateRange(ctx context.Context, start int64, end int64, cb GetAccountIdsCallbackFunc) error {
-
-	q := db.collection.Query()
-
-	// For reasons I don't understand this frequently panics along the lines of:
-
-	/*
-		panic: runtime error: index out of range [0] with length 0
-
-		goroutine 98 [running]:
-		gocloud.dev/docstore/awsdynamodb.(*documentIterator).Next(0x14000056050, {0x101ba36b0?, 0x10258bb40?}, {{0x101b386e0, 0x1400019bea0}, 0x0, {0x101b454e0, 0x1400019bea0, 0x199}, {0x140004fc808, ...}})
-			/usr/local/sfomuseum/go-activitypub/vendor/gocloud.dev/docstore/awsdynamodb/query.go:492 +0x260
-	*/
-
-	// What I find most confusing is that this doesn't happen in any of the other _docstore
-	// packages, for example deliveries_database_docstore.go
-
-	// q = q.Where("Created", ">=", start)
-	// q = q.Where("Created", "<=", end)
-
-	// See also: https://github.com/google/go-cloud/issues/3405
-
-	iter := q.Get(ctx)
-	defer iter.Stop()
-
-	for {
-
-		var a activitypub.Account
-		err := iter.Next(ctx, &a)
-
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			return fmt.Errorf("Failed to interate, %w", err)
-		} else {
-
-			if a.Created >= start && a.Created <= end { // START OF see notes wrt/panics above
-				err := cb(ctx, a.Id)
-
-				if err != nil {
-					return fmt.Errorf("Failed to invoke callback for account %d, %w", a.Id, err)
-				}
-			} // END OF see notes wrt/panics above
-		}
-	}
-
-	return nil
-}
-
 func (db *DocstoreAccountsDatabase) Close() error {
 	return db.collection.Close()
 }
@@ -152,6 +103,33 @@ func (db DocstoreAccountsDatabase) QueryRecords(ctx context.Context, q *Query) i
 			}
 		}
 	}
+}
+
+func (db *DocstoreAccountsDatabase) GetAccountIdsForDateRange(ctx context.Context, start int64, end int64) iter.Seq2[*activitypub.Account, error] {
+
+	conditions := []*Condition{
+		&Condition{
+			Field: "Created",
+			Operator: ">=",
+			Value: start,
+		},
+		&Condition{
+			Field: "Created",
+			Operator: "<=",
+			Value: end,
+		},
+	}
+
+	where := &Where{
+		Conditions: conditions,
+		Relation: "AND",
+	}
+	
+	q := &Query{
+		Where: where,
+	}
+
+	return db.QueryRecords(ctx, q)
 }
 
 func (db *DocstoreAccountsDatabase) GetAccountWithName(ctx context.Context, name string) (*activitypub.Account, error) {
