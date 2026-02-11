@@ -11,7 +11,7 @@ import (
 	sfom_sql "github.com/sfomuseum/go-database/sql"
 )
 
-const SQL_POST_TAGS_TABLE_NAME string = "posts_tags"
+const SQL_POST_TAGS_TABLE_NAME string = "post_tags"
 
 type SQLPostTagsDatabase struct {
 	PostTagsDatabase

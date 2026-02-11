@@ -99,7 +99,7 @@ func (db *SQLBoostsDatabase) GetBoostsForPostIdAndActor(ctx context.Context, pos
 
 func (db *SQLBoostsDatabase) AddBoost(ctx context.Context, b *activitypub.Boost) error {
 
-	q := fmt.Sprintf("INSERT INTO %s (id, account_id, psot_id, actor, created) VALUES (?, ?, ?, ?, ?)", SQL_BOOSTS_TABLE_NAME)
+	q := fmt.Sprintf("INSERT INTO %s (id, account_id, post_id, actor, created) VALUES (?, ?, ?, ?, ?)", SQL_BOOSTS_TABLE_NAME)
 
 	_, err := db.database.ExecContext(ctx, q, b.Id, b.AccountId, b.PostId, b.Actor, b.Created)
 

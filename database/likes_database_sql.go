@@ -236,7 +236,7 @@ func (db *SQLLikesDatabase) GetLikesForPostIdAndActor(ctx context.Context, post_
 
 func (db *SQLLikesDatabase) AddLike(ctx context.Context, b *activitypub.Like) error {
 
-	q := fmt.Sprintf("INSERT INTO %s (id, account_id, psot_id, actor, created) VALUES (?, ?, ?, ?, ?)", SQL_LIKES_TABLE_NAME)
+	q := fmt.Sprintf("INSERT INTO %s (id, account_id, post_id, actor, created) VALUES (?, ?, ?, ?, ?)", SQL_LIKES_TABLE_NAME)
 
 	_, err := db.database.ExecContext(ctx, q, b.Id, b.AccountId, b.PostId, b.Actor, b.Created)
 

@@ -165,3 +165,50 @@ CREATE TABLE activities (
        UNIQUE KEY `activities_by_activity_type_and_id` (`activity_type`,`activity_type_id`),
        INDEX `activities_by_created` (`created`)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DROP TABLE IF EXISTS `likes`;
+
+CREATE TABLE likes (
+       id BIGINT(20) NOT NULL PRIMARY KEY,
+       account_id BIGINT(20) NOT NULL,
+       post_id BIGINT(20) NOT NULL,       
+       actor VARCHAR(255) NOT NULL,
+       created BIGINT(20) NOT NULL,
+       UNIQUE KEY `likes_by_post_actor` (`post_id`, `account_id`)
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;;
+
+CREATE INDEX `likes_by_account` ON likes (`account_id`, `created`);
+CREATE INDEX `likes_by_post` ON likes (`post_id`, `created`);
+CREATE INDEX `likes_by_created` ON likes (`created`);
+
+DROP TABLE IF EXISTS `post_tags`;
+
+CREATE TABLE post_tags (
+       id BIGINT(20) NOT NULL PRIMARY KEY,
+       account_id BIGINT(20) NOT NULL,
+       post_id BIGINT(20) NOT NULL,
+       href VARCHAR(255) NOT NULL,
+       name VARCHAR(255) NOT NULL,
+       type VARCHAR(255) NOT NULL,
+       created BIGINT(20) NOT NULL
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;;
+
+CREATE INDEX `post_tags_by_account` ON post_tags (`account_id`, `created`);
+CREATE INDEX `post_tags_by_post_id` ON post_tags (`post_id`, `created`);
+CREATE INDEX `post_tagss_by_created` ON post_tags (`created`);
+
+DROP TABLE IF EXISTS `boosts`;
+
+CREATE TABLE boosts (
+       id BIGINT(20) NOT NULL PRIMARY KEY,
+       account_id BIGINT(20) NOT NULL,
+       post_id BIGINT(20) NOT NULL,       
+       actor VARCHAR(255) NOT NULL,
+       created BIGINT(20) NOT NULL,
+       UNIQUE KEY `boosts_by_post_actor` (`post_id`, `account_id`)
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;;
+
+CREATE INDEX `boosts_by_account` ON boosts (`account_id`, `created`);
+CREATE INDEX `boosts_by_post` ON boosts (`post_id`, `created`);
+CREATE INDEX `boosts_by_created` ON boosts (`created`);
+       
