@@ -130,8 +130,6 @@ func (db *SQLPropertiesDatabase) getProperties(ctx context.Context, cb GetProper
 			if err != nil {
 				return fmt.Errorf("Failed to execute callback for property %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()

@@ -79,8 +79,6 @@ func (db *SQLPostTagsDatabase) GetPostTagsAll(ctx context.Context, cb GetPostTag
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for post tag %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()
@@ -130,8 +128,6 @@ func (db *SQLPostTagsDatabase) GetPostTagIdsForDateRange(ctx context.Context, st
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for post tag %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()

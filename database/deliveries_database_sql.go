@@ -110,8 +110,6 @@ func (db *SQLDeliveriesDatabase) GetDeliveryIdsForDateRange(ctx context.Context,
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for delivery %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()
@@ -238,8 +236,6 @@ func (db *SQLDeliveriesDatabase) getDeliveries(ctx context.Context, where string
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for delivery %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()

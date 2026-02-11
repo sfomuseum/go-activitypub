@@ -134,8 +134,6 @@ func (db *SQLFollowersDatabase) GetFollowerIdsForDateRange(ctx context.Context, 
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for follower %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()

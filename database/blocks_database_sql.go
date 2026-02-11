@@ -77,8 +77,6 @@ func (db *SQLBlocksDatabase) GetBlocks(ctx context.Context, cb GetBlocksCallback
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for block %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()
@@ -128,8 +126,6 @@ func (db *SQLBlocksDatabase) GetBlockIdsForDateRange(ctx context.Context, start 
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for block %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()

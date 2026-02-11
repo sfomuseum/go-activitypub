@@ -76,8 +76,6 @@ func (db *SQLLikesDatabase) GetLikesAll(ctx context.Context, cb GetLikesCallback
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for like %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()
@@ -127,8 +125,6 @@ func (db *SQLLikesDatabase) GetLikeIdsForDateRange(ctx context.Context, start in
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for like %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()

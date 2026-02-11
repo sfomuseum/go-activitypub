@@ -168,8 +168,6 @@ func (db *SQLActivitiesDatabase) getActivities(ctx context.Context, where string
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for account %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()

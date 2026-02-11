@@ -77,8 +77,6 @@ func (db *SQLMessagesDatabase) GetMessagesAll(ctx context.Context, cb GetMessage
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for message %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()
@@ -128,8 +126,6 @@ func (db *SQLMessagesDatabase) GetMessageIdsForDateRange(ctx context.Context, st
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for message %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()

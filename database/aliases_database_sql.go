@@ -153,8 +153,6 @@ func (db *SQLAliasesDatabase) getAliasesWithCallback(ctx context.Context, where 
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for alias %s, %w", a.Name, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()

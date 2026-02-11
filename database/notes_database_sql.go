@@ -77,8 +77,6 @@ func (db *SQLNotesDatabase) GetNotesAll(ctx context.Context, cb GetNotesCallback
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for note %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()
@@ -128,8 +126,6 @@ func (db *SQLNotesDatabase) GetNoteIdsForDateRange(ctx context.Context, start in
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for note %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()

@@ -63,8 +63,6 @@ func (db *SQLPostsDatabase) GetPostIdsForDateRange(ctx context.Context, start in
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for post %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()
@@ -128,8 +126,6 @@ func (db *SQLPostsDatabase) GetPost(ctx context.Context, start int64, end int64,
 			if err != nil {
 				return fmt.Errorf("Failed to execute following callback for post %d, %w", id, err)
 			}
-
-			return nil
 		}
 
 		err := rows.Close()
