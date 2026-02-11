@@ -25,6 +25,10 @@ func NewNullAliasesDatabase(ctx context.Context, uri string) (AliasesDatabase, e
 	return db, nil
 }
 
+func (db *NullAliasesDatabase) GetAliases(ctx context.Context, cb GetAliasesCallbackFunc) error {
+	return nil
+}
+
 func (db *NullAliasesDatabase) GetAliasesForAccount(ctx context.Context, account_id int64, cb GetAliasesCallbackFunc) error {
 	return nil
 }

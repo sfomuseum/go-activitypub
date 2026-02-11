@@ -49,6 +49,35 @@ func NewDocstoreAliasesDatabase(ctx context.Context, uri string) (AliasesDatabas
 	return db, nil
 }
 
+func (db *DocstoreAliasesDatabase) GetAliases(ctx context.Context, cb GetAliasesCallbackFunc) error {
+
+	q := db.collection.Query()
+
+	iter := q.Get(ctx)
+	defer iter.Stop()
+
+	for {
+
+		var a activitypub.Alias
+		err := iter.Next(ctx, &a)
+
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return fmt.Errorf("Failed to interate, %w", err)
+		} else {
+
+			err := cb(ctx, &a)
+
+			if err != nil {
+				return fmt.Errorf("Failed to execute callback for alias %v, %w", a, err)
+			}
+		}
+	}
+
+	return nil
+}
+
 func (db *DocstoreAliasesDatabase) GetAliasesForAccount(ctx context.Context, account_id int64, cb GetAliasesCallbackFunc) error {
 
 	q := db.collection.Query()

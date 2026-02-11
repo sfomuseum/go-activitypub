@@ -43,6 +43,14 @@ func NewSQLAliasesDatabase(ctx context.Context, uri string) (AliasesDatabase, er
 	return db, nil
 }
 
+func (db *SQLAliasesDatabase) GetAliases(ctx context.Context, cb GetAliasesCallbackFunc) error {
+
+	where := "1=1"
+	args := make([]any, 0)
+
+	return db.getAliasesWithCallback(ctx, where, args, cb)
+}
+
 func (db *SQLAliasesDatabase) GetAliasesForAccount(ctx context.Context, account_id int64, cb GetAliasesCallbackFunc) error {
 
 	where := "account_id = ?"
