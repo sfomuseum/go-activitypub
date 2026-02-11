@@ -149,6 +149,22 @@ func main() {
 			log.Fatalf("Failed to migrate database, %v", err)
 		}
 
+	case "post_tags":
+
+		err := database.MigratePostTagsDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
+
+		if err != nil {
+			log.Fatalf("Failed to migrate post tags database, %v", err)
+		}
+
+	case "properties":
+
+		err := database.MigratePropertiesDatabaseFromURIs(ctx, from_database_uri, to_database_uri, &count, &success, &errors)
+
+		if err != nil {
+			log.Fatalf("Failed to migrate properties database, %v", err)
+		}
+
 	default:
 		slog.Error("Unsupported database", "database", database_label)
 	}

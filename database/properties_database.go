@@ -3,9 +3,12 @@ package database
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"sort"
 	"strings"
+	"sync/atomic"
+	"time"
 
 	"github.com/aaronland/go-roster"
 	"github.com/sfomuseum/go-activitypub"
@@ -100,4 +103,56 @@ func PropertiesDatabaseSchemes() []string {
 
 	sort.Strings(schemes)
 	return schemes
+}
+
+func MigratePropertiesDatabaseFromURIs(ctx context.Context, from_uri string, to_uri string, count *int64, success *int64, errors *int64) error {
+
+	from_ctx, from_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer from_cancel()
+
+	from_db, err := NewPropertiesDatabase(from_ctx, from_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create from database, %w", err)
+	}
+
+	defer from_db.Close(ctx)
+
+	slog.Debug("Set up to database")
+
+	to_ctx, to_cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer to_cancel()
+
+	to_db, err := NewPropertiesDatabase(to_ctx, to_uri)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create to database, %w", err)
+	}
+
+	defer to_db.Close(ctx)
+
+	return MigratePropertiesDatabase(ctx, from_db, to_db, count, success, errors)
+}
+
+func MigratePropertiesDatabase(ctx context.Context, from_db PropertiesDatabase, to_db PropertiesDatabase, count *int64, success *int64, errors *int64) error {
+
+	cb := func(ctx context.Context, p *activitypub.Property) error {
+
+		defer atomic.AddInt64(count, 1)
+
+		slog.Debug("Add", "property", p.Id)
+		err := to_db.AddProperty(ctx, p)
+
+		if err != nil {
+			slog.Error("Failed to add properties", "property", p.Id, "error", err)
+			atomic.AddInt64(errors, 1)
+		} else {
+			atomic.AddInt64(success, 1)
+		}
+
+		return nil
+	}
+
+	slog.Debug("Retrieve properties")
+	return from_db.GetProperties(ctx, cb)
 }
