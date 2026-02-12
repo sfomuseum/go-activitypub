@@ -9,14 +9,10 @@ import (
 	"sync/atomic"
 )
 
-// This is work in progress. Eventually things will be updated
-// to use this and {FOO}_{BAR}Database to implement the {FOO}
-// interface.
-
 type Condition struct {
-	Field     string `json:"field"`
+	Field    string `json:"field"`
 	Operator string `json:"operator"`
-	Value     any    `json:"value"`
+	Value    any    `json:"value"`
 }
 
 type Where struct {
@@ -31,8 +27,8 @@ type OrderBy struct {
 
 type Query struct {
 	Where   *Where   `json:"where"`
-	Offset  *int      `json:"offset"`
-	Limit   *int      `json:"limit"`
+	Offset  *int     `json:"offset"`
+	Limit   *int     `json:"limit"`
 	OrderBy *OrderBy `json:"order_by"`
 }
 

@@ -3,43 +3,31 @@ package database
 import (
 	"context"
 	"fmt"
+	"iter"
 	"log/slog"
 	"net/url"
 	"sort"
 	"strings"
-	"sync/atomic"
 	"time"
-	"iter"
-	
+
 	"github.com/aaronland/go-roster"
 	"github.com/sfomuseum/go-activitypub"
 )
 
-// GetAccountIdsCallbackFunc is a custom function used to process an `activitypub.Account` identifier.
-type GetAccountIdsCallbackFunc func(context.Context, int64) error
-
-// GetAccountsCallbackFunc is a custom function used to process an `activitypub.Account` record.
-type GetAccountsCallbackFunc func(context.Context, *activitypub.Account) error
-
 // AccountsDatabase defines an interface for working with individual accounts associated with an atomic instance of the `go-activity` tools and services.
 type AccountsDatabase interface {
-	// GetAccounts iterates through all the account records and dispatches each to an instance of `GetAccountsCallbackFunc`.
-	// GetAccounts(context.Context, GetAccountsCallbackFunc) error
-	// GetAccountsForDateRange iterates through all the account records created between two dates and dispatches each to an instance of `GetAccountIdsCallbackFunc`.
-	GetAccountIdsForDateRange(context.Context, int64, int64) iter.Seq2[*activitypub.Account, error]
+	AddRecord(context.Context, *activitypub.Account) error
+	RemoveRecord(context.Context, *activitypub.Account) error
+	UpdateRecord(context.Context, *activitypub.Account) error
+	GetRecord(context.Context, int64) (*activitypub.Account, error)
+	QueryRecords(context.Context, *Query) iter.Seq2[*activitypub.Account, error]
+	Close() error
+
+	GetAccountIdsForDateRange(context.Context, int64, int64) iter.Seq2[int64, error]
 	// GetAccountWithId returns the account matching a specific 64-bit ID.
 	GetAccountWithId(context.Context, int64) (*activitypub.Account, error)
 	// GetAccountWithId returns the account matching a specific name.
 	GetAccountWithName(context.Context, string) (*activitypub.Account, error)
-	
-	// AddAccount adds a new `activitypub.Account` instance.
-	// AddAccount(context.Context, *activitypub.Account) error
-	// RemoveAccount removes a specific `activitypub.Account` instance.
-	// RemoveAccount(context.Context, *activitypub.Account) error
-	// UpdateAccount updates a specific `activitypub.Account` instance.
-	// UpdateAccount(context.Context, *activitypub.Account) error
-	// Close performs any final operations to terminate the underlying database connection.
-	// Close(context.Context) error
 }
 
 var account_database_roster roster.Roster
@@ -133,7 +121,7 @@ func MigrateAccountsDatabaseFromURIs(ctx context.Context, from_uri string, to_ur
 		return fmt.Errorf("Failed to create from database, %w", err)
 	}
 
-	defer from_db.Close(ctx)
+	defer from_db.Close()
 
 	slog.Debug("Set up to database")
 
@@ -146,30 +134,13 @@ func MigrateAccountsDatabaseFromURIs(ctx context.Context, from_uri string, to_ur
 		return fmt.Errorf("Failed to create to database, %w", err)
 	}
 
-	defer to_db.Close(ctx)
+	defer to_db.Close()
 
-	return MigrateAccountsDatabase(ctx, from_db, to_db, count, success, errors)
-}
+	_, _, _, err = Migrate(ctx, from_db, to_db)
 
-func MigrateAccountsDatabase(ctx context.Context, from_db AccountsDatabase, to_db AccountsDatabase, count *int64, success *int64, errors *int64) error {
-
-	cb := func(ctx context.Context, a *activitypub.Account) error {
-
-		defer atomic.AddInt64(count, 1)
-
-		slog.Debug("Add", "account", a.Id)
-		err := to_db.AddAccount(ctx, a)
-
-		if err != nil {
-			slog.Error("Failed to add account", "account", a.Id, "error", err)
-			atomic.AddInt64(errors, 1)
-		} else {
-			atomic.AddInt64(success, 1)
-		}
-
-		return nil
+	if err != nil {
+		return err
 	}
 
-	slog.Debug("Retrieve accounts")
-	return from_db.GetAccounts(ctx, cb)
+	return nil
 }

@@ -53,7 +53,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to create new accounts database, %w", err)
 	}
 
-	defer accounts_db.Close(ctx)
+	defer accounts_db.Close()
 
 	properties_db, err := database.NewPropertiesDatabase(ctx, opts.PropertiesDatabaseURI)
 

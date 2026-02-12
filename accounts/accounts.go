@@ -17,7 +17,7 @@ func AddAccount(ctx context.Context, db database.AccountsDatabase, a *activitypu
 	a.Created = ts
 	a.LastModified = ts
 
-	err := db.AddAccount(ctx, a)
+	err := db.AddRecord(ctx, a)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to add account, %w", err)
@@ -33,7 +33,7 @@ func UpdateAccount(ctx context.Context, db database.AccountsDatabase, a *activit
 
 	a.LastModified = ts
 
-	err := db.UpdateAccount(ctx, a)
+	err := db.UpdateRecord(ctx, a)
 
 	if err != nil {
 		return nil, fmt.Errorf("Failed to update account, %w", err)

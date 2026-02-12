@@ -49,7 +49,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to create accounts database, %w", err)
 	}
 
-	defer accounts_db.Close(ctx)
+	defer accounts_db.Close()
 
 	activities_db, err := database.NewActivitiesDatabase(ctx, opts.ActivitiesDatabaseURI)
 

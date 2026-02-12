@@ -42,7 +42,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to initialize accounts database, %w", err)
 	}
 
-	defer accounts_db.Close(ctx)
+	defer accounts_db.Close()
 
 	following_db, err := database.NewFollowingDatabase(ctx, opts.FollowingDatabaseURI)
 

@@ -15,24 +15,24 @@ func populateDocstoreQuery(docstore_q *gc_docstore.Query, database_q *Query) *gc
 	if database_q != nil {
 
 		if database_q.Where != nil {
-			
+
 			for _, c := range database_q.Where.Conditions {
 				docstore_q = docstore_q.Where(gc_docstore.FieldPath(c.Field), c.Operator, c.Value)
 			}
 		}
-		
+
 		if database_q.OrderBy != nil {
 			docstore_q = docstore_q.OrderBy(database_q.OrderBy.Field, database_q.OrderBy.Direction)
 		}
-		
+
 		if database_q.Offset != nil {
 			docstore_q = docstore_q.Offset(*database_q.Offset)
 		}
-		
+
 		if database_q.Limit != nil {
 			docstore_q = docstore_q.Limit(*database_q.Limit)
 		}
 	}
-	
+
 	return docstore_q
 }

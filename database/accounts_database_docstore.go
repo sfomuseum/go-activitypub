@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"iter"
-	
+
 	aa_docstore "github.com/aaronland/gocloud/docstore"
 	"github.com/sfomuseum/go-activitypub"
 	gc_docstore "gocloud.dev/docstore"
@@ -51,10 +51,6 @@ func NewDocstoreAccountsDatabase(ctx context.Context, uri string) (AccountsDatab
 	return db, nil
 }
 
-func (db *DocstoreAccountsDatabase) Close() error {
-	return db.collection.Close()
-}
-
 func (db *DocstoreAccountsDatabase) AddRecord(ctx context.Context, a *activitypub.Account) error {
 	return db.collection.Put(ctx, a)
 }
@@ -76,28 +72,28 @@ func (db *DocstoreAccountsDatabase) GetRecord(ctx context.Context, id int64) (*a
 func (db DocstoreAccountsDatabase) QueryRecords(ctx context.Context, q *Query) iter.Seq2[*activitypub.Account, error] {
 
 	return func(yield func(*activitypub.Account, error) bool) {
-		
+
 		col_q := newDocstoreQuery(db.collection, q)
-		
+
 		iter := col_q.Get(ctx)
 		defer iter.Stop()
 
 		for {
-			
+
 			var a activitypub.Account
 			err := iter.Next(ctx, &a)
-			
+
 			if err == io.EOF {
 				break
 			} else if err != nil {
 
-				if !yield(nil, err){
+				if !yield(nil, err) {
 					return
 				}
-				
+
 			} else {
 
-				if !yield(&a, nil){
+				if !yield(&a, nil) {
 					return
 				}
 			}
@@ -105,31 +101,52 @@ func (db DocstoreAccountsDatabase) QueryRecords(ctx context.Context, q *Query) i
 	}
 }
 
-func (db *DocstoreAccountsDatabase) GetAccountIdsForDateRange(ctx context.Context, start int64, end int64) iter.Seq2[*activitypub.Account, error] {
+func (db *DocstoreAccountsDatabase) Close() error {
+	return db.collection.Close()
+}
+
+func (db *DocstoreAccountsDatabase) GetAccountIdsForDateRange(ctx context.Context, start int64, end int64) iter.Seq2[int64, error] {
 
 	conditions := []*Condition{
 		&Condition{
-			Field: "Created",
+			Field:    "Created",
 			Operator: ">=",
-			Value: start,
+			Value:    start,
 		},
 		&Condition{
-			Field: "Created",
+			Field:    "Created",
 			Operator: "<=",
-			Value: end,
+			Value:    end,
 		},
 	}
 
 	where := &Where{
 		Conditions: conditions,
-		Relation: "AND",
+		Relation:   "AND",
 	}
-	
+
 	q := &Query{
 		Where: where,
 	}
 
-	return db.QueryRecords(ctx, q)
+	return func(yield func(int64, error) bool) {
+
+		for acct, err := range db.QueryRecords(ctx, q) {
+
+			if err != nil {
+
+				if !yield(-1, err) {
+					return
+				}
+
+				continue
+			}
+
+			if !yield(acct.Id, nil) {
+				return
+			}
+		}
+	}
 }
 
 func (db *DocstoreAccountsDatabase) GetAccountWithName(ctx context.Context, name string) (*activitypub.Account, error) {
@@ -139,7 +156,6 @@ func (db *DocstoreAccountsDatabase) GetAccountWithName(ctx context.Context, name
 
 	return db.getAccount(ctx, q)
 }
-
 
 func (db *DocstoreAccountsDatabase) getAccount(ctx context.Context, q *gc_docstore.Query) (*activitypub.Account, error) {
 
@@ -159,4 +175,3 @@ func (db *DocstoreAccountsDatabase) getAccount(ctx context.Context, q *gc_docsto
 
 	return nil, activitypub.ErrNotFound
 }
-

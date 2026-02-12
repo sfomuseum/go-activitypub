@@ -35,7 +35,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to create new database, %w", err)
 	}
 
-	defer accounts_db.Close(ctx)
+	defer accounts_db.Close()
 
 	blocks_db, err := database.NewBlocksDatabase(ctx, opts.BlocksDatabaseURI)
 
