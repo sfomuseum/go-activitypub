@@ -52,7 +52,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to create new activities database, %w", err)
 	}
 
-	defer activities_db.Close(ctx)
+	defer activities_db.Close()
 
 	followers_db, err := database.NewFollowersDatabase(ctx, opts.FollowersDatabaseURI)
 
@@ -112,7 +112,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 	logger = logger.With("activity id", activity.Id)
 	logger = logger.With("boost id", boost_id)
 
-	err = activities_db.AddActivity(ctx, activity)
+	err = activities_db.AddRecord(ctx, activity)
 
 	if err != nil {
 		logger.Error("Failed to add new activity", "error", err)

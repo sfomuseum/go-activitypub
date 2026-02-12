@@ -3,27 +3,28 @@ package database
 import (
 	"context"
 	"fmt"
+	"iter"
 	"log/slog"
 	"net/url"
 	"sort"
 	"strings"
-	"sync/atomic"
 	"time"
 
 	"github.com/aaronland/go-roster"
 	"github.com/sfomuseum/go-activitypub"
 )
 
-type GetActivitiesCallbackFunc func(context.Context, *activitypub.Activity) error
-
 type ActivitiesDatabase interface {
-	AddActivity(context.Context, *activitypub.Activity) error
-	GetActivityWithId(context.Context, int64) (*activitypub.Activity, error)
+	AddRecord(context.Context, *activitypub.Activity) error
+	RemoveRecord(context.Context, *activitypub.Activity) error
+	UpdateRecord(context.Context, *activitypub.Activity) error
+	GetRecord(context.Context, int64) (*activitypub.Activity, error)
+	QueryRecords(context.Context, *Query) iter.Seq2[*activitypub.Activity, error]
+	Close() error
+
 	GetActivityWithActivityPubId(context.Context, string) (*activitypub.Activity, error)
 	GetActivityWithActivityTypeAnId(context.Context, activitypub.ActivityType, int64) (*activitypub.Activity, error)
-	GetActivities(context.Context, GetActivitiesCallbackFunc) error
-	GetActivitiesForAccount(context.Context, int64, GetActivitiesCallbackFunc) error
-	Close(context.Context) error
+	GetActivitiesForAccount(context.Context, int64) iter.Seq2[*activitypub.Activity, error]
 }
 
 var activities_database_roster roster.Roster
@@ -117,7 +118,7 @@ func MigrateActivitiesDatabaseFromURIs(ctx context.Context, from_uri string, to_
 		return fmt.Errorf("Failed to create from database, %w", err)
 	}
 
-	defer from_db.Close(ctx)
+	defer from_db.Close()
 
 	slog.Debug("Set up to database")
 
@@ -130,30 +131,8 @@ func MigrateActivitiesDatabaseFromURIs(ctx context.Context, from_uri string, to_
 		return fmt.Errorf("Failed to create to database, %w", err)
 	}
 
-	defer to_db.Close(ctx)
+	defer to_db.Close()
 
-	return MigrateActivitiesDatabase(ctx, from_db, to_db, count, success, errors)
-}
-
-func MigrateActivitiesDatabase(ctx context.Context, from_db ActivitiesDatabase, to_db ActivitiesDatabase, count *int64, success *int64, errors *int64) error {
-
-	cb := func(ctx context.Context, a *activitypub.Activity) error {
-
-		defer atomic.AddInt64(count, 1)
-
-		slog.Debug("Add", "activity", a.Id)
-		err := to_db.AddActivity(ctx, a)
-
-		if err != nil {
-			slog.Error("Failed to add activity", "activity", a.Id, "error", err)
-			atomic.AddInt64(errors, 1)
-		} else {
-			atomic.AddInt64(success, 1)
-		}
-
-		return nil
-	}
-
-	slog.Debug("Retrieve activitys")
-	return from_db.GetActivities(ctx, cb)
+	_, _, _, err = Migrate(ctx, from_db, to_db)
+	return err
 }

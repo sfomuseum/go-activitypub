@@ -22,6 +22,7 @@ DELIVERY_QUEUE_URI=synchronous://
 
 migrate:
 	GOARCH=amd64 GOOS=linux go build -tags mysql -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/migrate cmd/migrate/main.go
+	GOARCH=amd64 GOOS=linux go build -tags mysql -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/list-accounts cmd/list-accounts/main.go
 
 cli:
 	go build -mod $(GOMOD) -ldflags="$(LDFLAGS)" -o bin/add-account cmd/add-account/main.go

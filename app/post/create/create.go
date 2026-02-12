@@ -69,7 +69,7 @@ func RunWithOptionsAndResponse(ctx context.Context, opts *RunOptions) (string, e
 		return "", fmt.Errorf("Failed to create activities database, %w", err)
 	}
 
-	defer activities_db.Close(ctx)
+	defer activities_db.Close()
 
 	followers_db, err := database.NewFollowersDatabase(ctx, opts.FollowersDatabaseURI)
 
@@ -165,7 +165,7 @@ func RunWithOptionsAndResponse(ctx context.Context, opts *RunOptions) (string, e
 		activity.ActivityTypeId = post.Id
 		activity.AccountId = acct.Id
 
-		err = activities_db.AddActivity(ctx, activity)
+		err = activities_db.AddRecord(ctx, activity)
 
 		if err != nil {
 			return "", fmt.Errorf("Failed to add activity, %w", err)

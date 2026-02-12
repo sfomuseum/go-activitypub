@@ -69,7 +69,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to create new activities database, %w", err)
 	}
 
-	defer activities_db.Close(ctx)
+	defer activities_db.Close()
 
 	posts_db, err := database.NewPostsDatabase(ctx, opts.PostsDatabaseURI)
 

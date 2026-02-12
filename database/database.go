@@ -3,9 +3,8 @@ package database
 
 import (
 	"context"
-	_ "fmt"
+	"fmt"
 	"iter"
-	_ "net/url"
 	"sync/atomic"
 )
 
@@ -39,6 +38,20 @@ type Database[T any] interface {
 	GetRecord(context.Context, int64) (T, error)
 	QueryRecords(context.Context, *Query) iter.Seq2[T, error]
 	Close() error
+}
+
+func ListRecords[T any](ctx context.Context, db Database[T]) error {
+
+	for rec, err := range db.QueryRecords(ctx, nil) {
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("%s\n", rec)
+	}
+
+	return nil
 }
 
 func Migrate[T any](ctx context.Context, src Database[T], dst Database[T]) (int64, int64, int64, error) {

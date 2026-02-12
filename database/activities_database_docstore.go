@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"iter"
 
 	aa_docstore "github.com/aaronland/gocloud/docstore"
 	"github.com/sfomuseum/go-activitypub"
@@ -11,6 +12,7 @@ import (
 )
 
 type DocstoreActivitiesDatabase struct {
+	Database[*activitypub.Activity]
 	ActivitiesDatabase
 	collection *gc_docstore.Collection
 }
@@ -33,7 +35,6 @@ func init() {
 		}
 
 	}
-
 }
 
 func NewDocstoreActivitiesDatabase(ctx context.Context, uri string) (ActivitiesDatabase, error) {
@@ -51,18 +52,39 @@ func NewDocstoreActivitiesDatabase(ctx context.Context, uri string) (ActivitiesD
 	return db, nil
 }
 
-func (db *DocstoreActivitiesDatabase) AddActivity(ctx context.Context, f *activitypub.Activity) error {
+// Database interface
 
+func (db *DocstoreActivitiesDatabase) AddRecord(ctx context.Context, f *activitypub.Activity) error {
 	return db.collection.Put(ctx, f)
 }
 
-func (db *DocstoreActivitiesDatabase) GetActivityWithId(ctx context.Context, id int64) (*activitypub.Activity, error) {
+func (db *DocstoreActivitiesDatabase) GetRecord(ctx context.Context, id int64) (*activitypub.Activity, error) {
 
 	q := db.collection.Query()
 	q = q.Where("Id", "=", id)
 
 	return db.getActivity(ctx, q)
 }
+
+func (db *DocstoreActivitiesDatabase) UpdateRecord(ctx context.Context, a *activitypub.Activity) error {
+	return activitypub.ErrNotImplemented
+}
+
+func (db *DocstoreActivitiesDatabase) RemoveRecord(ctx context.Context, a *activitypub.Activity) error {
+	return activitypub.ErrNotImplemented
+}
+
+func (db *DocstoreActivitiesDatabase) QueryRecords(ctx context.Context, q *Query) iter.Seq2[*activitypub.Activity, error] {
+
+	col_q := newDocstoreQuery(db.collection, q)
+	return db.getActivitiesWithQuery(ctx, col_q)
+}
+
+func (db *DocstoreActivitiesDatabase) Close() error {
+	return db.collection.Close()
+}
+
+// ActivitiesDatabase interface
 
 func (db *DocstoreActivitiesDatabase) GetActivityWithActivityPubId(ctx context.Context, id string) (*activitypub.Activity, error) {
 
@@ -81,24 +103,15 @@ func (db *DocstoreActivitiesDatabase) GetActivityWithActivityTypeAndId(ctx conte
 	return db.getActivity(ctx, q)
 }
 
-func (db *DocstoreActivitiesDatabase) GetActivities(ctx context.Context, cb GetActivitiesCallbackFunc) error {
-
-	q := db.collection.Query()
-
-	return db.getActivitiesWithQuery(ctx, q, cb)
-}
-
-func (db *DocstoreActivitiesDatabase) GetActivitiesForAccount(ctx context.Context, id int64, cb GetActivitiesCallbackFunc) error {
+func (db *DocstoreActivitiesDatabase) GetActivitiesForAccount(ctx context.Context, id int64) iter.Seq2[*activitypub.Activity, error] {
 
 	q := db.collection.Query()
 	q = q.Where("AccountId", "=", id)
 
-	return db.getActivitiesWithQuery(ctx, q, cb)
+	return db.getActivitiesWithQuery(ctx, q)
 }
 
-func (db *DocstoreActivitiesDatabase) Close(ctx context.Context) error {
-	return db.collection.Close()
-}
+// Local methods
 
 func (db *DocstoreActivitiesDatabase) getActivity(ctx context.Context, q *gc_docstore.Query) (*activitypub.Activity, error) {
 
@@ -123,29 +136,31 @@ func (db *DocstoreActivitiesDatabase) getActivity(ctx context.Context, q *gc_doc
 
 }
 
-func (db *DocstoreActivitiesDatabase) getActivitiesWithQuery(ctx context.Context, q *gc_docstore.Query, cb GetActivitiesCallbackFunc) error {
+func (db *DocstoreActivitiesDatabase) getActivitiesWithQuery(ctx context.Context, q *gc_docstore.Query) iter.Seq2[*activitypub.Activity, error] {
 
-	iter := q.Get(ctx)
-	defer iter.Stop()
+	return func(yield func(*activitypub.Activity, error) bool) {
 
-	for {
+		iter := q.Get(ctx)
+		defer iter.Stop()
 
-		var a activitypub.Activity
-		err := iter.Next(ctx, &a)
+		for {
 
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			return fmt.Errorf("Failed to interate, %w", err)
-		} else {
+			var a activitypub.Activity
+			err := iter.Next(ctx, &a)
 
-			err := cb(ctx, &a)
+			if err == io.EOF {
+				break
+			} else if err != nil {
+				if !yield(nil, fmt.Errorf("Failed to interate, %w", err)) {
+					return
+				}
+			} else {
 
-			if err != nil {
-				return fmt.Errorf("Failed to execute activities callback for '%d', %w", a.Id, err)
+				if !yield(&a, nil) {
+					return
+				}
 			}
 		}
 	}
 
-	return nil
 }

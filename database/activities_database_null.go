@@ -2,11 +2,13 @@ package database
 
 import (
 	"context"
+	"iter"
 
 	"github.com/sfomuseum/go-activitypub"
 )
 
 type NullActivitiesDatabase struct {
+	Database[*activitypub.Activity]
 	ActivitiesDatabase
 }
 
@@ -20,17 +22,32 @@ func init() {
 }
 
 func NewNullActivitiesDatabase(ctx context.Context, uri string) (ActivitiesDatabase, error) {
-
 	db := &NullActivitiesDatabase{}
 	return db, nil
 }
 
-func (db *NullActivitiesDatabase) AddActivity(ctx context.Context, f *activitypub.Activity) error {
+func (db *NullActivitiesDatabase) AddRecord(ctx context.Context, f *activitypub.Activity) error {
 	return nil
 }
 
-func (db *NullActivitiesDatabase) GetActivityWithId(ctx context.Context, id int64) (*activitypub.Activity, error) {
+func (db *NullActivitiesDatabase) UpdateRecord(ctx context.Context, f *activitypub.Activity) error {
+	return nil
+}
+
+func (db *NullActivitiesDatabase) RemoveRecord(ctx context.Context, f *activitypub.Activity) error {
+	return nil
+}
+
+func (db *NullActivitiesDatabase) GetRecord(ctx context.Context, id int64) (*activitypub.Activity, error) {
 	return nil, activitypub.ErrNotFound
+}
+
+func (db *NullActivitiesDatabase) QueryRecords(ctx context.Context, q *Query) iter.Seq2[*activitypub.Activity, error] {
+	return func(yield func(*activitypub.Activity, error) bool) {}
+}
+
+func (db *NullActivitiesDatabase) Close() error {
+	return nil
 }
 
 func (db *NullActivitiesDatabase) GetActivityWithActivityPubId(ctx context.Context, id string) (*activitypub.Activity, error) {
@@ -41,14 +58,6 @@ func (db *NullActivitiesDatabase) GetActivityWithActivityTypeAndId(ctx context.C
 	return nil, activitypub.ErrNotFound
 }
 
-func (db *NullActivitiesDatabase) GetActivities(ctx context.Context, cb GetActivitiesCallbackFunc) error {
-	return nil
-}
-
-func (db *NullActivitiesDatabase) GetActivitiesForAccount(ctx context.Context, id int64, cb GetActivitiesCallbackFunc) error {
-	return nil
-}
-
-func (db *NullActivitiesDatabase) Close(ctx context.Context) error {
-	return nil
+func (db *NullActivitiesDatabase) GetActivitiesForAccount(ctx context.Context, id int64) iter.Seq2[*activitypub.Activity, error] {
+	return func(yield func(*activitypub.Activity, error) bool) {}
 }

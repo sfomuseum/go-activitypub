@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"iter"
 
 	pg_sql "github.com/aaronland/go-pagination-sql"
 	"github.com/aaronland/go-pagination/countable"
@@ -14,6 +15,7 @@ import (
 const SQL_ACTIVITIES_TABLE_NAME string = "activities"
 
 type SQLActivitiesDatabase struct {
+	Database[*activitypub.Activity]
 	ActivitiesDatabase
 	database *sql.DB
 }
@@ -42,7 +44,9 @@ func NewSQLActivitiesDatabase(ctx context.Context, uri string) (ActivitiesDataba
 	return db, nil
 }
 
-func (db *SQLActivitiesDatabase) AddActivity(ctx context.Context, a *activitypub.Activity) error {
+// Database interface
+
+func (db *SQLActivitiesDatabase) AddRecord(ctx context.Context, a *activitypub.Activity) error {
 
 	q := fmt.Sprintf("INSERT INTO %s (id, activitypub_id, account_id, activity_type, activity_type_id, body, created) VALUES (?, ?, ?, ?, ?, ?, ?)", SQL_ACTIVITIES_TABLE_NAME)
 
@@ -55,11 +59,31 @@ func (db *SQLActivitiesDatabase) AddActivity(ctx context.Context, a *activitypub
 	return nil
 }
 
-func (db *SQLActivitiesDatabase) GetActivityWithId(ctx context.Context, id int64) (*activitypub.Activity, error) {
+func (db *SQLActivitiesDatabase) GetRecord(ctx context.Context, id int64) (*activitypub.Activity, error) {
 
 	where := "id = ?"
 	return db.getActivity(ctx, where, id)
 }
+
+func (db *SQLActivitiesDatabase) UpdateRecord(ctx context.Context, a *activitypub.Activity) error {
+	return activitypub.ErrNotImplemented
+}
+
+func (db *SQLActivitiesDatabase) RemoveRecord(ctx context.Context, a *activitypub.Activity) error {
+	return activitypub.ErrNotImplemented
+}
+
+func (db *SQLActivitiesDatabase) QueryRecords(ctx context.Context, q *Query) iter.Seq2[*activitypub.Activity, error] {
+
+	where, args := deriveSQLQueryConditions(q)
+	return db.getActivities(ctx, where, args)
+}
+
+func (db *SQLActivitiesDatabase) Close() error {
+	return db.database.Close()
+}
+
+// ActivitiesDatabase interface
 
 func (db *SQLActivitiesDatabase) GetActivityWithActivityPubId(ctx context.Context, id string) (*activitypub.Activity, error) {
 
@@ -73,27 +97,76 @@ func (db *SQLActivitiesDatabase) GetActivityWithActivityTypeAndId(ctx context.Co
 	return db.getActivity(ctx, where, activity_type, activity_type_id)
 }
 
-func (db *SQLActivitiesDatabase) GetActivities(ctx context.Context, cb GetActivitiesCallbackFunc) error {
-
-	where := "1 = 1"
-	args := make([]interface{}, 0)
-
-	return db.getActivities(ctx, where, args, cb)
-}
-
-func (db *SQLActivitiesDatabase) GetActivitiesForAccount(ctx context.Context, id int64, cb GetActivitiesCallbackFunc) error {
+func (db *SQLActivitiesDatabase) GetActivitiesForAccount(ctx context.Context, id int64) iter.Seq2[*activitypub.Activity, error] {
 
 	where := "account_id = ?"
-	args := []interface{}{id}
+	args := []any{id}
 
-	return db.getActivities(ctx, where, args, cb)
+	return db.getActivities(ctx, where, args)
 }
 
-func (db *SQLActivitiesDatabase) Close(ctx context.Context) error {
-	return db.database.Close()
+// Local methods
+
+func (db *SQLActivitiesDatabase) getActivity(ctx context.Context, where string, args ...any) (*activitypub.Activity, error) {
+
+	q := fmt.Sprintf("SELECT id, activitypub_id, account_id, activity_type, activity_type_id, body, created FROM %s WHERE %s", SQL_ACTIVITIES_TABLE_NAME, where)
+
+	row := db.database.QueryRowContext(ctx, q, args...)
+	return db.deriveActvitiyFromRows(row)
 }
 
-func (db *SQLActivitiesDatabase) getActivity(ctx context.Context, where string, args ...interface{}) (*activitypub.Activity, error) {
+func (db *SQLActivitiesDatabase) getActivities(ctx context.Context, where string, args []any) iter.Seq2[*activitypub.Activity, error] {
+
+	return func(yield func(*activitypub.Activity, error) bool) {
+
+		pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
+
+			rows := pg_rsp.Rows()
+
+			for rows.Next() {
+
+				a, err := db.deriveActvitiyFromRows(rows)
+
+				if err != nil {
+
+					if !yield(nil, err) {
+						return err
+					}
+
+					continue
+				}
+
+				if !yield(a, nil) {
+					return nil
+				}
+			}
+
+			err := rows.Close()
+
+			if err != nil {
+				return fmt.Errorf("Failed to iterate through database rows, %w", err)
+			}
+
+			return nil
+		}
+
+		pg_opts, err := countable.NewCountableOptions()
+
+		if err != nil {
+			yield(nil, fmt.Errorf("Failed to create pagination options, %w", err))
+		}
+
+		q := fmt.Sprintf("SELECT id, activitypub_id, account_id, activity_type, activity_type_id, body, created FROM %s WHERE %s", SQL_ACTIVITIES_TABLE_NAME, where)
+
+		err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q, args...)
+
+		if err != nil {
+			yield(nil, fmt.Errorf("Failed to execute paginated query, %w", err))
+		}
+	}
+}
+
+func (db *SQLActivitiesDatabase) deriveActvitiyFromRows(r any) (*activitypub.Activity, error) {
 
 	var id int64
 	var activitypub_id string
@@ -103,19 +176,19 @@ func (db *SQLActivitiesDatabase) getActivity(ctx context.Context, where string, 
 	var body string
 	var created int64
 
-	q := fmt.Sprintf("SELECT id, activitypub_id, account_id, activity_type, activity_type_id, body, created FROM %s WHERE %s", SQL_ACTIVITIES_TABLE_NAME, where)
+	var err error
 
-	row := db.database.QueryRowContext(ctx, q, args...)
-
-	err := row.Scan(&id, &activitypub_id, &account_id, &activity_type, &activity_type_id, &body, &created)
-
-	switch {
-	case err == sql.ErrNoRows:
-		return nil, activitypub.ErrNotFound
-	case err != nil:
-		return nil, err
+	switch r.(type) {
+	case *sql.Row:
+		err = r.(*sql.Row).Scan(&id, &activitypub_id, &account_id, &activity_type, &activity_type_id, &body, &created)
+	case *sql.Rows:
+		err = r.(*sql.Rows).Scan(&id, &activitypub_id, &account_id, &activity_type, &activity_type_id, &body, &created)
 	default:
-		//
+		err = fmt.Errorf("Invalid type %T", r)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to query database, %w", err)
 	}
 
 	a := &activitypub.Activity{
@@ -129,70 +202,4 @@ func (db *SQLActivitiesDatabase) getActivity(ctx context.Context, where string, 
 	}
 
 	return a, nil
-}
-
-func (db *SQLActivitiesDatabase) getActivities(ctx context.Context, where string, args []interface{}, cb GetActivitiesCallbackFunc) error {
-
-	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
-
-		rows := pg_rsp.Rows()
-
-		for rows.Next() {
-
-			var id int64
-			var activitypub_id string
-			var account_id int64
-			var activity_type int
-			var activity_type_id int64
-			var body string
-			var created int64
-
-			err := rows.Scan(&id, &activitypub_id, &account_id, &activity_type, &activity_type_id, &body, &created)
-
-			if err != nil {
-				return fmt.Errorf("Failed to query database, %w", err)
-			}
-
-			a := &activitypub.Activity{
-				Id:             id,
-				ActivityPubId:  activitypub_id,
-				AccountId:      account_id,
-				ActivityType:   activitypub.ActivityType(activity_type),
-				ActivityTypeId: activity_type_id,
-				Body:           body,
-				Created:        created,
-			}
-
-			err = cb(ctx, a)
-
-			if err != nil {
-				return fmt.Errorf("Failed to execute following callback for account %d, %w", id, err)
-			}
-		}
-
-		err := rows.Close()
-
-		if err != nil {
-			return fmt.Errorf("Failed to iterate through database rows, %w", err)
-		}
-
-		return nil
-	}
-
-	pg_opts, err := countable.NewCountableOptions()
-
-	if err != nil {
-		return fmt.Errorf("Failed to create pagination options, %w", err)
-	}
-
-	q := fmt.Sprintf("SELECT id, activitypub_id, account_id, activity_type, activity_type_id, body, created FROM %s WHERE %s", SQL_ACTIVITIES_TABLE_NAME, where)
-
-	err = pg_sql.QueryPaginatedAll(db.database, pg_opts, pg_callback, q, args...)
-
-	if err != nil {
-		return fmt.Errorf("Failed to execute paginated query, %w", err)
-	}
-
-	return nil
-
 }

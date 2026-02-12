@@ -57,7 +57,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to create activities database, %w", err)
 	}
 
-	defer activities_db.Close(ctx)
+	defer activities_db.Close()
 
 	deliveries_db, err := database.NewDeliveriesDatabase(ctx, opts.DeliveriesDatabaseURI)
 
@@ -100,7 +100,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		logger = logger.With("activity id", activity_id)
 		logger = logger.With("to", recipient)
 
-		activity, err := activities_db.GetActivityWithId(ctx, activity_id)
+		activity, err := activities_db.GetRecord(ctx, activity_id)
 
 		if err != nil {
 			logger.Error("Failed to retrieve activity", "error", err)

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/sfomuseum/go-activitypub"
 	"github.com/sfomuseum/go-activitypub/database"
 )
 
@@ -39,18 +38,15 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to create activities database, %w", err)
 	}
 
-	defer activities_db.Close(ctx)
+	defer activities_db.Close()
 
-	cb := func(ctx context.Context, a *activitypub.Activity) error {
+	for a, err := range activities_db.QueryRecords(ctx, nil) {
+
+		if err != nil {
+			return fmt.Errorf("Failed to get activities, %w", err)
+		}
 
 		slog.Info("LOG", "activity", a)
-		return nil
-	}
-
-	err = activities_db.GetActivities(ctx, cb)
-
-	if err != nil {
-		return fmt.Errorf("Failed to get activities, %w", err)
 	}
 
 	return nil
