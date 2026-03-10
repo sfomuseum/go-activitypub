@@ -453,7 +453,7 @@ gocloud.dev/runtimevar/driver
 gocloud.dev/runtimevar/filevar
 gocloud.dev/secrets
 gocloud.dev/secrets/driver
-# golang.org/x/crypto v0.43.0
+# golang.org/x/crypto v0.45.0
 ## explicit; go 1.24.0
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blake2s
@@ -475,7 +475,7 @@ golang.org/x/image/font/basicfont
 golang.org/x/image/font/gofont/goregular
 golang.org/x/image/math/f64
 golang.org/x/image/math/fixed
-# golang.org/x/net v0.46.0
+# golang.org/x/net v0.47.0
 ## explicit; go 1.24.0
 golang.org/x/net/html
 golang.org/x/net/html/atom
@@ -486,7 +486,7 @@ golang.org/x/net/idna
 golang.org/x/net/internal/httpcommon
 golang.org/x/net/internal/timeseries
 golang.org/x/net/trace
-# golang.org/x/sync v0.17.0
+# golang.org/x/sync v0.18.0
 ## explicit; go 1.24.0
 golang.org/x/sync/errgroup
 # golang.org/x/sys v0.40.0
@@ -495,7 +495,7 @@ golang.org/x/sys/cpu
 golang.org/x/sys/unix
 golang.org/x/sys/windows
 golang.org/x/sys/windows/registry
-# golang.org/x/text v0.30.0
+# golang.org/x/text v0.31.0
 ## explicit; go 1.24.0
 golang.org/x/text/secure/bidirule
 golang.org/x/text/transform

@@ -30,7 +30,7 @@ require (
 	github.com/tidwall/gjson v1.18.0
 	gocloud.dev v0.43.0
 	golang.org/x/image v0.32.0
-	golang.org/x/net v0.46.0
+	golang.org/x/net v0.47.0
 )
 
 require (
@@ -88,10 +88,10 @@ require (
 	go.opentelemetry.io/otel/sdk v1.40.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.40.0 // indirect
 	go.opentelemetry.io/otel/trace v1.40.0 // indirect
-	golang.org/x/crypto v0.43.0 // indirect
-	golang.org/x/sync v0.17.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
+	golang.org/x/sync v0.18.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
-	golang.org/x/text v0.30.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/api v0.242.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250715232539-7130f93afb79 // indirect
