@@ -38,6 +38,17 @@
 //   - For some drivers, Nack is not supported and will panic; you can call
 //     Message.Nackable to see.
 //
+// # Errors
+//
+// The errors returned from this package can be inspected in several ways:
+//
+// The Code function from gocloud.dev/gcerrors will return an error code, also
+// defined in that package, when invoked on an error. Alternatively, errors.Is
+// can be used with the code-specific errors from the same package (e.g., ErrInternal).
+//
+// The Topic/Subscription.ErrorAs methods can retrieve the driver error underlying the returned
+// error. Alternatively, errors.As can be used in the same way.
+//
 // # OpenTelemetry Integration.
 //
 // OpenTelemetry supports tracing and metric collection for multiple languages and
@@ -327,7 +338,7 @@ func newSendBatcher(ctx context.Context, t *Topic, dt driver.Topic, opts *batche
 		}
 		return nil
 	}
-	return batcher.New(reflect.TypeOf(&driver.Message{}), opts, handler)
+	return batcher.New(reflect.TypeFor[*driver.Message](), opts, handler)
 }
 
 // newTopic makes a pubsub.Topic from a driver.Topic.
@@ -457,11 +468,9 @@ func (s *Subscription) updateBatchSize() int {
 		// Update s.runningBatchSize based on throughput since our last time here,
 		// as measured by the ratio of the number of messages returned to elapsed
 		// time.
-		elapsed := now.Sub(s.throughputStart)
-		if elapsed < 100*time.Millisecond {
+		elapsed := max(now.Sub(s.throughputStart),
 			// Avoid divide-by-zero and huge numbers.
-			elapsed = 100 * time.Millisecond
-		}
+			100*time.Millisecond)
 		msgsPerSec := float64(s.throughputCount) / elapsed.Seconds()
 
 		// The "ideal" batch size is how many messages we'd need in the queue to
@@ -495,19 +504,18 @@ func (s *Subscription) updateBatchSize() int {
 //
 // Receive retries retryable errors from the underlying driver forever.
 // Therefore, if Receive returns an error, either:
-// 1. It is a non-retryable error from the underlying driver, either from
 //
-//	an attempt to fetch more messages or from an attempt to ack messages.
-//	Operator intervention may be required (e.g., invalid resource, quota
-//	error, etc.). Receive will return the same error from then on, so the
-//	application should log the error and either recreate the Subscription,
-//	or exit.
+//  1. It is a non-retryable error from the underlying driver, either from
+//     an attempt to fetch more messages or from an attempt to ack messages.
+//     Operator intervention may be required (e.g., invalid resource, quota
+//     error, etc.). Receive will return the same error from then on, so the
+//     application should log the error and either recreate the Subscription,
+//     or exit.
 //
-// 2. The provided ctx is Done. Error() on the returned error will include both
-//
-//	the ctx error and the underlying driver error, and ErrorAs on it
-//	can access the underlying driver error type if needed. Receive may
-//	be called again with a fresh ctx.
+//  2. The provided ctx is Done. Error() on the returned error will include both
+//     the ctx error and the underlying driver error, and ErrorAs on it
+//     can access the underlying driver error type if needed. Receive may
+//     be called again with a fresh ctx.
 //
 // Callers can distinguish between the two by checking if the ctx they passed
 // is Done, or via xerrors.Is(err, context.DeadlineExceeded or context.Canceled)
@@ -800,7 +808,7 @@ func newAckBatcher(ctx context.Context, s *Subscription, ds driver.Subscription,
 		}
 		return err
 	}
-	return batcher.New(reflect.TypeOf([]*driver.AckInfo{}).Elem(), opts, handler)
+	return batcher.New(reflect.TypeFor[[]*driver.AckInfo]().Elem(), opts, handler)
 }
 
 type errorCoder interface {

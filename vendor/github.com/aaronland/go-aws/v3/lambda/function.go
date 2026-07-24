@@ -59,7 +59,7 @@ func NewLambdaFunction(ctx context.Context, uri string) (*LambdaFunction, error)
 	return f, nil
 }
 
-func (f *LambdaFunction) Invoke(ctx context.Context, payload interface{}) (*aws_lambda.InvokeOutput, error) {
+func (f *LambdaFunction) Invoke(ctx context.Context, payload any) (*aws_lambda.InvokeOutput, error) {
 
 	enc_payload, err := json.Marshal(payload)
 

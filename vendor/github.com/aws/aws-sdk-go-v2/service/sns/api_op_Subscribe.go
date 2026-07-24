@@ -56,8 +56,8 @@ type SubscribeInput struct {
 	//
 	//   - lambda – delivery of JSON-encoded message to an Lambda function
 	//
-	//   - firehose – delivery of JSON-encoded message to an Amazon Kinesis Data
-	//   Firehose delivery stream.
+	//   - firehose – delivery of JSON-encoded message to an Amazon Data Firehose
+	//   delivery stream.
 	//
 	// This member is required.
 	Protocol *string
@@ -156,7 +156,7 @@ type SubscribeInput struct {
 	//
 	//   - For the lambda protocol, the endpoint is the ARN of an Lambda function.
 	//
-	//   - For the firehose protocol, the endpoint is the ARN of an Amazon Kinesis Data
+	//   - For the firehose protocol, the endpoint is the ARN of an Amazon Data
 	//   Firehose delivery stream.
 	Endpoint *string
 
@@ -279,16 +279,13 @@ func (c *Client) addOperationSubscribeMiddlewares(stack *middleware.Stack, optio
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
 		return err
 	}
-	if err = addSpanInitializeStart(stack); err != nil {
+	if err = addInterceptBeforeRetryLoop(stack, options); err != nil {
 		return err
 	}
-	if err = addSpanInitializeEnd(stack); err != nil {
+	if err = addInterceptAttempt(stack, options); err != nil {
 		return err
 	}
-	if err = addSpanBuildRequestStart(stack); err != nil {
-		return err
-	}
-	if err = addSpanBuildRequestEnd(stack); err != nil {
+	if err = addInterceptors(stack, options); err != nil {
 		return err
 	}
 	return nil

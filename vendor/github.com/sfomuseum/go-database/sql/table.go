@@ -33,6 +33,8 @@ func HasTable(ctx context.Context, db *sql.DB, table_name string) (bool, error) 
 		return HasPostgresTable(ctx, db, table_name)
 	case DUCKDB_DRIVER:
 		return HasDuckDBTable(ctx, db, table_name)
+	case MYSQL_DRIVER:
+		return HasMySQLTable(ctx, db, table_name)
 	default:
 		return false, fmt.Errorf("Unhandled or unsupported database driver %s", DriverTypeOf(db))
 	}

@@ -26,10 +26,11 @@
 // The errors returned from this package can be inspected in several ways:
 //
 // The Code function from gocloud.dev/gcerrors will return an error code, also
-// defined in that package, when invoked on an error.
+// defined in that package, when invoked on an error. Alternatively, errors.Is
+// can be used with the code-specific errors from the same package (e.g., ErrInternal).
 //
 // The Bucket.ErrorAs method can retrieve the driver error underlying the returned
-// error.
+// error. Alternatively, errors.As can be used in the same way.
 //
 // # OpenTelemetry Integration
 //
@@ -70,6 +71,7 @@ import (
 	"fmt"
 	"hash"
 	"io"
+	"iter"
 	"log"
 	"mime"
 	"net/http"
@@ -609,6 +611,71 @@ func (i *ListIterator) Next(ctx context.Context) (*ListObject, error) {
 	i.page = p
 	i.nextIdx = 0
 	return i.Next(ctx)
+}
+
+type errorState struct {
+	mu   sync.Mutex
+	done bool
+	err  error
+}
+
+func (es *errorState) Done() {
+	es.mu.Lock()
+	es.done = true
+	es.mu.Unlock()
+}
+
+func (es *errorState) Set(err error) {
+	if err != nil {
+		es.mu.Lock()
+		es.err = err
+		es.mu.Unlock()
+	}
+}
+
+func (es *errorState) Err() error {
+	es.mu.Lock()
+	defer es.mu.Unlock()
+	return es.err
+}
+
+func (es *errorState) Func() func() error {
+	return func() error {
+		es.mu.Lock()
+		defer es.mu.Unlock()
+		if !es.done {
+			panic("error function called before iteration completed")
+		}
+		return es.err
+	}
+}
+
+// All iterates over the iterator, returning a *ListObject and a download function for each entry.
+//
+// Once iteration is complete, the returned "func() error" will return any errors; a non-nil return
+// value implies that the iteration did not complete.
+// Calling this function before iteration is complete will panic.
+func (i *ListIterator) All(ctx context.Context) (iter.Seq2[*ListObject, func(io.Writer, *ReaderOptions) error], func() error) {
+	var es errorState
+	return func(yield func(*ListObject, func(io.Writer, *ReaderOptions) error) bool) {
+		defer es.Done()
+		for {
+			obj, itErr := i.Next(ctx)
+			if itErr == io.EOF {
+				return
+			}
+			if itErr != nil {
+				es.Set(itErr)
+				return
+			}
+			downloadFunc := func(w io.Writer, opts *ReaderOptions) error {
+				return i.b.Download(ctx, obj.Key, w, opts)
+			}
+			if !yield(obj, downloadFunc) {
+				return
+			}
+		}
+	}, es.Func()
 }
 
 // ListObject represents a single blob returned from List.

@@ -270,6 +270,123 @@ type ContextEntry struct {
 	noSmithyDocumentSerde
 }
 
+// Contains information about the permissions being delegated in a delegation
+// request.
+type DelegationPermission struct {
+
+	// A list of policy parameters that define the scope and constraints of the
+	// delegated permissions.
+	Parameters []PolicyParameter
+
+	// This ARN maps to a pre-registered policy content for this partner. See the partner onboarding documentation to
+	// understand how to create a delegation template.
+	PolicyTemplateArn *string
+
+	noSmithyDocumentSerde
+}
+
+// Contains information about a delegation request, including its status,
+// permissions, and associated metadata.
+type DelegationRequest struct {
+
+	// The Amazon Resource Name (ARN). ARNs are unique identifiers for Amazon Web
+	// Services resources.
+	//
+	// For more information about ARNs, go to [Amazon Resource Names (ARNs)] in the Amazon Web Services General
+	// Reference.
+	//
+	// [Amazon Resource Names (ARNs)]: https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html
+	ApproverId *string
+
+	// Creation date (timestamp) of this delegation request.
+	CreateDate *time.Time
+
+	// The unique identifier for the delegation request.
+	DelegationRequestId *string
+
+	// Description of the delegation request. This is a message that is provided by
+	// the Amazon Web Services partner that filed the delegation request.
+	Description *string
+
+	// The expiry time of this delegation request
+	//
+	// See the [Understanding the Request Lifecycle] for details on the life time of a delegation request at each state.
+	//
+	// [Understanding the Request Lifecycle]: https://docs.aws.amazon.com/IAM/latest/UserGuide/temporary-delegation-building-integration.html#temporary-delegation-request-lifecycle
+	ExpirationTime *time.Time
+
+	// Notes added to this delegation request, if this request was updated via the [UpdateDelegationRequest]
+	// API.
+	//
+	// [UpdateDelegationRequest]: https://docs.aws.amazon.com/IAM/latest/APIReference/API_UpdateDelegationRequest.html
+	Notes *string
+
+	// A flag indicating whether the [SendDelegationToken] must be called by the owner of this delegation
+	// request. This is set by the requesting partner.
+	//
+	// [SendDelegationToken]: https://docs.aws.amazon.com/IAM/latest/APIReference/API_SendDelegationToken.html
+	OnlySendByOwner bool
+
+	// Amazon Web Services account ID of the owner of the delegation request.
+	OwnerAccountId *string
+
+	// ARN of the owner of this delegation request.
+	OwnerId *string
+
+	// JSON content of the associated permission policy of this delegation request.
+	PermissionPolicy *string
+
+	// Contains information about the permissions being delegated in a delegation
+	// request.
+	Permissions *DelegationPermission
+
+	// A URL to be redirected to once the delegation request is approved. Partners
+	// provide this URL when creating the delegation request.
+	RedirectUrl *string
+
+	// Reasons for rejecting this delegation request, if this request was rejected.
+	// See also [RejectDelegationRequest]API documentation.
+	//
+	// [RejectDelegationRequest]: https://docs.aws.amazon.com/IAM/latest/APIReference/API_RejectDelegationRequest.html
+	RejectionReason *string
+
+	// A custom message that is added to the delegation request by the partner.
+	//
+	// This element is different from the Description element such that this is a
+	// request specific message injected by the partner. The Description is typically
+	// a generic explanation of what the delegation request is targeted to do.
+	RequestMessage *string
+
+	// Identity of the requestor of this delegation request. This will be an Amazon
+	// Web Services account ID.
+	RequestorId *string
+
+	// A friendly name of the requestor.
+	RequestorName *string
+
+	// If the PermissionPolicy includes role creation permissions, this element will
+	// include the list of permissions boundary policies associated with the role
+	// creation. See [Permissions boundaries for IAM entities]for more details about IAM permission boundaries.
+	//
+	// [Permissions boundaries for IAM entities]: https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html
+	RolePermissionRestrictionArns []string
+
+	// The life-time of the requested session credential.
+	SessionDuration *int32
+
+	// The state of this delegation request.
+	//
+	// See the [Understanding the Request Lifecycle] for an explanation of how these states are transitioned.
+	//
+	// [Understanding the Request Lifecycle]: https://docs.aws.amazon.com/IAM/latest/UserGuide/temporary-delegation-building-integration.html#temporary-delegation-request-lifecycle
+	State StateType
+
+	// Last updated timestamp of the request.
+	UpdatedTime *time.Time
+
+	noSmithyDocumentSerde
+}
+
 // The reason that the service-linked role deletion failed.
 //
 // This data type is used as a response element in the [GetServiceLinkedRoleDeletionStatus] operation.
@@ -1063,6 +1180,22 @@ type PolicyGroup struct {
 	noSmithyDocumentSerde
 }
 
+// Contains information about a policy parameter used to customize delegated
+// permissions.
+type PolicyParameter struct {
+
+	// The name of the policy parameter.
+	Name *string
+
+	// The data type of the policy parameter value.
+	Type PolicyParameterTypeEnum
+
+	// The allowed values for the policy parameter.
+	Values []string
+
+	noSmithyDocumentSerde
+}
+
 // Contains information about a role that a managed policy is attached to.
 //
 // This data type is used as a response element in the [ListEntitiesForPolicy] operation.
@@ -1646,17 +1779,18 @@ type ServiceSpecificCredential struct {
 	UserName *string
 
 	// The date and time when the service specific credential expires. This field is
-	// only present for Bedrock API keys that were created with an expiration period.
+	// only present for Bedrock API keys and CloudWatch Logs API keys that were created
+	// with an expiration period.
 	ExpirationDate *time.Time
 
-	// For Bedrock API keys, this is the public portion of the credential that
-	// includes the IAM user name and a suffix containing version and creation
-	// information.
+	// For Bedrock API keys and CloudWatch Logs API keys, this is the public portion
+	// of the credential that includes the IAM user name and a suffix containing
+	// version and creation information.
 	ServiceCredentialAlias *string
 
-	// For Bedrock API keys, this is the secret portion of the credential that should
-	// be used to authenticate API calls. This value is returned only when the
-	// credential is created.
+	// For Bedrock API keys and CloudWatch Logs API keys, this is the secret portion
+	// of the credential that should be used to authenticate API calls. This value is
+	// returned only when the credential is created.
 	ServiceCredentialSecret *string
 
 	// The generated password for the service-specific credential.
@@ -1703,12 +1837,13 @@ type ServiceSpecificCredentialMetadata struct {
 	UserName *string
 
 	// The date and time when the service specific credential expires. This field is
-	// only present for Bedrock API keys that were created with an expiration period.
+	// only present for Bedrock API keys and CloudWatch Logs API keys that were created
+	// with an expiration period.
 	ExpirationDate *time.Time
 
-	// For Bedrock API keys, this is the public portion of the credential that
-	// includes the IAM user name and a suffix containing version and creation
-	// information.
+	// For Bedrock API keys and CloudWatch Logs API keys, this is the public portion
+	// of the credential that includes the IAM user name and a suffix containing
+	// version and creation information.
 	ServiceCredentialAlias *string
 
 	// The generated user name for the service-specific credential.

@@ -49,7 +49,7 @@
 //   - ReaderOptions.BeforeRead: *s3.GetObjectInput or *[]func(*s3.Options)
 //   - Attributes: s3.HeadObjectOutput
 //   - CopyOptions.BeforeCopy: s3.CopyObjectInput
-//   - WriterOptions.BeforeWrite: *s3.PutObjectInput, *s3manager.Uploader
+//   - WriterOptions.BeforeWrite: *transfermanager.UploadObjectInput, *transfermanager.Client
 //   - SignedURLOptions.BeforeSign: *s3.GetObjectInput, when Options.Method == http.MethodGet, or
 //       *s3.PutObjectInput, when Options.Method == http.MethodPut
 
@@ -57,7 +57,6 @@ package s3blob // import "gocloud.dev/blob/s3blob"
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -69,7 +68,8 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	s3manager "github.com/aws/aws-sdk-go-v2/feature/s3/manager"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/transfermanager"
+	tmtypes "github.com/aws/aws-sdk-go-v2/feature/s3/transfermanager/types"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/smithy-go"
@@ -209,10 +209,15 @@ func (o *URLOpener) OpenBucketURL(ctx context.Context, u *url.URL) (*blob.Bucket
 	}
 	client := s3.NewFromConfig(cfg, opts...)
 
+	// The S3 upload manager doesn't use the config or options to set the
+	// request checksum calculation. We need to set it explicitly:
+	// https://github.com/aws/aws-sdk-go-v2/pull/3151
+	o.Options.RequestChecksumCalculation = cfg.RequestChecksumCalculation
+
 	return OpenBucket(ctx, client, u.Host, &o.Options)
 }
 
-// Options sets options for constructing a *blob.Bucket backed by fileblob.
+// Options sets options for constructing a *blob.Bucket backed by S3.
 type Options struct {
 	// UseLegacyList forces the use of ListObjects instead of ListObjectsV2.
 	// Some S3-compatible services (like CEPH) do not currently support
@@ -228,6 +233,11 @@ type Options struct {
 	// This is required when a bucket policy enforces the use of a specific
 	// KMS key for uploads
 	KMSEncryptionID string
+
+	// RequestChecksumCalculation configures the default integrity protection for
+	// requests. This may need to be set to when_required to preserve compatibility for
+	// third-party S3 providers: https://github.com/aws/aws-sdk-go-v2/discussions/2960.
+	RequestChecksumCalculation aws.RequestChecksumCalculation
 }
 
 // openBucket returns an S3 Bucket.
@@ -242,11 +252,12 @@ func openBucket(ctx context.Context, client *s3.Client, bucketName string, opts 
 		return nil, errors.New("s3blob.OpenBucket: client is required")
 	}
 	return &bucket{
-		name:           bucketName,
-		client:         client,
-		useLegacyList:  opts.UseLegacyList,
-		kmsKeyId:       opts.KMSEncryptionID,
-		encryptionType: opts.EncryptionType,
+		name:                       bucketName,
+		client:                     client,
+		useLegacyList:              opts.UseLegacyList,
+		kmsKeyId:                   opts.KMSEncryptionID,
+		encryptionType:             opts.EncryptionType,
+		requestChecksumCalculation: opts.RequestChecksumCalculation,
 	}, nil
 }
 
@@ -300,9 +311,9 @@ type writer struct {
 	// used to upload data.
 	upload bool
 
-	ctx      context.Context
-	uploader *s3manager.Uploader
-	req      *s3.PutObjectInput
+	ctx context.Context
+	tm  *transfermanager.Client
+	req *transfermanager.UploadObjectInput
 
 	donec chan struct{} // closed when done writing
 	// The following fields will be written before donec closes:
@@ -347,7 +358,7 @@ func (w *writer) open(r io.Reader, closePipeOnError bool) {
 		}
 		var err error
 		w.req.Body = r
-		_, err = w.uploader.Upload(w.ctx, w.req)
+		_, err = w.tm.UploadObject(w.ctx, w.req)
 		if err != nil {
 			if closePipeOnError {
 				w.pr.CloseWithError(err)
@@ -382,8 +393,9 @@ type bucket struct {
 	client        *s3.Client
 	useLegacyList bool
 
-	encryptionType types.ServerSideEncryption
-	kmsKeyId       string
+	encryptionType             types.ServerSideEncryption
+	kmsKeyId                   string
+	requestChecksumCalculation aws.RequestChecksumCalculation
 }
 
 func (b *bucket) Close() error {
@@ -407,6 +419,8 @@ func (b *bucket) ErrorCode(err error) gcerrors.ErrorCode {
 		return gcerrors.NotFound
 	case code == "PreconditionFailed":
 		return gcerrors.FailedPrecondition
+	case code == "AccessDenied" || code == "Forbidden":
+		return gcerrors.PermissionDenied
 	default:
 		return gcerrors.Unknown
 	}
@@ -442,7 +456,6 @@ func (b *bucket) ListPaged(ctx context.Context, opts *driver.ListOptions) (*driv
 	if n := len(resp.Contents) + len(resp.CommonPrefixes); n > 0 {
 		page.Objects = make([]*driver.ListObject, n)
 		for i, obj := range resp.Contents {
-			obj := obj
 			page.Objects[i] = &driver.ListObject{
 				Key:     unescapeKey(aws.ToString(obj.Key)),
 				ModTime: *obj.LastModified,
@@ -459,7 +472,6 @@ func (b *bucket) ListPaged(ctx context.Context, opts *driver.ListOptions) (*driv
 			}
 		}
 		for i, prefix := range resp.CommonPrefixes {
-			prefix := prefix
 			page.Objects[i+len(resp.Contents)] = &driver.ListObject{
 				Key:   unescapeKey(aws.ToString(prefix.Prefix)),
 				IsDir: true,
@@ -726,12 +738,12 @@ func unescapeKey(key string) string {
 // NewTypedWriter implements driver.NewTypedWriter.
 func (b *bucket) NewTypedWriter(ctx context.Context, key, contentType string, opts *driver.WriterOptions) (driver.Writer, error) {
 	key = escapeKey(key)
-	uploader := s3manager.NewUploader(b.client, func(u *s3manager.Uploader) {
+	tm := transfermanager.New(b.client, func(o *transfermanager.Options) {
 		if opts.BufferSize != 0 {
-			u.PartSize = int64(opts.BufferSize)
+			o.PartSizeBytes = int64(opts.BufferSize)
 		}
 		if opts.MaxConcurrency != 0 {
-			u.Concurrency = opts.MaxConcurrency
+			o.Concurrency = opts.MaxConcurrency
 		}
 	})
 	md := make(map[string]string, len(opts.Metadata))
@@ -744,7 +756,7 @@ func (b *bucket) NewTypedWriter(ctx context.Context, key, contentType string, op
 		})
 		md[k] = url.PathEscape(v)
 	}
-	req := &s3.PutObjectInput{
+	req := &transfermanager.UploadObjectInput{
 		Bucket:      aws.String(b.name),
 		ContentType: aws.String(contentType),
 		Key:         aws.String(key),
@@ -767,32 +779,29 @@ func (b *bucket) NewTypedWriter(ctx context.Context, key, contentType string, op
 	if opts.ContentLanguage != "" {
 		req.ContentLanguage = aws.String(opts.ContentLanguage)
 	}
-	if len(opts.ContentMD5) > 0 {
-		req.ContentMD5 = aws.String(base64.StdEncoding.EncodeToString(opts.ContentMD5))
-	}
+	// S3 doesn't support ContentMD5 validation anymore.
 	if b.encryptionType != "" {
-		req.ServerSideEncryption = b.encryptionType
+		req.ServerSideEncryption = tmtypes.ServerSideEncryption(b.encryptionType)
 	}
 	if b.kmsKeyId != "" {
-		req.SSEKMSKeyId = aws.String(b.kmsKeyId)
+		req.SSEKMSKeyID = aws.String(b.kmsKeyId)
 	}
 	if opts.BeforeWrite != nil {
 		asFunc := func(i any) bool {
 			// Note that since the Go CDK Blob
 			// abstraction does not expose AWS's
-			// Uploader concept, there does not
+			// Transfer Manager concept, there does not
 			// appear to be any utility in
 			// exposing the options list to the v2
-			// Uploader's Upload() method.
+			// Transfer Manager's UploadObject() method.
 			// Instead, applications can
-			// manipulate the exposed *Uploader
-			// directly, including by setting
-			// ClientOptions if needed.
-			if p, ok := i.(**s3manager.Uploader); ok {
-				*p = uploader
+			// manipulate the exposed *Client
+			// directly.
+			if p, ok := i.(**transfermanager.Client); ok {
+				*p = tm
 				return true
 			}
-			if p, ok := i.(**s3.PutObjectInput); ok {
+			if p, ok := i.(**transfermanager.UploadObjectInput); ok {
 				*p = req
 				return true
 			}
@@ -803,10 +812,10 @@ func (b *bucket) NewTypedWriter(ctx context.Context, key, contentType string, op
 		}
 	}
 	return &writer{
-		ctx:      ctx,
-		uploader: uploader,
-		req:      req,
-		donec:    make(chan struct{}),
+		ctx:   ctx,
+		tm:    tm,
+		req:   req,
+		donec: make(chan struct{}),
 	}, nil
 }
 
