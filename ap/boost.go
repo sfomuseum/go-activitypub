@@ -50,12 +50,12 @@ func NewBoostActivityForNote(ctx context.Context, uris_table *uris.URIs, from st
 }
 
 // NewBoostActivity will return an ActivityPub "Announce" activity from 'from' about 'object' (created by 'author_addr').
-func NewBoostActivity(ctx context.Context, uris_table *uris.URIs, from string, author_addr string, object interface{}) (*Activity, error) {
+func NewBoostActivity(ctx context.Context, uris_table *uris.URIs, from string, author_addr string, object any) (*Activity, error) {
 	return NewAnnounceActivity(ctx, uris_table, from, author_addr, object)
 }
 
 // NewAnnounceActivity will return an ActivityPub "Announce" activity from 'from' about 'object' (created by 'author_addr').
-func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string, author_addr string, object interface{}) (*Activity, error) {
+func NewAnnounceActivity(ctx context.Context, uris_table *uris.URIs, from string, author_addr string, object any) (*Activity, error) {
 
 	ap_id := NewId(uris_table, "announce")
 

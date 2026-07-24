@@ -47,7 +47,7 @@ func NewSQLBoostsDatabase(ctx context.Context, uri string) (BoostsDatabase, erro
 func (db *SQLBoostsDatabase) GetBoosts(ctx context.Context, cb GetBoostsCallbackFunc) error {
 
 	where := ""
-	args := make([]interface{}, 0)
+	args := make([]any, 0)
 
 	return db.getBoostsForQuery(ctx, where, args, cb)
 }
@@ -68,7 +68,7 @@ func (db *SQLBoostsDatabase) GetBoostsForAccount(ctx context.Context, account_id
 
 	where := "account_id = ?"
 
-	args := []interface{}{
+	args := []any{
 		account_id,
 	}
 
@@ -79,7 +79,7 @@ func (db *SQLBoostsDatabase) GetBoostsForPosts(ctx context.Context, post_id int6
 
 	where := "post_id = ?"
 
-	args := []interface{}{
+	args := []any{
 		post_id,
 	}
 
@@ -89,7 +89,7 @@ func (db *SQLBoostsDatabase) GetBoostsForPosts(ctx context.Context, post_id int6
 func (db *SQLBoostsDatabase) GetBoostsForPostIdAndActor(ctx context.Context, post_id int64, actor string, cb GetBoostsCallbackFunc) error {
 
 	where := "post_id = ? AND actor = ?"
-	args := []interface{}{
+	args := []any{
 		post_id,
 		actor,
 	}
@@ -127,7 +127,7 @@ func (db *SQLBoostsDatabase) Close(ctx context.Context) error {
 	return db.database.Close()
 }
 
-func (db *SQLBoostsDatabase) getBoost(ctx context.Context, where string, args ...interface{}) (*activitypub.Boost, error) {
+func (db *SQLBoostsDatabase) getBoost(ctx context.Context, where string, args ...any) (*activitypub.Boost, error) {
 
 	var id int64
 	var account_id int64
@@ -161,7 +161,7 @@ func (db *SQLBoostsDatabase) getBoost(ctx context.Context, where string, args ..
 	return b, nil
 }
 
-func (db *SQLBoostsDatabase) getBoostsForQuery(ctx context.Context, where string, args []interface{}, cb GetBoostsCallbackFunc) error {
+func (db *SQLBoostsDatabase) getBoostsForQuery(ctx context.Context, where string, args []any, cb GetBoostsCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
 

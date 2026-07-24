@@ -204,7 +204,7 @@ func (db *SQLAccountsDatabase) GetAccountWithName(ctx context.Context, name stri
 	return db.getAccount(ctx, where, name)
 }
 
-func (db *SQLAccountsDatabase) getAccount(ctx context.Context, where string, args ...interface{}) (*activitypub.Account, error) {
+func (db *SQLAccountsDatabase) getAccount(ctx context.Context, where string, args ...any) (*activitypub.Account, error) {
 
 	q := fmt.Sprintf("SELECT id, account_type, name, display_name, blurb, url, public_key_uri, private_key_uri, created, lastmodified FROM %s WHERE %s", SQL_ACCOUNTS_TABLE_NAME, where)
 

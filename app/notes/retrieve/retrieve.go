@@ -43,7 +43,7 @@ func RunWithOptions(ctx context.Context, opts *RunOptions) error {
 		return fmt.Errorf("Failed to retrieve note, %w", err)
 	}
 
-	var target interface{}
+	var target any
 
 	if opts.Body {
 

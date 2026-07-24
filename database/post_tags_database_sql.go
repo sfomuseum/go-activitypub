@@ -196,7 +196,7 @@ func (db *SQLPostTagsDatabase) GetPostTagsForName(ctx context.Context, name stri
 
 	where := "name = ?"
 
-	args := []interface{}{
+	args := []any{
 		name,
 	}
 
@@ -207,7 +207,7 @@ func (db *SQLPostTagsDatabase) GetPostTagsForAccount(ctx context.Context, accoun
 
 	where := "account_id = ?"
 
-	args := []interface{}{
+	args := []any{
 		account_id,
 	}
 
@@ -218,7 +218,7 @@ func (db *SQLPostTagsDatabase) GetPostTagsForPost(ctx context.Context, post_id i
 
 	where := "post_id = ?"
 
-	args := []interface{}{
+	args := []any{
 		post_id,
 	}
 
@@ -255,7 +255,7 @@ func (db *SQLPostTagsDatabase) Close(ctx context.Context) error {
 	return db.database.Close()
 }
 
-func (db *SQLPostTagsDatabase) getPostTagsWithCallback(ctx context.Context, where string, args []interface{}, callback_func GetPostTagsCallbackFunc) error {
+func (db *SQLPostTagsDatabase) getPostTagsWithCallback(ctx context.Context, where string, args []any, callback_func GetPostTagsCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
 

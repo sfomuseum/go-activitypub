@@ -168,7 +168,7 @@ func (db *SQLNotesDatabase) GetNoteWithUUIDAndAuthorAddress(ctx context.Context,
 	return db.getNote(ctx, where, author_address, uuid)
 }
 
-func (db *SQLNotesDatabase) getNote(ctx context.Context, where string, args ...interface{}) (*activitypub.Note, error) {
+func (db *SQLNotesDatabase) getNote(ctx context.Context, where string, args ...any) (*activitypub.Note, error) {
 
 	q := fmt.Sprintf("SELECT id, uuid, author_address, body, created, lastmodified FROM %s WHERE %s", SQL_NOTES_TABLE_NAME, where)
 	row := db.database.QueryRowContext(ctx, q, args...)

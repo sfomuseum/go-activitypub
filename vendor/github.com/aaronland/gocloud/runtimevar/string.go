@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"os"
+	"path/filepath"
 
 	_ "github.com/aaronland/gocloud/blob/s3"
 	_ "gocloud.dev/blob/fileblob"
@@ -29,8 +31,28 @@ func StringVar(ctx context.Context, uri string) (string, error) {
 		return "", fmt.Errorf("Failed to parse URI, %w", err)
 	}
 
-	if u.Scheme == "" {
-		return u.Path, nil
+	switch u.Scheme {
+	case "":
+
+		abs_path, err := filepath.Abs(u.Path)
+
+		if err != nil {
+			return "", fmt.Errorf("Failed to derive absolute path, %w", err)
+		}
+
+		u.Scheme = "file"
+		u.Path = abs_path
+
+	case "cwd":
+
+		cwd, err := os.Getwd()
+
+		if err != nil {
+			return "", fmt.Errorf("Failed to derive current working directory, %w", err)
+		}
+
+		u.Scheme = "file"
+		u.Path = filepath.Join(cwd, u.Path)
 	}
 
 	q := u.Query()
@@ -90,9 +112,7 @@ func StringVar(ctx context.Context, uri string) (string, error) {
 	}
 
 	if v == nil {
-
 		uri = u.String()
-
 		v, v_err = gc.OpenVariable(ctx, uri)
 	}
 

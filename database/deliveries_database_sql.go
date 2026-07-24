@@ -62,7 +62,7 @@ func (db *SQLDeliveriesDatabase) GetDeliveryWithId(ctx context.Context, id int64
 
 func (db *SQLDeliveriesDatabase) GetDeliveries(ctx context.Context, cb GetDeliveriesCallbackFunc) error {
 	where := "1 = 1"
-	args := make([]interface{}, 0)
+	args := make([]any, 0)
 
 	return db.getDeliveries(ctx, where, args, cb)
 }
@@ -70,7 +70,7 @@ func (db *SQLDeliveriesDatabase) GetDeliveries(ctx context.Context, cb GetDelive
 func (db *SQLDeliveriesDatabase) GetDeliveriesWithActivityIdAndRecipient(ctx context.Context, activity_id int64, recipient string, cb GetDeliveriesCallbackFunc) error {
 
 	where := "activity_id = ? AND recipient = ?"
-	args := []interface{}{
+	args := []any{
 		activity_id,
 		recipient,
 	}
@@ -81,7 +81,7 @@ func (db *SQLDeliveriesDatabase) GetDeliveriesWithActivityIdAndRecipient(ctx con
 func (db *SQLDeliveriesDatabase) GetDeliveriesWithActivityPubIdAndRecipient(ctx context.Context, activitypub_id string, recipient string, cb GetDeliveriesCallbackFunc) error {
 
 	where := "activitypub_id = ? AND recipient = ?"
-	args := []interface{}{
+	args := []any{
 		activitypub_id,
 		recipient,
 	}
@@ -142,7 +142,7 @@ func (db *SQLDeliveriesDatabase) Close(ctx context.Context) error {
 	return db.database.Close()
 }
 
-func (db *SQLDeliveriesDatabase) getDelivery(ctx context.Context, where string, args ...interface{}) (*activitypub.Delivery, error) {
+func (db *SQLDeliveriesDatabase) getDelivery(ctx context.Context, where string, args ...any) (*activitypub.Delivery, error) {
 
 	var id int64
 	var activity_id int64
@@ -190,7 +190,7 @@ func (db *SQLDeliveriesDatabase) getDelivery(ctx context.Context, where string, 
 
 }
 
-func (db *SQLDeliveriesDatabase) getDeliveries(ctx context.Context, where string, args []interface{}, cb GetDeliveriesCallbackFunc) error {
+func (db *SQLDeliveriesDatabase) getDeliveries(ctx context.Context, where string, args []any, cb GetDeliveriesCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
 

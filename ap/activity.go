@@ -24,7 +24,7 @@ type Activity struct {
 	// Context needs to be a "whatever" (interface{}) because ActivityPub (JSON-LD)
 	// mixes and matches string URIs, arbritrary data structures and arrays of string
 	// URIs and arbritrary data structures in @context...
-	Context interface{} `json:"@context,omitempty"`
+	Context any `json:"@context,omitempty"`
 	// Id is the unique identifier for the activity.
 	Id string `json:"id"`
 	// Type is the name of the activity being performed.
@@ -38,7 +38,7 @@ type Activity struct {
 	// Audience limits visibility to just the specified users.
 	Audience string `json:"audience,omitempty"`
 	// Object is body of the activity itself.
-	Object interface{} `json:"object,omitempty"`
+	Object any `json:"object,omitempty"`
 	// The RFC3339 date that the activity was published.
 	Published string `json:"published,omitempty"`
 }

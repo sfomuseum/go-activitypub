@@ -541,7 +541,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 			switch activity.Object.(type) {
 			case string:
 				object_uri = activity.Object.(string)
-			case map[string]interface{}:
+			case map[string]any:
 
 				// This is here because the code in deliver.go expects to _dispatch_
 				// "Announce" messages including the note of the post being boosted
@@ -550,7 +550,7 @@ func InboxPostHandler(opts *InboxPostHandlerOptions) (http.Handler, error) {
 
 				//logger.Info("DEBUG", "map", activity.Object)
 
-				obj_map := activity.Object.(map[string]interface{})
+				obj_map := activity.Object.(map[string]any)
 				v, exists := obj_map["url"]
 
 				if !exists {

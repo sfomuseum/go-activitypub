@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"slices"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
+	_ "github.com/aws/aws-sdk-go-v2/aws"
 	aws_dynamodb "github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
 
@@ -23,39 +24,55 @@ type CreateTablesOptions struct {
 // Create one or more tables associated with the dynamodb.DynamoDB instance.
 func CreateTables(ctx context.Context, client *aws_dynamodb.Client, opts *CreateTablesOptions) error {
 
-	for table_name, def := range opts.Tables {
+	for _, def := range opts.Tables {
+
+		table_name := *def.TableName
+
+		logger := slog.Default()
+		logger = logger.With("table", table_name)
 
 		if opts.Prefix != "" {
-			slog.Debug("Assign prefix to table name", "table", table_name, "prefix", opts.Prefix)
+
+			logger.Debug("Assign prefix to table name", "prefix", opts.Prefix)
 			table_name = opts.Prefix + table_name
+
+			logger = slog.Default()
+			logger = logger.With("table", table_name)
 		}
 
 		// To do: Do this concurrently because of the delay waiting for table deletion to complete
 
+		logger.Debug("Check whether table exists")
+
 		has_table, err := HasTable(ctx, client, table_name)
 
 		if err != nil {
+			logger.Error("Failed to determine if table exists", "error", err)
 			return fmt.Errorf("Failed to determined whether table exists, %w", err)
 		}
 
 		if has_table {
 
 			if !opts.Refresh {
+				logger.Debug("Table exists, refresh disabled")
 				continue
 			}
 
+			logger.Debug("Table exists, refresh")
+
 			req := &aws_dynamodb.DeleteTableInput{
-				TableName: aws.String(table_name),
+				TableName: def.TableName,
 			}
 
 			_, err := client.DeleteTable(ctx, req)
 
 			if err != nil {
+				logger.Error("Failed to delete table", "error", err)
 				return fmt.Errorf("Failed to delete table '%s', %w", table_name, err)
 			}
 
 			// Now wait for the deletion to complete...
-			slog.Debug("Table deleted, now waiting for completion", "table_name", table_name)
+			logger.Debug("Table deleted, now waiting for completion")
 
 			ctx := context.Background()
 
@@ -80,9 +97,9 @@ func CreateTables(ctx context.Context, client *aws_dynamodb.Client, opts *Create
 						has_table, err := HasTable(ctx, client, table_name)
 
 						if err != nil {
-							slog.Error("Failed to determine if table exists", "table name", table_name, "error", err)
+							logger.Error("Failed to determine if table exists", "error", err)
 						} else {
-							slog.Debug("Has table check", "table name", table_name, "has_table", has_table)
+							logger.Debug("Has table check", "has_table", has_table)
 						}
 
 						if !has_table {
@@ -107,21 +124,17 @@ func CreateTables(ctx context.Context, client *aws_dynamodb.Client, opts *Create
 
 				if table_ready {
 					break
-
-					go func() {
-						ticker.Stop()
-						done_ch <- true
-					}()
 				}
 			}
 
 		}
 
-		def.TableName = aws.String(table_name)
+		logger.Debug("Create table")
 
 		_, err = client.CreateTable(ctx, def)
 
 		if err != nil {
+			logger.Error("Failed to create table", "error", err)
 			return fmt.Errorf("Failed to create table '%s', %w", table_name, err)
 		}
 	}
@@ -138,15 +151,7 @@ func HasTable(ctx context.Context, client *aws_dynamodb.Client, table_name strin
 		return false, err
 	}
 
-	has_table := false
-
-	for _, name := range tables {
-
-		if name == table_name {
-			has_table = true
-			break
-		}
-	}
+	has_table := slices.Contains(tables, table_name)
 
 	return has_table, nil
 }

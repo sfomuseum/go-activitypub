@@ -179,6 +179,11 @@ type UpdateEventSourceMappingInput struct {
 	// [filter criteria]: https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventfiltering.html#filtering-basics
 	KMSKeyArn *string
 
+	// (Amazon MSK, and self-managed Apache Kafka only) The logging configuration for
+	// your event source. Use this configuration object to define the level of logs for
+	// your event source mapping.
+	LoggingConfig *types.EventSourceMappingLoggingConfig
+
 	// The maximum amount of time, in seconds, that Lambda spends gathering records
 	// before invoking the function. You can configure MaximumBatchingWindowInSeconds
 	// to any value from 0 seconds to 300 seconds in increments of seconds.
@@ -316,6 +321,12 @@ type UpdateEventSourceMappingOutput struct {
 	// The result of the event source mapping's last processing attempt.
 	LastProcessingResult *string
 
+	// (Amazon MSK, and self-managed Apache Kafka only) The logging configuration for
+	// your event source. For more information, see [Event source mapping logging].
+	//
+	// [Event source mapping logging]: https://docs.aws.amazon.com/lambda/latest/dg/esm-logging.html
+	LoggingConfig *types.EventSourceMappingLoggingConfig
+
 	// The maximum amount of time, in seconds, that Lambda spends gathering records
 	// before invoking the function. You can configure MaximumBatchingWindowInSeconds
 	// to any value from 0 seconds to 300 seconds in increments of seconds.
@@ -452,7 +463,7 @@ func (c *Client) addOperationUpdateEventSourceMappingMiddlewares(stack *middlewa
 	if err = addComputePayloadSHA256(stack); err != nil {
 		return err
 	}
-	if err = addRetry(stack, options); err != nil {
+	if err = addRetry(stack, options, c); err != nil {
 		return err
 	}
 	if err = addRawResponseToMetadata(stack); err != nil {
@@ -474,9 +485,6 @@ func (c *Client) addOperationUpdateEventSourceMappingMiddlewares(stack *middlewa
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
-		return err
-	}
-	if err = addTimeOffsetBuild(stack, c); err != nil {
 		return err
 	}
 	if err = addUserAgentRetryMode(stack, options); err != nil {

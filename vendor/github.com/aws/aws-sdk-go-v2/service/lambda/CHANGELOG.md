@@ -1,3 +1,78 @@
+# v1.92.2 (2026-06-04)
+
+* **Dependency Update**: Update to smithy-go v1.27.1 to fix several union-related deserialization bugs in schema-serde-enabled services.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.92.1 (2026-06-03)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.92.0 (2026-06-02)
+
+* **Feature**: Adds configuration for tag propagation to Lambda-managed resources.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.91.0 (2026-06-01)
+
+* **Feature**: Adding new BDD representation of endpoint ruleset
+
+# v1.90.3 (2026-05-29)
+
+* **Dependency Update**: Update to smithy-go v1.26.0.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.90.2 (2026-05-28)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.90.1 (2026-04-29)
+
+* **Dependency Update**: Update to smithy-go v1.25.1.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.90.0 (2026-04-22)
+
+* **Feature**: Add Ruby 4.0 (ruby4.0) support to AWS Lambda.
+
+# v1.89.1 (2026-04-17)
+
+* **Dependency Update**: Bump smithy-go to 1.25.0 to support endpointBdd trait
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.89.0 (2026-04-07)
+
+* **Feature**: Launching Lambda integration with S3 Files as a new file system configuration.
+
+# v1.88.5 (2026-03-26)
+
+* **Bug Fix**: Fix a bug where a recorded clock skew could persist on the client even if the client and server clock ended up realigning.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.88.4 (2026-03-23)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.88.3 (2026-03-13)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.88.2 (2026-03-03)
+
+* **Dependency Update**: Bump minimum Go version to 1.24
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.88.1 (2026-02-23)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.88.0 (2026-01-28)
+
+* **Feature**: We are launching ESM Metrics and logging for Kafka ESM to allow customers to monitor Kafka event processing using CloudWatch Metrics and Logs.
+
+# v1.87.1 (2026-01-09)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
 # v1.87.0 (2025-12-11)
 
 * **Feature**: Add Dotnet 10 (dotnet10) support to AWS Lambda.

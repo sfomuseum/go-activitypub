@@ -55,7 +55,7 @@ func (db *SQLAliasesDatabase) GetAliasesForAccount(ctx context.Context, account_
 
 	where := "account_id = ?"
 
-	args := []interface{}{
+	args := []any{
 		account_id,
 	}
 
@@ -66,7 +66,7 @@ func (db *SQLAliasesDatabase) GetAliasWithName(ctx context.Context, name string)
 
 	where := "name = ?"
 
-	args := []interface{}{
+	args := []any{
 		name,
 	}
 
@@ -103,7 +103,7 @@ func (db *SQLAliasesDatabase) Close(ctx context.Context) error {
 	return db.database.Close()
 }
 
-func (db *SQLAliasesDatabase) getAlias(ctx context.Context, where string, args []interface{}) (*activitypub.Alias, error) {
+func (db *SQLAliasesDatabase) getAlias(ctx context.Context, where string, args []any) (*activitypub.Alias, error) {
 
 	var name string
 	var account_id int64
@@ -132,7 +132,7 @@ func (db *SQLAliasesDatabase) getAlias(ctx context.Context, where string, args [
 	}
 }
 
-func (db *SQLAliasesDatabase) getAliasesWithCallback(ctx context.Context, where string, args []interface{}, callback_func GetAliasesCallbackFunc) error {
+func (db *SQLAliasesDatabase) getAliasesWithCallback(ctx context.Context, where string, args []any, callback_func GetAliasesCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
 

@@ -264,7 +264,7 @@ func (db *SQLLikesDatabase) Close(ctx context.Context) error {
 	return db.database.Close()
 }
 
-func (db *SQLLikesDatabase) getLike(ctx context.Context, where string, args ...interface{}) (*activitypub.Like, error) {
+func (db *SQLLikesDatabase) getLike(ctx context.Context, where string, args ...any) (*activitypub.Like, error) {
 
 	var id int64
 	var account_id int64

@@ -19,7 +19,6 @@ import (
 	"github.com/aws/smithy-go/tracing"
 	smithyhttp "github.com/aws/smithy-go/transport/http"
 	"io"
-	"io/ioutil"
 	"math"
 	"strings"
 )
@@ -1339,6 +1338,11 @@ func awsRestjson1_deserializeOpDocumentCreateEventSourceMappingOutput(v **Create
 				sv.LastProcessingResult = ptr.String(jtv)
 			}
 
+		case "LoggingConfig":
+			if err := awsRestjson1_deserializeDocumentEventSourceMappingLoggingConfig(&sv.LoggingConfig, value); err != nil {
+				return err
+			}
+
 		case "MaximumBatchingWindowInSeconds":
 			if value != nil {
 				jtv, ok := value.(json.Number)
@@ -2230,7 +2234,7 @@ func (m *awsRestjson1_deserializeOpDeleteAlias) HandleDeserialize(ctx context.Co
 	output := &DeleteAliasOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -2830,6 +2834,11 @@ func awsRestjson1_deserializeOpDocumentDeleteEventSourceMappingOutput(v **Delete
 				sv.LastProcessingResult = ptr.String(jtv)
 			}
 
+		case "LoggingConfig":
+			if err := awsRestjson1_deserializeDocumentEventSourceMappingLoggingConfig(&sv.LoggingConfig, value); err != nil {
+				return err
+			}
+
 		case "MaximumBatchingWindowInSeconds":
 			if value != nil {
 				jtv, ok := value.(json.Number)
@@ -3141,7 +3150,7 @@ func (m *awsRestjson1_deserializeOpDeleteFunctionCodeSigningConfig) HandleDeseri
 	output := &DeleteFunctionCodeSigningConfigOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -3250,7 +3259,7 @@ func (m *awsRestjson1_deserializeOpDeleteFunctionConcurrency) HandleDeserialize(
 	output := &DeleteFunctionConcurrencyOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -3356,7 +3365,7 @@ func (m *awsRestjson1_deserializeOpDeleteFunctionEventInvokeConfig) HandleDeseri
 	output := &DeleteFunctionEventInvokeConfigOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -3462,7 +3471,7 @@ func (m *awsRestjson1_deserializeOpDeleteFunctionUrlConfig) HandleDeserialize(ct
 	output := &DeleteFunctionUrlConfigOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -3565,7 +3574,7 @@ func (m *awsRestjson1_deserializeOpDeleteLayerVersion) HandleDeserialize(ctx con
 	output := &DeleteLayerVersionOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -3662,7 +3671,7 @@ func (m *awsRestjson1_deserializeOpDeleteProvisionedConcurrencyConfig) HandleDes
 	output := &DeleteProvisionedConcurrencyConfigOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -5279,6 +5288,11 @@ func awsRestjson1_deserializeOpDocumentGetEventSourceMappingOutput(v **GetEventS
 					return fmt.Errorf("expected String to be of type string, got %T instead", value)
 				}
 				sv.LastProcessingResult = ptr.String(jtv)
+			}
+
+		case "LoggingConfig":
+			if err := awsRestjson1_deserializeDocumentEventSourceMappingLoggingConfig(&sv.LoggingConfig, value); err != nil {
+				return err
 			}
 
 		case "MaximumBatchingWindowInSeconds":
@@ -8580,6 +8594,15 @@ func awsRestjson1_deserializeOpErrorInvoke(response *smithyhttp.Response, metada
 	case strings.EqualFold("ResourceNotReadyException", errorCode):
 		return awsRestjson1_deserializeErrorResourceNotReadyException(response, errorBody)
 
+	case strings.EqualFold("S3FilesMountConnectivityException", errorCode):
+		return awsRestjson1_deserializeErrorS3FilesMountConnectivityException(response, errorBody)
+
+	case strings.EqualFold("S3FilesMountFailureException", errorCode):
+		return awsRestjson1_deserializeErrorS3FilesMountFailureException(response, errorBody)
+
+	case strings.EqualFold("S3FilesMountTimeoutException", errorCode):
+		return awsRestjson1_deserializeErrorS3FilesMountTimeoutException(response, errorBody)
+
 	case strings.EqualFold("SerializedRequestEntityTooLargeException", errorCode):
 		return awsRestjson1_deserializeErrorSerializedRequestEntityTooLargeException(response, errorBody)
 
@@ -8931,6 +8954,15 @@ func awsRestjson1_deserializeOpErrorInvokeWithResponseStream(response *smithyhtt
 
 	case strings.EqualFold("ResourceNotReadyException", errorCode):
 		return awsRestjson1_deserializeErrorResourceNotReadyException(response, errorBody)
+
+	case strings.EqualFold("S3FilesMountConnectivityException", errorCode):
+		return awsRestjson1_deserializeErrorS3FilesMountConnectivityException(response, errorBody)
+
+	case strings.EqualFold("S3FilesMountFailureException", errorCode):
+		return awsRestjson1_deserializeErrorS3FilesMountFailureException(response, errorBody)
+
+	case strings.EqualFold("S3FilesMountTimeoutException", errorCode):
+		return awsRestjson1_deserializeErrorS3FilesMountTimeoutException(response, errorBody)
 
 	case strings.EqualFold("SerializedRequestEntityTooLargeException", errorCode):
 		return awsRestjson1_deserializeErrorSerializedRequestEntityTooLargeException(response, errorBody)
@@ -13574,7 +13606,7 @@ func (m *awsRestjson1_deserializeOpRemoveLayerVersionPermission) HandleDeseriali
 	output := &RemoveLayerVersionPermissionOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -13680,7 +13712,7 @@ func (m *awsRestjson1_deserializeOpRemovePermission) HandleDeserialize(ctx conte
 	output := &RemovePermissionOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -14249,7 +14281,7 @@ func (m *awsRestjson1_deserializeOpTagResource) HandleDeserialize(ctx context.Co
 	output := &TagResourceOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -14355,7 +14387,7 @@ func (m *awsRestjson1_deserializeOpUntagResource) HandleDeserialize(ctx context.
 	output := &UntagResourceOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -15229,6 +15261,11 @@ func awsRestjson1_deserializeOpDocumentUpdateEventSourceMappingOutput(v **Update
 					return fmt.Errorf("expected String to be of type string, got %T instead", value)
 				}
 				sv.LastProcessingResult = ptr.String(jtv)
+			}
+
+		case "LoggingConfig":
+			if err := awsRestjson1_deserializeDocumentEventSourceMappingLoggingConfig(&sv.LoggingConfig, value); err != nil {
+				return err
 			}
 
 		case "MaximumBatchingWindowInSeconds":
@@ -18293,6 +18330,114 @@ func awsRestjson1_deserializeErrorResourceNotReadyException(response *smithyhttp
 	return output
 }
 
+func awsRestjson1_deserializeErrorS3FilesMountConnectivityException(response *smithyhttp.Response, errorBody *bytes.Reader) error {
+	output := &types.S3FilesMountConnectivityException{}
+	var buff [1024]byte
+	ringBuffer := smithyio.NewRingBuffer(buff[:])
+
+	body := io.TeeReader(errorBody, ringBuffer)
+	decoder := json.NewDecoder(body)
+	decoder.UseNumber()
+	var shape interface{}
+	if err := decoder.Decode(&shape); err != nil && err != io.EOF {
+		var snapshot bytes.Buffer
+		io.Copy(&snapshot, ringBuffer)
+		err = &smithy.DeserializationError{
+			Err:      fmt.Errorf("failed to decode response body, %w", err),
+			Snapshot: snapshot.Bytes(),
+		}
+		return err
+	}
+
+	err := awsRestjson1_deserializeDocumentS3FilesMountConnectivityException(&output, shape)
+
+	if err != nil {
+		var snapshot bytes.Buffer
+		io.Copy(&snapshot, ringBuffer)
+		err = &smithy.DeserializationError{
+			Err:      fmt.Errorf("failed to decode response body, %w", err),
+			Snapshot: snapshot.Bytes(),
+		}
+		return err
+	}
+
+	errorBody.Seek(0, io.SeekStart)
+
+	return output
+}
+
+func awsRestjson1_deserializeErrorS3FilesMountFailureException(response *smithyhttp.Response, errorBody *bytes.Reader) error {
+	output := &types.S3FilesMountFailureException{}
+	var buff [1024]byte
+	ringBuffer := smithyio.NewRingBuffer(buff[:])
+
+	body := io.TeeReader(errorBody, ringBuffer)
+	decoder := json.NewDecoder(body)
+	decoder.UseNumber()
+	var shape interface{}
+	if err := decoder.Decode(&shape); err != nil && err != io.EOF {
+		var snapshot bytes.Buffer
+		io.Copy(&snapshot, ringBuffer)
+		err = &smithy.DeserializationError{
+			Err:      fmt.Errorf("failed to decode response body, %w", err),
+			Snapshot: snapshot.Bytes(),
+		}
+		return err
+	}
+
+	err := awsRestjson1_deserializeDocumentS3FilesMountFailureException(&output, shape)
+
+	if err != nil {
+		var snapshot bytes.Buffer
+		io.Copy(&snapshot, ringBuffer)
+		err = &smithy.DeserializationError{
+			Err:      fmt.Errorf("failed to decode response body, %w", err),
+			Snapshot: snapshot.Bytes(),
+		}
+		return err
+	}
+
+	errorBody.Seek(0, io.SeekStart)
+
+	return output
+}
+
+func awsRestjson1_deserializeErrorS3FilesMountTimeoutException(response *smithyhttp.Response, errorBody *bytes.Reader) error {
+	output := &types.S3FilesMountTimeoutException{}
+	var buff [1024]byte
+	ringBuffer := smithyio.NewRingBuffer(buff[:])
+
+	body := io.TeeReader(errorBody, ringBuffer)
+	decoder := json.NewDecoder(body)
+	decoder.UseNumber()
+	var shape interface{}
+	if err := decoder.Decode(&shape); err != nil && err != io.EOF {
+		var snapshot bytes.Buffer
+		io.Copy(&snapshot, ringBuffer)
+		err = &smithy.DeserializationError{
+			Err:      fmt.Errorf("failed to decode response body, %w", err),
+			Snapshot: snapshot.Bytes(),
+		}
+		return err
+	}
+
+	err := awsRestjson1_deserializeDocumentS3FilesMountTimeoutException(&output, shape)
+
+	if err != nil {
+		var snapshot bytes.Buffer
+		io.Copy(&snapshot, ringBuffer)
+		err = &smithy.DeserializationError{
+			Err:      fmt.Errorf("failed to decode response body, %w", err),
+			Snapshot: snapshot.Bytes(),
+		}
+		return err
+	}
+
+	errorBody.Seek(0, io.SeekStart)
+
+	return output
+}
+
 func awsRestjson1_deserializeErrorSerializedRequestEntityTooLargeException(response *smithyhttp.Response, errorBody *bytes.Reader) error {
 	output := &types.SerializedRequestEntityTooLargeException{}
 	var buff [1024]byte
@@ -19477,6 +19622,11 @@ func awsRestjson1_deserializeDocumentCapacityProvider(v **types.CapacityProvider
 
 		case "PermissionsConfig":
 			if err := awsRestjson1_deserializeDocumentCapacityProviderPermissionsConfig(&sv.PermissionsConfig, value); err != nil {
+				return err
+			}
+
+		case "PropagateTags":
+			if err := awsRestjson1_deserializeDocumentPropagateTags(&sv.PropagateTags, value); err != nil {
 				return err
 			}
 
@@ -22337,6 +22487,11 @@ func awsRestjson1_deserializeDocumentEventSourceMappingConfiguration(v **types.E
 				sv.LastProcessingResult = ptr.String(jtv)
 			}
 
+		case "LoggingConfig":
+			if err := awsRestjson1_deserializeDocumentEventSourceMappingLoggingConfig(&sv.LoggingConfig, value); err != nil {
+				return err
+			}
+
 		case "MaximumBatchingWindowInSeconds":
 			if value != nil {
 				jtv, ok := value.(json.Number)
@@ -22492,6 +22647,46 @@ func awsRestjson1_deserializeDocumentEventSourceMappingConfiguration(v **types.E
 					return fmt.Errorf("expected String to be of type string, got %T instead", value)
 				}
 				sv.UUID = ptr.String(jtv)
+			}
+
+		default:
+			_, _ = key, value
+
+		}
+	}
+	*v = sv
+	return nil
+}
+
+func awsRestjson1_deserializeDocumentEventSourceMappingLoggingConfig(v **types.EventSourceMappingLoggingConfig, value interface{}) error {
+	if v == nil {
+		return fmt.Errorf("unexpected nil of type %T", v)
+	}
+	if value == nil {
+		return nil
+	}
+
+	shape, ok := value.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("unexpected JSON type %v", value)
+	}
+
+	var sv *types.EventSourceMappingLoggingConfig
+	if *v == nil {
+		sv = &types.EventSourceMappingLoggingConfig{}
+	} else {
+		sv = *v
+	}
+
+	for key, value := range shape {
+		switch key {
+		case "SystemLogLevel":
+			if value != nil {
+				jtv, ok := value.(string)
+				if !ok {
+					return fmt.Errorf("expected EventSourceMappingSystemLogLevel to be of type string, got %T instead", value)
+				}
+				sv.SystemLogLevel = types.EventSourceMappingSystemLogLevel(jtv)
 			}
 
 		default:
@@ -26191,6 +26386,51 @@ func awsRestjson1_deserializeDocumentPreconditionFailedException(v **types.Preco
 	return nil
 }
 
+func awsRestjson1_deserializeDocumentPropagateTags(v **types.PropagateTags, value interface{}) error {
+	if v == nil {
+		return fmt.Errorf("unexpected nil of type %T", v)
+	}
+	if value == nil {
+		return nil
+	}
+
+	shape, ok := value.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("unexpected JSON type %v", value)
+	}
+
+	var sv *types.PropagateTags
+	if *v == nil {
+		sv = &types.PropagateTags{}
+	} else {
+		sv = *v
+	}
+
+	for key, value := range shape {
+		switch key {
+		case "ExplicitTags":
+			if err := awsRestjson1_deserializeDocumentTags(&sv.ExplicitTags, value); err != nil {
+				return err
+			}
+
+		case "Mode":
+			if value != nil {
+				jtv, ok := value.(string)
+				if !ok {
+					return fmt.Errorf("expected PropagateTagsMode to be of type string, got %T instead", value)
+				}
+				sv.Mode = types.PropagateTagsMode(jtv)
+			}
+
+		default:
+			_, _ = key, value
+
+		}
+	}
+	*v = sv
+	return nil
+}
+
 func awsRestjson1_deserializeDocumentProvisionedConcurrencyConfigList(v *[]types.ProvisionedConcurrencyConfigListItem, value interface{}) error {
 	if v == nil {
 		return fmt.Errorf("unexpected nil of type %T", v)
@@ -26916,6 +27156,153 @@ func awsRestjson1_deserializeDocumentRuntimeVersionError(v **types.RuntimeVersio
 					return fmt.Errorf("expected SensitiveString to be of type string, got %T instead", value)
 				}
 				sv.Message = ptr.String(jtv)
+			}
+
+		default:
+			_, _ = key, value
+
+		}
+	}
+	*v = sv
+	return nil
+}
+
+func awsRestjson1_deserializeDocumentS3FilesMountConnectivityException(v **types.S3FilesMountConnectivityException, value interface{}) error {
+	if v == nil {
+		return fmt.Errorf("unexpected nil of type %T", v)
+	}
+	if value == nil {
+		return nil
+	}
+
+	shape, ok := value.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("unexpected JSON type %v", value)
+	}
+
+	var sv *types.S3FilesMountConnectivityException
+	if *v == nil {
+		sv = &types.S3FilesMountConnectivityException{}
+	} else {
+		sv = *v
+	}
+
+	for key, value := range shape {
+		switch key {
+		case "message", "Message":
+			if value != nil {
+				jtv, ok := value.(string)
+				if !ok {
+					return fmt.Errorf("expected String to be of type string, got %T instead", value)
+				}
+				sv.Message = ptr.String(jtv)
+			}
+
+		case "Type":
+			if value != nil {
+				jtv, ok := value.(string)
+				if !ok {
+					return fmt.Errorf("expected String to be of type string, got %T instead", value)
+				}
+				sv.Type = ptr.String(jtv)
+			}
+
+		default:
+			_, _ = key, value
+
+		}
+	}
+	*v = sv
+	return nil
+}
+
+func awsRestjson1_deserializeDocumentS3FilesMountFailureException(v **types.S3FilesMountFailureException, value interface{}) error {
+	if v == nil {
+		return fmt.Errorf("unexpected nil of type %T", v)
+	}
+	if value == nil {
+		return nil
+	}
+
+	shape, ok := value.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("unexpected JSON type %v", value)
+	}
+
+	var sv *types.S3FilesMountFailureException
+	if *v == nil {
+		sv = &types.S3FilesMountFailureException{}
+	} else {
+		sv = *v
+	}
+
+	for key, value := range shape {
+		switch key {
+		case "message", "Message":
+			if value != nil {
+				jtv, ok := value.(string)
+				if !ok {
+					return fmt.Errorf("expected String to be of type string, got %T instead", value)
+				}
+				sv.Message = ptr.String(jtv)
+			}
+
+		case "Type":
+			if value != nil {
+				jtv, ok := value.(string)
+				if !ok {
+					return fmt.Errorf("expected String to be of type string, got %T instead", value)
+				}
+				sv.Type = ptr.String(jtv)
+			}
+
+		default:
+			_, _ = key, value
+
+		}
+	}
+	*v = sv
+	return nil
+}
+
+func awsRestjson1_deserializeDocumentS3FilesMountTimeoutException(v **types.S3FilesMountTimeoutException, value interface{}) error {
+	if v == nil {
+		return fmt.Errorf("unexpected nil of type %T", v)
+	}
+	if value == nil {
+		return nil
+	}
+
+	shape, ok := value.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("unexpected JSON type %v", value)
+	}
+
+	var sv *types.S3FilesMountTimeoutException
+	if *v == nil {
+		sv = &types.S3FilesMountTimeoutException{}
+	} else {
+		sv = *v
+	}
+
+	for key, value := range shape {
+		switch key {
+		case "message", "Message":
+			if value != nil {
+				jtv, ok := value.(string)
+				if !ok {
+					return fmt.Errorf("expected String to be of type string, got %T instead", value)
+				}
+				sv.Message = ptr.String(jtv)
+			}
+
+		case "Type":
+			if value != nil {
+				jtv, ok := value.(string)
+				if !ok {
+					return fmt.Errorf("expected String to be of type string, got %T instead", value)
+				}
+				sv.Type = ptr.String(jtv)
 			}
 
 		default:

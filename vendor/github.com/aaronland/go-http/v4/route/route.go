@@ -135,6 +135,7 @@ func RouteHandlerWithOptions(opts *RouteHandlerOptions) (http.Handler, error) {
 			}
 		}
 
+		logger.Debug("Serve derived handler", "pattern", derive_rsp.MatchingPattern, "path values", derive_rsp.PathValues)
 		derive_rsp.Handler.ServeHTTP(rsp, req)
 		return
 	}
@@ -245,7 +246,7 @@ func deriveHandler(req *http.Request, handlers map[string]RouteHandlerFunc, matc
 		count_k := len(key_m)
 		path_values = make([]*pathValue, count_k)
 
-		for i := 0; i < count_k; i++ {
+		for i := range count_k {
 
 			key := key_m[i][1]
 			value := path_m[i+1]

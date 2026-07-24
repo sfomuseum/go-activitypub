@@ -166,7 +166,7 @@ func (db *SQLMessagesDatabase) GetMessageWithAccountAndNoteIds(ctx context.Conte
 
 }
 
-func (db *SQLMessagesDatabase) getMessage(ctx context.Context, where string, args ...interface{}) (*activitypub.Message, error) {
+func (db *SQLMessagesDatabase) getMessage(ctx context.Context, where string, args ...any) (*activitypub.Message, error) {
 
 	q := fmt.Sprintf("SELECT id, note_id, author_address, account_id, created, lastmodified FROM %s WHERE %s", SQL_MESSAGES_TABLE_NAME, where)
 	row := db.database.QueryRowContext(ctx, q, args...)
@@ -243,7 +243,7 @@ func (db *SQLMessagesDatabase) RemoveMessage(ctx context.Context, message *activ
 func (db *SQLMessagesDatabase) GetMessagesForAccount(ctx context.Context, account_id int64, callback_func GetMessagesCallbackFunc) error {
 
 	where := "account_id = ?"
-	args := []interface{}{
+	args := []any{
 		account_id,
 	}
 
@@ -253,7 +253,7 @@ func (db *SQLMessagesDatabase) GetMessagesForAccount(ctx context.Context, accoun
 func (db *SQLMessagesDatabase) GetMessagesForAccountAndAuthor(ctx context.Context, account_id int64, author_address string, callback_func GetMessagesCallbackFunc) error {
 
 	where := "account_id = ? AND author_address = ?"
-	args := []interface{}{
+	args := []any{
 		account_id,
 		author_address,
 	}
@@ -261,7 +261,7 @@ func (db *SQLMessagesDatabase) GetMessagesForAccountAndAuthor(ctx context.Contex
 	return db.getMessagesWithCallback(ctx, where, args, callback_func)
 }
 
-func (db *SQLMessagesDatabase) getMessagesWithCallback(ctx context.Context, where string, args []interface{}, callback_func GetMessagesCallbackFunc) error {
+func (db *SQLMessagesDatabase) getMessagesWithCallback(ctx context.Context, where string, args []any, callback_func GetMessagesCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
 

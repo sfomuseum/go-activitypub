@@ -603,6 +603,13 @@ func awsRestjson1_serializeOpDocumentCreateCapacityProviderInput(v *CreateCapaci
 		}
 	}
 
+	if v.PropagateTags != nil {
+		ok := object.Key("PropagateTags")
+		if err := awsRestjson1_serializeDocumentPropagateTags(v.PropagateTags, ok); err != nil {
+			return err
+		}
+	}
+
 	if v.Tags != nil {
 		ok := object.Key("Tags")
 		if err := awsRestjson1_serializeDocumentTags(v.Tags, ok); err != nil {
@@ -858,6 +865,13 @@ func awsRestjson1_serializeOpDocumentCreateEventSourceMappingInput(v *CreateEven
 	if v.KMSKeyArn != nil {
 		ok := object.Key("KMSKeyArn")
 		ok.String(*v.KMSKeyArn)
+	}
+
+	if v.LoggingConfig != nil {
+		ok := object.Key("LoggingConfig")
+		if err := awsRestjson1_serializeDocumentEventSourceMappingLoggingConfig(v.LoggingConfig, ok); err != nil {
+			return err
+		}
 	}
 
 	if v.MaximumBatchingWindowInSeconds != nil {
@@ -7098,6 +7112,13 @@ func awsRestjson1_serializeOpDocumentUpdateCapacityProviderInput(v *UpdateCapaci
 		}
 	}
 
+	if v.PropagateTags != nil {
+		ok := object.Key("PropagateTags")
+		if err := awsRestjson1_serializeDocumentPropagateTags(v.PropagateTags, ok); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -7353,6 +7374,13 @@ func awsRestjson1_serializeOpDocumentUpdateEventSourceMappingInput(v *UpdateEven
 	if v.KMSKeyArn != nil {
 		ok := object.Key("KMSKeyArn")
 		ok.String(*v.KMSKeyArn)
+	}
+
+	if v.LoggingConfig != nil {
+		ok := object.Key("LoggingConfig")
+		if err := awsRestjson1_serializeDocumentEventSourceMappingLoggingConfig(v.LoggingConfig, ok); err != nil {
+			return err
+		}
 	}
 
 	if v.MaximumBatchingWindowInSeconds != nil {
@@ -8497,6 +8525,18 @@ func awsRestjson1_serializeDocumentErrorObject(v *types.ErrorObject, value smith
 	return nil
 }
 
+func awsRestjson1_serializeDocumentEventSourceMappingLoggingConfig(v *types.EventSourceMappingLoggingConfig, value smithyjson.Value) error {
+	object := value.Object()
+	defer object.Close()
+
+	if len(v.SystemLogLevel) > 0 {
+		ok := object.Key("SystemLogLevel")
+		ok.String(string(v.SystemLogLevel))
+	}
+
+	return nil
+}
+
 func awsRestjson1_serializeDocumentEventSourceMappingMetricList(v []types.EventSourceMappingMetric, value smithyjson.Value) error {
 	array := value.Array()
 	defer array.Close()
@@ -9036,6 +9076,25 @@ func awsRestjson1_serializeDocumentOperationUpdates(v []types.OperationUpdate, v
 			return err
 		}
 	}
+	return nil
+}
+
+func awsRestjson1_serializeDocumentPropagateTags(v *types.PropagateTags, value smithyjson.Value) error {
+	object := value.Object()
+	defer object.Close()
+
+	if v.ExplicitTags != nil {
+		ok := object.Key("ExplicitTags")
+		if err := awsRestjson1_serializeDocumentTags(v.ExplicitTags, ok); err != nil {
+			return err
+		}
+	}
+
+	if len(v.Mode) > 0 {
+		ok := object.Key("Mode")
+		ok.String(string(v.Mode))
+	}
+
 	return nil
 }
 

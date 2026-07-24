@@ -17,13 +17,13 @@ import (
 
 type Actor struct {
 	// It has to be an interface because JSON-LD... thanks, JSON-LD...
-	Context           []interface{} `json:"@context"`
-	Id                string        `json:"id"`
-	Type              string        `json:"type"`
-	PreferredUsername string        `json:"preferredUsername"`
-	Inbox             string        `json:"inbox"`
-	Outbox            string        `json:"outbox"`
-	PublicKey         PublicKey     `json:"publicKey"`
+	Context           []any     `json:"@context"`
+	Id                string    `json:"id"`
+	Type              string    `json:"type"`
+	PreferredUsername string    `json:"preferredUsername"`
+	Inbox             string    `json:"inbox"`
+	Outbox            string    `json:"outbox"`
+	PublicKey         PublicKey `json:"publicKey"`
 
 	Following string `json:"following,omitempty"`
 	Followers string `json:"followers,omitempty"`
@@ -34,7 +34,7 @@ type Actor struct {
 	// ManuallyApprovesFollowers bool   `json:"manuallyApprovesFollowers"`
 	Discoverable bool          `json:"discoverable,omitempty"`
 	Published    string        `json:"published,omitempty"`
-	Icon         Icon          `json:"icon,omitempty"`
+	Icon         Icon          `json:"icon"`
 	Attachments  []*Attachment `json:"attachment,omitempty"` // Is this just a Mastodon-ism?
 }
 

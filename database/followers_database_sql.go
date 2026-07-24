@@ -108,7 +108,7 @@ func (db *SQLFollowersDatabase) GetFollowers(ctx context.Context, cb GetFollower
 func (db *SQLFollowersDatabase) GetFollowerWithId(ctx context.Context, follower_id int64) (*activitypub.Follower, error) {
 
 	where := "id = ?"
-	args := []interface{}{follower_id}
+	args := []any{follower_id}
 
 	return db.getFollowerWhere(ctx, where, args)
 }
@@ -190,7 +190,7 @@ func (db *SQLFollowersDatabase) GetFollower(ctx context.Context, account_id int6
 
 	where := "account_id = ? AND follower_address = ?"
 
-	args := []interface{}{
+	args := []any{
 		account_id,
 		follower_address,
 	}
@@ -257,7 +257,7 @@ func (db *SQLFollowersDatabase) GetFollowersForAccount(ctx context.Context, acco
 
 	q := fmt.Sprintf("SELECT follower_address FROM %s WHERE account_id=?", SQL_FOLLOWERS_TABLE_NAME)
 
-	args := []interface{}{
+	args := []any{
 		account_id,
 	}
 
@@ -267,12 +267,12 @@ func (db *SQLFollowersDatabase) GetFollowersForAccount(ctx context.Context, acco
 func (db *SQLFollowersDatabase) GetAllFollowers(ctx context.Context, followers_callback GetFollowersCallbackFunc) error {
 
 	q := fmt.Sprintf("SELECT follower_address FROM %s", SQL_FOLLOWERS_TABLE_NAME)
-	args := make([]interface{}, 0)
+	args := make([]any, 0)
 
 	return db.getFollowerAddressesWithCallback(ctx, q, args, followers_callback)
 }
 
-func (db *SQLFollowersDatabase) getFollowerAddressesWithCallback(ctx context.Context, q string, args []interface{}, followers_callback GetFollowersCallbackFunc) error {
+func (db *SQLFollowersDatabase) getFollowerAddressesWithCallback(ctx context.Context, q string, args []any, followers_callback GetFollowersCallbackFunc) error {
 
 	pg_callback := func(pg_rsp pg_sql.PaginatedResponse) error {
 
@@ -325,7 +325,7 @@ func (db *SQLFollowersDatabase) Close(ctx context.Context) error {
 	return db.database.Close()
 }
 
-func (db *SQLFollowersDatabase) getFollowerWhere(ctx context.Context, where string, args []interface{}) (*activitypub.Follower, error) {
+func (db *SQLFollowersDatabase) getFollowerWhere(ctx context.Context, where string, args []any) (*activitypub.Follower, error) {
 
 	q := fmt.Sprintf("SELECT id, account_id, follower_address, created FROM %s WHERE %s", SQL_FOLLOWERS_TABLE_NAME, where)
 

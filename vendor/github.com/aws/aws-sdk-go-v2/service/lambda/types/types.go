@@ -238,6 +238,10 @@ type CapacityProvider struct {
 	// The date and time when the capacity provider was last modified.
 	LastModified *string
 
+	// Configuration for tag propagation to managed resources launched by the capacity
+	// provider.
+	PropagateTags *PropagateTags
+
 	noSmithyDocumentSerde
 }
 
@@ -928,6 +932,12 @@ type EventSourceMappingConfiguration struct {
 	// The result of the event source mapping's last processing attempt.
 	LastProcessingResult *string
 
+	// (Amazon MSK, and self-managed Apache Kafka only) The logging configuration for
+	// your event source. For more information, see [Event source mapping logging].
+	//
+	// [Event source mapping logging]: https://docs.aws.amazon.com/lambda/latest/dg/esm-logging.html
+	LoggingConfig *EventSourceMappingLoggingConfig
+
 	// The maximum amount of time, in seconds, that Lambda spends gathering records
 	// before invoking the function. You can configure MaximumBatchingWindowInSeconds
 	// to any value from 0 seconds to 300 seconds in increments of seconds.
@@ -1027,14 +1037,39 @@ type EventSourceMappingConfiguration struct {
 	noSmithyDocumentSerde
 }
 
+// (Amazon MSK, and self-managed Apache Kafka only) The logging configuration for
+// your event source. Use this configuration object to define the level of logs for
+// your event source mapping.
+type EventSourceMappingLoggingConfig struct {
+
+	//  The log level you want your event source mapping to use. Lambda event poller
+	// only sends system logs at the selected level of detail and lower, where DEBUG
+	// is the highest level and WARN is the lowest. For more information about these
+	// metrics, see [Event source mapping logging].
+	//
+	// [Event source mapping logging]: https://docs.aws.amazon.com/lambda/latest/dg/esm-logging.html
+	SystemLogLevel EventSourceMappingSystemLogLevel
+
+	noSmithyDocumentSerde
+}
+
 // The metrics configuration for your event source. Use this configuration object
 // to define which metrics you want your event source mapping to produce.
 type EventSourceMappingMetricsConfig struct {
 
-	//  The metrics you want your event source mapping to produce. Include EventCount
-	// to receive event source mapping metrics related to the number of events
-	// processed by your event source mapping. For more information about these
-	// metrics, see [Event source mapping metrics].
+	//  The metrics you want your event source mapping to produce, including EventCount
+	// , ErrorCount , KafkaMetrics .
+	//
+	//   - EventCount to receive metrics related to the number of events processed by
+	//   your event source mapping.
+	//
+	//   - ErrorCount (Amazon MSK and self-managed Apache Kafka) to receive metrics
+	//   related to the number of errors in your event source mapping processing.
+	//
+	//   - KafkaMetrics (Amazon MSK and self-managed Apache Kafka) to receive metrics
+	//   related to the Kafka consumers from your event source mapping.
+	//
+	// For more information about these metrics, see [Event source mapping metrics].
 	//
 	// [Event source mapping metrics]: https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics-types.html#event-source-mapping-metrics
 	Metrics []EventSourceMappingMetric
@@ -1164,13 +1199,14 @@ type ExecutionTimedOutDetails struct {
 	noSmithyDocumentSerde
 }
 
-// Details about the connection between a Lambda function and an [Amazon EFS file system].
+// Details about the connection between a Lambda function and an [Amazon EFS file system] or an [Amazon S3 Files file system].
 //
+// [Amazon S3 Files file system]: https://docs.aws.amazon.com/lambda/latest/dg/configuration-filesystem.html
 // [Amazon EFS file system]: https://docs.aws.amazon.com/lambda/latest/dg/configuration-filesystem.html
 type FileSystemConfig struct {
 
-	// The Amazon Resource Name (ARN) of the Amazon EFS access point that provides
-	// access to the file system.
+	// The Amazon Resource Name (ARN) of the Amazon EFS or Amazon S3 Files access
+	// point that provides access to the file system.
 	//
 	// This member is required.
 	Arn *string
@@ -1320,8 +1356,9 @@ type FunctionConfiguration struct {
 	// [Configuring ephemeral storage (console)]: https://docs.aws.amazon.com/lambda/latest/dg/configuration-function-common.html#configuration-ephemeral-storage
 	EphemeralStorage *EphemeralStorage
 
-	// Connection settings for an [Amazon EFS file system].
+	// Connection settings for an [Amazon EFS file system] or an [Amazon S3 Files file system].
 	//
+	// [Amazon S3 Files file system]: https://docs.aws.amazon.com/lambda/latest/dg/configuration-filesystem.html
 	// [Amazon EFS file system]: https://docs.aws.amazon.com/lambda/latest/dg/configuration-filesystem.html
 	FileSystemConfigs []FileSystemConfig
 
@@ -2132,6 +2169,21 @@ type OperationUpdate struct {
 
 	// Options for wait operations.
 	WaitOptions *WaitOptions
+
+	noSmithyDocumentSerde
+}
+
+// Configuration for tag propagation to managed resources launched by the capacity
+// provider.
+type PropagateTags struct {
+
+	// A list of tags to apply to managed resources when Mode is set to Explicit . You
+	// can specify up to 40 tags.
+	ExplicitTags map[string]string
+
+	// The tag propagation mode. Set to Explicit to propagate the tags specified in
+	// ExplicitTags to managed resources. Set to None to disable tag propagation.
+	Mode PropagateTagsMode
 
 	noSmithyDocumentSerde
 }

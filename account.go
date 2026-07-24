@@ -217,7 +217,7 @@ func (a *Account) ProfileResource(ctx context.Context, uris_table *uris.URIs) (*
 		URL:       icon_url.String(),
 	}
 
-	context := []interface{}{
+	context := []any{
 		"https://www.w3.org/ns/activitystreams",
 		"https://w3id.org/security/v1",
 	}

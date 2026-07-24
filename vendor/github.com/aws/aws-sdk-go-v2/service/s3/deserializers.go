@@ -23,7 +23,6 @@ import (
 	"github.com/aws/smithy-go/tracing"
 	smithyhttp "github.com/aws/smithy-go/transport/http"
 	"io"
-	"io/ioutil"
 	"strconv"
 	"strings"
 	"time"
@@ -354,6 +353,19 @@ func awsRestxml_deserializeOpDocumentCompleteMultipartUploadOutput(v **CompleteM
 				sv.ChecksumCRC64NVME = ptr.String(xtv)
 			}
 
+		case strings.EqualFold("ChecksumMD5", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumMD5 = ptr.String(xtv)
+			}
+
 		case strings.EqualFold("ChecksumSHA1", t.Name.Local):
 			val, err := decoder.Value()
 			if err != nil {
@@ -380,6 +392,19 @@ func awsRestxml_deserializeOpDocumentCompleteMultipartUploadOutput(v **CompleteM
 				sv.ChecksumSHA256 = ptr.String(xtv)
 			}
 
+		case strings.EqualFold("ChecksumSHA512", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumSHA512 = ptr.String(xtv)
+			}
+
 		case strings.EqualFold("ChecksumType", t.Name.Local):
 			val, err := decoder.Value()
 			if err != nil {
@@ -391,6 +416,45 @@ func awsRestxml_deserializeOpDocumentCompleteMultipartUploadOutput(v **CompleteM
 			{
 				xtv := string(val)
 				sv.ChecksumType = types.ChecksumType(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH128", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH128 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH3", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH3 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH64", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH64 = ptr.String(xtv)
 			}
 
 		case strings.EqualFold("ETag", t.Name.Local):
@@ -792,7 +856,7 @@ func (m *awsRestxml_deserializeOpCreateBucketMetadataConfiguration) HandleDeseri
 	output := &CreateBucketMetadataConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -872,7 +936,7 @@ func (m *awsRestxml_deserializeOpCreateBucketMetadataTableConfiguration) HandleD
 	output := &CreateBucketMetadataTableConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -1387,7 +1451,7 @@ func (m *awsRestxml_deserializeOpDeleteBucket) HandleDeserialize(ctx context.Con
 	output := &DeleteBucketOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -1467,7 +1531,7 @@ func (m *awsRestxml_deserializeOpDeleteBucketAnalyticsConfiguration) HandleDeser
 	output := &DeleteBucketAnalyticsConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -1547,7 +1611,7 @@ func (m *awsRestxml_deserializeOpDeleteBucketCors) HandleDeserialize(ctx context
 	output := &DeleteBucketCorsOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -1627,7 +1691,7 @@ func (m *awsRestxml_deserializeOpDeleteBucketEncryption) HandleDeserialize(ctx c
 	output := &DeleteBucketEncryptionOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -1707,7 +1771,7 @@ func (m *awsRestxml_deserializeOpDeleteBucketIntelligentTieringConfiguration) Ha
 	output := &DeleteBucketIntelligentTieringConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -1787,7 +1851,7 @@ func (m *awsRestxml_deserializeOpDeleteBucketInventoryConfiguration) HandleDeser
 	output := &DeleteBucketInventoryConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -1867,7 +1931,7 @@ func (m *awsRestxml_deserializeOpDeleteBucketLifecycle) HandleDeserialize(ctx co
 	output := &DeleteBucketLifecycleOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -1947,7 +2011,7 @@ func (m *awsRestxml_deserializeOpDeleteBucketMetadataConfiguration) HandleDeseri
 	output := &DeleteBucketMetadataConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -2027,7 +2091,7 @@ func (m *awsRestxml_deserializeOpDeleteBucketMetadataTableConfiguration) HandleD
 	output := &DeleteBucketMetadataTableConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -2107,7 +2171,7 @@ func (m *awsRestxml_deserializeOpDeleteBucketMetricsConfiguration) HandleDeseria
 	output := &DeleteBucketMetricsConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -2187,7 +2251,7 @@ func (m *awsRestxml_deserializeOpDeleteBucketOwnershipControls) HandleDeserializ
 	output := &DeleteBucketOwnershipControlsOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -2267,7 +2331,7 @@ func (m *awsRestxml_deserializeOpDeleteBucketPolicy) HandleDeserialize(ctx conte
 	output := &DeleteBucketPolicyOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -2347,7 +2411,7 @@ func (m *awsRestxml_deserializeOpDeleteBucketReplication) HandleDeserialize(ctx 
 	output := &DeleteBucketReplicationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -2427,7 +2491,7 @@ func (m *awsRestxml_deserializeOpDeleteBucketTagging) HandleDeserialize(ctx cont
 	output := &DeleteBucketTaggingOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -2507,7 +2571,7 @@ func (m *awsRestxml_deserializeOpDeleteBucketWebsite) HandleDeserialize(ctx cont
 	output := &DeleteBucketWebsiteOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -2952,7 +3016,7 @@ func (m *awsRestxml_deserializeOpDeletePublicAccessBlock) HandleDeserialize(ctx 
 	output := &DeletePublicAccessBlockOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -6516,6 +6580,11 @@ func awsRestxml_deserializeOpHttpBindingsGetObjectOutput(v *GetObjectOutput, res
 		v.ChecksumCRC64NVME = ptr.String(headerValues[0])
 	}
 
+	if headerValues := response.Header.Values("x-amz-checksum-md5"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumMD5 = ptr.String(headerValues[0])
+	}
+
 	if headerValues := response.Header.Values("x-amz-checksum-sha1"); len(headerValues) != 0 {
 		headerValues[0] = strings.TrimSpace(headerValues[0])
 		v.ChecksumSHA1 = ptr.String(headerValues[0])
@@ -6526,9 +6595,29 @@ func awsRestxml_deserializeOpHttpBindingsGetObjectOutput(v *GetObjectOutput, res
 		v.ChecksumSHA256 = ptr.String(headerValues[0])
 	}
 
+	if headerValues := response.Header.Values("x-amz-checksum-sha512"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumSHA512 = ptr.String(headerValues[0])
+	}
+
 	if headerValues := response.Header.Values("x-amz-checksum-type"); len(headerValues) != 0 {
 		headerValues[0] = strings.TrimSpace(headerValues[0])
 		v.ChecksumType = types.ChecksumType(headerValues[0])
+	}
+
+	if headerValues := response.Header.Values("x-amz-checksum-xxhash128"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumXXHASH128 = ptr.String(headerValues[0])
+	}
+
+	if headerValues := response.Header.Values("x-amz-checksum-xxhash3"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumXXHASH3 = ptr.String(headerValues[0])
+	}
+
+	if headerValues := response.Header.Values("x-amz-checksum-xxhash64"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumXXHASH64 = ptr.String(headerValues[0])
 	}
 
 	if headerValues := response.Header.Values("Content-Disposition"); len(headerValues) != 0 {
@@ -8215,6 +8304,11 @@ func awsRestxml_deserializeOpHttpBindingsHeadObjectOutput(v *HeadObjectOutput, r
 		v.ChecksumCRC64NVME = ptr.String(headerValues[0])
 	}
 
+	if headerValues := response.Header.Values("x-amz-checksum-md5"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumMD5 = ptr.String(headerValues[0])
+	}
+
 	if headerValues := response.Header.Values("x-amz-checksum-sha1"); len(headerValues) != 0 {
 		headerValues[0] = strings.TrimSpace(headerValues[0])
 		v.ChecksumSHA1 = ptr.String(headerValues[0])
@@ -8225,9 +8319,29 @@ func awsRestxml_deserializeOpHttpBindingsHeadObjectOutput(v *HeadObjectOutput, r
 		v.ChecksumSHA256 = ptr.String(headerValues[0])
 	}
 
+	if headerValues := response.Header.Values("x-amz-checksum-sha512"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumSHA512 = ptr.String(headerValues[0])
+	}
+
 	if headerValues := response.Header.Values("x-amz-checksum-type"); len(headerValues) != 0 {
 		headerValues[0] = strings.TrimSpace(headerValues[0])
 		v.ChecksumType = types.ChecksumType(headerValues[0])
+	}
+
+	if headerValues := response.Header.Values("x-amz-checksum-xxhash128"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumXXHASH128 = ptr.String(headerValues[0])
+	}
+
+	if headerValues := response.Header.Values("x-amz-checksum-xxhash3"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumXXHASH3 = ptr.String(headerValues[0])
+	}
+
+	if headerValues := response.Header.Values("x-amz-checksum-xxhash64"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumXXHASH64 = ptr.String(headerValues[0])
 	}
 
 	if headerValues := response.Header.Values("Content-Disposition"); len(headerValues) != 0 {
@@ -11052,7 +11166,7 @@ func (m *awsRestxml_deserializeOpPutBucketAbac) HandleDeserialize(ctx context.Co
 	output := &PutBucketAbacOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -11132,7 +11246,7 @@ func (m *awsRestxml_deserializeOpPutBucketAccelerateConfiguration) HandleDeseria
 	output := &PutBucketAccelerateConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -11212,7 +11326,7 @@ func (m *awsRestxml_deserializeOpPutBucketAcl) HandleDeserialize(ctx context.Con
 	output := &PutBucketAclOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -11292,7 +11406,7 @@ func (m *awsRestxml_deserializeOpPutBucketAnalyticsConfiguration) HandleDeserial
 	output := &PutBucketAnalyticsConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -11372,7 +11486,7 @@ func (m *awsRestxml_deserializeOpPutBucketCors) HandleDeserialize(ctx context.Co
 	output := &PutBucketCorsOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -11452,7 +11566,7 @@ func (m *awsRestxml_deserializeOpPutBucketEncryption) HandleDeserialize(ctx cont
 	output := &PutBucketEncryptionOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -11532,7 +11646,7 @@ func (m *awsRestxml_deserializeOpPutBucketIntelligentTieringConfiguration) Handl
 	output := &PutBucketIntelligentTieringConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -11612,7 +11726,7 @@ func (m *awsRestxml_deserializeOpPutBucketInventoryConfiguration) HandleDeserial
 	output := &PutBucketInventoryConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -11784,7 +11898,7 @@ func (m *awsRestxml_deserializeOpPutBucketLogging) HandleDeserialize(ctx context
 	output := &PutBucketLoggingOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -11864,7 +11978,7 @@ func (m *awsRestxml_deserializeOpPutBucketMetricsConfiguration) HandleDeserializ
 	output := &PutBucketMetricsConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -11944,7 +12058,7 @@ func (m *awsRestxml_deserializeOpPutBucketNotificationConfiguration) HandleDeser
 	output := &PutBucketNotificationConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -12024,7 +12138,7 @@ func (m *awsRestxml_deserializeOpPutBucketOwnershipControls) HandleDeserialize(c
 	output := &PutBucketOwnershipControlsOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -12104,7 +12218,7 @@ func (m *awsRestxml_deserializeOpPutBucketPolicy) HandleDeserialize(ctx context.
 	output := &PutBucketPolicyOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -12184,7 +12298,7 @@ func (m *awsRestxml_deserializeOpPutBucketReplication) HandleDeserialize(ctx con
 	output := &PutBucketReplicationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -12264,7 +12378,7 @@ func (m *awsRestxml_deserializeOpPutBucketRequestPayment) HandleDeserialize(ctx 
 	output := &PutBucketRequestPaymentOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -12344,7 +12458,7 @@ func (m *awsRestxml_deserializeOpPutBucketTagging) HandleDeserialize(ctx context
 	output := &PutBucketTaggingOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -12424,7 +12538,7 @@ func (m *awsRestxml_deserializeOpPutBucketVersioning) HandleDeserialize(ctx cont
 	output := &PutBucketVersioningOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -12504,7 +12618,7 @@ func (m *awsRestxml_deserializeOpPutBucketWebsite) HandleDeserialize(ctx context
 	output := &PutBucketWebsiteOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -12674,6 +12788,11 @@ func awsRestxml_deserializeOpHttpBindingsPutObjectOutput(v *PutObjectOutput, res
 		v.ChecksumCRC64NVME = ptr.String(headerValues[0])
 	}
 
+	if headerValues := response.Header.Values("x-amz-checksum-md5"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumMD5 = ptr.String(headerValues[0])
+	}
+
 	if headerValues := response.Header.Values("x-amz-checksum-sha1"); len(headerValues) != 0 {
 		headerValues[0] = strings.TrimSpace(headerValues[0])
 		v.ChecksumSHA1 = ptr.String(headerValues[0])
@@ -12684,9 +12803,29 @@ func awsRestxml_deserializeOpHttpBindingsPutObjectOutput(v *PutObjectOutput, res
 		v.ChecksumSHA256 = ptr.String(headerValues[0])
 	}
 
+	if headerValues := response.Header.Values("x-amz-checksum-sha512"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumSHA512 = ptr.String(headerValues[0])
+	}
+
 	if headerValues := response.Header.Values("x-amz-checksum-type"); len(headerValues) != 0 {
 		headerValues[0] = strings.TrimSpace(headerValues[0])
 		v.ChecksumType = types.ChecksumType(headerValues[0])
+	}
+
+	if headerValues := response.Header.Values("x-amz-checksum-xxhash128"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumXXHASH128 = ptr.String(headerValues[0])
+	}
+
+	if headerValues := response.Header.Values("x-amz-checksum-xxhash3"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumXXHASH3 = ptr.String(headerValues[0])
+	}
+
+	if headerValues := response.Header.Values("x-amz-checksum-xxhash64"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumXXHASH64 = ptr.String(headerValues[0])
 	}
 
 	if headerValues := response.Header.Values("ETag"); len(headerValues) != 0 {
@@ -13239,7 +13378,7 @@ func (m *awsRestxml_deserializeOpPutPublicAccessBlock) HandleDeserialize(ctx con
 	output := &PutPublicAccessBlockOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -13570,7 +13709,7 @@ func (m *awsRestxml_deserializeOpUpdateBucketMetadataInventoryTableConfiguration
 	output := &UpdateBucketMetadataInventoryTableConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -13650,7 +13789,7 @@ func (m *awsRestxml_deserializeOpUpdateBucketMetadataJournalTableConfiguration) 
 	output := &UpdateBucketMetadataJournalTableConfigurationOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -13698,6 +13837,107 @@ func awsRestxml_deserializeOpErrorUpdateBucketMetadataJournalTableConfiguration(
 		return genericError
 
 	}
+}
+
+type awsRestxml_deserializeOpUpdateObjectEncryption struct {
+}
+
+func (*awsRestxml_deserializeOpUpdateObjectEncryption) ID() string {
+	return "OperationDeserializer"
+}
+
+func (m *awsRestxml_deserializeOpUpdateObjectEncryption) HandleDeserialize(ctx context.Context, in middleware.DeserializeInput, next middleware.DeserializeHandler) (
+	out middleware.DeserializeOutput, metadata middleware.Metadata, err error,
+) {
+	out, metadata, err = next.HandleDeserialize(ctx, in)
+	if err != nil {
+		return out, metadata, err
+	}
+
+	_, span := tracing.StartSpan(ctx, "OperationDeserializer")
+	endTimer := startMetricTimer(ctx, "client.call.deserialization_duration")
+	defer endTimer()
+	defer span.End()
+	response, ok := out.RawResponse.(*smithyhttp.Response)
+	if !ok {
+		return out, metadata, &smithy.DeserializationError{Err: fmt.Errorf("unknown transport type %T", out.RawResponse)}
+	}
+
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
+		return out, metadata, awsRestxml_deserializeOpErrorUpdateObjectEncryption(response, &metadata)
+	}
+	output := &UpdateObjectEncryptionOutput{}
+	out.Result = output
+
+	err = awsRestxml_deserializeOpHttpBindingsUpdateObjectEncryptionOutput(output, response)
+	if err != nil {
+		return out, metadata, &smithy.DeserializationError{Err: fmt.Errorf("failed to decode response with invalid Http bindings, %w", err)}
+	}
+
+	span.End()
+	return out, metadata, err
+}
+
+func awsRestxml_deserializeOpErrorUpdateObjectEncryption(response *smithyhttp.Response, metadata *middleware.Metadata) error {
+	var errorBuffer bytes.Buffer
+	if _, err := io.Copy(&errorBuffer, response.Body); err != nil {
+		return &smithy.DeserializationError{Err: fmt.Errorf("failed to copy error response body, %w", err)}
+	}
+	errorBody := bytes.NewReader(errorBuffer.Bytes())
+
+	errorCode := "UnknownError"
+	errorMessage := errorCode
+
+	errorComponents, err := s3shared.GetErrorResponseComponents(errorBody, s3shared.ErrorResponseDeserializerOptions{
+		UseStatusCode: true, StatusCode: response.StatusCode,
+	})
+	if err != nil {
+		return err
+	}
+	if hostID := errorComponents.HostID; len(hostID) != 0 {
+		s3shared.SetHostIDMetadata(metadata, hostID)
+	}
+	if reqID := errorComponents.RequestID; len(reqID) != 0 {
+		awsmiddleware.SetRequestIDMetadata(metadata, reqID)
+	}
+	if len(errorComponents.Code) != 0 {
+		errorCode = errorComponents.Code
+	}
+	if len(errorComponents.Message) != 0 {
+		errorMessage = errorComponents.Message
+	}
+	errorBody.Seek(0, io.SeekStart)
+	switch {
+	case strings.EqualFold("AccessDenied", errorCode):
+		return awsRestxml_deserializeErrorAccessDenied(response, errorBody)
+
+	case strings.EqualFold("InvalidRequest", errorCode):
+		return awsRestxml_deserializeErrorInvalidRequest(response, errorBody)
+
+	case strings.EqualFold("NoSuchKey", errorCode):
+		return awsRestxml_deserializeErrorNoSuchKey(response, errorBody)
+
+	default:
+		genericError := &smithy.GenericAPIError{
+			Code:    errorCode,
+			Message: errorMessage,
+		}
+		return genericError
+
+	}
+}
+
+func awsRestxml_deserializeOpHttpBindingsUpdateObjectEncryptionOutput(v *UpdateObjectEncryptionOutput, response *smithyhttp.Response) error {
+	if v == nil {
+		return fmt.Errorf("unsupported deserialization for nil %T", v)
+	}
+
+	if headerValues := response.Header.Values("x-amz-request-charged"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.RequestCharged = types.RequestCharged(headerValues[0])
+	}
+
+	return nil
 }
 
 type awsRestxml_deserializeOpUploadPart struct {
@@ -13808,6 +14048,11 @@ func awsRestxml_deserializeOpHttpBindingsUploadPartOutput(v *UploadPartOutput, r
 		v.ChecksumCRC64NVME = ptr.String(headerValues[0])
 	}
 
+	if headerValues := response.Header.Values("x-amz-checksum-md5"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumMD5 = ptr.String(headerValues[0])
+	}
+
 	if headerValues := response.Header.Values("x-amz-checksum-sha1"); len(headerValues) != 0 {
 		headerValues[0] = strings.TrimSpace(headerValues[0])
 		v.ChecksumSHA1 = ptr.String(headerValues[0])
@@ -13816,6 +14061,26 @@ func awsRestxml_deserializeOpHttpBindingsUploadPartOutput(v *UploadPartOutput, r
 	if headerValues := response.Header.Values("x-amz-checksum-sha256"); len(headerValues) != 0 {
 		headerValues[0] = strings.TrimSpace(headerValues[0])
 		v.ChecksumSHA256 = ptr.String(headerValues[0])
+	}
+
+	if headerValues := response.Header.Values("x-amz-checksum-sha512"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumSHA512 = ptr.String(headerValues[0])
+	}
+
+	if headerValues := response.Header.Values("x-amz-checksum-xxhash128"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumXXHASH128 = ptr.String(headerValues[0])
+	}
+
+	if headerValues := response.Header.Values("x-amz-checksum-xxhash3"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumXXHASH3 = ptr.String(headerValues[0])
+	}
+
+	if headerValues := response.Header.Values("x-amz-checksum-xxhash64"); len(headerValues) != 0 {
+		headerValues[0] = strings.TrimSpace(headerValues[0])
+		v.ChecksumXXHASH64 = ptr.String(headerValues[0])
 	}
 
 	if headerValues := response.Header.Values("ETag"); len(headerValues) != 0 {
@@ -14076,7 +14341,7 @@ func (m *awsRestxml_deserializeOpWriteGetObjectResponse) HandleDeserialize(ctx c
 	output := &WriteGetObjectResponseOutput{}
 	out.Result = output
 
-	if _, err = io.Copy(ioutil.Discard, response.Body); err != nil {
+	if _, err = io.Copy(io.Discard, response.Body); err != nil {
 		return out, metadata, &smithy.DeserializationError{
 			Err: fmt.Errorf("failed to discard response body, %w", err),
 		}
@@ -14632,6 +14897,39 @@ func awsRestxml_deserializeDocumentStats(v **types.Stats, decoder smithyxml.Node
 	}
 	*v = sv
 	return nil
+}
+
+func awsRestxml_deserializeErrorAccessDenied(response *smithyhttp.Response, errorBody *bytes.Reader) error {
+	output := &types.AccessDenied{}
+	var buff [1024]byte
+	ringBuffer := smithyio.NewRingBuffer(buff[:])
+	body := io.TeeReader(errorBody, ringBuffer)
+	rootDecoder := xml.NewDecoder(body)
+	t, err := smithyxml.FetchRootElement(rootDecoder)
+	if err == io.EOF {
+		return output
+	}
+	if err != nil {
+		var snapshot bytes.Buffer
+		io.Copy(&snapshot, ringBuffer)
+		return &smithy.DeserializationError{
+			Err:      fmt.Errorf("failed to decode response body, %w", err),
+			Snapshot: snapshot.Bytes(),
+		}
+	}
+
+	decoder := smithyxml.WrapNodeDecoder(rootDecoder, t)
+	err = awsRestxml_deserializeDocumentAccessDenied(&output, decoder)
+	if err != nil {
+		var snapshot bytes.Buffer
+		io.Copy(&snapshot, ringBuffer)
+		return &smithy.DeserializationError{
+			Err:      fmt.Errorf("failed to decode response body, %w", err),
+			Snapshot: snapshot.Bytes(),
+		}
+	}
+
+	return output
 }
 
 func awsRestxml_deserializeErrorBucketAlreadyExists(response *smithyhttp.Response, errorBody *bytes.Reader) error {
@@ -15231,6 +15529,55 @@ func awsRestxml_deserializeDocumentAccessControlTranslation(v **types.AccessCont
 			{
 				xtv := string(val)
 				sv.Owner = types.OwnerOverride(xtv)
+			}
+
+		default:
+			// Do nothing and ignore the unexpected tag element
+			err = decoder.Decoder.Skip()
+			if err != nil {
+				return err
+			}
+
+		}
+		decoder = originalDecoder
+	}
+	*v = sv
+	return nil
+}
+
+func awsRestxml_deserializeDocumentAccessDenied(v **types.AccessDenied, decoder smithyxml.NodeDecoder) error {
+	if v == nil {
+		return fmt.Errorf("unexpected nil of type %T", v)
+	}
+	var sv *types.AccessDenied
+	if *v == nil {
+		sv = &types.AccessDenied{}
+	} else {
+		sv = *v
+	}
+
+	for {
+		t, done, err := decoder.Token()
+		if err != nil {
+			return err
+		}
+		if done {
+			break
+		}
+		originalDecoder := decoder
+		decoder = smithyxml.WrapNodeDecoder(originalDecoder.Decoder, t)
+		switch {
+		case strings.EqualFold("Message", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.Message = ptr.String(xtv)
 			}
 
 		default:
@@ -16233,6 +16580,19 @@ func awsRestxml_deserializeDocumentChecksum(v **types.Checksum, decoder smithyxm
 				sv.ChecksumCRC64NVME = ptr.String(xtv)
 			}
 
+		case strings.EqualFold("ChecksumMD5", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumMD5 = ptr.String(xtv)
+			}
+
 		case strings.EqualFold("ChecksumSHA1", t.Name.Local):
 			val, err := decoder.Value()
 			if err != nil {
@@ -16259,6 +16619,19 @@ func awsRestxml_deserializeDocumentChecksum(v **types.Checksum, decoder smithyxm
 				sv.ChecksumSHA256 = ptr.String(xtv)
 			}
 
+		case strings.EqualFold("ChecksumSHA512", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumSHA512 = ptr.String(xtv)
+			}
+
 		case strings.EqualFold("ChecksumType", t.Name.Local):
 			val, err := decoder.Value()
 			if err != nil {
@@ -16270,6 +16643,45 @@ func awsRestxml_deserializeDocumentChecksum(v **types.Checksum, decoder smithyxm
 			{
 				xtv := string(val)
 				sv.ChecksumType = types.ChecksumType(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH128", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH128 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH3", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH3 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH64", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH64 = ptr.String(xtv)
 			}
 
 		default:
@@ -16606,6 +17018,19 @@ func awsRestxml_deserializeDocumentCopyObjectResult(v **types.CopyObjectResult, 
 				sv.ChecksumCRC64NVME = ptr.String(xtv)
 			}
 
+		case strings.EqualFold("ChecksumMD5", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumMD5 = ptr.String(xtv)
+			}
+
 		case strings.EqualFold("ChecksumSHA1", t.Name.Local):
 			val, err := decoder.Value()
 			if err != nil {
@@ -16632,6 +17057,19 @@ func awsRestxml_deserializeDocumentCopyObjectResult(v **types.CopyObjectResult, 
 				sv.ChecksumSHA256 = ptr.String(xtv)
 			}
 
+		case strings.EqualFold("ChecksumSHA512", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumSHA512 = ptr.String(xtv)
+			}
+
 		case strings.EqualFold("ChecksumType", t.Name.Local):
 			val, err := decoder.Value()
 			if err != nil {
@@ -16643,6 +17081,45 @@ func awsRestxml_deserializeDocumentCopyObjectResult(v **types.CopyObjectResult, 
 			{
 				xtv := string(val)
 				sv.ChecksumType = types.ChecksumType(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH128", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH128 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH3", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH3 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH64", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH64 = ptr.String(xtv)
 			}
 
 		case strings.EqualFold("ETag", t.Name.Local):
@@ -16750,6 +17227,19 @@ func awsRestxml_deserializeDocumentCopyPartResult(v **types.CopyPartResult, deco
 				sv.ChecksumCRC64NVME = ptr.String(xtv)
 			}
 
+		case strings.EqualFold("ChecksumMD5", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumMD5 = ptr.String(xtv)
+			}
+
 		case strings.EqualFold("ChecksumSHA1", t.Name.Local):
 			val, err := decoder.Value()
 			if err != nil {
@@ -16774,6 +17264,58 @@ func awsRestxml_deserializeDocumentCopyPartResult(v **types.CopyPartResult, deco
 			{
 				xtv := string(val)
 				sv.ChecksumSHA256 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumSHA512", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumSHA512 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH128", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH128 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH3", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH3 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH64", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH64 = ptr.String(xtv)
 			}
 
 		case strings.EqualFold("ETag", t.Name.Local):
@@ -22513,6 +23055,19 @@ func awsRestxml_deserializeDocumentObjectPart(v **types.ObjectPart, decoder smit
 				sv.ChecksumCRC64NVME = ptr.String(xtv)
 			}
 
+		case strings.EqualFold("ChecksumMD5", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumMD5 = ptr.String(xtv)
+			}
+
 		case strings.EqualFold("ChecksumSHA1", t.Name.Local):
 			val, err := decoder.Value()
 			if err != nil {
@@ -22537,6 +23092,58 @@ func awsRestxml_deserializeDocumentObjectPart(v **types.ObjectPart, decoder smit
 			{
 				xtv := string(val)
 				sv.ChecksumSHA256 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumSHA512", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumSHA512 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH128", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH128 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH3", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH3 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH64", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH64 = ptr.String(xtv)
 			}
 
 		case strings.EqualFold("PartNumber", t.Name.Local):
@@ -23106,6 +23713,19 @@ func awsRestxml_deserializeDocumentPart(v **types.Part, decoder smithyxml.NodeDe
 				sv.ChecksumCRC64NVME = ptr.String(xtv)
 			}
 
+		case strings.EqualFold("ChecksumMD5", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumMD5 = ptr.String(xtv)
+			}
+
 		case strings.EqualFold("ChecksumSHA1", t.Name.Local):
 			val, err := decoder.Value()
 			if err != nil {
@@ -23130,6 +23750,58 @@ func awsRestxml_deserializeDocumentPart(v **types.Part, decoder smithyxml.NodeDe
 			{
 				xtv := string(val)
 				sv.ChecksumSHA256 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumSHA512", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumSHA512 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH128", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH128 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH3", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH3 = ptr.String(xtv)
+			}
+
+		case strings.EqualFold("ChecksumXXHASH64", t.Name.Local):
+			val, err := decoder.Value()
+			if err != nil {
+				return err
+			}
+			if val == nil {
+				break
+			}
+			{
+				xtv := string(val)
+				sv.ChecksumXXHASH64 = ptr.String(xtv)
 			}
 
 		case strings.EqualFold("ETag", t.Name.Local):

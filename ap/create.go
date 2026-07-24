@@ -7,7 +7,7 @@ import (
 )
 
 // NewCreateActivity returns a new `Activity` instance of type "Create".
-func NewCreateActivity(ctx context.Context, uris_table *uris.URIs, from string, to []string, object interface{}) (*Activity, error) {
+func NewCreateActivity(ctx context.Context, uris_table *uris.URIs, from string, to []string, object any) (*Activity, error) {
 
 	ap_id := NewId(uris_table, "create")
 

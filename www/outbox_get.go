@@ -80,7 +80,7 @@ func OutboxGetHandler(opts *OutboxGetHandlerOptions) (http.Handler, error) {
 		outbox_url := acct.OutboxURL(ctx, opts.URIs)
 
 		col := &ap.OrderedCollection{
-			Context: []interface{}{
+			Context: []any{
 				"https://www.w3.org/ns/activitystreams",
 			},
 			Id:         outbox_url.String(),

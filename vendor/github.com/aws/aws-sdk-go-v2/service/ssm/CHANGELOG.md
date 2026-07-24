@@ -1,3 +1,62 @@
+# v1.69.2 (2026-06-04)
+
+* **Dependency Update**: Update to smithy-go v1.27.1 to fix several union-related deserialization bugs in schema-serde-enabled services.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.69.1 (2026-06-03)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.69.0 (2026-06-02)
+
+* **Feature**: Adding new BDD representation of endpoint ruleset
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.68.8 (2026-05-29)
+
+* **Dependency Update**: Update to smithy-go v1.26.0.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.68.7 (2026-05-28)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.68.6 (2026-04-29)
+
+* **Dependency Update**: Update to smithy-go v1.25.1.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.68.5 (2026-04-17)
+
+* **Dependency Update**: Bump smithy-go to 1.25.0 to support endpointBdd trait
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.68.4 (2026-03-26)
+
+* **Bug Fix**: Fix a bug where a recorded clock skew could persist on the client even if the client and server clock ended up realigning.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.68.3 (2026-03-13)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.68.2 (2026-03-03)
+
+* **Dependency Update**: Bump minimum Go version to 1.24
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.68.1 (2026-02-23)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.68.0 (2026-02-20)
+
+* **Feature**: Add support for AssociationDispatchAssumeRole in AWS SSM State Manager.
+
+# v1.67.8 (2026-01-09)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
 # v1.67.7 (2025-12-09)
 
 * No change notes available for this release.

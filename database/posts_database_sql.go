@@ -172,7 +172,7 @@ func (db *SQLPostsDatabase) GetPostWithId(ctx context.Context, id int64) (*activ
 	return db.getPost(ctx, where, id)
 }
 
-func (db *SQLPostsDatabase) getPost(ctx context.Context, where string, args ...interface{}) (*activitypub.Post, error) {
+func (db *SQLPostsDatabase) getPost(ctx context.Context, where string, args ...any) (*activitypub.Post, error) {
 
 	var id int64
 	var account_id int64

@@ -166,7 +166,7 @@ func (db *SQLBlocksDatabase) GetBlockWithAccountIdAndAddress(ctx context.Context
 
 }
 
-func (db *SQLBlocksDatabase) getBlock(ctx context.Context, where string, args ...interface{}) (*activitypub.Block, error) {
+func (db *SQLBlocksDatabase) getBlock(ctx context.Context, where string, args ...any) (*activitypub.Block, error) {
 
 	q := fmt.Sprintf("SELECT id, account_id, name, host, created, lastmodified FROM %s WHERE %s", SQL_BLOCKS_TABLE_NAME, where)
 	row := db.database.QueryRowContext(ctx, q, args...)

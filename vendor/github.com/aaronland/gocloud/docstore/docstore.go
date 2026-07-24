@@ -67,13 +67,13 @@ func OpenCollection(ctx context.Context, uri string) (*docstore.Collection, erro
 			if v != nil {
 
 				switch v.(type) {
-				case func() interface{}:
+				case func() any:
 					// pass
 				default:
 					return nil, fmt.Errorf("Invalid fallback func %T", v)
 				}
 
-				fn := v.(func() interface{})
+				fn := v.(func() any)
 
 				fallback_func := awsdynamodb.InMemorySortFallback(fn)
 				col_opts.RunQueryFallback = fallback_func
